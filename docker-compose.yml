@@ -1,0 +1,23 @@
+services:
+  frontend:
+    container_name: react
+    build: ./frontend/
+    ports:
+      - 3000:3000
+    volumes:
+      - ./frontend/src:/code/src
+      #    depends_on:
+      #- backend
+        #    env_file:
+        #      - .env
+        #  backend:
+        #    container_name: nestjs
+        #    build: ./backend/
+        #    depends_on:
+        #      - database
+        #    env_file:
+        #      - .env
+        #  db:
+        #    image: postgres:15.4-alpine
+        #    env_file:
+        #      - .env
