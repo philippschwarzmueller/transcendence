@@ -1,10 +1,14 @@
 import React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import logo from './logo.svg';
 import './App.css';
 
 const App: React.FC = () => {
   let [counter, setCounter] = useState(0);
+  let [welcomeMessage, setWelcomeMessage] = useState("");
+  useEffect(() => {
+    fetch("http://localhost:4000").then((res) => res.text()).then((text) => setWelcomeMessage(text));
+  }, [])
   return (
     <div className="App">
       <header className="App-header">
@@ -22,6 +26,7 @@ const App: React.FC = () => {
         </a>
         <span>{counter}</span>
         <button onClick={(event: any) => setCounter(counter + 1)}>Increase</button>
+        <h1>{welcomeMessage}</h1>
       </header>
     </div>
   );

@@ -2,10 +2,21 @@ services:
   frontend:
     container_name: react
     build: ./frontend/
+    networks:
+      - client-side
     ports:
       - 3000:3000
     volumes:
-      - ./frontend/src:/code/src
+      - ./frontend:/code
+  backend:
+    container_name: nest
+    build: ./backend/
+    networks:
+      - client-side
+    ports:
+      - 4000:4000
+    volumes:
+      - ./backend:/code
       #    depends_on:
       #- backend
         #    env_file:
@@ -21,3 +32,5 @@ services:
         #    image: postgres:15.4-alpine
         #    env_file:
         #      - .env
+networks:
+  client-side: {}
