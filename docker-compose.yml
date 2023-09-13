@@ -21,13 +21,25 @@ services:
   db:
     image: postgres:15.4-alpine
     environment:
+      - POSTGRES_USER=root
       - POSTGRES_PASSWORD=testpwd
+      - POSTGRES_DB=transcendence
     networks:
       - server-side
     ports:
       - 5432:5432
     volumes:
       - db-data:/var/lib/postgresql/data
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=root
+    ports:
+      - 5050:80
+    networks:
+      - server-side
 
 networks:
   client-side: {}
