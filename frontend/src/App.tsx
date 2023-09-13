@@ -16,9 +16,6 @@ const App: React.FC = () => {
     <div className="App">
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>frontend/src/App.tsx</code> and save to reload.
-        </p>
         <a
           className="App-link"
           href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
@@ -28,7 +25,11 @@ const App: React.FC = () => {
           Learn React with me
         </a>
         <span>{counter}</span>
-        <button onClick={(event: any) => setCounter(counter + 1)}>
+        <button
+          onClick={(event: React.MouseEvent<HTMLButtonElement>) =>
+            setCounter(counter + 1)
+          }
+        >
           Increase
         </button>
         <h1>{welcomeMessage}</h1>
