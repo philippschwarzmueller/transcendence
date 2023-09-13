@@ -2,16 +2,25 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./index.css";
+import Root from "./routes/root";
 import App from "./App";
+import ErrorPage from "./routes/error-page";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <App />,
-  },
-  {
-    path: "/congrats",
-    element: <div>Congrats on surviving webserv</div>,
+    element: <Root />,
+    errorElement: <ErrorPage />,
+    children: [
+      {
+        path: "/react-basics",
+        element: <App />,
+      },
+      {
+        path: "/congrats",
+        element: <div>Congrats on surviving webserv</div>,
+      },
+    ],
   },
 ]);
 
