@@ -1,7 +1,7 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import logo from "./logo.svg";
 import "./App.css";
+import Button from "./components/button";
 
 const App: React.FC = () => {
   let [counter, setCounter] = useState(0);
@@ -15,7 +15,6 @@ const App: React.FC = () => {
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
         <a
           className="App-link"
           href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
@@ -25,14 +24,14 @@ const App: React.FC = () => {
           Learn React with me
         </a>
         <span>{counter}</span>
-        <button
-          onClick={(event: React.MouseEvent<HTMLButtonElement>) =>
-            setCounter(counter + 1)
-          }
+        <Button
+          style={{ height: 40, width: 80 }}
+          onClick={() => setCounter(counter + 1)}
         >
-          Increase
-        </button>
+          Increment
+        </Button>
         <h1>{welcomeMessage}</h1>
+        <Button onClick={() => window.alert("hello")}>say hello</Button>
         <input
           value={name}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
