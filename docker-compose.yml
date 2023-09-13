@@ -13,24 +13,25 @@ services:
     build: ./backend/
     networks:
       - client-side
+      - server-side
     ports:
       - 4000:4000
     volumes:
       - ./backend:/code
-      #    depends_on:
-      #- backend
-        #    env_file:
-        #      - .env
-        #  backend:
-        #    container_name: nestjs
-        #    build: ./backend/
-        #    depends_on:
-        #      - database
-        #    env_file:
-        #      - .env
-        #  db:
-        #    image: postgres:15.4-alpine
-        #    env_file:
-        #      - .env
+  db:
+    image: postgres:15.4-alpine
+    environment:
+      - POSTGRES_PASSWORD=testpwd
+    networks:
+      - server-side
+    ports:
+      - 5432:5432
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
 networks:
   client-side: {}
+  server-side: {}
+
+volumes:
+  db-data: {}
