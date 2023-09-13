@@ -6,11 +6,12 @@ import "./App.css";
 const App: React.FC = () => {
   let [counter, setCounter] = useState(0);
   let [welcomeMessage, setWelcomeMessage] = useState("");
+  let [name, setName] = useState("");
   useEffect(() => {
-    fetch("http://localhost:4000")
+    fetch(`http://localhost:4000/hello/${name}`)
       .then((res) => res.text())
       .then((text) => setWelcomeMessage(text));
-  }, []);
+  }, [name]);
   return (
     <div className="App">
       <header className="App-header">
@@ -31,6 +32,12 @@ const App: React.FC = () => {
           Increase
         </button>
         <h1>{welcomeMessage}</h1>
+        <input
+          value={name}
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+            setName(event.target.value);
+          }}
+        ></input>
       </header>
     </div>
   );
