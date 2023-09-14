@@ -2,6 +2,7 @@ import React from "react";
 import { useState, useEffect } from "react";
 import Button from "../components/button";
 import Input from "../components/input";
+import Nav from "../components/nav";
 
 const Home: React.FC = () => {
   let [counter, setCounter] = useState(0);
@@ -14,6 +15,7 @@ const Home: React.FC = () => {
   }, [name]);
   return (
     <>
+      <Nav />
       <h1>We home man</h1>
       <div>
         <Input value={counter} disabled style={{width: "20px"}}></Input>
