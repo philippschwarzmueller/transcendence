@@ -7,7 +7,10 @@ const Root: React.FC = () => {
       <nav style={{ width: "100%" }}>
         <ul style={{ listStyle: "none", display: "inline-flex" }}>
           <li style={{ padding: 10 }}>
-            <Link to={"/react-basics"}>Home</Link>
+            <Link to={"/home"}>Home</Link>
+          </li>
+          <li style={{ padding: 10 }}>
+            <Link to={"/react-basics"}>React basics</Link>
           </li>
           <li style={{ padding: 10 }}>
             <Link to={"/congrats"}>Congrats</Link>
