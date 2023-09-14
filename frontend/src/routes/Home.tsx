@@ -1,6 +1,7 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import Button from "../components/button";
+import Input from "../components/input";
 
 const Home: React.FC = () => {
   let [counter, setCounter] = useState(0);
@@ -15,7 +16,7 @@ const Home: React.FC = () => {
     <>
       <h1>We home man</h1>
       <div>
-        <span>{counter}</span>
+        <Input value={counter} disabled style={{width: "20px"}}></Input>
         <Button
           style={{ height: 40, width: 80 }}
           onClick={() => setCounter(counter + 1)}
@@ -24,12 +25,12 @@ const Home: React.FC = () => {
         </Button>
         <h1>{welcomeMessage}</h1>
         <Button onClick={() => window.alert("hello")}>say hello</Button>
-        <input
+        <Input
           value={name}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
             setName(event.target.value);
           }}
-        ></input>
+        ></Input>
       </div>
     </>
   );
