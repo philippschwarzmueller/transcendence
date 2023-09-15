@@ -1,7 +1,7 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import "./App.css";
 import Button from "../components/button";
+import Form from "../components/form";
 
 const App: React.FC = () => {
   let [counter, setCounter] = useState(0);
@@ -14,32 +14,30 @@ const App: React.FC = () => {
   }, [name]);
   return (
     <>
-      <div className="App">
-        <header className="App-header">
-          <a
-            className="App-link"
-            href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React with me
-          </a>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-evenly",
+          alignItems: "center",
+          height: "95vh",
+          backgroundColor: "rgb(85, 170, 170)"
+        }}
+      >
+        <Form>
           <span>{counter}</span>
-          <Button
-            style={{ height: 40, width: 80 }}
-            onClick={() => setCounter(counter + 1)}
-          >
-            Increment
-          </Button>
-          <h1>{welcomeMessage}</h1>
-          <Button onClick={() => window.alert("hello")}>say hello</Button>
+          <Button onClick={() => setCounter(counter + 1)}>Increment</Button>
+        </Form>
+        <h1>{welcomeMessage}</h1>
+        <Form>
           <input
             value={name}
             onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
               setName(event.target.value);
             }}
           ></input>
-        </header>
+          <Button onClick={() => window.alert("hello")}>say hello</Button>
+        </Form>
       </div>
     </>
   );

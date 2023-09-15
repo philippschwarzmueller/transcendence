@@ -9,6 +9,7 @@ const StyledNavbar = styled.nav`
     right: 0px;
     -webkit-box-pack: justify;
     width: 100vw;
+    height: 5vh;
     z-index: 2;
     background-color: rgb(195, 199, 203);
     --x-shadow: inset 0.5px 0.5px 0px 0.5px #ffffff,

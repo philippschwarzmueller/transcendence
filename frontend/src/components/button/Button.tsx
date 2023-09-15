@@ -5,6 +5,7 @@ const Button = styled.button`
   padding: 7 20 5;
   border: none;
   color: materialText;
+  cursor: pointer;
 
   font-size: 12px;
 
