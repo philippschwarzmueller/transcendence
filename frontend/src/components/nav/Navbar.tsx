@@ -43,10 +43,13 @@ const Navbar: React.FC = () => {
             <StyledLink to={"/home"}>Home</StyledLink>
           </StyledLi>
           <StyledLi style={{ padding: 10 }}>
-            <StyledLink to={"/react-basics"}>React basics</StyledLink>
+            <StyledLink to={"/play"}>Play</StyledLink>
           </StyledLi>
           <StyledLi style={{ padding: 10 }}>
-            <StyledLink to={"/congrats"}>Congrats</StyledLink>
+            <StyledLink to={"/chat"}>Chat</StyledLink>
+          </StyledLi>
+          <StyledLi style={{ padding: 10 }}>
+            <StyledLink to={"/react-basics"}>React basics</StyledLink>
           </StyledLi>
         </ul>
     </StyledNavbar>

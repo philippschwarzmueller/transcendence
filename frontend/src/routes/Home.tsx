@@ -1,38 +1,43 @@
 import React from "react";
-import { useState, useEffect } from "react";
 import Button from "../components/button";
-import Input from "../components/input";
 import Nav from "../components/nav";
 
+const lastMatches: string[] = [
+  "Win against A",
+  "Win against A",
+  "Loss against A",
+];
+const onlineFriends: string[] = [
+  "pschwarz",
+  "mgraefen"
+]
+
 const Home: React.FC = () => {
-  let [counter, setCounter] = useState(0);
-  let [welcomeMessage, setWelcomeMessage] = useState("");
-  let [name, setName] = useState("");
-  useEffect(() => {
-    fetch(`http://localhost:4000/hello/${name}`)
-      .then((res) => res.text())
-      .then((text) => setWelcomeMessage(text));
-  }, [name]);
   return (
     <>
       <Nav />
-      <h1>We home man</h1>
+      <h1>Welcome to WinPong</h1>
       <div>
-        <Input value={counter} disabled style={{width: "20px"}}></Input>
-        <Button
-          style={{ height: 40, width: 80 }}
-          onClick={() => setCounter(counter + 1)}
-        >
-          Increment
-        </Button>
-        <h1>{welcomeMessage}</h1>
-        <Button onClick={() => window.alert("hello")}>say hello</Button>
-        <Input
-          value={name}
-          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-            setName(event.target.value);
-          }}
-        ></Input>
+        <div>
+          <h2>Quickplay</h2>
+          <Button>Search match</Button>
+        </div>
+        <div>
+          <h2>Last matches</h2>
+          <ul>
+            {lastMatches.map((match: string) => {
+              return <li>{match}</li>;
+            })}
+          </ul>
+        </div>
+        <div>
+          <h2>Online Friends</h2>
+          <ul>
+            {onlineFriends.map((friend: string) => {
+              return <li>{friend}</li>;
+            })}
+          </ul>
+        </div>
       </div>
     </>
   );
