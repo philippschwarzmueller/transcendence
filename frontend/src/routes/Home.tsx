@@ -1,6 +1,5 @@
 import React from "react";
 import Button from "../components/button";
-import Nav from "../components/nav";
 
 const lastMatches: string[] = [
   "Win against A",
@@ -15,7 +14,6 @@ const onlineFriends: string[] = [
 const Home: React.FC = () => {
   return (
     <>
-      <Nav />
       <h1>Welcome to WinPong</h1>
       <div>
         <div>

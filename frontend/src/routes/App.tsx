@@ -2,7 +2,6 @@ import React from "react";
 import { useState, useEffect } from "react";
 import "./App.css";
 import Button from "../components/button";
-import Navbar from "../components/nav";
 
 const App: React.FC = () => {
   let [counter, setCounter] = useState(0);
@@ -15,7 +14,6 @@ const App: React.FC = () => {
   }, [name]);
   return (
     <>
-      <Navbar />
       <div className="App">
         <header className="App-header">
           <a
