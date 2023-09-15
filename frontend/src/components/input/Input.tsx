@@ -1,6 +1,7 @@
+import { InputHTMLAttributes } from 'react';
 import styled from 'styled-components';
 
-const Input = styled.input`
+const StyledInput = styled.input`
   outline: none;
   border: none;
   cursor: text;
@@ -29,5 +30,21 @@ const Input = styled.input`
 
   -webkit-appearance: none;
 `;
+
+const StyledLabel = styled.label`
+`;
+
+export interface IInputProps extends InputHTMLAttributes<HTMLInputElement>{
+  label?: string;
+}
+
+const Input: React.FC<IInputProps> = ({label, ...inherited}) => {
+  return (
+    <div>
+      <StyledLabel htmlFor={label}>{label}:</StyledLabel>
+      <StyledInput id={label} {...inherited}></StyledInput>
+    </div>
+  )
+}
 
 export default Input;
