@@ -21,12 +21,19 @@ const App: React.FC = () => {
           justifyContent: "space-evenly",
           alignItems: "center",
           height: "95vh",
-          backgroundColor: "rgb(85, 170, 170)"
+          backgroundColor: "rgb(85, 170, 170)",
         }}
       >
         <Form>
           <span>{counter}</span>
-          <Button onClick={() => setCounter(counter + 1)}>Increment</Button>
+          <Button
+            onClick={(event: React.MouseEvent) => {
+              setCounter(counter + 1);
+              event.preventDefault();
+            }}
+          >
+            Increment
+          </Button>
         </Form>
         <h1>{welcomeMessage}</h1>
         <Form>
@@ -34,9 +41,17 @@ const App: React.FC = () => {
             value={name}
             onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
               setName(event.target.value);
+              event.preventDefault();
             }}
           ></input>
-          <Button onClick={() => window.alert("hello")}>say hello</Button>
+          <Button
+            onClick={(event: React.MouseEvent) => {
+              window.alert("hello");
+              event.preventDefault();
+            }}
+          >
+            say hello
+          </Button>
         </Form>
       </div>
     </>
