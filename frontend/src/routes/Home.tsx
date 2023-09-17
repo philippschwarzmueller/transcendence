@@ -30,7 +30,6 @@ const Home: React.FC = () => {
   }
   let [user, setUser] = useState(null);
   function handleSubmit(event: React.MouseEvent) {
-    console.log(input);
     fetch("http://localhost:4000/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
