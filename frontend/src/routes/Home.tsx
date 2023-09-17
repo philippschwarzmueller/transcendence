@@ -1,4 +1,5 @@
 import React from "react";
+import { useState } from "react";
 import Button from "../components/button";
 import Form from "../components/form";
 import Input from "../components/input";
@@ -10,7 +11,36 @@ const lastMatches: string[] = [
 ];
 const onlineFriends: string[] = ["pschwarz", "mgraefen"];
 
+export interface fielddata {
+  username: string | null;
+  password: string | null;
+}
+
 const Home: React.FC = () => {
+  let [input, setInput] = React.useState<fielddata>({
+    username: "",
+    password: "",
+  } as fielddata);
+  function inputHandler(event: React.ChangeEvent<HTMLInputElement>) {
+    if (event.target.id === "username") {
+      setInput({ ...input, username: event.target.value });
+    } else if (event.target.id === "password") {
+      setInput({ ...input, password: event.target.value });
+    }
+  }
+  let [user, setUser] = useState(null);
+  function handleSubmit(event: React.MouseEvent) {
+    console.log(input);
+    fetch("http://localhost:4000/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    })
+      .then((res) => res.text())
+      .then((txt) => JSON.parse(txt))
+      .then((obj) => setUser(obj));
+    event.preventDefault();
+  }
   return (
     <>
       <div
@@ -24,10 +54,25 @@ const Home: React.FC = () => {
         }}
       >
         <h1>Welcome to WinPong</h1>
+        {user ? <p>logged in</p> : <p>logged out</p>}
         <Form>
-          <Input label="username" type="text"></Input>
-          <Input label="password" type="password"></Input>
-          <Button>Create Account</Button>
+          <Input
+            label="username"
+            type="text"
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+              inputHandler(event)
+            }
+          ></Input>
+          <Input
+            label="password"
+            type="password"
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+              inputHandler(event)
+            }
+          ></Input>
+          <Button onClick={(event: React.MouseEvent) => handleSubmit(event)}>
+            Login
+          </Button>
         </Form>
         <div>
           <div>
