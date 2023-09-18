@@ -37,7 +37,12 @@ const Home: React.FC = () => {
     })
       .then((res) => res.text())
       .then((txt) => JSON.parse(txt))
-      .then((obj) => setUser(obj));
+      .then((obj) => {
+        if (obj.username) {
+          setUser(obj);
+        }
+        console.log(obj);
+      });
     event.preventDefault();
   }
   return (
