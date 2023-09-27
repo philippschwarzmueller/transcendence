@@ -1,7 +1,9 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { GreetingService } from './app.service';
+import { UsersModule } from './users/users.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from './users/user.entity';
 
 @Module({
   imports: [
@@ -9,12 +11,13 @@ import { GreetingService } from './app.service';
       type: 'postgres',
       host: 'db',
       port: 5432,
-      username: 'postgres',
+      username: 'root',
       password: 'testpwd',
-      database: 'postgres',
-      //entities: [User],
-      synchronize: true
+      database: 'transcendence',
+      entities: [User],
+      synchronize: true,
     }),
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [GreetingService],

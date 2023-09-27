@@ -4,7 +4,9 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./index.css";
 import Root from "./routes/root";
 import Home from "./routes/Home";
-import App from "./App";
+import Chat from "./routes/Chat";
+import Game from "./routes/Game";
+import App from "./routes/App";
 import ErrorPage from "./routes/error-page";
 
 const router = createBrowserRouter([
@@ -18,12 +20,16 @@ const router = createBrowserRouter([
         element: <Home />,
       },
       {
-        path: "/react-basics",
-        element: <App />,
+        path: "/play",
+        element: <Game />,
       },
       {
-        path: "/congrats",
-        element: <div>Congrats on surviving webserv</div>,
+        path: "/chat",
+        element: <Chat />,
+      },
+      {
+        path: "/react-basics",
+        element: <App />,
       },
     ],
   },
