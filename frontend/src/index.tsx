@@ -9,6 +9,8 @@ import Game from "./routes/Game";
 import App from "./routes/App";
 import ErrorPage from "./routes/error-page";
 import Register from "./routes/Register";
+import Profile from "./routes/Profile";
+import ProfileSettings from "./routes/ProfileSettings";
 
 const router = createBrowserRouter([
   {
@@ -35,6 +37,14 @@ const router = createBrowserRouter([
 			{
         path: "/signup",
         element: <Register />,
+			},
+			{
+        path: "/profile",
+        element: <Profile />,
+      },
+      {
+        path: "/profile/settings",
+        element: <ProfileSettings />,
       },
     ],
   },
