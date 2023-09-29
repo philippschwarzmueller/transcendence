@@ -7,4 +7,5 @@ RUN npm ci
 COPY . /code
 EXPOSE 4000
 
+#CMD ["sleep", "infinity"]
 CMD ["npm", "run", "start:dev"]
