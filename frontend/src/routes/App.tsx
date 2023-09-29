@@ -21,7 +21,7 @@ const App: React.FC = () => {
           justifyContent: "space-evenly",
           alignItems: "center",
           height: "95vh",
-          backgroundColor: "rgb(85, 170, 170)",
+          //backgroundColor: "rgb(85, 170, 170)",
         }}
       >
         <Form>

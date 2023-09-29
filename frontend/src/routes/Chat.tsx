@@ -1,9 +1,10 @@
 import React from "react";
+import Pagetitle from "../components/pagetitle/Pagetitle";
 
 const Chat: React.FC = () => {
   return (
     <>
-      <h1>Chat</h1>
+      <Pagetitle>Chat</Pagetitle>
     </>
   );
 };

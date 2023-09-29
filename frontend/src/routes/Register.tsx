@@ -3,10 +3,14 @@ import Button from "../components/button";
 import Input from "../components/input";
 import Form from "../components/form";
 import Pagetitle from "../components/pagetitle";
+import GlobalStyle from "./GlobalStyle";
 
 //const StyledRegister = styled.register'';
 
 const Register: React.FC = () => {
+	function handleSubmit(event: React.MouseEvent) {
+    event.preventDefault();
+  }
   return (
     <>
       <Pagetitle>Signup for your Account</Pagetitle>
@@ -17,11 +21,11 @@ const Register: React.FC = () => {
           placeholder="Max Mustermann"
         ></Input>
         <Input
+					type="password"
           label="Password"
-          type="string"
-          placeholder="SuperSave Password"
+          placeholder="Super Safe Password"
         ></Input>
-        <Button>Signup</Button>
+        <Button onClick={(event: React.MouseEvent) => handleSubmit(event)}>Signup</Button>
       </Form>
     </>
   );
