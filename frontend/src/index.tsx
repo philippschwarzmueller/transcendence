@@ -8,6 +8,8 @@ import Chat from "./routes/Chat";
 import Game from "./routes/Game";
 import App from "./routes/App";
 import ErrorPage from "./routes/error-page";
+import Profile from "./routes/Profile";
+import ProfileSettings from "./routes/ProfileSettings";
 
 const router = createBrowserRouter([
   {
@@ -30,6 +32,14 @@ const router = createBrowserRouter([
       {
         path: "/react-basics",
         element: <App />,
+      },
+      {
+        path: "/profile",
+        element: <Profile />,
+      },
+      {
+        path: "/profile/settings",
+        element: <ProfileSettings />,
       },
     ],
   },
