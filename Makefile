@@ -15,7 +15,7 @@ re:
 
 #run, dont build
 run:
-	docker-compose -f $(COMPOSE) up -d
+	docker-compose -f $(COMPOSE) up
 
 #take down
 down:
