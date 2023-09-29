@@ -6,7 +6,7 @@ all: up
 
 #build and run
 up: $(REDIRECT)
-	docker-compose -f $(COMPOSE) up -d --build
+	docker-compose -f $(COMPOSE) up --build
 
 #take down, build and run
 re:
@@ -15,7 +15,7 @@ re:
 
 #run, dont build
 run:
-	docker-compose -f $(COMPOSE) up -d
+	docker-compose -f $(COMPOSE) up
 
 #take down
 down:
