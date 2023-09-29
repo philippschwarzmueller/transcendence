@@ -8,7 +8,7 @@ import Chat from "./routes/Chat";
 import Game from "./routes/Game";
 import App from "./routes/App";
 import ErrorPage from "./routes/error-page";
-import Register from "./routes/Register";
+import Register from "./routes/SignUp";
 import Profile from "./routes/Profile";
 import ProfileSettings from "./routes/ProfileSettings";
 
