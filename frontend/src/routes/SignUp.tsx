@@ -4,7 +4,7 @@ import Input from "../components/input";
 import Form from "../components/form";
 import Pagetitle from "../components/pagetitle";
 
-const Register: React.FC = () => {
+const SignUp: React.FC = () => {
   function handleSubmit(event: React.MouseEvent) {
     event.preventDefault();
   }
@@ -30,4 +30,4 @@ const Register: React.FC = () => {
   );
 };
 
-export default Register;
+export default SignUp;
