@@ -3,7 +3,7 @@ import { useState } from "react";
 import Button from "../components/button";
 import Form from "../components/form";
 import Input from "../components/input";
-import Pagetitle from "../components/pagetitle/Pagetitle";
+import Pagetitle from "../components/pagetitle/";
 
 const lastMatches: string[] = [
   "Win against A",

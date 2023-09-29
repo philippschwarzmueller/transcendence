@@ -34,11 +34,11 @@ const router = createBrowserRouter([
         path: "/react-basics",
         element: <App />,
       },
-			{
+      {
         path: "/signup",
         element: <Register />,
-			},
-			{
+      },
+      {
         path: "/profile",
         element: <Profile />,
       },

@@ -21,6 +21,7 @@ const App: React.FC = () => {
           justifyContent: "space-evenly",
           alignItems: "center",
           height: "95vh",
+          //for now via background component:
           //backgroundColor: "rgb(85, 170, 170)",
         }}
       >
