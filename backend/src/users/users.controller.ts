@@ -1,4 +1,11 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpException,
+  HttpStatus,
+  Post,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './user.entity';
@@ -12,6 +19,17 @@ export class UsersController {
   }
   @Post()
   async create(@Body() createUserDto: CreateUserDto) {
-    this.usersService.create(createUserDto);
+    try {
+      this.usersService.create(createUserDto);
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.CONFLICT,
+          error: 'User exists already',
+        },
+        HttpStatus.CONFLICT,
+        { cause: error },
+      );
+    }
   }
 }

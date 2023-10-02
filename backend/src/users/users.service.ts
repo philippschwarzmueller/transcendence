@@ -12,7 +12,11 @@ export class UsersService {
   ) {}
 
   create(user: CreateUserDto) {
-    this.usersRepository.save(user);
+    if (!this.usersRepository.find()) {
+      this.usersRepository.save(user);
+    } else {
+      throw new Error('User exists');
+    }
   }
 
   findAll(): Promise<User[]> {
