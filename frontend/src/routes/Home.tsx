@@ -3,6 +3,7 @@ import { useState } from "react";
 import Button from "../components/button";
 import Form from "../components/form";
 import Input from "../components/input";
+import Spinner from "../components/spinner";
 
 const lastMatches: string[] = [
   "Win against A",
@@ -47,6 +48,7 @@ const Home: React.FC = () => {
   }
   return (
     <>
+      <Spinner />
       <div
         style={{
           display: "flex",
