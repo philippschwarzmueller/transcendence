@@ -1,59 +1,81 @@
-import React from "react";
-
-import { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 
 interface IGameWindow {
   width: number;
   height: number;
 }
 
-function check(e: any) {
-  var code = e.keyCode;
-  switch (code) {
-    case 37:
-      alert("Left");
-      break; //Left key
-    case 38:
-      alert("Up");
-      break; //Up key
-    case 39:
-      alert("Right");
-      break; //Right key
-    case 40:
-      alert("Down");
-      break; //Down key
-    default:
-      alert(code); //Everything else
-  }
+interface IPaddle {
+  side: string;
 }
+
+interface IKeyState {
+  up: boolean;
+  down: boolean;
+}
+
+const Paddle: React.FC<IPaddle> = (props: IPaddle) => {
+  return (
+    <>
+      <p>test</p>
+    </>
+  );
+};
 
 const GameWindow: React.FC<IGameWindow> = (props: IGameWindow) => {
   const containerStyles = {
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    height: "100vh",
   };
 
-  let root = document.getElementById("root");
   const canvasRef: any = useRef<HTMLCanvasElement | null>(null);
+  let [y, setY] = useState(320);
+  let [old_y, setOld_y] = useState(320);
+  let keyState: IKeyState = { down: false, up: false };
+
+  const GameLoop: any = (keyState: IKeyState) => {
+    if (keyState?.down === true) setY((y) => y + 5);
+    else if (keyState?.up === true) setY((y) => y - 5);
+  };
+
   useEffect(() => {
     const canvas: HTMLCanvasElement = canvasRef?.current;
     canvas.focus();
-    // canvas.focus();
+    const context: CanvasRenderingContext2D =
+      canvasRef?.current?.getContext("2d");
+    const framerate: number = 1000 / 30;
+    window.addEventListener(
+      "keydown",
+      function (e) {
+        if (e.key === "ArrowUp") keyState.up = true;
+        if (e.key === "ArrowDown") keyState.down = true;
+      },
+      true
+    );
+    window.addEventListener(
+      "keyup",
+      function (e) {
+        if (e.key === "ArrowUp") keyState.up = false;
+        if (e.key === "ArrowDown") keyState.down = false;
+      },
+      true
+    );
+    const interval = setInterval(() => {
+      GameLoop(keyState);
+    }, framerate);
+  }, []);
+
+  useEffect(() => {
+    const canvas: HTMLCanvasElement = canvasRef?.current;
+    canvas.focus();
     const context: CanvasRenderingContext2D =
       canvasRef?.current?.getContext("2d");
 
-    context.fillStyle = "red";
-    context.fillRect(0, 0, props.width, props.height);
-
-    //   root?.addEventListener("keypress", )
-    canvas?.addEventListener("keydown", () => {
-      //   context.fillStyle = "blue";
-      //   context.fillRect(0, 0, props.width, props.height);
-      context.moveTo(200, 200);
-    });
-  }, []);
+    context.clearRect(0, old_y - props.height / 2, props.width, props.height);
+    context.fillRect(0, y - props.height / 2, props.width, props.height);
+    setOld_y(y);
+  }, [y]);
 
   return (
     <>
@@ -76,9 +98,9 @@ const Game: React.FC = () => {
   return (
     <>
       <h1>This is the title</h1>
-      <body>
-        <GameWindow width={100} height={100}></GameWindow>
-      </body>
+      <div>
+        <GameWindow width={20} height={100}></GameWindow>
+      </div>
     </>
   );
 };
