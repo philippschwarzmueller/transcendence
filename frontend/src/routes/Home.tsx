@@ -4,6 +4,7 @@ import Button from "../components/button";
 import Form from "../components/form";
 import Input from "../components/input";
 import Spinner from "../components/spinner";
+import Pagetitle from "../components/pagetitle/";
 
 const lastMatches: string[] = [
   "Win against A",
@@ -56,10 +57,10 @@ const Home: React.FC = () => {
           justifyContent: "space-evenly",
           alignItems: "center",
           height: "95vh",
-          backgroundColor: "rgb(85, 170, 170)",
+          //backgroundColor: "rgb(85, 170, 170)",
         }}
       >
-        <h1>Welcome to WinPong</h1>
+        <Pagetitle>Welcome to WinPong</Pagetitle>
         {user ? <p>logged in</p> : <p>logged out</p>}
         <Form>
           <Input

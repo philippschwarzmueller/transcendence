@@ -45,6 +45,9 @@ const Navbar: React.FC = () => {
         <StyledLi style={{ padding: 10 }}>
           <StyledLink to={"/react-basics"}>React basics</StyledLink>
         </StyledLi>
+        <StyledLi style={{ padding: 10 }}>
+          <StyledLink to={"/signup"}>Signup</StyledLink>
+        </StyledLi>
         <StyledLi>
           <div>
             <Button>Log Out</Button>

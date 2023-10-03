@@ -8,6 +8,7 @@ import Chat from "./routes/Chat";
 import Game from "./routes/Game";
 import App from "./routes/App";
 import ErrorPage from "./routes/error-page";
+import SignUp from "./routes/SignUp";
 import Profile from "./routes/Profile";
 import ProfileSettings from "./routes/ProfileSettings";
 
@@ -32,6 +33,10 @@ const router = createBrowserRouter([
       {
         path: "/react-basics",
         element: <App />,
+      },
+      {
+        path: "/signup",
+        element: <SignUp />,
       },
       {
         path: "/profile",

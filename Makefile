@@ -2,11 +2,11 @@
 COMPOSE = docker-compose.yml
 
 #build and run
-all: up
+all: up docker
 
 #build and run
-up: $(REDIRECT)
-	docker-compose -f $(COMPOSE) up --build
+up: $(REDIRECT) docker
+	docker-compose -f $(COMPOSE) up  --build
 
 #take down, build and run
 re:
@@ -15,7 +15,7 @@ re:
 
 #run, dont build
 run:
-	docker-compose -f $(COMPOSE) up -d
+	docker-compose -f $(COMPOSE) up
 
 #take down
 down:
@@ -27,7 +27,8 @@ clean:
 
 #take down, remove images
 fclean: clean
-	docker image rm $(shell docker image ls -q)
+	-docker image rm $(shell docker image ls -q)
+	-docker volume rm $(shell docker volume ls -q)
 
 #kill running container
 kill_all:
@@ -43,3 +44,14 @@ $(REDIRECT):
 #forefully redirects docker location
 redirect:
 	bash ./docker/redirect.sh
+
+#rule to start docker
+docker:
+	@if ! pgrep Docker > /dev/null; \
+	then \
+		echo "Starting Docker"; \
+		open -a Docker > /dev/null; \
+		sleep 20; \
+	fi
+
+.PHONY: docker redirect kill_all fclean clean dow run re up all
