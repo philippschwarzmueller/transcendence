@@ -6,7 +6,7 @@ all: up docker
 
 #build and run
 up: $(REDIRECT) docker
-	docker-compose -f $(COMPOSE) up -d --build
+	docker-compose -f $(COMPOSE) up  --build
 
 #take down, build and run
 re:
@@ -15,7 +15,7 @@ re:
 
 #run, dont build
 run:
-	docker-compose -f $(COMPOSE) up -d
+	docker-compose -f $(COMPOSE) up
 
 #take down
 down:
@@ -27,7 +27,8 @@ clean:
 
 #take down, remove images
 fclean: clean
-	docker image rm $(shell docker image ls -q)
+	-docker image rm $(shell docker image ls -q)
+	-docker volume rm $(shell docker volume ls -q)
 
 #kill running container
 kill_all:
