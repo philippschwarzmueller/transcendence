@@ -5,7 +5,7 @@ import "./index.css";
 import Root from "./routes/root";
 import Home from "./routes/Home";
 import Chat from "./routes/Chat";
-import Game from "./routes/Game";
+import Game from "./routes/game";
 import App from "./routes/App";
 import ErrorPage from "./routes/error-page";
 
@@ -38,5 +38,5 @@ const router = createBrowserRouter([
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <RouterProvider router={router} />
-  </React.StrictMode>,
+  </React.StrictMode>
 );

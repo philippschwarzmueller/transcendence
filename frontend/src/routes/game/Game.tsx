@@ -1,26 +1,15 @@
 import React, { useRef, useEffect, useState } from "react";
+import * as properties from "./properties";
 
 interface IGameWindow {
   width: number;
   height: number;
 }
 
-interface IPaddle {
-  side: string;
-}
-
 interface IKeyState {
   up: boolean;
   down: boolean;
 }
-
-const Paddle: React.FC<IPaddle> = (props: IPaddle) => {
-  return (
-    <>
-      <p>test</p>
-    </>
-  );
-};
 
 const GameWindow: React.FC<IGameWindow> = (props: IGameWindow) => {
   const containerStyles = {
@@ -64,6 +53,7 @@ const GameWindow: React.FC<IGameWindow> = (props: IGameWindow) => {
     const interval = setInterval(() => {
       GameLoop(keyState);
     }, framerate);
+    console.log(properties.variable);
   }, []);
 
   useEffect(() => {
