@@ -7,7 +7,7 @@ const Game: React.FC = () => {
     <>
       <h1>This is the title</h1>
       <div>
-        <GameWindow width={20} height={100}></GameWindow>
+        <GameWindow></GameWindow>
       </div>
     </>
   );
