@@ -1,14 +1,13 @@
 import React from "react";
+import Pagetitle from "../components/pagetitle/Pagetitle";
 
 import GameWindow from "../components/gamewindow/";
 
 const Game: React.FC = () => {
   return (
     <>
-      <h1>This is the title</h1>
-      <div>
-        <GameWindow></GameWindow>
-      </div>
+      <Pagetitle>Game</Pagetitle>
+      <GameWindow></GameWindow>
     </>
   );
 };
