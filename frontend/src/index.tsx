@@ -5,7 +5,7 @@ import "./index.css";
 import Root from "./routes/root";
 import Home from "./routes/Home";
 import Chat from "./routes/Chat";
-import Game from "./routes/game";
+import Game from "./routes/Game";
 import App from "./routes/App";
 import ErrorPage from "./routes/error-page";
 

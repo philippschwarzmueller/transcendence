@@ -1,5 +1,4 @@
 import React, { useRef, useEffect, useState } from "react";
-import * as properties from "./properties";
 
 interface IGameWindow {
   width: number;
@@ -53,7 +52,6 @@ const GameWindow: React.FC<IGameWindow> = (props: IGameWindow) => {
     const interval = setInterval(() => {
       GameLoop(keyState);
     }, framerate);
-    console.log(properties.variable);
   }, []);
 
   useEffect(() => {
@@ -84,15 +82,4 @@ const GameWindow: React.FC<IGameWindow> = (props: IGameWindow) => {
   );
 };
 
-const Game: React.FC = () => {
-  return (
-    <>
-      <h1>This is the title</h1>
-      <div>
-        <GameWindow width={20} height={100}></GameWindow>
-      </div>
-    </>
-  );
-};
-
-export default Game;
+export default GameWindow;
