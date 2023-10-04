@@ -30,13 +30,13 @@ const drawPaddle = (
   context: CanvasRenderingContext2D,
   side: string,
   old_height: number,
-  height: number
+  height: number,
 ): void => {
   const paddle_y: number = Math.floor(
-    (properties.window.height * properties.paddle.height) / 100
+    (properties.window.height * properties.paddle.height) / 100,
   );
   const paddle_x: number = Math.floor(
-    (properties.window.width * properties.paddle.width) / 100
+    (properties.window.width * properties.paddle.width) / 100,
   );
   if (side === "left") {
     context.fillStyle = properties.window.color;
@@ -49,14 +49,14 @@ const drawPaddle = (
       properties.window.width - paddle_x,
       old_height - paddle_y / 2,
       paddle_x,
-      paddle_y
+      paddle_y,
     );
     context.fillStyle = properties.paddle.color;
     context.fillRect(
       properties.window.width - paddle_x,
       height - paddle_y / 2,
       paddle_x,
-      paddle_y
+      paddle_y,
     );
   }
 };
@@ -64,7 +64,7 @@ const drawPaddle = (
 const drawBall = (
   context: CanvasRenderingContext2D,
   ball: IBall,
-  old_ball: IBall
+  old_ball: IBall,
 ): void => {
   context.fillStyle = properties.window.color;
   context.beginPath();
@@ -73,7 +73,7 @@ const drawBall = (
     old_ball.y,
     properties.ballProperties.radius * 1.1,
     0,
-    2 * Math.PI
+    2 * Math.PI,
   );
   context.fill();
 
@@ -91,9 +91,9 @@ const GameWindow: React.FC<IGameWindow> = (props: IGameWindow) => {
   let [ball, setBall] = useState({ x: 200, y: 200, speed_x: 0, speed_y: 0 });
   let [oldBall, setOldBall] = useState(ballSpawn);
 
-  const GameLoop = async (keyState: IKeyState, ball: IBall): Promise<void> => {
+  const GameLoop = async (keyState: IKeyState): Promise<void> => {
     const step: number = Math.floor(
-      properties.paddle.speed / properties.framerate
+      properties.paddle.speed / properties.framerate,
     );
     if (keyState.down === true && keyState.up === false) {
       setY((y) => y + step);
@@ -117,7 +117,7 @@ const GameWindow: React.FC<IGameWindow> = (props: IGameWindow) => {
         if (e.key === "ArrowUp") keyState.up = true;
         if (e.key === "ArrowDown") keyState.down = true;
       },
-      true
+      true,
     );
 
     window.addEventListener(
@@ -126,11 +126,11 @@ const GameWindow: React.FC<IGameWindow> = (props: IGameWindow) => {
         if (e.key === "ArrowUp") keyState.up = false;
         if (e.key === "ArrowDown") keyState.down = false;
       },
-      true
+      true,
     );
 
     /*const interval = */ setInterval(() => {
-      GameLoop(keyState, ball);
+      GameLoop(keyState);
     }, 1000 / properties.framerate);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -160,11 +160,11 @@ const GameWindow: React.FC<IGameWindow> = (props: IGameWindow) => {
     <>
       <Centerdiv>
         <Button onClick={spawnGame}>Spawn game in backend</Button>
-        <p></p>
+        <br />
       </Centerdiv>
       <Centerdiv>
         <Button onClick={stopGames}>stopGames</Button>
-        <p></p>
+        <br />
       </Centerdiv>
 
       <Centerdiv>

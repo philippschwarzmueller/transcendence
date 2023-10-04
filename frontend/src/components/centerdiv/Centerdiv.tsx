@@ -4,7 +4,7 @@ const Centerdiv = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 100vw; // 100% view width
+  width: 100vw;
 `;
 
 export default Centerdiv;

@@ -36,7 +36,7 @@ export class GamesService {
     return this.game.ball;
   }
 
-  public StartGameLoop() {
+  public startGameLoop(): number {
     const interval = setInterval(() => {
       if (
         this.game.ball.x + this.game.ball.speed_x > properties.window.width ||
