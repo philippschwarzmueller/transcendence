@@ -13,7 +13,14 @@ export class AuthController {
   constructor(private authService: AuthService) {}
   @Post('login')
   async login(@Body() createUserDto: CreateUserDto) {
-    return this.authService.login(createUserDto);
+    const user = await this.authService.login(createUserDto);
+    if (user) {
+      return {
+        message: 'User found',
+      };
+    } else {
+      throw new HttpException('No user with such name', HttpStatus.NOT_FOUND);
+    }
   }
   @Post('signup')
   async signup(@Body() createUserDto: CreateUserDto): Promise<any> {
