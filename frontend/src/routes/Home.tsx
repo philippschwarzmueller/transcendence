@@ -3,6 +3,7 @@ import { useState } from "react";
 import Button from "../components/button";
 import Form from "../components/form";
 import Input from "../components/input";
+import Spinner from "../components/spinner";
 import Pagetitle from "../components/pagetitle/";
 
 const lastMatches: string[] = [
@@ -48,6 +49,7 @@ const Home: React.FC = () => {
   }
   return (
     <>
+      <Spinner />
       <div
         style={{
           display: "flex",
