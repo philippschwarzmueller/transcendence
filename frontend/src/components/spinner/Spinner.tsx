@@ -28,7 +28,7 @@ const Spinner: React.FC = () => {
         }}
       >
         <StyledSpinner>
-          <img src="/sandclock.png"></img>
+          <img src="/sandclock.png" alt="a sandclock"></img>
         </StyledSpinner>
       </div>
     </>
