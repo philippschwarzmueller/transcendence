@@ -10,38 +10,32 @@ interface loginBody {
 }
 
 const Login: React.FC = () => {
-	const [input, setInput] = useState<loginBody>({ name: "", password: "" });
+  const [input, setInput] = useState<loginBody>({ name: "", password: "" });
 
-  // function handleSubmit(event: React.MouseEvent) {
-  //   event.preventDefault();
-  //   console.log(JSON.stringify(input));
-  //   fetch("http://localhost:4000/auth/signin", {
-  //     method: "POST",
-  //     headers: { "Content-Type": "application/json" },
-  //     body: JSON.stringify(input),
-  //   }).then((res) => console.log(res));
-  // }
-	const handleSubmit = async (event: React.MouseEvent) => {
-		event.preventDefault();
-		try {
-			const response = await fetch("http://localhost:4000/auth/login", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify(input),
-			});
+  const handleSubmit = async (event: React.MouseEvent) => {
+    event.preventDefault();
+    try {
+      const response: Response = await fetch(
+        "http://localhost:4000/auth/login",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(input),
+        },
+      );
 
-			const data = await response.json();
+      const data = await response.json();
 
-			if(response.ok) {
-				alert("Login Successful!");
-			} else {
-				alert("Login Failed: " + (data.message || "Unknown Error"));
-			}
-		} catch (error) {
-			console.error("There was an error!", error);
-			alert("Login Failed: Network Error or Request couldn't be made");
-		}
-	}
+      if (response.ok) {
+        alert("Login Successful!");
+      } else {
+        alert("Login Failed: " + (data.message || "Unknown Error"));
+      }
+    } catch (error) {
+      console.error("There was an error!", error);
+      alert("Login Failed: Network Error or Request couldn't be made");
+    }
+  };
 
   return (
     <>

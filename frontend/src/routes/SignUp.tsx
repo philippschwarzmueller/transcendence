@@ -14,18 +14,21 @@ const SignUp: React.FC = () => {
   async function handleSubmit(event: React.MouseEvent) {
     event.preventDefault();
     try {
-      const response = await fetch("http://localhost:4000/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(input),
-      });
+      const response: Response = await fetch(
+        "http://localhost:4000/auth/signup",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(input),
+        },
+      );
 
-      const data = await response.json();
+      const data: any = await response.json();
 
       if (response.ok) {
         alert(`User ${input.name} created succesfully`);
       } else {
-        alert(data.message || "Signup failed");
+        alert(data?.message || "Signup failed");
       }
     } catch (error) {
       console.error("An error occured", error);
