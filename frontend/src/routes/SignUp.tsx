@@ -10,16 +10,28 @@ interface signUpBody {
 }
 
 const SignUp: React.FC = () => {
-  function handleSubmit(event: React.MouseEvent) {
+  const [input, setInput] = useState<signUpBody>({ name: "", password: "" });
+  async function handleSubmit(event: React.MouseEvent) {
     event.preventDefault();
-    console.log(JSON.stringify(input));
-    fetch("http://localhost:4000/auth/signup", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(input),
-    }).then((res) => console.log(res));
+    try {
+      const response = await fetch("http://localhost:4000/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(input),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert(`User ${input.name} created succesfully`);
+      } else {
+        alert(data.message || "Signup failed");
+      }
+    } catch (error) {
+      console.error("An error occured", error);
+      alert("An error occured. Please try again or ask pschwarz");
+    }
   }
-  let [input, setInput] = useState<signUpBody>({ name: "", password: "" });
   return (
     <>
       <Pagetitle>Signup for your Account</Pagetitle>
