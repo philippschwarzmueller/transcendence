@@ -1,35 +1,29 @@
 import React, { useRef, useEffect, useState } from "react";
-import properties from "./properties";
+import properties, { IBall, ballSpawn } from "./properties";
 import Button from "../button";
 import Centerdiv from "../centerdiv";
 
 interface IGameWindow {}
-
-interface IBall {
-  x: number;
-  y: number;
-  speed_x: number;
-  speed_y: number;
-}
 
 interface IKeyState {
   up: boolean;
   down: boolean;
 }
 
-const fetchBackend = async (): Promise<any> => {
-  return await fetch(`http://localhost:4000/games/start`);
-};
-
-const spawnGame = (): void => {
-  const json = fetchBackend();
-  console.log(json);
+const spawnGame = async (): Promise<void> => {
+  await fetch(`http://localhost:4000/games/start`, { method: "POST" });
 };
 
 const fetchBall = async (): Promise<IBall> => {
   const response = await fetch(`http://localhost:4000/games/ball`);
   const ball: IBall = await response.json();
   return ball;
+};
+
+const stopGames = async (): Promise<void> => {
+  await fetch(`http://localhost:4000/games/stop`, {
+    method: "POST",
+  });
 };
 
 const drawPaddle = (
@@ -72,16 +66,20 @@ const drawBall = (
   ball: IBall,
   old_ball: IBall
 ): void => {
-  const radius = 10; // Adjust this value as needed
-
-  context.fillStyle = "black";
+  context.fillStyle = properties.window.color;
   context.beginPath();
-  context.arc(old_ball.x, old_ball.y, radius * 1.1, 0, 2 * Math.PI);
+  context.arc(
+    old_ball.x,
+    old_ball.y,
+    properties.ballProperties.radius * 1.1,
+    0,
+    2 * Math.PI
+  );
   context.fill();
 
-  context.fillStyle = "white";
+  context.fillStyle = properties.ballProperties.color;
   context.beginPath();
-  context.arc(ball.x, ball.y, radius, 0, 2 * Math.PI);
+  context.arc(ball.x, ball.y, properties.ballProperties.radius, 0, 2 * Math.PI);
   context.fill();
 };
 
@@ -91,13 +89,7 @@ const GameWindow: React.FC<IGameWindow> = (props: IGameWindow) => {
   let [old_y, setOld_y] = useState(properties.window.height / 2);
   let keyState: IKeyState = { down: false, up: false };
   let [ball, setBall] = useState({ x: 200, y: 200, speed_x: 0, speed_y: 0 });
-  let [oldBall, setOldBall] = useState({
-    x: 200,
-    y: 200,
-    speed_x: 0,
-    speed_y: 0,
-  });
-  // let ball: IBall = { x: 200, y: 200, speed_x: 0, speed_y: 0 };
+  let [oldBall, setOldBall] = useState(ballSpawn);
 
   const GameLoop = async (keyState: IKeyState, ball: IBall): Promise<void> => {
     const step: number = Math.floor(
@@ -169,7 +161,9 @@ const GameWindow: React.FC<IGameWindow> = (props: IGameWindow) => {
       <Centerdiv>
         <Button onClick={spawnGame}>Spawn game in backend</Button>
         <p></p>
-        <Button onClick={fetchBall}>getOle</Button>
+      </Centerdiv>
+      <Centerdiv>
+        <Button onClick={stopGames}>stopGames</Button>
         <p></p>
       </Centerdiv>
 

@@ -1,12 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import properties from './properties';
+import properties, { IBall, ballSpawn } from './properties';
 
-interface IBall {
-  x: number;
-  y: number;
-  speed_x: number;
-  speed_y: number;
-}
 interface IGame {
   gameid: number;
   ball: IBall;
@@ -15,17 +9,35 @@ interface IGame {
 @Injectable()
 export class GamesService {
   constructor() {
-    this.game = { gameid: 0, ball: { x: 200, y: 200, speed_x: 5, speed_y: 5 } };
+    this.game = {
+      gameid: 0,
+      ball: {
+        x: ballSpawn.x,
+        y: ballSpawn.y,
+        speed_x: ballSpawn.speed_x,
+        speed_y: ballSpawn.speed_y,
+      },
+    };
+    this.intervals = [];
   }
 
   public game: IGame;
+  public intervals: NodeJS.Timeout[];
+
+  stop(): void {
+    this.intervals.forEach((interval) => {
+      clearInterval(interval);
+    });
+    const newIntervals: NodeJS.Timeout[] = [];
+    this.intervals = newIntervals;
+  }
 
   async ball(): Promise<IBall> {
     return this.game.ball;
   }
 
   public StartGameLoop() {
-    setInterval(() => {
+    const interval = setInterval(() => {
       if (
         this.game.ball.x + this.game.ball.speed_x > properties.window.width ||
         this.game.ball.x + this.game.ball.speed_x < 0
@@ -38,7 +50,8 @@ export class GamesService {
         this.game.ball.speed_y *= -1;
       this.game.ball.x += this.game.ball.speed_x;
       this.game.ball.y += this.game.ball.speed_y;
-    }, 100);
+    }, properties.framerate);
+    this.intervals.push(interval);
     return this.game.gameid;
   }
 }
