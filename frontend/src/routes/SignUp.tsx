@@ -20,11 +20,12 @@ const SignUp: React.FC = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(input),
-        },
+        }
       );
       const data: any = await response.json();
       if (response.ok) {
         alert(`User ${input.name} created succesfully`);
+        setInput({ name: "", password: "" });
       } else {
         alert(data.message || "Signup failed");
       }
@@ -37,12 +38,14 @@ const SignUp: React.FC = () => {
       <Pagetitle>Signup for your Account</Pagetitle>
       <Form>
         <Input
+          value={input.name}
           onChange={(e) => setInput({ ...input, name: e.target.value })}
           label="Username"
           type="string"
           placeholder="Max Mustermann"
         ></Input>
         <Input
+          value={input.password}
           onChange={(e) => setInput({ ...input, password: e.target.value })}
           type="password"
           label="Password"
