@@ -28,6 +28,7 @@ const Login: React.FC = () => {
 
       if (response.ok) {
         alert("Login Successful!");
+        setInput({ name: "", password: "" });
       } else {
         alert("Login Failed: " + (data.error || "Unknown Error"));
       }
@@ -42,12 +43,14 @@ const Login: React.FC = () => {
       <Pagetitle>Login to your Account</Pagetitle>
       <Form>
         <Input
+          value={input.name}
           onChange={(e) => setInput({ ...input, name: e.target.value })}
           label="Username"
           type="string"
           placeholder="Your Username"
         ></Input>
         <Input
+          value={input.password}
           onChange={(e) => setInput({ ...input, password: e.target.value })}
           label="Password"
           type="password"
