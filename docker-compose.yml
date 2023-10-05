@@ -7,7 +7,7 @@ services:
     ports:
       - 3000:3000
     volumes:
-      - ./frontend:/code
+      - .:/code
   backend:
     container_name: nest
     build: ./backend/
@@ -17,7 +17,7 @@ services:
     ports:
       - 4000:4000
     volumes:
-      - ./backend:/code
+      - .:/code
   db:
     image: postgres:15.4-alpine
     environment:
