@@ -1,16 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IntegerType, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { User } from '../users/user.entity';
 import { CreateUserDto } from '../users/dto/create-user.dto';
-import * as bcrypt from 'bcrypt';
-
-interface ApiResponse<T = any> {
-  statusCode: number;
-  message: string;
-  data?: T;
-  error?: string;
-}
+import { hash as bcrypt_hash, compare as bcrypt_compare } from 'bcrypt';
 
 @Injectable()
 export class AuthService {
@@ -28,7 +21,7 @@ export class AuthService {
       throw new Error('User not found');
     }
 
-    const passwordMatch = await bcrypt.compare(
+    const passwordMatch: boolean = await bcrypt_compare(
       user.password,
       foundUser.password,
     );
@@ -48,7 +41,7 @@ export class AuthService {
     });
     if (!userExists) {
       const saltRounds = 10;
-      const hash = await bcrypt.hash(user.password, saltRounds);
+      const hash = await bcrypt_hash(user.password, saltRounds);
       await this.usersRepository.insert({ ...user, password: hash });
       return { statusCode: 200, message: 'User created successfully' };
     } else {
