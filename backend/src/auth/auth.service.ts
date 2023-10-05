@@ -1,8 +1,16 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { IntegerType, Repository } from 'typeorm';
 import { User } from '../users/user.entity';
 import { CreateUserDto } from '../users/dto/create-user.dto';
+import * as bcrypt from 'bcrypt';
+
+interface ApiResponse<T = any> {
+  statusCode: number;
+  message: string;
+  data?: T;
+  error?: string;
+}
 
 @Injectable()
 export class AuthService {
@@ -13,16 +21,24 @@ export class AuthService {
 
   async login(user: CreateUserDto) {
     const foundUser = await this.usersRepository.findOne({
-      where: { name: user.name, password: user.password },
+      where: { name: user.name },
     });
+
     if (!foundUser) {
-      throw new HttpException(
-        'No user with such name or wrong password',
-        HttpStatus.NOT_FOUND,
-      );
+      throw new Error('User not found');
     }
+
+    const passwordMatch = await bcrypt.compare(
+      user.password,
+      foundUser.password,
+    );
+
+    if (!passwordMatch) {
+      throw new Error('Wrong Password');
+    }
+
     return {
-      message: 'User found',
+      message: 'Login successful',
     };
   }
 
@@ -31,13 +47,12 @@ export class AuthService {
       where: { name: user.name },
     });
     if (!userExists) {
-      await this.usersRepository.insert(user);
-      return { success: true, message: 'User created successfully' };
+      const saltRounds = 10;
+      const hash = await bcrypt.hash(user.password, saltRounds);
+      await this.usersRepository.insert({ ...user, password: hash });
+      return { statusCode: 200, message: 'User created successfully' };
     } else {
-      throw new HttpException(
-        { status: HttpStatus.CONFLICT, error: 'User already exists' },
-        HttpStatus.CONFLICT,
-      );
+      throw new Error('User already exists');
     }
   }
 }
