@@ -2,7 +2,7 @@
 COMPOSE = docker-compose.yml
 
 #build and run
-all: up docker
+all:  docker run
 
 #build and run
 up: $(REDIRECT) docker
@@ -47,11 +47,11 @@ redirect:
 
 #rule to start docker
 docker:
-	@if ! pgrep Docker > /dev/null; \
-	then \
+	@if ! docker info > /dev/null 2>&1; then \
 		echo "Starting Docker"; \
-		open -a Docker > /dev/null; \
+		open -a Docker > /dev/null 2>&1; \
 		sleep 20; \
 	fi
+	@echo "Docker is up and running"
 
 .PHONY: docker redirect kill_all fclean clean dow run re up all
