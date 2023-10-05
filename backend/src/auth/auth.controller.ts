@@ -32,7 +32,9 @@ export class AuthController {
   }
   @Post('signup')
   @HttpCode(201)
-  async signup(@Body() createUserDto: CreateUserDto): Promise<{message: string, data: any}> {
+  async signup(
+    @Body() createUserDto: CreateUserDto,
+  ): Promise<{ message: string; data: any }> {
     try {
       return await this.authService.signup(createUserDto);
     } catch (error) {
