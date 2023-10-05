@@ -33,7 +33,6 @@ const Login: React.FC = () => {
         alert("Login Failed: " + (data.error || "Unknown Error"));
       }
     } catch (error) {
-      console.error("There was an error!", error);
       alert("Login Failed: Network Error or Request couldn't be made");
     }
   };
