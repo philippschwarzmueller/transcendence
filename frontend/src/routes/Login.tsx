@@ -21,7 +21,7 @@ const Login: React.FC = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(input),
-        },
+        }
       );
 
       const data = await response.json();
@@ -29,7 +29,7 @@ const Login: React.FC = () => {
       if (response.ok) {
         alert("Login Successful!");
       } else {
-        alert("Login Failed: " + (data.message || "Unknown Error"));
+        alert("Login Failed: " + (data.error || "Unknown Error"));
       }
     } catch (error) {
       console.error("There was an error!", error);
