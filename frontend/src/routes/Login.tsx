@@ -30,7 +30,8 @@ const Login: React.FC = () => {
         alert("Login Successful!");
         setInput({ name: "", password: "" });
       } else {
-        alert("Login Failed: " + (data.error || "Unknown Error"));
+				console.log(data)
+        alert("Login Failed: " + (data.message || "Unknown Error"));
       }
     } catch (error) {
       alert("Login Failed: Network Error or Request couldn't be made");
