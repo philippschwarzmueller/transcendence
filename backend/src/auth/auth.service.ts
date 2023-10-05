@@ -27,7 +27,7 @@ export class AuthService {
     );
 
     if (!passwordMatch) {
-      throw new Error('Wrong Password');
+      throw new Error('Wrong password');
     }
 
     return {
