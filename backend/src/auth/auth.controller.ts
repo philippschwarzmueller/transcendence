@@ -2,9 +2,12 @@ import {
   Body,
   Controller,
   Post,
+  Get,
+  Query,
   HttpCode,
   HttpException,
   HttpStatus,
+  Res,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
@@ -30,6 +33,7 @@ export class AuthController {
       );
     }
   }
+
   @Post('signup')
   @HttpCode(201)
   async signup(
@@ -41,6 +45,21 @@ export class AuthController {
       if (error.message === 'User already exists') {
         throw new HttpException(error.message, HttpStatus.CONFLICT);
       }
+    }
+  }
+
+  @Get('intra-login')
+  async intraLogin(@Res() res): Promise<void> {
+    return this.authService.intraLogin(res);
+  }
+
+  @Get('callback')
+  async callback(@Query('code') code: string, @Res() res) {
+    try {
+      const token = await this.authService.exchangeCodeForToken(code);
+      res.send({ token });
+    } catch (error) {
+      res.status(500).send(error.message);
     }
   }
 }
