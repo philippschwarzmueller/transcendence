@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
-import properties, { IBall, ballSpawn } from "./properties";
+import properties, { IBall, IGame, ballSpawn, gameSpawn } from "./properties";
 import Button from "../button";
 import Centerdiv from "../centerdiv";
 
@@ -14,16 +14,15 @@ const spawnGame = async (): Promise<void> => {
   await fetch(`http://localhost:4000/games/start`, { method: "POST" });
 };
 
-const fetchBall = async (y: number): Promise<IBall> => {
+const fetchBall = async (y: number, side: any): Promise<IGame> => {
   const response = await fetch(`http://localhost:4000/games/ball`, {
     method: "POST",
     headers: {
-      paddle_pos: `${y}`
-    }
-
-  ,
+      paddle_pos: `${y}`,
+      side: `${side.current}`,
+    },
   });
-  const ball: IBall = await response.json();
+  const ball: IGame = await response.json();
   return ball;
 };
 
@@ -33,49 +32,49 @@ const stopGames = async (): Promise<void> => {
   });
 };
 
-const joinLeftPlayer = (): void => {}
-const joinRightPlayer = (): void => {}
-
 const drawPaddle = (
   context: CanvasRenderingContext2D,
   side: string,
-  old_height: number,
-  height: number,
+  height: number
 ): void => {
   const paddle_y: number = Math.floor(
-    (properties.window.height * properties.paddle.height) / 100,
+    (properties.window.height * properties.paddle.height) / 100
   );
   const paddle_x: number = Math.floor(
-    (properties.window.width * properties.paddle.width) / 100,
+    (properties.window.width * properties.paddle.width) / 100
   );
   if (side === "left") {
     context.fillStyle = properties.window.color;
-    context.fillRect(0, old_height - paddle_y / 2, paddle_x, paddle_y);
+    context.fillRect(
+      0,
+      height - paddle_y / 2 - properties.paddle.speed,
+      paddle_x,
+      paddle_y + properties.paddle.speed * 2
+    );
     context.fillStyle = properties.paddle.color;
     context.fillRect(0, height - paddle_y / 2, paddle_x, paddle_y);
   } else if (side === "right") {
     context.fillStyle = properties.window.color;
     context.fillRect(
       properties.window.width - paddle_x,
-      old_height - paddle_y / 2,
+      height - paddle_y / 2 - properties.paddle.speed,
       paddle_x,
-      paddle_y,
+      paddle_y + properties.paddle.speed * 2
     );
     context.fillStyle = properties.paddle.color;
     context.fillRect(
       properties.window.width - paddle_x,
       height - paddle_y / 2,
       paddle_x,
-      paddle_y,
+      paddle_y
     );
   }
-  // console.log(height)
 };
 
 const drawBall = (
   context: CanvasRenderingContext2D,
   ball: IBall,
-  old_ball: IBall,
+  old_ball: IBall
 ): void => {
   context.fillStyle = properties.window.color;
   context.beginPath();
@@ -84,7 +83,7 @@ const drawBall = (
     old_ball.y,
     properties.ballProperties.radius * 1.1,
     0,
-    2 * Math.PI,
+    2 * Math.PI
   );
   context.fill();
 
@@ -96,22 +95,36 @@ const drawBall = (
 
 const GameWindow: React.FC<IGameWindow> = (props: IGameWindow) => {
   const canvasRef: any = useRef<HTMLCanvasElement | null>(null);
-  const yRef = useRef(properties.window.height / 2)
-  let [old_y, setOld_y] = useState(properties.window.height / 2);
-  const keyState = useRef<IKeyState>({ down: false, up: false })
+  const yRef = useRef(properties.window.height / 2);
+  const keyState = useRef<IKeyState>({ down: false, up: false });
   let [ball, setBall] = useState({ x: 200, y: 200, speed_x: 0, speed_y: 0 });
   let [oldBall, setOldBall] = useState(ballSpawn);
+  const side = useRef("");
+  const game = useRef(gameSpawn);
 
-  const GameLoop = async (keyState: React.MutableRefObject<IKeyState>): Promise<void> => {
+  const GameLoop = async (
+    keyState: React.MutableRefObject<IKeyState>
+  ): Promise<void> => {
     const step: number = Math.floor(
-      properties.paddle.speed / properties.framerate,
+      properties.paddle.speed / properties.framerate
     );
     if (keyState.current.down === true && keyState.current.up === false) {
-      yRef.current += step
-    } else if (keyState.current.up === true && keyState.current.down === false) {
-      yRef.current -= step
+      yRef.current += step;
+    } else if (
+      keyState.current.up === true &&
+      keyState.current.down === false
+    ) {
+      yRef.current -= step;
     }
-    setBall(await fetchBall(yRef.current));
+    game.current = await fetchBall(yRef.current, side);
+    setBall(game.current.ball);
+  };
+
+  const joinLeftPlayer = (): void => {
+    side.current = "left";
+  };
+  const joinRightPlayer = (): void => {
+    side.current = "right";
   };
 
   useEffect(() => {
@@ -128,7 +141,7 @@ const GameWindow: React.FC<IGameWindow> = (props: IGameWindow) => {
         if (e.key === "ArrowUp") keyState.current.up = true;
         if (e.key === "ArrowDown") keyState.current.down = true;
       },
-      true,
+      true
     );
 
     window.addEventListener(
@@ -137,11 +150,14 @@ const GameWindow: React.FC<IGameWindow> = (props: IGameWindow) => {
         if (e.key === "ArrowUp") keyState.current.up = false;
         if (e.key === "ArrowDown") keyState.current.down = false;
       },
-      true,
+      true
     );
 
     /*const interval = */ setInterval(
-      GameLoop, 1000 / properties.framerate, keyState);
+      GameLoop,
+      1000 / properties.framerate,
+      keyState
+    );
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
@@ -150,9 +166,17 @@ const GameWindow: React.FC<IGameWindow> = (props: IGameWindow) => {
     const context: CanvasRenderingContext2D =
       canvasRef.current.getContext("2d");
 
-    drawPaddle(context, "left", old_y, yRef.current);
-    setOld_y(yRef.current);
-  }, [yRef.current, old_y]);
+    drawPaddle(
+      context,
+      game.current.left.side,
+      game.current.left.height,
+    );
+    drawPaddle(
+      context,
+      game.current.right.side,
+      game.current.right.height,
+    );
+  }, [yRef.current, side.current, game.current.left.height, game.current.right.height]);
 
   useEffect(() => {
     const canvas: HTMLCanvasElement = canvasRef.current;

@@ -23,6 +23,18 @@ interface IProperties {
   framerate: number; // frontend game framerate
 }
 
+export interface IPaddleBackend {
+  height: number
+  side: string
+}
+
+export interface IGame {
+  gameid: number;
+  ball: IBall;
+  left: IPaddleBackend
+  right: IPaddleBackend
+}
+
 export interface IBall {
   x: number;
   y: number;

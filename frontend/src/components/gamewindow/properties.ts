@@ -23,6 +23,18 @@ interface IProperties {
   framerate: number; // frontend game framerate
 }
 
+export interface IPaddleBackend {
+  height: number
+  side: string
+}
+
+export interface IGame {
+  gameid: number;
+  ball: IBall;
+  left: IPaddleBackend
+  right: IPaddleBackend
+}
+
 export interface IBall {
   x: number;
   y: number;
@@ -31,9 +43,9 @@ export interface IBall {
 }
 
 const properties: IProperties = {
-  window: { width: 960, height: 640, color: "black" },
-  paddle: { width: 2, height: 15, speed: 200, color: "white" },
-  ballProperties: { radius: 10, color: "white" },
+  window: { width: 960, height: 640, color: 'black' },
+  paddle: { width: 2, height: 15, speed: 200, color: 'white' },
+  ballProperties: { radius: 10, color: 'white' },
   framerate: 25,
 };
 
@@ -43,4 +55,17 @@ export const ballSpawn: IBall = {
   speed_x: 5,
   speed_y: 5,
 };
+
+export const gameSpawn: IGame = {
+  gameid: 0,
+  ball: ballSpawn,
+  left: {
+    height: 320,
+    side: "left"
+  },
+  right: {
+    height: 320,
+    side: "right"
+  }
+}
 export default properties;

@@ -1,10 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import properties, { IBall, ballSpawn } from './properties';
+import properties, { IBall, ballSpawn, IGame, IPaddleBackend } from './properties';
 
-interface IGame {
-  gameid: number;
-  ball: IBall;
-}
+
 
 @Injectable()
 export class GamesService {
@@ -16,6 +13,14 @@ export class GamesService {
         y: ballSpawn.y,
         speed_x: ballSpawn.speed_x,
         speed_y: ballSpawn.speed_y,
+      },
+      left : {
+        height: 320,
+        side: 'left',
+      },
+      right : {
+        height: 320,
+        side: 'right',
       },
     };
     this.intervals = [];
@@ -32,8 +37,12 @@ export class GamesService {
     this.intervals = newIntervals;
   }
 
-  async ball(): Promise<IBall> {
-    return this.game.ball;
+  async ball(side: string, height: number): Promise<IGame> {
+    if (side === 'left')
+    this.game.left = {side: 'left', height: height}
+    if (side === 'right')
+    this.game.right = {side: 'right', height: height}
+    return this.game;
   }
 
   public startGameLoop(): number {
