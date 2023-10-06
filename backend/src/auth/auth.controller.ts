@@ -59,7 +59,7 @@ export class AuthController {
       const token = await this.authService.exchangeCodeForToken(code);
       res.send({ token });
     } catch (error) {
-      res.status(500).send(error.message);
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }
