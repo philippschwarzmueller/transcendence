@@ -49,6 +49,11 @@ const Login: React.FC = () => {
   return (
     <>
       <Pagetitle>Login to your Account</Pagetitle>
+      {window.sessionStorage.getItem("user") ? (
+        <span>Logged in as {window.sessionStorage.getItem("user")}</span>
+      ) : (
+        <span>Logged out</span>
+      )}
       <Form>
         <Input
           value={input.name}
