@@ -29,7 +29,7 @@ export interface IPaddleBackend {
 }
 
 export interface IGame {
-  gameid: number;
+  gameId: number;
   ball: IBall;
   left: IPaddleBackend;
   right: IPaddleBackend;
@@ -57,7 +57,7 @@ export const ballSpawn: IBall = {
 };
 
 export const gameSpawn: IGame = {
-  gameid: 0,
+  gameId: 0,
   ball: ballSpawn,
   left: {
     height: 320,

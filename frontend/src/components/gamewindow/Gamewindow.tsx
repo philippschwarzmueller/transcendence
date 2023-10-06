@@ -23,9 +23,9 @@ const fetchGameState = async (
     {
       method: "POST",
       headers: {
-        paddle_pos: `${localPaddle.height}`,
-        side: `${localPaddle.side}`,
+        "Content-Type": "application/json",
       },
+      body: JSON.stringify(localPaddle),
     }
   );
   const ball: IGame = await response.json();

@@ -1,4 +1,4 @@
-import { Controller, Post, Req, Param } from '@nestjs/common';
+import { Controller, Post, Req, Param, Body } from '@nestjs/common';
 import { GamesService } from './games.service';
 import { IGame } from './properties';
 
@@ -10,10 +10,10 @@ export class GamesController {
   async gamestate(
     @Req() req: Request,
     @Param('gameId') gameId: string,
+    @Body() body: Body,
   ): Promise<IGame> {
     return this.gamesService.gamestate(
-      req.headers['side'],
-      req.headers['paddle_pos'],
+      await JSON.parse(JSON.stringify(body)),
       parseInt(gameId),
     );
   }
