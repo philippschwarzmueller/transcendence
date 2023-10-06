@@ -49,12 +49,12 @@ export class AuthController {
   }
 
   @Get('intra-login')
-  async intraLogin(@Res() res): Promise<void> {
+  async intraLogin(@Res() res: any): Promise<void> {
     return this.authService.intraLogin(res);
   }
 
   @Get('callback')
-  async callback(@Query('code') code: string, @Res() res) {
+  async callback(@Query('code') code: string, @Res() res: any) {
     try {
       const token: string = await this.authService.exchangeCodeForToken(code);
       res.send({ token });

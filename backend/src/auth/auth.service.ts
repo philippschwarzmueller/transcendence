@@ -56,7 +56,7 @@ export class AuthService {
     }
   }
 
-  async intraLogin(@Res() res): Promise<void> {
+  async intraLogin(@Res() res: any): Promise<void> {
     const url: string = `https://api.intra.42.fr/oauth/authorize?client_id=${this.clientID}&redirect_uri=http%3A%2F%2Flocalhost%3A4000%2Fauth%2Fcallback&response_type=code`;
     res.redirect(url);
   }
