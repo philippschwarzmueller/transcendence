@@ -24,15 +24,15 @@ interface IProperties {
 }
 
 export interface IPaddleBackend {
-  height: number
-  side: string
+  height: number;
+  side: string;
 }
 
 export interface IGame {
   gameid: number;
   ball: IBall;
-  left: IPaddleBackend
-  right: IPaddleBackend
+  left: IPaddleBackend;
+  right: IPaddleBackend;
 }
 
 export interface IBall {
@@ -54,5 +54,18 @@ export const ballSpawn: IBall = {
   y: properties.window.height / 2,
   speed_x: 5,
   speed_y: 5,
+};
+
+export const gameSpawn: IGame = {
+  gameid: 0,
+  ball: ballSpawn,
+  left: {
+    height: 320,
+    side: 'left',
+  },
+  right: {
+    height: 320,
+    side: 'right',
+  },
 };
 export default properties;

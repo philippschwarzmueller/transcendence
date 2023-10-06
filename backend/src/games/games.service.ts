@@ -1,66 +1,70 @@
 import { Injectable } from '@nestjs/common';
-import properties, { IBall, ballSpawn, IGame, IPaddleBackend } from './properties';
+import properties, { ballSpawn, gameSpawn, IGame } from './properties';
 
-
+const newGame = (): IGame => {
+  return JSON.parse(JSON.stringify(gameSpawn));
+};
 
 @Injectable()
 export class GamesService {
   constructor() {
-    this.game = {
-      gameid: 0,
-      ball: {
-        x: ballSpawn.x,
-        y: ballSpawn.y,
-        speed_x: ballSpawn.speed_x,
-        speed_y: ballSpawn.speed_y,
-      },
-      left : {
-        height: 320,
-        side: 'left',
-      },
-      right : {
-        height: 320,
-        side: 'right',
-      },
-    };
+    this.game = [newGame()];
     this.intervals = [];
+    this.amountOfGammes = 0;
   }
 
-  public game: IGame;
+  public amountOfGammes: number;
+  public game: IGame[];
   public intervals: NodeJS.Timeout[];
 
-  stop(): void {
+  stopAll(): void {
+    this.game = [newGame()];
+    this.amountOfGammes = 0;
     this.intervals.forEach((interval) => {
       clearInterval(interval);
     });
-    const newIntervals: NodeJS.Timeout[] = [];
-    this.intervals = newIntervals;
+    this.intervals = [];
   }
 
-  async ball(side: string, height: number): Promise<IGame> {
+  stop(gameId: number): void {
+    clearInterval(this.intervals[gameId]);
+  }
+
+  async gamestate(
+    side: string,
+    height: number,
+    gameId: number,
+  ): Promise<IGame> {
+    if (this.amountOfGammes === 0) return newGame();
     if (side === 'left')
-    this.game.left = {side: 'left', height: height}
+      this.game[gameId].left = { side: 'left', height: height };
     if (side === 'right')
-    this.game.right = {side: 'right', height: height}
-    return this.game;
+      this.game[gameId].right = { side: 'right', height: height };
+    this.game[gameId].gameid = gameId;
+    return this.game[gameId];
   }
 
   public startGameLoop(): number {
+    this.game.push(newGame());
+    const gameId: number = this.amountOfGammes;
+    this.amountOfGammes++;
     const interval = setInterval(() => {
       if (
-        this.game.ball.x + this.game.ball.speed_x > properties.window.width ||
-        this.game.ball.x + this.game.ball.speed_x < 0
+        this.game[gameId].ball.x + this.game[gameId].ball.speed_x >
+          properties.window.width ||
+        this.game[gameId].ball.x + this.game[gameId].ball.speed_x < 0
       )
-        this.game.ball.speed_x *= -1;
+        this.game[gameId].ball.speed_x *= -1;
       if (
-        this.game.ball.y + this.game.ball.speed_y > properties.window.height ||
-        this.game.ball.y + this.game.ball.speed_y < 0
+        this.game[gameId].ball.y + this.game[gameId].ball.speed_y >
+          properties.window.height ||
+        this.game[gameId].ball.y + this.game[gameId].ball.speed_y < 0
       )
-        this.game.ball.speed_y *= -1;
-      this.game.ball.x += this.game.ball.speed_x;
-      this.game.ball.y += this.game.ball.speed_y;
+        this.game[gameId].ball.speed_y *= -1;
+      this.game[gameId].ball.x += this.game[gameId].ball.speed_x;
+      this.game[gameId].ball.y += this.game[gameId].ball.speed_y;
     }, properties.framerate);
     this.intervals.push(interval);
-    return this.game.gameid;
+    return gameId;
   }
 }

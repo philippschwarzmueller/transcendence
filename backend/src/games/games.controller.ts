@@ -1,4 +1,4 @@
-import { Get, Controller, Post , Req} from '@nestjs/common';
+import { Controller, Post, Req, Param } from '@nestjs/common';
 import { GamesService } from './games.service';
 import { IGame } from './properties';
 
@@ -6,11 +6,16 @@ import { IGame } from './properties';
 export class GamesController {
   constructor(private gamesService: GamesService) {}
 
-  @Post('ball')
-  async ball(@Req() req: Request): Promise<IGame> {
-    const paddlePos = req.headers['paddle_pos']
-    // console.log(`Paddle Position: ${paddlePos}`)
-    return this.gamesService.ball(req.headers['side'], req.headers['paddle_pos']);
+  @Post('gamestate/:gameId')
+  async gamestate(
+    @Req() req: Request,
+    @Param('gameId') gameId: string,
+  ): Promise<IGame> {
+    return this.gamesService.gamestate(
+      req.headers['side'],
+      req.headers['paddle_pos'],
+      parseInt(gameId),
+    );
   }
 
   @Post('start')
@@ -18,8 +23,13 @@ export class GamesController {
     return this.gamesService.startGameLoop();
   }
 
-  @Post('stop')
-  stop(): void {
-    this.gamesService.stop();
+  @Post('stop/:gameId')
+  stop(@Param('gameId') gameId: string): void {
+    this.gamesService.stop(parseInt(gameId));
+  }
+
+  @Post('stopall')
+  stopAll(): void {
+    this.gamesService.stopAll();
   }
 }

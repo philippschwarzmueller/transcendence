@@ -10,24 +10,27 @@ interface IKeyState {
   down: boolean;
 }
 
-const spawnGame = async (): Promise<void> => {
-  await fetch(`http://localhost:4000/games/start`, { method: "POST" });
-};
-
-const fetchBall = async (y: number, side: any): Promise<IGame> => {
-  const response = await fetch(`http://localhost:4000/games/ball`, {
-    method: "POST",
-    headers: {
-      paddle_pos: `${y}`,
-      side: `${side.current}`,
-    },
-  });
+const fetchGameState = async (
+  y: number,
+  side: any,
+  gameId: number
+): Promise<IGame> => {
+  const response = await fetch(
+    `http://localhost:4000/games/gamestate/${gameId}`,
+    {
+      method: "POST",
+      headers: {
+        paddle_pos: `${y}`,
+        side: `${side.current}`,
+      },
+    }
+  );
   const ball: IGame = await response.json();
   return ball;
 };
 
-const stopGames = async (): Promise<void> => {
-  await fetch(`http://localhost:4000/games/stop`, {
+const stopAllGames = async (): Promise<void> => {
+  await fetch(`http://localhost:4000/games/stopall`, {
     method: "POST",
   });
 };
@@ -101,6 +104,7 @@ const GameWindow: React.FC<IGameWindow> = (props: IGameWindow) => {
   let [oldBall, setOldBall] = useState(ballSpawn);
   const side = useRef("");
   const game = useRef(gameSpawn);
+  const gameId = useRef<number>(0);
 
   const GameLoop = async (
     keyState: React.MutableRefObject<IKeyState>
@@ -116,8 +120,21 @@ const GameWindow: React.FC<IGameWindow> = (props: IGameWindow) => {
     ) {
       yRef.current -= step;
     }
-    game.current = await fetchBall(yRef.current, side);
+    game.current = await fetchGameState(yRef.current, side, gameId.current);
     setBall(game.current.ball);
+  };
+
+  const spawnGame = async (): Promise<void> => {
+    const incomingGameId = await fetch(`http://localhost:4000/games/start`, {
+      method: "POST",
+    });
+    gameId.current = await incomingGameId.json();
+  };
+
+  const stop = async (): Promise<void> => {
+    await fetch(`http://localhost:4000/games/stop/${gameId.current}`, {
+      method: "POST",
+    });
   };
 
   const joinLeftPlayer = (): void => {
@@ -166,17 +183,9 @@ const GameWindow: React.FC<IGameWindow> = (props: IGameWindow) => {
     const context: CanvasRenderingContext2D =
       canvasRef.current.getContext("2d");
 
-    drawPaddle(
-      context,
-      game.current.left.side,
-      game.current.left.height,
-    );
-    drawPaddle(
-      context,
-      game.current.right.side,
-      game.current.right.height,
-    );
-  }, [yRef.current, side.current, game.current.left.height, game.current.right.height]);
+    drawPaddle(context, game.current.left.side, game.current.left.height);
+    drawPaddle(context, game.current.right.side, game.current.right.height);
+  }, [game.current.left.height, game.current.right.height]);
 
   useEffect(() => {
     const canvas: HTMLCanvasElement = canvasRef.current;
@@ -197,7 +206,12 @@ const GameWindow: React.FC<IGameWindow> = (props: IGameWindow) => {
       </Centerdiv>
 
       <Centerdiv>
-        <Button onClick={stopGames}>stopGames</Button>
+        <Button onClick={stop}>stopOneGame</Button>
+        <br />
+      </Centerdiv>
+
+      <Centerdiv>
+        <Button onClick={stopAllGames}>stopAllGames</Button>
         <br />
       </Centerdiv>
 

@@ -24,15 +24,15 @@ interface IProperties {
 }
 
 export interface IPaddleBackend {
-  height: number
-  side: string
+  height: number;
+  side: string;
 }
 
 export interface IGame {
   gameid: number;
   ball: IBall;
-  left: IPaddleBackend
-  right: IPaddleBackend
+  left: IPaddleBackend;
+  right: IPaddleBackend;
 }
 
 export interface IBall {
@@ -43,9 +43,9 @@ export interface IBall {
 }
 
 const properties: IProperties = {
-  window: { width: 960, height: 640, color: 'black' },
-  paddle: { width: 2, height: 15, speed: 200, color: 'white' },
-  ballProperties: { radius: 10, color: 'white' },
+  window: { width: 960, height: 640, color: "black" },
+  paddle: { width: 2, height: 15, speed: 200, color: "white" },
+  ballProperties: { radius: 10, color: "white" },
   framerate: 25,
 };
 
@@ -61,11 +61,11 @@ export const gameSpawn: IGame = {
   ball: ballSpawn,
   left: {
     height: 320,
-    side: "left"
+    side: "left",
   },
   right: {
     height: 320,
-    side: "right"
-  }
-}
+    side: "right",
+  },
+};
 export default properties;
