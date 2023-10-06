@@ -56,7 +56,7 @@ export class AuthController {
   @Get('callback')
   async callback(@Query('code') code: string, @Res() res) {
     try {
-      const token = await this.authService.exchangeCodeForToken(code);
+      const token: string = await this.authService.exchangeCodeForToken(code);
       res.send({ token });
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
