@@ -8,13 +8,14 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
+import { User } from '../users/user.entity';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
   @Post('login')
   @HttpCode(200)
-  async login(@Body() createUserDto: CreateUserDto) {
+  async login(@Body() createUserDto: CreateUserDto): Promise<User> {
     try {
       return await this.authService.login(createUserDto);
     } catch (error) {

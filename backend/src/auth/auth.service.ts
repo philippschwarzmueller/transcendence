@@ -13,7 +13,7 @@ export class AuthService {
   ) {}
 
   async login(user: CreateUserDto) {
-    const foundUser = await this.usersRepository.findOne({
+    const foundUser: User = await this.usersRepository.findOne({
       where: { name: user.name },
     });
 
@@ -30,9 +30,7 @@ export class AuthService {
       throw new Error('Wrong Password');
     }
 
-    return {
-      message: 'Login successful',
-    };
+    return foundUser;
   }
 
   async signup(user: CreateUserDto): Promise<any> {

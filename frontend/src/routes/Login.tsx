@@ -21,7 +21,7 @@ const Login: React.FC = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(input),
-        }
+        },
       );
 
       const data = await response.json();
@@ -29,7 +29,7 @@ const Login: React.FC = () => {
       if (response.ok) {
         alert("Login Successful!");
         setInput({ name: "", password: "" });
-        sessionStorage.setItem("user", data.username);
+        sessionStorage.setItem("user", data.name);
       } else {
         alert("Login Failed: " + (data.error || "Unknown Error"));
       }
@@ -60,6 +60,9 @@ const Login: React.FC = () => {
           Login
         </Button>
       </Form>
+      <div>
+        <Button onClick={() => sessionStorage.removeItem("user")}>Log Out</Button>
+      </div>
     </>
   );
 };
