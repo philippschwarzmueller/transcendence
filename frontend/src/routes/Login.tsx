@@ -24,7 +24,7 @@ const Login: React.FC = () => {
         }
       );
 
-      const data = await response.json();
+      const data: any = await response.json();
 
       if (response.ok) {
         alert("Login Successful!");

@@ -20,7 +20,7 @@ export class AuthService {
   }
 
   async login(user: CreateUserDto) {
-    const foundUser = await this.usersRepository.findOne({
+    const foundUser: User = await this.usersRepository.findOne({
       where: { name: user.name },
     });
 
@@ -47,8 +47,8 @@ export class AuthService {
       where: { name: user.name },
     });
     if (!userExists) {
-      const saltRounds = 10;
-      const hash = await bcrypt_hash(user.password, saltRounds);
+      const saltRounds: number = 10;
+      const hash: string = await bcrypt_hash(user.password, saltRounds);
       await this.usersRepository.insert({ ...user, password: hash });
       return { statusCode: 200, message: 'User created successfully' };
     } else {
@@ -62,7 +62,7 @@ export class AuthService {
   }
 
   async exchangeCodeForToken(code: string): Promise<string> {
-    const response = await fetch('https://api.intra.42.fr/oauth/token', {
+    const response: Response = await fetch('https://api.intra.42.fr/oauth/token', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({
@@ -78,7 +78,7 @@ export class AuthService {
       throw new Error('Failed to exchange code for token');
     }
 
-    const data = await response.json();
+    const data: any = await response.json();
     return data.access_token;
   }
 }
