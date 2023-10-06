@@ -9,6 +9,7 @@ import Game from "./routes/Game";
 import App from "./routes/App";
 import ErrorPage from "./routes/error-page";
 import SignUp from "./routes/SignUp";
+import Login from "./routes/Login";
 import Profile from "./routes/Profile";
 import ProfileSettings from "./routes/ProfileSettings";
 
@@ -39,6 +40,10 @@ const router = createBrowserRouter([
         element: <SignUp />,
       },
       {
+        path: "/login",
+        element: <Login />,
+      },
+      {
         path: "/profile",
         element: <Profile />,
       },
@@ -53,5 +58,5 @@ const router = createBrowserRouter([
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <RouterProvider router={router} />
-  </React.StrictMode>
+  </React.StrictMode>,
 );

@@ -4,59 +4,63 @@ import Input from "../components/input";
 import Form from "../components/form";
 import Pagetitle from "../components/pagetitle";
 
-interface signUpBody {
+interface loginBody {
   name: string;
   password: string;
 }
 
-const SignUp: React.FC = () => {
-  const [input, setInput] = useState<signUpBody>({ name: "", password: "" });
-  async function handleSubmit(event: React.MouseEvent) {
+const Login: React.FC = () => {
+  const [input, setInput] = useState<loginBody>({ name: "", password: "" });
+
+  const handleSubmit = async (event: React.MouseEvent) => {
     event.preventDefault();
     try {
       const response: Response = await fetch(
-        "http://localhost:4000/auth/signup",
+        "http://localhost:4000/auth/login",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(input),
         }
       );
-      const data: any = await response.json();
+
+      const data = await response.json();
+
       if (response.ok) {
-        alert(`User ${input.name} created succesfully`);
+        alert("Login Successful!");
         setInput({ name: "", password: "" });
       } else {
-        alert(data.message || "Signup failed");
+        alert("Login Failed: " + (data.message || "Unknown Error"));
       }
     } catch (error) {
-      alert("An error occured. Please try again or ask pschwarz");
+      alert("Login Failed: Network Error or Request couldn't be made");
     }
-  }
+  };
+
   return (
     <>
-      <Pagetitle>Signup for your Account</Pagetitle>
+      <Pagetitle>Login to your Account</Pagetitle>
       <Form>
         <Input
           value={input.name}
           onChange={(e) => setInput({ ...input, name: e.target.value })}
           label="Username"
           type="string"
-          placeholder="Max Mustermann"
+          placeholder="Your Username"
         ></Input>
         <Input
           value={input.password}
           onChange={(e) => setInput({ ...input, password: e.target.value })}
-          type="password"
           label="Password"
-          placeholder="Super Safe Password"
+          type="password"
+          placeholder="Your Username"
         ></Input>
         <Button onClick={(event: React.MouseEvent) => handleSubmit(event)}>
-          Signup
+          Login
         </Button>
       </Form>
     </>
   );
 };
 
-export default SignUp;
+export default Login;

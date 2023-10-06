@@ -31,9 +31,9 @@ export interface IBall {
 }
 
 const properties: IProperties = {
-  window: { width: 960, height: 640, color: "black" },
-  paddle: { width: 2, height: 15, speed: 200, color: "white" },
-  ballProperties: { radius: 10, color: "white" },
+  window: { width: 960, height: 640, color: 'black' },
+  paddle: { width: 2, height: 15, speed: 200, color: 'white' },
+  ballProperties: { radius: 10, color: 'white' },
   framerate: 25,
 };
 
