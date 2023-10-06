@@ -24,18 +24,26 @@ const Login: React.FC = () => {
         },
       );
 
-      const data = await response.json();
+      const data: any = await response.json();
 
       if (response.ok) {
         alert("Login Successful!");
         setInput({ name: "", password: "" });
         sessionStorage.setItem("user", data.name);
       } else {
-        alert("Login Failed: " + (data.error || "Unknown Error"));
+        alert("Login Failed: " + (data.message || "Unknown Error"));
       }
     } catch (error) {
       alert("Login Failed: Network Error or Request couldn't be made");
     }
+  };
+
+  const handleIntraLogin = async (event: React.MouseEvent) => {
+    window.open(
+      "http://localhost:4000/auth/intra-login",
+      "IntraLogin",
+      "width=600,height=400,popup=true",
+    );
   };
 
   return (
@@ -60,9 +68,10 @@ const Login: React.FC = () => {
           Login
         </Button>
       </Form>
-      <div>
-        <Button onClick={() => sessionStorage.removeItem("user")}>Log Out</Button>
-      </div>
+      <Button onClick={() => sessionStorage.removeItem("user")}>Log Out</Button>
+      <Button onClick={(event: React.MouseEvent) => handleIntraLogin(event)}>
+        Login via 42 intra
+      </Button>
     </>
   );
 };
