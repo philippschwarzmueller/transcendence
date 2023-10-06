@@ -1,9 +1,13 @@
 import React, { useRef, useEffect, useState } from "react";
-import properties, { IBall, IGame, ballSpawn, gameSpawn } from "./properties";
+import properties, {
+  IBall,
+  IGame,
+  ballSpawn,
+  gameSpawn,
+  IPaddleBackend,
+} from "./properties";
 import Button from "../button";
 import Centerdiv from "../centerdiv";
-
-interface IGameWindow {}
 
 interface IKeyState {
   up: boolean;
@@ -11,17 +15,16 @@ interface IKeyState {
 }
 
 const fetchGameState = async (
-  y: number,
-  side: any,
-  gameId: number
+  gameId: number,
+  localPaddle: IPaddleBackend
 ): Promise<IGame> => {
   const response = await fetch(
     `http://localhost:4000/games/gamestate/${gameId}`,
     {
       method: "POST",
       headers: {
-        paddle_pos: `${y}`,
-        side: `${side.current}`,
+        paddle_pos: `${localPaddle.height}`,
+        side: `${localPaddle.side}`,
       },
     }
   );
@@ -40,36 +43,31 @@ const drawPaddle = (
   side: string,
   height: number
 ): void => {
-  const paddle_y: number = Math.floor(
+  const paddleHeight: number = Math.floor(
     (properties.window.height * properties.paddle.height) / 100
   );
-  const paddle_x: number = Math.floor(
+  const paddleWidth: number = Math.floor(
     (properties.window.width * properties.paddle.width) / 100
   );
   if (side === "left") {
     context.fillStyle = properties.window.color;
-    context.fillRect(
-      0,
-      height - paddle_y / 2 - properties.paddle.speed,
-      paddle_x,
-      paddle_y + properties.paddle.speed * 2
-    );
+    context.fillRect(0, 0, paddleWidth, properties.window.height);
     context.fillStyle = properties.paddle.color;
-    context.fillRect(0, height - paddle_y / 2, paddle_x, paddle_y);
+    context.fillRect(0, height - paddleHeight / 2, paddleWidth, paddleHeight);
   } else if (side === "right") {
     context.fillStyle = properties.window.color;
     context.fillRect(
-      properties.window.width - paddle_x,
-      height - paddle_y / 2 - properties.paddle.speed,
-      paddle_x,
-      paddle_y + properties.paddle.speed * 2
+      properties.window.width - paddleWidth,
+      0,
+      paddleWidth,
+      properties.window.height
     );
     context.fillStyle = properties.paddle.color;
     context.fillRect(
-      properties.window.width - paddle_x,
-      height - paddle_y / 2,
-      paddle_x,
-      paddle_y
+      properties.window.width - paddleWidth,
+      height - paddleHeight / 2,
+      paddleWidth,
+      paddleHeight
     );
   }
 };
@@ -96,15 +94,17 @@ const drawBall = (
   context.fill();
 };
 
-const GameWindow: React.FC<IGameWindow> = (props: IGameWindow) => {
+const GameWindow: React.FC = () => {
   const canvasRef: any = useRef<HTMLCanvasElement | null>(null);
-  const yRef = useRef(properties.window.height / 2);
   const keyState = useRef<IKeyState>({ down: false, up: false });
-  let [ball, setBall] = useState({ x: 200, y: 200, speed_x: 0, speed_y: 0 });
+  let [ball, setBall] = useState(ballSpawn);
   let [oldBall, setOldBall] = useState(ballSpawn);
-  const side = useRef("");
-  const game = useRef(gameSpawn);
+  const gameState = useRef<IGame>(gameSpawn);
   const gameId = useRef<number>(0);
+  const localPaddle = useRef<IPaddleBackend>({
+    side: "",
+    height: properties.window.height / 2,
+  });
 
   const GameLoop = async (
     keyState: React.MutableRefObject<IKeyState>
@@ -112,16 +112,24 @@ const GameWindow: React.FC<IGameWindow> = (props: IGameWindow) => {
     const step: number = Math.floor(
       properties.paddle.speed / properties.framerate
     );
-    if (keyState.current.down === true && keyState.current.up === false) {
-      yRef.current += step;
+    if (
+      keyState.current.down === true &&
+      keyState.current.up === false &&
+      localPaddle.current.height + step < properties.window.height
+    ) {
+      localPaddle.current.height += step;
     } else if (
       keyState.current.up === true &&
-      keyState.current.down === false
+      keyState.current.down === false &&
+      localPaddle.current.height - step > 0
     ) {
-      yRef.current -= step;
+      localPaddle.current.height -= step;
     }
-    game.current = await fetchGameState(yRef.current, side, gameId.current);
-    setBall(game.current.ball);
+    gameState.current = await fetchGameState(
+      gameId.current,
+      localPaddle.current
+    );
+    setBall(gameState.current.ball);
   };
 
   const spawnGame = async (): Promise<void> => {
@@ -138,10 +146,11 @@ const GameWindow: React.FC<IGameWindow> = (props: IGameWindow) => {
   };
 
   const joinLeftPlayer = (): void => {
-    side.current = "left";
+    localPaddle.current.side = "left";
   };
+
   const joinRightPlayer = (): void => {
-    side.current = "right";
+    localPaddle.current.side = "right";
   };
 
   useEffect(() => {
@@ -183,9 +192,17 @@ const GameWindow: React.FC<IGameWindow> = (props: IGameWindow) => {
     const context: CanvasRenderingContext2D =
       canvasRef.current.getContext("2d");
 
-    drawPaddle(context, game.current.left.side, game.current.left.height);
-    drawPaddle(context, game.current.right.side, game.current.right.height);
-  }, [game.current.left.height, game.current.right.height]);
+    drawPaddle(
+      context,
+      gameState.current.left.side,
+      gameState.current.left.height
+    );
+    drawPaddle(
+      context,
+      gameState.current.right.side,
+      gameState.current.right.height
+    );
+  }, [gameState.current.left.height, gameState.current.right.height]);
 
   useEffect(() => {
     const canvas: HTMLCanvasElement = canvasRef.current;
