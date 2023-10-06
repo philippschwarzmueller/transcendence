@@ -41,7 +41,7 @@ const Login: React.FC = () => {
     window.open(
       "http://localhost:4000/auth/intra-login",
       "IntraLogin",
-      "width=600,height=400"
+      "width=600,height=400,popup=true",
     );
   };
 
