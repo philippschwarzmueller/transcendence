@@ -8,11 +8,16 @@ import { hash as bcrypt_hash, compare as bcrypt_compare } from 'bcrypt';
 
 @Injectable()
 export class AuthService {
+  private clientID: string;
+  private clientSecret: string;
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
     private configService: ConfigService,
-  ) {}
+  ) {
+    this.clientID = this.configService.get<string>('INTRA_CLIENT_ID');
+    this.clientSecret = this.configService.get<string>('INTRA_SECRET_KEY');
+  }
 
   async login(user: CreateUserDto) {
     const foundUser = await this.usersRepository.findOne({
@@ -52,22 +57,18 @@ export class AuthService {
   }
 
   async intraLogin(@Res() res): Promise<void> {
-    const clientID: string = this.configService.get<string>('INTRA_CLIENT_ID');
-    const url: string = `https://api.intra.42.fr/oauth/authorize?client_id=${clientID}&redirect_uri=http%3A%2F%2Flocalhost%3A4000%2Fauth%2Fcallback&response_type=code`;
+    const url: string = `https://api.intra.42.fr/oauth/authorize?client_id=${this.clientID}&redirect_uri=http%3A%2F%2Flocalhost%3A4000%2Fauth%2Fcallback&response_type=code`;
     res.redirect(url);
   }
 
   async exchangeCodeForToken(code: string): Promise<string> {
-    const clientID: string = this.configService.get<string>('INTRA_CLIENT_ID');
-    const clientSecret: string =
-      this.configService.get<string>('INTRA_SECRET_KEY');
     const response = await fetch('https://api.intra.42.fr/oauth/token', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({
         grant_type: 'authorization_code',
-        client_id: clientID,
-        client_secret: clientSecret,
+        client_id: this.clientID,
+        client_secret: this.clientSecret,
         code,
         redirect_uri: 'http://localhost:4000/auth/callback',
       }),
