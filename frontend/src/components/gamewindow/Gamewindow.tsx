@@ -26,6 +26,9 @@ const stopGames = async (): Promise<void> => {
   });
 };
 
+const joinLeftPlayer = (): void => {}
+const joinRightPlayer = (): void => {}
+
 const drawPaddle = (
   context: CanvasRenderingContext2D,
   side: string,
@@ -162,9 +165,15 @@ const GameWindow: React.FC<IGameWindow> = (props: IGameWindow) => {
         <Button onClick={spawnGame}>Spawn game in backend</Button>
         <br />
       </Centerdiv>
+
       <Centerdiv>
         <Button onClick={stopGames}>stopGames</Button>
         <br />
+      </Centerdiv>
+
+      <Centerdiv>
+        <Button onClick={joinLeftPlayer}>join left player</Button>
+        <Button onClick={joinRightPlayer}>join right player</Button>
       </Centerdiv>
 
       <Centerdiv>
