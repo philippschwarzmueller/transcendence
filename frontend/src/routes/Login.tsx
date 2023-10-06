@@ -29,6 +29,7 @@ const Login: React.FC = () => {
       if (response.ok) {
         alert("Login Successful!");
         setInput({ name: "", password: "" });
+        sessionStorage.setItem("user", data.username);
       } else {
         alert("Login Failed: " + (data.error || "Unknown Error"));
       }
