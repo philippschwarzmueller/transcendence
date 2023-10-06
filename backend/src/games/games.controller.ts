@@ -1,4 +1,4 @@
-import { Get, Controller, Post } from '@nestjs/common';
+import { Get, Controller, Post , Req} from '@nestjs/common';
 import { GamesService } from './games.service';
 import { IBall } from './properties';
 
@@ -6,8 +6,10 @@ import { IBall } from './properties';
 export class GamesController {
   constructor(private gamesService: GamesService) {}
 
-  @Get('ball')
-  async ball(): Promise<IBall> {
+  @Post('ball')
+  async ball(@Req() req: Request): Promise<IBall> {
+    const paddlePos = req.headers['paddle_pos']
+    // console.log(`Paddle Position: ${paddlePos}`)
     return this.gamesService.ball();
   }
 

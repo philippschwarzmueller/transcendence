@@ -14,8 +14,15 @@ const spawnGame = async (): Promise<void> => {
   await fetch(`http://localhost:4000/games/start`, { method: "POST" });
 };
 
-const fetchBall = async (): Promise<IBall> => {
-  const response = await fetch(`http://localhost:4000/games/ball`);
+const fetchBall = async (y: number): Promise<IBall> => {
+  const response = await fetch(`http://localhost:4000/games/ball`, {
+    method: "POST",
+    headers: {
+      paddle_pos: `${y}`
+    }
+
+  ,
+  });
   const ball: IBall = await response.json();
   return ball;
 };
@@ -62,6 +69,7 @@ const drawPaddle = (
       paddle_y,
     );
   }
+  // console.log(height)
 };
 
 const drawBall = (
@@ -88,22 +96,22 @@ const drawBall = (
 
 const GameWindow: React.FC<IGameWindow> = (props: IGameWindow) => {
   const canvasRef: any = useRef<HTMLCanvasElement | null>(null);
-  let [y, setY] = useState(properties.window.height / 2);
+  const yRef = useRef(properties.window.height / 2)
   let [old_y, setOld_y] = useState(properties.window.height / 2);
-  let keyState: IKeyState = { down: false, up: false };
+  const keyState = useRef<IKeyState>({ down: false, up: false })
   let [ball, setBall] = useState({ x: 200, y: 200, speed_x: 0, speed_y: 0 });
   let [oldBall, setOldBall] = useState(ballSpawn);
 
-  const GameLoop = async (keyState: IKeyState): Promise<void> => {
+  const GameLoop = async (keyState: React.MutableRefObject<IKeyState>): Promise<void> => {
     const step: number = Math.floor(
       properties.paddle.speed / properties.framerate,
     );
-    if (keyState.down === true && keyState.up === false) {
-      setY((y) => y + step);
-    } else if (keyState.up === true && keyState.down === false) {
-      setY((y) => y - step);
+    if (keyState.current.down === true && keyState.current.up === false) {
+      yRef.current += step
+    } else if (keyState.current.up === true && keyState.current.down === false) {
+      yRef.current -= step
     }
-    setBall(await fetchBall());
+    setBall(await fetchBall(yRef.current));
   };
 
   useEffect(() => {
@@ -117,8 +125,8 @@ const GameWindow: React.FC<IGameWindow> = (props: IGameWindow) => {
     window.addEventListener(
       "keydown",
       function (e) {
-        if (e.key === "ArrowUp") keyState.up = true;
-        if (e.key === "ArrowDown") keyState.down = true;
+        if (e.key === "ArrowUp") keyState.current.up = true;
+        if (e.key === "ArrowDown") keyState.current.down = true;
       },
       true,
     );
@@ -126,15 +134,14 @@ const GameWindow: React.FC<IGameWindow> = (props: IGameWindow) => {
     window.addEventListener(
       "keyup",
       function (e) {
-        if (e.key === "ArrowUp") keyState.up = false;
-        if (e.key === "ArrowDown") keyState.down = false;
+        if (e.key === "ArrowUp") keyState.current.up = false;
+        if (e.key === "ArrowDown") keyState.current.down = false;
       },
       true,
     );
 
-    /*const interval = */ setInterval(() => {
-      GameLoop(keyState);
-    }, 1000 / properties.framerate);
+    /*const interval = */ setInterval(
+      GameLoop, 1000 / properties.framerate, keyState);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
@@ -143,10 +150,9 @@ const GameWindow: React.FC<IGameWindow> = (props: IGameWindow) => {
     const context: CanvasRenderingContext2D =
       canvasRef.current.getContext("2d");
 
-    drawPaddle(context, "left", old_y, y);
-
-    setOld_y(y);
-  }, [y, old_y]);
+    drawPaddle(context, "left", old_y, yRef.current);
+    setOld_y(yRef.current);
+  }, [yRef.current, old_y]);
 
   useEffect(() => {
     const canvas: HTMLCanvasElement = canvasRef.current;
