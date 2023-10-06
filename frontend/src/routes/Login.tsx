@@ -37,6 +37,14 @@ const Login: React.FC = () => {
     }
   };
 
+  const handleIntraLogin = async (event: React.MouseEvent) => {
+    window.open(
+      "http://localhost:4000/auth/intra-login",
+      "IntraLogin",
+      "width=600,height=400"
+    );
+  };
+
   return (
     <>
       <Pagetitle>Login to your Account</Pagetitle>
@@ -59,6 +67,9 @@ const Login: React.FC = () => {
           Login
         </Button>
       </Form>
+      <Button onClick={(event: React.MouseEvent) => handleIntraLogin(event)}>
+        Login via 42 intra
+      </Button>
     </>
   );
 };
