@@ -159,7 +159,18 @@ const GameWindow: React.FC = () => {
       backgroundRef.current.getContext("2d");
     context.fillStyle = properties.window.color;
     context.fillRect(0, 0, properties.window.width, properties.window.height);
-
+    context.fillStyle = properties.paddle.color;
+    const squareSize: number = properties.window.height / 32;
+    let currenSquarePos: number = squareSize;
+    while (currenSquarePos < properties.window.height) {
+      context.fillRect(
+        properties.window.width / 2 - squareSize / 2,
+        currenSquarePos - squareSize / 2,
+        squareSize,
+        squareSize
+      );
+      currenSquarePos += 2 * squareSize;
+    }
     window.addEventListener(
       "keydown",
       function (e) {
