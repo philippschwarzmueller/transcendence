@@ -4,7 +4,7 @@ import properties, {
   gameSpawn,
   IBall,
   IGame,
-  IPaddleBackend,
+  IPaddle,
 } from './properties';
 
 const newGameCopy = (): IGame => {
@@ -14,8 +14,8 @@ const newGameCopy = (): IGame => {
 @Injectable()
 export class GamesService {
   constructor() {
-    this.games = [];
-    this.intervals = [];
+    this.games = []; // array with all gamedata
+    this.intervals = []; // array with all gameloops (to kill them)
     this.amountOfGammes = 0;
   }
 
@@ -37,7 +37,7 @@ export class GamesService {
     this.games[gameId] = newGameCopy();
   }
 
-  async gamestate(paddle: IPaddleBackend, gameId: number): Promise<IGame> {
+  async gamestate(paddle: IPaddle, gameId: number): Promise<IGame> {
     if (this.amountOfGammes === 0) return newGameCopy();
     if (paddle.side === 'left')
       this.games[gameId].left = { side: 'left', height: paddle.height };
@@ -63,25 +63,50 @@ export class GamesService {
     );
     const newBall: IBall = this.advanceBall(this.games[gameId].ball);
     if (newBall.x > properties.window.width) {
+      // collision on right side
       if (
+        // missed paddle
         newBall.y > this.games[gameId].right.height + paddleHalf ||
         newBall.y < this.games[gameId].right.height - paddleHalf
       )
         this.games[gameId].ball = ballSpawn;
-      else this.games[gameId].ball.speed_x *= -1;
+      else {
+        // hit paddle
+        this.games[gameId].ball.speed_x *= -1; // turn around
+        const deltaPaddle: number =
+          ((this.games[gameId].right.height - this.games[gameId].ball.y) * 2) /
+          paddleHalf;
+        this.games[gameId].ball.speed_y =
+          this.games[gameId].ball.speed_x * deltaPaddle; // y-direction change
+        this.games[gameId].ball.speed_x *=
+          properties.ballProperties.acceleration; // acceleration
+      }
     }
     if (newBall.x < 0) {
+      // collision on left side
       if (
+        // missed paddle
         newBall.y > this.games[gameId].left.height + paddleHalf ||
         newBall.y < this.games[gameId].left.height - paddleHalf
       )
         this.games[gameId].ball = ballSpawn;
-      else this.games[gameId].ball.speed_x *= -1;
+      else {
+        // hit paddle
+        this.games[gameId].ball.speed_x *= -1;
+        const deltaPaddle: number =
+          ((this.games[gameId].left.height - this.games[gameId].ball.y) * -2) /
+          paddleHalf;
+        this.games[gameId].ball.speed_y =
+          this.games[gameId].ball.speed_x * deltaPaddle; // y-direction change
+        this.games[gameId].ball.speed_x *=
+          properties.ballProperties.acceleration; // acceleration
+      }
     }
     if (newBall.y > properties.window.height || newBall.y < 0) {
+      //collision on top/botton
       this.games[gameId].ball.speed_y *= -1;
     }
-    this.games[gameId].ball = this.advanceBall(this.games[gameId].ball);
+    this.games[gameId].ball = this.advanceBall(this.games[gameId].ball); // actually moving ball
   }
 
   public startGameLoop(): number {
