@@ -8,6 +8,7 @@ import properties, {
 } from "./properties";
 import Button from "../button";
 import Centerdiv from "../centerdiv";
+import Gamecanvas from "../gamecanvas";
 
 interface IKeyState {
   up: boolean;
@@ -51,12 +52,12 @@ const drawPaddle = (
   );
   if (side === "left") {
     context.fillStyle = properties.window.color;
-    context.fillRect(0, 0, paddleWidth, properties.window.height);
+    context.clearRect(0, 0, paddleWidth, properties.window.height);
     context.fillStyle = properties.paddle.color;
     context.fillRect(0, height - paddleHeight / 2, paddleWidth, paddleHeight);
   } else if (side === "right") {
     context.fillStyle = properties.window.color;
-    context.fillRect(
+    context.clearRect(
       properties.window.width - paddleWidth,
       0,
       paddleWidth,
@@ -77,17 +78,12 @@ const drawBall = (
   ball: IBall,
   old_ball: IBall
 ): void => {
-  context.fillStyle = properties.window.color;
-  context.beginPath();
-  context.arc(
-    old_ball.x,
-    old_ball.y,
-    properties.ballProperties.radius * 1.1,
-    0,
-    2 * Math.PI
+  context.clearRect(
+    old_ball.x - properties.ballProperties.radius * 2,
+    old_ball.y - properties.ballProperties.radius * 2,
+    properties.ballProperties.radius * 4,
+    properties.ballProperties.radius * 4
   );
-  context.fill();
-
   context.fillStyle = properties.ballProperties.color;
   context.beginPath();
   context.arc(ball.x, ball.y, properties.ballProperties.radius, 0, 2 * Math.PI);
@@ -95,7 +91,9 @@ const drawBall = (
 };
 
 const GameWindow: React.FC = () => {
-  const canvasRef: any = useRef<HTMLCanvasElement | null>(null);
+  const paddleRef: any = useRef<HTMLCanvasElement | null>(null);
+  const ballRef: any = useRef<HTMLCanvasElement | null>(null);
+  const backgroundRef: any = useRef<HTMLCanvasElement | null>(null);
   const keyState = useRef<IKeyState>({ down: false, up: false });
   let [ball, setBall] = useState(ballSpawn);
   let [oldBall, setOldBall] = useState(ballSpawn);
@@ -154,10 +152,10 @@ const GameWindow: React.FC = () => {
   };
 
   useEffect(() => {
-    const canvas: HTMLCanvasElement = canvasRef.current;
+    const canvas: HTMLCanvasElement = backgroundRef.current;
     canvas.focus();
     const context: CanvasRenderingContext2D =
-      canvasRef.current.getContext("2d");
+      backgroundRef.current.getContext("2d");
     context.fillStyle = properties.window.color;
     context.fillRect(0, 0, properties.window.width, properties.window.height);
 
@@ -187,10 +185,10 @@ const GameWindow: React.FC = () => {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    const canvas: HTMLCanvasElement = canvasRef.current;
+    const canvas: HTMLCanvasElement = paddleRef.current;
     canvas.focus();
     const context: CanvasRenderingContext2D =
-      canvasRef.current.getContext("2d");
+      paddleRef.current.getContext("2d");
 
     drawPaddle(
       context,
@@ -205,10 +203,9 @@ const GameWindow: React.FC = () => {
   }, [gameState.current.left.height, gameState.current.right.height]);
 
   useEffect(() => {
-    const canvas: HTMLCanvasElement = canvasRef.current;
+    const canvas: HTMLCanvasElement = ballRef.current;
     canvas.focus();
-    const context: CanvasRenderingContext2D =
-      canvasRef.current.getContext("2d");
+    const context: CanvasRenderingContext2D = ballRef.current.getContext("2d");
 
     drawBall(context, ball, oldBall);
 
@@ -238,14 +235,38 @@ const GameWindow: React.FC = () => {
       </Centerdiv>
 
       <Centerdiv>
-        <canvas
-          id="gameCanvas"
-          ref={canvasRef}
-          width={properties.window.width}
-          height={properties.window.height}
-          tabIndex={0}
-          style={{ border: "3px solid #000000" }}
-        ></canvas>
+        <div style={{ position: "relative" }}>
+          <div style={{ position: "absolute" }}>
+            <Gamecanvas
+              id="backgroundCanvas"
+              ref={backgroundRef}
+              width={properties.window.width}
+              height={properties.window.height}
+              tabIndex={0}
+              style={{ border: "3px solid #000000", position: "relative" }}
+            ></Gamecanvas>
+          </div>
+          <div style={{ position: "absolute" }}>
+            <Gamecanvas
+              id="paddleCanvas"
+              ref={paddleRef}
+              width={properties.window.width}
+              height={properties.window.height}
+              tabIndex={0}
+              style={{ border: "3px solid #000000", position: "relative" }}
+            ></Gamecanvas>
+          </div>
+          <div style={{ position: "absolute" }}>
+            <Gamecanvas
+              id="ballCanvas"
+              ref={ballRef}
+              width={properties.window.width}
+              height={properties.window.height}
+              tabIndex={1}
+              style={{ border: "3px solid #000000", position: "relative" }}
+            ></Gamecanvas>
+          </div>
+        </div>
       </Centerdiv>
 
       <Centerdiv>
