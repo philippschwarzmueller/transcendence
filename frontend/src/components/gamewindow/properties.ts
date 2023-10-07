@@ -34,6 +34,8 @@ export interface IGame {
   ball: IBall;
   left: IPaddle;
   right: IPaddle;
+  pointsLeft: number;
+  pointsRight: number;
 }
 
 export interface IBall {
@@ -68,5 +70,7 @@ export const gameSpawn: IGame = {
     height: 320,
     side: "right",
   },
+  pointsLeft: 0,
+  pointsRight: 0,
 };
 export default properties;

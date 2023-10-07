@@ -247,6 +247,16 @@ const GameWindow: React.FC = () => {
           style={{ border: "3px solid #000000" }}
         ></canvas>
       </Centerdiv>
+
+      <Centerdiv>
+        <p>Gameid: {gameState.current.gameId}</p>
+      </Centerdiv>
+      <Centerdiv>
+        <p>
+          Left Player Points: {gameState.current.pointsLeft} Right Player
+          Points: {gameState.current.pointsRight}
+        </p>
+      </Centerdiv>
     </>
   );
 };

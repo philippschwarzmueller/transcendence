@@ -68,9 +68,10 @@ export class GamesService {
         // missed paddle
         newBall.y > this.games[gameId].right.height + paddleHalf ||
         newBall.y < this.games[gameId].right.height - paddleHalf
-      )
+      ) {
         this.games[gameId].ball = ballSpawn;
-      else {
+        this.games[gameId].pointsLeft++;
+      } else {
         // hit paddle
         this.games[gameId].ball.speed_x *= -1; // turn around
         const deltaPaddle: number =
@@ -88,9 +89,10 @@ export class GamesService {
         // missed paddle
         newBall.y > this.games[gameId].left.height + paddleHalf ||
         newBall.y < this.games[gameId].left.height - paddleHalf
-      )
+      ) {
         this.games[gameId].ball = ballSpawn;
-      else {
+        this.games[gameId].pointsRight++;
+      } else {
         // hit paddle
         this.games[gameId].ball.speed_x *= -1;
         const deltaPaddle: number =
