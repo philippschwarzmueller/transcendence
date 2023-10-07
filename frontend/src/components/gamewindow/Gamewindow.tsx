@@ -91,9 +91,10 @@ const drawBall = (
 };
 
 const GameWindow: React.FC = () => {
+  const backgroundRef: any = useRef<HTMLCanvasElement | null>(null);
+  const scoreRef: any = useRef<HTMLCanvasElement | null>(null);
   const paddleRef: any = useRef<HTMLCanvasElement | null>(null);
   const ballRef: any = useRef<HTMLCanvasElement | null>(null);
-  const backgroundRef: any = useRef<HTMLCanvasElement | null>(null);
   const keyState = useRef<IKeyState>({ down: false, up: false });
   let [ball, setBall] = useState(ballSpawn);
   let [oldBall, setOldBall] = useState(ballSpawn);
@@ -203,6 +204,23 @@ const GameWindow: React.FC = () => {
   }, [gameState.current.left.height, gameState.current.right.height]);
 
   useEffect(() => {
+    const context: CanvasRenderingContext2D = scoreRef.current.getContext("2d");
+    const fontSize: number = properties.window.height / 6;
+    context.font = `${fontSize}px Arial`;
+    context.fillStyle = "white";
+    context.fillText(
+      `${gameState.current.pointsLeft}`,
+      properties.window.width / 3,
+      properties.window.height / 6
+    );
+    context.fillText(
+      `${gameState.current.pointsRight}`,
+      (properties.window.width * 2) / 3,
+      properties.window.height / 6
+    );
+  }, [gameState.current.pointsLeft, gameState.current.pointsRight]);
+
+  useEffect(() => {
     const canvas: HTMLCanvasElement = ballRef.current;
     canvas.focus();
     const context: CanvasRenderingContext2D = ballRef.current.getContext("2d");
@@ -240,6 +258,16 @@ const GameWindow: React.FC = () => {
             <Gamecanvas
               id="backgroundCanvas"
               ref={backgroundRef}
+              width={properties.window.width}
+              height={properties.window.height}
+              tabIndex={0}
+              style={{ border: "3px solid #000000", position: "relative" }}
+            ></Gamecanvas>
+          </div>
+          <div style={{ position: "absolute" }}>
+            <Gamecanvas
+              id="scoreCanvas"
+              ref={scoreRef}
               width={properties.window.width}
               height={properties.window.height}
               tabIndex={0}
