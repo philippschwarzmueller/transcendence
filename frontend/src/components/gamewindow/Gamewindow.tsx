@@ -243,79 +243,64 @@ const GameWindow: React.FC = () => {
 
   return (
     <>
-      <Centerdiv>
-        <Button onClick={spawnGame}>Spawn game in backend</Button>
-        <br />
-      </Centerdiv>
+      <div>
+        <Centerdiv>
+          <Button onClick={spawnGame}>Spawn game in backend</Button>
+          <br />
+        </Centerdiv>
 
-      <Centerdiv>
-        <Button onClick={stop}>stopOneGame</Button>
-        <br />
-      </Centerdiv>
+        <Centerdiv>
+          <Button onClick={stop}>stopOneGame</Button>
+          <br />
+        </Centerdiv>
 
-      <Centerdiv>
-        <Button onClick={stopAllGames}>stopAllGames</Button>
-        <br />
-      </Centerdiv>
+        <Centerdiv>
+          <Button onClick={stopAllGames}>stopAllGames</Button>
+          <br />
+        </Centerdiv>
 
+        <Centerdiv>
+          <Button onClick={joinLeftPlayer}>join left player</Button>
+          <Button onClick={joinRightPlayer}>join right player</Button>
+        </Centerdiv>
+      </div>
       <Centerdiv>
-        <Button onClick={joinLeftPlayer}>join left player</Button>
-        <Button onClick={joinRightPlayer}>join right player</Button>
-      </Centerdiv>
-
-      <Centerdiv>
-        <div style={{ position: "relative" }}>
-          <div style={{ position: "absolute" }}>
-            <Gamecanvas
-              id="backgroundCanvas"
-              ref={backgroundRef}
-              width={properties.window.width}
-              height={properties.window.height}
-              tabIndex={0}
-              style={{ border: "3px solid #000000", position: "relative" }}
-            ></Gamecanvas>
-          </div>
-          <div style={{ position: "absolute" }}>
-            <Gamecanvas
-              id="scoreCanvas"
-              ref={scoreRef}
-              width={properties.window.width}
-              height={properties.window.height}
-              tabIndex={0}
-              style={{ border: "3px solid #000000", position: "relative" }}
-            ></Gamecanvas>
-          </div>
-          <div style={{ position: "absolute" }}>
-            <Gamecanvas
-              id="paddleCanvas"
-              ref={paddleRef}
-              width={properties.window.width}
-              height={properties.window.height}
-              tabIndex={0}
-              style={{ border: "3px solid #000000", position: "relative" }}
-            ></Gamecanvas>
-          </div>
-          <div style={{ position: "absolute" }}>
-            <Gamecanvas
-              id="ballCanvas"
-              ref={ballRef}
-              width={properties.window.width}
-              height={properties.window.height}
-              tabIndex={1}
-              style={{ border: "3px solid #000000", position: "relative" }}
-            ></Gamecanvas>
-          </div>
+        <div>
+          <Gamecanvas
+            id="backgroundCanvas"
+            ref={backgroundRef}
+            width={properties.window.width}
+            height={properties.window.height}
+            tabIndex={0}
+          ></Gamecanvas>
         </div>
-      </Centerdiv>
-
-      <Centerdiv>
-        <p>Gameid: {gameState.current.gameId}</p>
-      </Centerdiv>
-      <Centerdiv>
-        <p>
-          Left Player Points: {gameState.current.pointsLeft} Right Player
-          Points: {gameState.current.pointsRight}
-        </p>
+        <div>
+          <Gamecanvas
+            id="scoreCanvas"
+            ref={scoreRef}
+            width={properties.window.width}
+            height={properties.window.height}
+            tabIndex={0}
+          ></Gamecanvas>
+        </div>
+        <div>
+          <Gamecanvas
+            id="paddleCanvas"
+            ref={paddleRef}
+            width={properties.window.width}
+            height={properties.window.height}
+            tabIndex={0}
+          ></Gamecanvas>
+        </div>
+        <div>
+          <Gamecanvas
+            id="ballCanvas"
+            ref={ballRef}
+            width={properties.window.width}
+            height={properties.window.height}
+            tabIndex={1}
+          ></Gamecanvas>
+        </div>
       </Centerdiv>
     </>
   );
