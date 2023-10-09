@@ -1,13 +1,16 @@
 import React, { useRef, useEffect, useState } from "react";
-import properties, {
-  IBall,
-  IGame,
-  ballSpawn,
-  gameSpawn,
-  IPaddle,
-} from "./properties";
+import properties, { IGame, ballSpawn, gameSpawn, IPaddle } from "./properties";
 import Button from "../button";
 import Centerdiv from "../centerdiv";
+import Gamecanvas from "../gamecanvas";
+import {
+  drawBackground,
+  drawBall,
+  drawBothPaddles,
+  drawText,
+} from "./drawFunctions";
+
+const BACKEND: string = `http://${window.location.hostname}:${4000}`;
 
 interface IKeyState {
   up: boolean;
@@ -18,84 +21,28 @@ const fetchGameState = async (
   gameId: number,
   localPaddle: IPaddle
 ): Promise<IGame> => {
-  const response = await fetch(
-    `http://localhost:4000/games/gamestate/${gameId}`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(localPaddle),
-    }
-  );
+  const response = await fetch(`${BACKEND}/games/gamestate/${gameId}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(localPaddle),
+  });
   const ball: IGame = await response.json();
   return ball;
 };
 
 const stopAllGames = async (): Promise<void> => {
-  await fetch(`http://localhost:4000/games/stopall`, {
+  await fetch(`${BACKEND}/games/stopall`, {
     method: "POST",
   });
 };
 
-const drawPaddle = (
-  context: CanvasRenderingContext2D,
-  side: string,
-  height: number
-): void => {
-  const paddleHeight: number = Math.floor(
-    (properties.window.height * properties.paddle.height) / 100
-  );
-  const paddleWidth: number = Math.floor(
-    (properties.window.width * properties.paddle.width) / 100
-  );
-  if (side === "left") {
-    context.fillStyle = properties.window.color;
-    context.fillRect(0, 0, paddleWidth, properties.window.height);
-    context.fillStyle = properties.paddle.color;
-    context.fillRect(0, height - paddleHeight / 2, paddleWidth, paddleHeight);
-  } else if (side === "right") {
-    context.fillStyle = properties.window.color;
-    context.fillRect(
-      properties.window.width - paddleWidth,
-      0,
-      paddleWidth,
-      properties.window.height
-    );
-    context.fillStyle = properties.paddle.color;
-    context.fillRect(
-      properties.window.width - paddleWidth,
-      height - paddleHeight / 2,
-      paddleWidth,
-      paddleHeight
-    );
-  }
-};
-
-const drawBall = (
-  context: CanvasRenderingContext2D,
-  ball: IBall,
-  old_ball: IBall
-): void => {
-  context.fillStyle = properties.window.color;
-  context.beginPath();
-  context.arc(
-    old_ball.x,
-    old_ball.y,
-    properties.ballProperties.radius * 1.1,
-    0,
-    2 * Math.PI
-  );
-  context.fill();
-
-  context.fillStyle = properties.ballProperties.color;
-  context.beginPath();
-  context.arc(ball.x, ball.y, properties.ballProperties.radius, 0, 2 * Math.PI);
-  context.fill();
-};
-
 const GameWindow: React.FC = () => {
-  const canvasRef: any = useRef<HTMLCanvasElement | null>(null);
+  const backgroundRef: any = useRef<HTMLCanvasElement | null>(null);
+  const scoreRef: any = useRef<HTMLCanvasElement | null>(null);
+  const paddleRef: any = useRef<HTMLCanvasElement | null>(null);
+  const ballRef: any = useRef<HTMLCanvasElement | null>(null);
   const keyState = useRef<IKeyState>({ down: false, up: false });
   let [ball, setBall] = useState(ballSpawn);
   let [oldBall, setOldBall] = useState(ballSpawn);
@@ -133,14 +80,14 @@ const GameWindow: React.FC = () => {
   };
 
   const spawnGame = async (): Promise<void> => {
-    const incomingGameId = await fetch(`http://localhost:4000/games/start`, {
+    const incomingGameId = await fetch(`${BACKEND}/games/start`, {
       method: "POST",
     });
     gameId.current = await incomingGameId.json();
   };
 
   const stop = async (): Promise<void> => {
-    await fetch(`http://localhost:4000/games/stop/${gameId.current}`, {
+    await fetch(`${BACKEND}/games/stop/${gameId.current}`, {
       method: "POST",
     });
   };
@@ -154,16 +101,10 @@ const GameWindow: React.FC = () => {
   };
 
   useEffect(() => {
-    const canvas: HTMLCanvasElement = canvasRef.current;
-    canvas.focus();
-    const context: CanvasRenderingContext2D =
-      canvasRef.current.getContext("2d");
-    context.fillStyle = properties.window.color;
-    context.fillRect(0, 0, properties.window.width, properties.window.height);
-
+    drawBackground(backgroundRef.current.getContext("2d"));
     window.addEventListener(
       "keydown",
-      function (e) {
+      (e) => {
         if (e.key === "ArrowUp") keyState.current.up = true;
         if (e.key === "ArrowDown") keyState.current.down = true;
       },
@@ -172,7 +113,7 @@ const GameWindow: React.FC = () => {
 
     window.addEventListener(
       "keyup",
-      function (e) {
+      (e) => {
         if (e.key === "ArrowUp") keyState.current.up = false;
         if (e.key === "ArrowDown") keyState.current.down = false;
       },
@@ -187,28 +128,25 @@ const GameWindow: React.FC = () => {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    const canvas: HTMLCanvasElement = canvasRef.current;
-    canvas.focus();
-    const context: CanvasRenderingContext2D =
-      canvasRef.current.getContext("2d");
-
-    drawPaddle(
-      context,
-      gameState.current.left.side,
-      gameState.current.left.height
-    );
-    drawPaddle(
-      context,
-      gameState.current.right.side,
+    drawBothPaddles(
+      paddleRef.current.getContext("2d"),
+      gameState.current.left.height,
       gameState.current.right.height
     );
   }, [gameState.current.left.height, gameState.current.right.height]);
 
   useEffect(() => {
-    const canvas: HTMLCanvasElement = canvasRef.current;
+    drawText(
+      scoreRef.current.getContext("2d"),
+      gameState.current.pointsLeft,
+      gameState.current.pointsRight
+    );
+  }, [gameState.current.pointsLeft, gameState.current.pointsRight]);
+
+  useEffect(() => {
+    const canvas: HTMLCanvasElement = ballRef.current;
     canvas.focus();
-    const context: CanvasRenderingContext2D =
-      canvasRef.current.getContext("2d");
+    const context: CanvasRenderingContext2D = ballRef.current.getContext("2d");
 
     drawBall(context, ball, oldBall);
 
@@ -217,35 +155,64 @@ const GameWindow: React.FC = () => {
 
   return (
     <>
-      <Centerdiv>
-        <Button onClick={spawnGame}>Spawn game in backend</Button>
-        <br />
-      </Centerdiv>
+      <div>
+        <Centerdiv>
+          <Button onClick={spawnGame}>Spawn game in backend</Button>
+          <br />
+        </Centerdiv>
 
-      <Centerdiv>
-        <Button onClick={stop}>stopOneGame</Button>
-        <br />
-      </Centerdiv>
+        <Centerdiv>
+          <Button onClick={stop}>stopOneGame</Button>
+          <br />
+        </Centerdiv>
 
-      <Centerdiv>
-        <Button onClick={stopAllGames}>stopAllGames</Button>
-        <br />
-      </Centerdiv>
+        <Centerdiv>
+          <Button onClick={stopAllGames}>stopAllGames</Button>
+          <br />
+        </Centerdiv>
 
+        <Centerdiv>
+          <Button onClick={joinLeftPlayer}>join left player</Button>
+          <Button onClick={joinRightPlayer}>join right player</Button>
+        </Centerdiv>
+      </div>
       <Centerdiv>
-        <Button onClick={joinLeftPlayer}>join left player</Button>
-        <Button onClick={joinRightPlayer}>join right player</Button>
-      </Centerdiv>
-
-      <Centerdiv>
-        <canvas
-          id="gameCanvas"
-          ref={canvasRef}
-          width={properties.window.width}
-          height={properties.window.height}
-          tabIndex={0}
-          style={{ border: "3px solid #000000" }}
-        ></canvas>
+        <div>
+          <Gamecanvas
+            id="backgroundCanvas"
+            ref={backgroundRef}
+            width={properties.window.width}
+            height={properties.window.height}
+            tabIndex={0}
+          ></Gamecanvas>
+        </div>
+        <div>
+          <Gamecanvas
+            id="scoreCanvas"
+            ref={scoreRef}
+            width={properties.window.width}
+            height={properties.window.height}
+            tabIndex={0}
+          ></Gamecanvas>
+        </div>
+        <div>
+          <Gamecanvas
+            id="paddleCanvas"
+            ref={paddleRef}
+            width={properties.window.width}
+            height={properties.window.height}
+            tabIndex={0}
+          ></Gamecanvas>
+        </div>
+        <div>
+          <Gamecanvas
+            id="ballCanvas"
+            ref={ballRef}
+            width={properties.window.width}
+            height={properties.window.height}
+            tabIndex={1}
+          ></Gamecanvas>
+        </div>
       </Centerdiv>
 
       <Centerdiv>
