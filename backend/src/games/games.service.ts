@@ -6,30 +6,10 @@ import properties, {
   IGame,
   IPaddle,
 } from './properties';
+import { advanceBall, ballHitPaddle, bounceOnPaddle } from './games.gamelogic';
 
 const newGameCopy = (): IGame => {
   return JSON.parse(JSON.stringify(gameSpawn));
-};
-
-const advanceBall = (oldBall: IBall): IBall => {
-  const newBall: IBall = {
-    x: oldBall.x + oldBall.speed_x,
-    y: oldBall.y + oldBall.speed_y,
-    speed_x: oldBall.speed_x,
-    speed_y: oldBall.speed_y,
-  };
-  return newBall;
-};
-
-const bounceOnPaddle = (ball: IBall, paddle: IPaddle): IBall => {
-  const paddleHalf: number = Math.floor(
-    (properties.window.height * properties.paddle.height) / 100 / 2,
-  );
-  ball.speed_x *= -1; // turn around
-  const deltaPaddle: number = ((paddle.height - ball.y) * 2) / paddleHalf;
-  ball.speed_y = -Math.abs(ball.speed_x) * deltaPaddle; // y-direction change
-  ball.speed_x *= properties.ballProperties.acceleration; // acceleration
-  return ball;
 };
 
 @Injectable()
@@ -73,34 +53,21 @@ export class GamesService {
       (properties.window.height * properties.paddle.height) / 100 / 2,
     );
     const newBall: IBall = advanceBall(this.games[gameId].ball);
-    if (
-      newBall.x >
-        properties.window.width -
-          properties.paddle.width -
-          properties.ballProperties.radius &&
-      newBall.y < this.games[gameId].right.height + paddleHalf &&
-      newBall.y > this.games[gameId].right.height - paddleHalf
-    ) {
-      // hit paddle
+    if (ballHitPaddle(newBall, this.games[gameId].right)) {
+      // hit right paddle
       bounceOnPaddle(this.games[gameId].ball, this.games[gameId].right);
     } else if (newBall.x > properties.window.width) {
-      // missed paddle
+      // missed right paddle
       this.games[gameId].ball = ballSpawn;
       this.games[gameId].pointsLeft++;
-    }
-    if (
-      newBall.x < properties.paddle.width + properties.ballProperties.radius &&
-      newBall.y < this.games[gameId].left.height + paddleHalf &&
-      newBall.y > this.games[gameId].left.height - paddleHalf
-    ) {
-      // hit paddle
+    } else if (ballHitPaddle(newBall, this.games[gameId].left)) {
+      // hit left paddle
       bounceOnPaddle(this.games[gameId].ball, this.games[gameId].left);
-    } else if (newBall.x > properties.window.width) {
-      // missed paddle
+    } else if (newBall.x < 0) {
+      // missed left paddle
       this.games[gameId].ball = ballSpawn;
       this.games[gameId].pointsRight++;
-    }
-    if (newBall.y > properties.window.height || newBall.y < 0) {
+    } else if (newBall.y > properties.window.height || newBall.y < 0) {
       //collision on top/botton
       this.games[gameId].ball.speed_y *= -1;
     }
