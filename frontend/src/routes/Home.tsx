@@ -5,6 +5,7 @@ import Form from "../components/form";
 import Input from "../components/input";
 import Spinner from "../components/spinner";
 import Pagetitle from "../components/pagetitle/";
+import Playercard from "../components/playercard";
 
 const lastMatches: string[] = [
   "Win against A",
@@ -98,7 +99,7 @@ const Home: React.FC = () => {
             <h2>Online Friends</h2>
             <ul>
               {onlineFriends.map((friend: string) => {
-                return <li>{friend}</li>;
+                return <li><Playercard name={friend}/></li>;
               })}
             </ul>
           </div>
