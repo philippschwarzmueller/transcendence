@@ -1,14 +1,21 @@
-import { Get, Controller, Post } from '@nestjs/common';
+import { Controller, Post, Req, Param, Body } from '@nestjs/common';
 import { GamesService } from './games.service';
-import { IBall } from './properties';
+import { IGame } from './properties';
 
 @Controller('games')
 export class GamesController {
   constructor(private gamesService: GamesService) {}
 
-  @Get('ball')
-  async ball(): Promise<IBall> {
-    return this.gamesService.ball();
+  @Post('gamestate/:gameId')
+  async gamestate(
+    @Req() req: Request,
+    @Param('gameId') gameId: string,
+    @Body() body: Body,
+  ): Promise<IGame> {
+    return this.gamesService.gamestate(
+      await JSON.parse(JSON.stringify(body)),
+      parseInt(gameId),
+    );
   }
 
   @Post('start')
@@ -16,8 +23,13 @@ export class GamesController {
     return this.gamesService.startGameLoop();
   }
 
-  @Post('stop')
-  stop(): void {
-    this.gamesService.stop();
+  @Post('stop/:gameId')
+  stop(@Param('gameId') gameId: string): void {
+    this.gamesService.stop(parseInt(gameId));
+  }
+
+  @Post('stopall')
+  stopAll(): void {
+    this.gamesService.stopAll();
   }
 }

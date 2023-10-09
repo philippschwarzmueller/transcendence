@@ -4,7 +4,7 @@ interface IWindow {
   color: string; //background color
 }
 
-interface IPaddle {
+interface IPaddleProperties {
   width: number; //paddle width in % from gamewindow
   height: number; //paddle height in % from gamewindow
   speed: number; //speed of the paddle, not dependend on framerate, the higher the faster
@@ -14,13 +14,28 @@ interface IPaddle {
 interface IBallProperties {
   radius: number; //radius of the painted ball
   color: string; // color of the painted ball
+  acceleration: number;
 }
 
 interface IProperties {
   window: IWindow;
-  paddle: IPaddle;
+  paddle: IPaddleProperties;
   ballProperties: IBallProperties;
   framerate: number; // frontend game framerate
+}
+
+export interface IPaddle {
+  height: number;
+  side: string;
+}
+
+export interface IGame {
+  gameId: number;
+  ball: IBall;
+  left: IPaddle;
+  right: IPaddle;
+  pointsLeft: number;
+  pointsRight: number;
 }
 
 export interface IBall {
@@ -33,7 +48,7 @@ export interface IBall {
 const properties: IProperties = {
   window: { width: 960, height: 640, color: "black" },
   paddle: { width: 2, height: 15, speed: 200, color: "white" },
-  ballProperties: { radius: 10, color: "white" },
+  ballProperties: { radius: 10, color: "white", acceleration: 1.1 },
   framerate: 25,
 };
 
@@ -41,6 +56,22 @@ export const ballSpawn: IBall = {
   x: properties.window.width / 2,
   y: properties.window.height / 2,
   speed_x: 5,
-  speed_y: 5,
+  speed_y: 0,
 };
+
+export const gameSpawn: IGame = {
+  gameId: 0,
+  ball: ballSpawn,
+  left: {
+    height: 320,
+    side: "left",
+  },
+  right: {
+    height: 320,
+    side: "right",
+  },
+  pointsLeft: 0,
+  pointsRight: 0,
+};
+
 export default properties;

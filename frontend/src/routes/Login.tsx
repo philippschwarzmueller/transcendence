@@ -21,14 +21,15 @@ const Login: React.FC = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(input),
-        }
+        },
       );
 
-      const data = await response.json();
+      const data: any = await response.json();
 
       if (response.ok) {
         alert("Login Successful!");
         setInput({ name: "", password: "" });
+        sessionStorage.setItem("user", data.name);
       } else {
         alert("Login Failed: " + (data.message || "Unknown Error"));
       }
@@ -37,9 +38,22 @@ const Login: React.FC = () => {
     }
   };
 
+  const handleIntraLogin = async (event: React.MouseEvent) => {
+    window.open(
+      "http://localhost:4000/auth/intra-login",
+      "IntraLogin",
+      "width=600,height=400,popup=true",
+    );
+  };
+
   return (
     <>
       <Pagetitle>Login to your Account</Pagetitle>
+      {window.sessionStorage.getItem("user") ? (
+        <span>Logged in as {window.sessionStorage.getItem("user")}</span>
+      ) : (
+        <span>Logged out</span>
+      )}
       <Form>
         <Input
           value={input.name}
@@ -59,6 +73,10 @@ const Login: React.FC = () => {
           Login
         </Button>
       </Form>
+      <Button onClick={() => sessionStorage.removeItem("user")}>Log Out</Button>
+      <Button onClick={(event: React.MouseEvent) => handleIntraLogin(event)}>
+        Login via 42 intra
+      </Button>
     </>
   );
 };

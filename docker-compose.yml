@@ -11,6 +11,7 @@ services:
   backend:
     container_name: nest
     build: ./backend/
+    env_file: ./.env
     networks:
       - client-side
       - server-side
