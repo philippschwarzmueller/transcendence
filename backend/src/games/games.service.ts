@@ -11,6 +11,27 @@ const newGameCopy = (): IGame => {
   return JSON.parse(JSON.stringify(gameSpawn));
 };
 
+const advanceBall = (oldBall: IBall): IBall => {
+  const newBall: IBall = {
+    x: oldBall.x + oldBall.speed_x,
+    y: oldBall.y + oldBall.speed_y,
+    speed_x: oldBall.speed_x,
+    speed_y: oldBall.speed_y,
+  };
+  return newBall;
+};
+
+const bounceOnPaddle = (ball: IBall, paddle: IPaddle): IBall => {
+  const paddleHalf: number = Math.floor(
+    (properties.window.height * properties.paddle.height) / 100 / 2,
+  );
+  ball.speed_x *= -1; // turn around
+  const deltaPaddle: number = ((paddle.height - ball.y) * 2) / paddleHalf;
+  ball.speed_y = -Math.abs(ball.speed_x) * deltaPaddle; // y-direction change
+  ball.speed_x *= properties.ballProperties.acceleration; // acceleration
+  return ball;
+};
+
 @Injectable()
 export class GamesService {
   constructor() {
@@ -47,68 +68,43 @@ export class GamesService {
     return this.games[gameId];
   }
 
-  private advanceBall(oldBall: IBall): IBall {
-    const newBall: IBall = {
-      x: oldBall.x + oldBall.speed_x,
-      y: oldBall.y + oldBall.speed_y,
-      speed_x: oldBall.speed_x,
-      speed_y: oldBall.speed_y,
-    };
-    return newBall;
-  }
-
   private GameLoop(gameId: number): void {
     const paddleHalf: number = Math.floor(
       (properties.window.height * properties.paddle.height) / 100 / 2,
     );
-    const newBall: IBall = this.advanceBall(this.games[gameId].ball);
-    if (newBall.x > properties.window.width) {
-      // collision on right side
-      if (
-        // missed paddle
-        newBall.y > this.games[gameId].right.height + paddleHalf ||
-        newBall.y < this.games[gameId].right.height - paddleHalf
-      ) {
-        this.games[gameId].ball = ballSpawn;
-        this.games[gameId].pointsLeft++;
-      } else {
-        // hit paddle
-        this.games[gameId].ball.speed_x *= -1; // turn around
-        const deltaPaddle: number =
-          ((this.games[gameId].right.height - this.games[gameId].ball.y) * 2) /
-          paddleHalf;
-        this.games[gameId].ball.speed_y =
-          this.games[gameId].ball.speed_x * deltaPaddle; // y-direction change
-        this.games[gameId].ball.speed_x *=
-          properties.ballProperties.acceleration; // acceleration
-      }
+    const newBall: IBall = advanceBall(this.games[gameId].ball);
+    if (
+      newBall.x >
+        properties.window.width -
+          properties.paddle.width -
+          properties.ballProperties.radius &&
+      newBall.y < this.games[gameId].right.height + paddleHalf &&
+      newBall.y > this.games[gameId].right.height - paddleHalf
+    ) {
+      // hit paddle
+      bounceOnPaddle(this.games[gameId].ball, this.games[gameId].right);
+    } else if (newBall.x > properties.window.width) {
+      // missed paddle
+      this.games[gameId].ball = ballSpawn;
+      this.games[gameId].pointsLeft++;
     }
-    if (newBall.x < 0) {
-      // collision on left side
-      if (
-        // missed paddle
-        newBall.y > this.games[gameId].left.height + paddleHalf ||
-        newBall.y < this.games[gameId].left.height - paddleHalf
-      ) {
-        this.games[gameId].ball = ballSpawn;
-        this.games[gameId].pointsRight++;
-      } else {
-        // hit paddle
-        this.games[gameId].ball.speed_x *= -1;
-        const deltaPaddle: number =
-          ((this.games[gameId].left.height - this.games[gameId].ball.y) * -2) /
-          paddleHalf;
-        this.games[gameId].ball.speed_y =
-          this.games[gameId].ball.speed_x * deltaPaddle; // y-direction change
-        this.games[gameId].ball.speed_x *=
-          properties.ballProperties.acceleration; // acceleration
-      }
+    if (
+      newBall.x < properties.paddle.width + properties.ballProperties.radius &&
+      newBall.y < this.games[gameId].left.height + paddleHalf &&
+      newBall.y > this.games[gameId].left.height - paddleHalf
+    ) {
+      // hit paddle
+      bounceOnPaddle(this.games[gameId].ball, this.games[gameId].left);
+    } else if (newBall.x > properties.window.width) {
+      // missed paddle
+      this.games[gameId].ball = ballSpawn;
+      this.games[gameId].pointsRight++;
     }
     if (newBall.y > properties.window.height || newBall.y < 0) {
       //collision on top/botton
       this.games[gameId].ball.speed_y *= -1;
     }
-    this.games[gameId].ball = this.advanceBall(this.games[gameId].ball); // actually moving ball
+    this.games[gameId].ball = advanceBall(this.games[gameId].ball); // actually moving ball
   }
 
   public startGameLoop(): number {
