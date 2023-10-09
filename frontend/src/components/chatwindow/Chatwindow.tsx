@@ -3,10 +3,7 @@ import Input from "../input/Input";
 import Button from "../button/Button";
 import { io } from "socket.io-client";
 
-interface IChatwindow {}
-
-
-const Chatwindow: React.FC<IChatwindow> = (props: IChatwindow) => {
+const Chatwindow: React.FC = () => {
   let [messages, setMessages] = useState<string[]>([]);
   let [input, setInput] = useState("");
   let [socket, setSocket] = useState(io("ws://localhost:8080"));
@@ -44,8 +41,10 @@ const Chatwindow: React.FC<IChatwindow> = (props: IChatwindow) => {
         onChange={(e) => setInput(e.target.value)}
       ></Input>
       <Button onClick={(event: React.MouseEvent) => send(event)}>Send</Button>
-      <Button onClick={() => setSocket(io("ws://localhost:8080"))}>Connect</Button>
-      <Button onClick={() => socket.disconnect() }>Disconnect</Button>
+      <Button onClick={() => setSocket(io("ws://localhost:8080"))}>
+        Connect
+      </Button>
+      <Button onClick={() => socket.disconnect()}>Disconnect</Button>
     </>
   );
 };
