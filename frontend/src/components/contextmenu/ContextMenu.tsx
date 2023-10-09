@@ -4,8 +4,8 @@ import styled from "styled-components";
 const StyledUl = styled.ul<{ $display: boolean; $posX: number; $posY: number }>`
   display: ${(props) => (props.$display ? "" : "none")};
   position: absolute;
-  left: ${props => props.$posX + "px"};
-  top: ${props => props.$posY + "px"};
+  left: ${(props) => props.$posX + "px"};
+  top: ${(props) => props.$posY + "px"};
   list-style-type: none;
   background-color: rgb(195, 199, 203);
   min-width: 100px;

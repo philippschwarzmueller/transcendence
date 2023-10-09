@@ -16,7 +16,12 @@ const Profile: React.FC = () => {
       <h2>Friends</h2>
       <CenterDiv>
         <ul
-          style={{ display: "flex", flexWrap: "wrap", gap: "10px", listStyleType: "none" }}
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "10px",
+            listStyleType: "none",
+          }}
         >
           {friends.map((friend: string) => {
             return (
