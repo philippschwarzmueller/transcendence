@@ -5,22 +5,20 @@ import { io } from "socket.io-client";
 
 interface IChatwindow {}
 
-const socket = io("ws://localhost:8080");
 
 const Chatwindow: React.FC<IChatwindow> = (props: IChatwindow) => {
   let [messages, setMessages] = useState<string[]>([]);
   let [input, setInput] = useState("");
+  let [socket, setSocket] = useState(io("ws://localhost:8080"));
 
   useEffect(() => {
     socket.on("connect", () => {
-      console.log(socket.id);
+      console.log("Connected");
     });
-    return () => {
-      socket.on("disconnect", () => {
-        console.log(socket.id);
-      });
-    };
-  });
+    socket.on("disconnect", () => {
+      console.log("Disconnected");
+    });
+  }, [socket]);
 
   function send(event: React.MouseEvent): void {
     event.preventDefault();
@@ -36,16 +34,18 @@ const Chatwindow: React.FC<IChatwindow> = (props: IChatwindow) => {
     <>
       <ul>
         {messages.map((mes) => {
-          return <li>{mes}</li>;
+          return <li key={mes}>{mes}</li>;
         })}
       </ul>
       <Input
+        value={input}
         label="Type here"
         placeholder="Enter message"
         onChange={(e) => setInput(e.target.value)}
       ></Input>
-      <Button onClick={() => setMessages([...messages, input])}>Send</Button>
-      <Button onClick={(event: React.MouseEvent) => send(event)}>Test</Button>
+      <Button onClick={(event: React.MouseEvent) => send(event)}>Send</Button>
+      <Button onClick={() => setSocket(io("ws://localhost:8080"))}>Connect</Button>
+      <Button onClick={() => socket.disconnect() }>Disconnect</Button>
     </>
   );
 };
