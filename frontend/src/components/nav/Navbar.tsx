@@ -11,6 +11,7 @@ const StyledNavbar = styled.nav`
   height: 5vh;
   z-index: 2;
   background-color: rgb(195, 199, 203);
+  /* background-color: LightGray; */
   --x-shadow: inset 0.5px 0.5px 0px 0.5px #ffffff, inset 0 0 0 1px #868a8e,
     1px 0px 0 0px #000000, 0px 1px 0 0px #000000, 1px 1px 0 0px #000000;
   box-shadow: var(--x-ring-shadow, 0 0 #0000), var(--x-shadow);
