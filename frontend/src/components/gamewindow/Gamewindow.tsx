@@ -4,7 +4,7 @@ import properties, {
   IGame,
   ballSpawn,
   gameSpawn,
-  IPaddleBackend,
+  IPaddle,
 } from "./properties";
 import Button from "../button";
 import Centerdiv from "../centerdiv";
@@ -16,7 +16,7 @@ interface IKeyState {
 
 const fetchGameState = async (
   gameId: number,
-  localPaddle: IPaddleBackend
+  localPaddle: IPaddle
 ): Promise<IGame> => {
   const response = await fetch(
     `http://localhost:4000/games/gamestate/${gameId}`,
@@ -101,7 +101,7 @@ const GameWindow: React.FC = () => {
   let [oldBall, setOldBall] = useState(ballSpawn);
   const gameState = useRef<IGame>(gameSpawn);
   const gameId = useRef<number>(0);
-  const localPaddle = useRef<IPaddleBackend>({
+  const localPaddle = useRef<IPaddle>({
     side: "",
     height: properties.window.height / 2,
   });
@@ -246,6 +246,16 @@ const GameWindow: React.FC = () => {
           tabIndex={0}
           style={{ border: "3px solid #000000" }}
         ></canvas>
+      </Centerdiv>
+
+      <Centerdiv>
+        <p>Gameid: {gameState.current.gameId}</p>
+      </Centerdiv>
+      <Centerdiv>
+        <p>
+          Left Player Points: {gameState.current.pointsLeft} Right Player
+          Points: {gameState.current.pointsRight}
+        </p>
       </Centerdiv>
     </>
   );
