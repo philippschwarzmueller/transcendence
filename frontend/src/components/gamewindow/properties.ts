@@ -74,16 +74,4 @@ export const gameSpawn: IGame = {
   pointsRight: 0,
 };
 
-export const gameSpawn: IGame = {
-  gameId: 0,
-  ball: ballSpawn,
-  left: {
-    height: 320,
-    side: "left",
-  },
-  right: {
-    height: 320,
-    side: "right",
-  },
-};
 export default properties;
