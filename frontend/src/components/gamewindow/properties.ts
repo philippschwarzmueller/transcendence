@@ -73,4 +73,5 @@ export const gameSpawn: IGame = {
   pointsLeft: 0,
   pointsRight: 0,
 };
+
 export default properties;

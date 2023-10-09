@@ -2,8 +2,6 @@ import React from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 
-import Button from "../button";
-
 const StyledNavbar = styled.nav`
   bottom: 0px;
   left: 0px;
@@ -52,9 +50,6 @@ const Navbar: React.FC = () => {
           <StyledLink to={"/login"}>Login</StyledLink>
         </StyledLi>
         <StyledLi>
-          <div>
-            <Button>Log Out</Button>
-          </div>
         </StyledLi>
       </ul>
     </StyledNavbar>
