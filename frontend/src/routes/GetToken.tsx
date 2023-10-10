@@ -1,14 +1,12 @@
-import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import React, { useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const GetToken: React.FC = () => {
   const location = useLocation();
   const nav = useNavigate();
-	console.log("Intra gets called");
 
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
-		console.log(location.search);
     const code = urlParams.get("code");
     if (code) {
       fetch(`http://localhost:4000/auth/get-token?code=${code}`)
@@ -16,16 +14,14 @@ const GetToken: React.FC = () => {
         .then((text) => {
           if (text) {
             sessionStorage.setItem("token", text);
-						nav("/profile");
-          };
-        })
+            nav("/profile");
+          }
+        });
     }
-  }, []);
+  }, [location, nav]);
 
-  return (
-    /* <h1>Login successful</h1> */
-    null
-  );
+  return null;
 };
 
 export default GetToken;
+
