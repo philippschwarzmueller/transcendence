@@ -1,3 +1,8 @@
+interface message {
+  user: string;
+  input: string;
+}
+
 import {
   MessageBody,
   OnGatewayInit,
@@ -13,9 +18,10 @@ import {
 })
 export class ChatGateway implements OnGatewayInit {
   @SubscribeMessage('message')
-  handleEvent(@MessageBody() data: string) {
+  handleEvent(@MessageBody() data: message) {
     console.log(data);
-    return data;
+    let res: string = `${data.user}: ${data.input}`;
+    return res;
   }
 
   afterInit(server: any): any {

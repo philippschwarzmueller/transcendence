@@ -7,6 +7,8 @@ const Chatwindow: React.FC = () => {
   let [messages, setMessages] = useState<string[]>([]);
   let [input, setInput] = useState("");
   let [socket, setSocket] = useState(io("ws://localhost:8080"));
+  const user = sessionStorage.getItem("user");
+  let counter = 0;
 
   useEffect(() => {
     socket.on("connect", () => {
@@ -20,7 +22,7 @@ const Chatwindow: React.FC = () => {
   function send(event: React.MouseEvent): void {
     event.preventDefault();
     if (input.trim() !== "") {
-      socket.emit("message", input, (res: any) =>
+      socket.emit("message", { user, input }, (res: any) =>
         setMessages([...messages, res]),
       );
       setInput("");
@@ -31,7 +33,7 @@ const Chatwindow: React.FC = () => {
     <>
       <ul>
         {messages.map((mes) => {
-          return <li key={mes}>{mes}</li>;
+          return <li key={counter++}>{mes}</li>;
         })}
       </ul>
       <Input
