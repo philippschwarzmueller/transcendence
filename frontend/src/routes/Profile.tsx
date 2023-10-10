@@ -1,5 +1,5 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import Button from "../components/button";
 import Playercard from "../components/playercard";
 import CenterDiv from "../components/centerdiv";
@@ -7,9 +7,16 @@ import CenterDiv from "../components/centerdiv";
 const friends: string[] = ["mgraefen", "fsandel", "luntiet-", "oheinzel"];
 
 const Profile: React.FC = () => {
+  let { userId } = useParams();
+  let navigate = useNavigate();
+  useEffect(() => {
+    if (userId === undefined && !sessionStorage.getItem("user")) {
+      navigate("/login");
+    }
+  }, []);
   return (
     <>
-      <h1>Profile</h1>
+      <h1>{userId || sessionStorage.getItem("user")}'s Profile</h1>
       <h2>Stats</h2>
       <p>Games played: 420</p>
       <p>Win/Loss: 69%</p>
@@ -32,9 +39,11 @@ const Profile: React.FC = () => {
           })}
         </ul>
       </CenterDiv>
-      <Link to="/profile/settings">
-        <Button>Change Settings</Button>
-      </Link>
+      {userId === undefined ? (
+        <Link to="/profile/settings">
+          <Button>Change Settings</Button>
+        </Link>
+      ) : null}
     </>
   );
 };
