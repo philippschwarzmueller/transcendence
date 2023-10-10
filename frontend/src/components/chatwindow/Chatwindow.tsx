@@ -22,7 +22,7 @@ const Chatwindow: React.FC = () => {
     socket.on("message", (res: string) => setMessages([...messages, res]));
   }, [socket, messages]);
 
-  function send(event: React.MouseEvent): void {
+  function send(event: React.MouseEvent | React.KeyboardEvent): void {
     event.preventDefault();
     if (input.trim() !== "") {
       socket.emit("message", { user, input });
@@ -42,19 +42,15 @@ const Chatwindow: React.FC = () => {
         label="Type here"
         placeholder="Enter message"
         onChange={(e) => setInput(e.target.value)}
+        onKeyPress={(e: React.KeyboardEvent) => {if(e.key === "Enter") send(e);}}
       ></Input>
-      <Button onClick={(event: React.MouseEvent) => send(event)}>Send</Button>
+      <Button
+        onClick={(e: React.MouseEvent) => send(e)}
+      >Send</Button>
       <Button onClick={() => setSocket(io("ws://localhost:8080"))}>
         Connect
       </Button>
       <Button onClick={() => socket.disconnect()}>Disconnect</Button>
-      <Button
-        onClick={() =>
-          socket.emit("room", "chat", (res: string) => console.log(res))
-        }
-      >
-        Join Room
-      </Button>
     </>
   );
 };
