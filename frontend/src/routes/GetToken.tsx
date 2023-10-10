@@ -2,11 +2,11 @@ import React, { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const GetToken: React.FC = () => {
-  const location = useLocation();
+  const location= useLocation();
   const nav = useNavigate();
   const urlParams = new URLSearchParams(location.search);
-  const code = urlParams.get("code");
-  const value = sessionStorage.getItem("code");
+  const code : string | null = urlParams.get("code");
+  const value : string | null = sessionStorage.getItem("code");
   if (code && !value) {
     sessionStorage.setItem("code", code);
   }
