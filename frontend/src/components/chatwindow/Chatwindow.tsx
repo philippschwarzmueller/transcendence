@@ -6,7 +6,9 @@ import { io } from "socket.io-client";
 const Chatwindow: React.FC = () => {
   let [messages, setMessages] = useState<string[]>([]);
   let [input, setInput] = useState("");
-  let [socket, setSocket] = useState(io("ws://localhost:8080"));
+  let [socket, setSocket] = useState(
+    io(`http://${window.location.hostname}:${8080}`),
+  );
   const user = sessionStorage.getItem("user");
   let counter = 0;
 
@@ -17,14 +19,13 @@ const Chatwindow: React.FC = () => {
     socket.on("disconnect", () => {
       console.log("Disconnected");
     });
-  }, [socket]);
+    socket.on("message", (res: string) => setMessages([...messages, res]));
+  }, [socket, messages]);
 
   function send(event: React.MouseEvent): void {
     event.preventDefault();
     if (input.trim() !== "") {
-      socket.emit("message", { user, input }, (res: any) =>
-        setMessages([...messages, res]),
-      );
+      socket.emit("message", { user, input });
       setInput("");
     }
   }
@@ -47,6 +48,13 @@ const Chatwindow: React.FC = () => {
         Connect
       </Button>
       <Button onClick={() => socket.disconnect()}>Disconnect</Button>
+      <Button
+        onClick={() =>
+          socket.emit("room", "chat", (res: string) => console.log(res))
+        }
+      >
+        Join Room
+      </Button>
     </>
   );
 };
