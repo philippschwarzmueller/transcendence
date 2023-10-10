@@ -59,9 +59,7 @@ const GameWindow: React.FC = () => {
   });
   const socketRef = useRef(io(""));
 
-  console.log("init");
   const GameLoop = (keyState: React.MutableRefObject<IKeyState>): void => {
-    console.log("gameloop");
     const gameSocketPayload: IGameSocketPayload = {
       paddle: localPaddleRef.current,
       gameId: gameIdRef.current,
