@@ -47,9 +47,7 @@ export class AuthService {
       throw new Error('Wrong password');
     }
 
-    return {
-      message: 'Login successful',
-    };
+    return foundUser;
   }
 
   async signup(user: CreateUserDto): Promise<any> {

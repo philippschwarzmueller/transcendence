@@ -1,57 +1,91 @@
 import { Injectable } from '@nestjs/common';
-import properties, { IBall, ballSpawn } from './properties';
+import properties, {
+  ballSpawn,
+  gameSpawn,
+  IBall,
+  IGame,
+  IPaddle,
+} from './properties';
+import { advanceBall, ballHitPaddle, bounceOnPaddle } from './games.gamelogic';
 
-interface IGame {
-  gameid: number;
-  ball: IBall;
-}
+const newGameCopy = (): IGame => {
+  return JSON.parse(JSON.stringify(gameSpawn));
+};
 
 @Injectable()
 export class GamesService {
   constructor() {
-    this.game = {
-      gameid: 0,
-      ball: {
-        x: ballSpawn.x,
-        y: ballSpawn.y,
-        speed_x: ballSpawn.speed_x,
-        speed_y: ballSpawn.speed_y,
-      },
-    };
-    this.intervals = [];
+    this.games = []; // array with all gamedata
+    this.intervals = []; // array with all gameloops (to kill them)
+    this.amountOfGammes = 0;
   }
 
-  public game: IGame;
+  public amountOfGammes: number;
+  public games: IGame[];
   public intervals: NodeJS.Timeout[];
 
-  stop(): void {
+  stopAll(): void {
+    this.games = [];
+    this.amountOfGammes = 0;
     this.intervals.forEach((interval) => {
       clearInterval(interval);
     });
-    const newIntervals: NodeJS.Timeout[] = [];
-    this.intervals = newIntervals;
+    this.intervals = [];
   }
 
-  async ball(): Promise<IBall> {
-    return this.game.ball;
+  stop(gameId: number): void {
+    clearInterval(this.intervals[gameId]);
+    this.games[gameId] = newGameCopy();
+  }
+
+  async gamestate(paddle: IPaddle, gameId: number): Promise<IGame> {
+    if (this.amountOfGammes === 0) return newGameCopy();
+    if (paddle.side === 'left')
+      this.games[gameId].left = { side: 'left', height: paddle.height };
+    if (paddle.side === 'right')
+      this.games[gameId].right = { side: 'right', height: paddle.height };
+    this.games[gameId].gameId = gameId;
+    return this.games[gameId];
+  }
+
+  private GameLoop(gameId: number): void {
+    const paddleHalf: number = Math.floor(
+      (properties.window.height * properties.paddle.height) / 100 / 2,
+    );
+    const newBall: IBall = advanceBall(this.games[gameId].ball);
+    if (ballHitPaddle(newBall, this.games[gameId].right)) {
+      // hit right paddle
+      bounceOnPaddle(this.games[gameId].ball, this.games[gameId].right);
+    } else if (newBall.x > properties.window.width) {
+      // missed right paddle
+      this.games[gameId].ball = ballSpawn;
+      this.games[gameId].pointsLeft++;
+    } else if (ballHitPaddle(newBall, this.games[gameId].left)) {
+      // hit left paddle
+      bounceOnPaddle(this.games[gameId].ball, this.games[gameId].left);
+    } else if (newBall.x < 0) {
+      // missed left paddle
+      this.games[gameId].ball = ballSpawn;
+      this.games[gameId].pointsRight++;
+    } else if (newBall.y > properties.window.height || newBall.y < 0) {
+      //collision on top/botton
+      this.games[gameId].ball.speed_y *= -1;
+    }
+    this.games[gameId].ball = advanceBall(this.games[gameId].ball); // actually moving ball
   }
 
   public startGameLoop(): number {
-    const interval = setInterval(() => {
-      if (
-        this.game.ball.x + this.game.ball.speed_x > properties.window.width ||
-        this.game.ball.x + this.game.ball.speed_x < 0
-      )
-        this.game.ball.speed_x *= -1;
-      if (
-        this.game.ball.y + this.game.ball.speed_y > properties.window.height ||
-        this.game.ball.y + this.game.ball.speed_y < 0
-      )
-        this.game.ball.speed_y *= -1;
-      this.game.ball.x += this.game.ball.speed_x;
-      this.game.ball.y += this.game.ball.speed_y;
-    }, properties.framerate);
+    const newGame: IGame = newGameCopy();
+    const gameId: number = this.amountOfGammes;
+    newGame.gameId = gameId;
+    this.games.push(newGame);
+    this.amountOfGammes++;
+    const interval = setInterval(
+      this.GameLoop.bind(this),
+      properties.framerate,
+      gameId,
+    );
     this.intervals.push(interval);
-    return this.game.gameid;
+    return gameId;
   }
 }
