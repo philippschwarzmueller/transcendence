@@ -55,25 +55,9 @@ export class AuthController {
   }
 
   @Get('get-token')
-	@HttpCode(200)
+  @HttpCode(200)
   async getToken(@Query('code') code: string): Promise<string> {
-		console.log("backend get-token gets called");
     const token: string = await this.authService.exchangeCodeForToken(code);
-		return token;
+    return token;
   }
-
-  // @Get('callback')
-  // async callback(@Query('code') code: string, @Res() res: any) {
-  //   try {
-  //     const token: string = await this.authService.exchangeCodeForToken(code);
-  //     res.send({ token });
-  //     const test: Response = await fetch('https://api.intra.42.fr/v2/me', {
-  //       headers: {
-  //         Authorization: `Bearer ${token}`,
-  //       },
-  //     });
-  //   } catch (error) {
-  //     throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
-  //   }
-  // }
 }
