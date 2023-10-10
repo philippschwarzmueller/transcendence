@@ -2,6 +2,7 @@ import styled from "styled-components"
 import React, { useState, useEffect } from "react";
 import Input from "../input/Input";
 import Button from "../button/Button";
+import Moveablewindow from "../moveablewindow/Moveablewindow";
 import { io } from "socket.io-client";
 
 const Msgfield = styled.div`
@@ -10,22 +11,6 @@ const Msgfield = styled.div`
   border: none;
   margin: 0;
   background-color: rgb(195, 199, 203);
-  --x-shadow: inset 0.5px 0.5px 0px 0.5px #ffffff, inset 0 0 0 1px #868a8e,
-    1px 0px 0 0px #000000, 0px 1px 0 0px #000000, 1px 1px 0 0px #000000;
-  box-shadow: var(--x-ring-shadow, 0 0 #0000), var(--x-shadow);
-`;
-
-const Window = styled.div`
-`;
-
-const ChatNav = styled.div`
-  width: 320px;
-  padding: 10px;
-  background-color: rgb(195, 199, 203);
-  --x-shadow: inset 0.5px 0.5px 0px 0.5px #ffffff, inset 0 0 0 1px #868a8e,
-    1px 0px 0 0px #000000, 0px 1px 0 0px #000000, 1px 1px 0 0px #000000;
-  box-shadow: var(--x-ring-shadow, 0 0 #0000), var(--x-shadow);
-
 `;
 
 const Textfield = styled.div`
@@ -33,8 +18,7 @@ const Textfield = styled.div`
   height: 200px;
   background-color: white;
   border: 3px solid rgb(195, 199, 203);
-  --x-shadow: inset 0.5px 0.5px 0px 0.5px #ffffff, inset 0 0 0 1px #868a8e,
-    1px 0px 0 0px #000000, 0px 1px 0 0px #000000, 1px 1px 0 0px #000000;
+  --x-shadow: inset 0.5px 0.5px 0px 0.5px #ffffff, inset 0 0 0 1px #868a8e;
   box-shadow: var(--x-ring-shadow, 0 0 #0000), var(--x-shadow);
 `;
 
@@ -56,9 +40,6 @@ const Chatwindow: React.FC = () => {
     });
   }, [socket]);
 
-  function move(event: React.MouseEvent): void {
-    }
-
   function send(event: React.MouseEvent): void {
     event.preventDefault();
     if (input.trim() !== "") {
@@ -71,8 +52,7 @@ const Chatwindow: React.FC = () => {
 
   return (
     <>
-    <Window>
-    <ChatNav onClick={(event: React.MouseEvent) => move(event)}>ClickHere</ChatNav>
+    <Moveablewindow>
       <Textfield>
         <StyledUl>
           {messages.map((mes) => {
@@ -93,7 +73,7 @@ const Chatwindow: React.FC = () => {
         </Button>
         <Button onClick={() => socket.disconnect()}>Disconnect</Button>
       </Msgfield>
-    </Window>
+    </Moveablewindow>
     </>
   );
 };
