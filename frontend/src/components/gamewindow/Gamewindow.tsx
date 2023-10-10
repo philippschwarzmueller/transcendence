@@ -5,6 +5,7 @@ import properties, {
   gameSpawn,
   IPaddle,
   IBall,
+  IGameSocketPayload,
 } from "./properties";
 import Button from "../button";
 import Centerdiv from "../centerdiv";
@@ -15,34 +16,14 @@ import {
   drawBothPaddles,
   drawText,
 } from "./drawFunctions";
+import { io } from "socket.io-client";
 
-const BACKEND: string = `http://${window.location.hostname}:${4000}`;
+const GAMESOCKET: string = `ws://${window.location.hostname}:${6969}`;
 
 interface IKeyState {
   up: boolean;
   down: boolean;
 }
-
-const fetchGameState = async (
-  gameId: number,
-  localPaddle: IPaddle
-): Promise<IGame> => {
-  const response = await fetch(`${BACKEND}/games/gamestate/${gameId}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(localPaddle),
-  });
-  const ball: IGame = await response.json();
-  return ball;
-};
-
-const stopAllGames = async (): Promise<void> => {
-  await fetch(`${BACKEND}/games/stopall`, {
-    method: "POST",
-  });
-};
 
 const movePaddle = (keyState: any, localPaddleRef: any): void => {
   const step: number = Math.floor(
@@ -71,21 +52,25 @@ const GameWindow: React.FC = () => {
   const keystateRef = useRef<IKeyState>({ down: false, up: false });
   const ballRef: any = useRef<IBall>(ballSpawn);
   const gameStateRef = useRef<IGame>(gameSpawn);
-  const gameIdRef = useRef<number>(0);
+  const gameIdRef = useRef<number>(-1);
   const localPaddleRef = useRef<IPaddle>({
     side: "",
     height: properties.window.height / 2,
   });
+  const socketRef = useRef(io(""));
 
   console.log("init");
-  const GameLoop = async (
-    keyState: React.MutableRefObject<IKeyState>
-  ): Promise<void> => {
+  const GameLoop = (keyState: React.MutableRefObject<IKeyState>): void => {
     console.log("gameloop");
-    gameStateRef.current = await fetchGameState(
-      gameIdRef.current,
-      localPaddleRef.current
-    );
+    const gameSocketPayload: IGameSocketPayload = {
+      paddle: localPaddleRef.current,
+      gameId: gameIdRef.current,
+    };
+    if (socketRef.current.connected)
+      socketRef.current.emit("gamestate", gameSocketPayload, (res: IGame) => {
+        gameStateRef.current = res;
+      });
+    else gameStateRef.current = gameSpawn;
     movePaddle(keyState, localPaddleRef);
     ballRef.current = gameStateRef.current.ball;
     drawBall(ballCanvasRef.current.getContext("2d"), ballRef.current);
@@ -100,19 +85,25 @@ const GameWindow: React.FC = () => {
     );
   };
 
-  const spawnGame = async (): Promise<void> => {
-    const incomingGameId = await fetch(`${BACKEND}/games/start`, {
-      method: "POST",
+  const spawnGame = (): void => {
+    socketRef.current = io(GAMESOCKET, {
+      transports: ["websocket"],
+      upgrade: false,
     });
-    gameIdRef.current = await incomingGameId.json();
-  };
-
-  const stop = async (): Promise<void> => {
-    await fetch(`${BACKEND}/games/stop/${gameIdRef.current}`, {
-      method: "POST",
+    socketRef.current.emit("start", null, (res: number) => {
+      gameIdRef.current = res;
     });
   };
 
+  const stop = (): void => {
+    socketRef.current.emit("stop", gameIdRef.current);
+    socketRef.current.disconnect();
+  };
+
+  const stopAllGames = (): void => {
+    socketRef.current.emit("stopall");
+    socketRef.current.disconnect();
+  };
   const joinLeftPlayer = (): void => {
     localPaddleRef.current.side = "left";
   };
@@ -208,16 +199,6 @@ const GameWindow: React.FC = () => {
             tabIndex={1}
           ></Gamecanvas>
         </div>
-      </Centerdiv>
-
-      <Centerdiv>
-        <p>Gameid: {gameStateRef.current.gameId}</p>
-      </Centerdiv>
-      <Centerdiv>
-        <p>
-          Left Player Points: {gameStateRef.current.pointsLeft} Right Player
-          Points: {gameStateRef.current.pointsRight}
-        </p>
       </Centerdiv>
     </>
   );

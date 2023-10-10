@@ -35,11 +35,10 @@ export class GamesService {
 
   stop(gameId: number): void {
     clearInterval(this.intervals[gameId]);
-    this.games[gameId] = newGameCopy();
   }
 
-  async gamestate(paddle: IPaddle, gameId: number): Promise<IGame> {
-    if (this.amountOfGammes === 0) return newGameCopy();
+  gamestate(paddle: IPaddle, gameId: number): IGame {
+    if (this.amountOfGammes <= 0) return newGameCopy();
     if (paddle.side === 'left')
       this.games[gameId].left = { side: 'left', height: paddle.height };
     if (paddle.side === 'right')
