@@ -88,9 +88,9 @@ export class AuthService {
       },
     ).catch(e => console.error(e));
 
-/*     if (!response.ok) {
+    if (!response.ok) {
       throw new Error('Failed to exchange code for token');
-    } */
+    }
 
     const data: any = await response.json();
     return data.access_token;
