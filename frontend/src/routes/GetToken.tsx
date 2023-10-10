@@ -16,31 +16,54 @@ const GetToken: React.FC = () => {
     if (code && code !== value) {
       fetch(`http://localhost:4000/auth/get-token?code=${code}`)
         .then((response) => response.text())
-        .then((text) => {
-          if (text) {
-            sessionStorage.setItem("token", text);
+        .then((token) => {
+          if (token) {
+            sessionStorage.setItem("token", token);
             sessionStorage.removeItem("code");
-            setUsername(text);
+            setUsername(token);
+            setDbEntry(token);
             setredirect(true);
           }
         });
     }
-  }, []);
+  }, [location.search]);
 
-  function setUsername(token: string) {
-    fetch("https://api.intra.42.fr/v2/me", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        sessionStorage.setItem("user", data.login);
+  async function setUsername(token: string) {
+    try {
+      const response = await fetch("https://api.intra.42.fr/v2/me", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok " + response.statusText);
+      }
+
+      const data = await response.json();
+      sessionStorage.setItem("user", data.login);
+      return data.login;
+    } catch (error) {
+      console.error(
+        "There has been a problem with your fetch operation:",
+        error
+      );
+    }
   }
+
+  async function setDbEntry(token: string) {
+    fetch("http://localhost:4000/auth/create-intra-user", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({
+				token,
+			}),
+		});
+  }
+
   useEffect(() => {
     if (redirect) {
-      nav("/chat");
+      nav("/profile");
     }
   }, [redirect, nav]);
 
