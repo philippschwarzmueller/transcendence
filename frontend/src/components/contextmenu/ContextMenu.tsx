@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+import { Link } from "react-router-dom";
 
 const StyledUl = styled.ul<{ $display: boolean; $posX: number; $posY: number }>`
   display: ${(props) => (props.$display ? "" : "none")};
@@ -39,12 +40,14 @@ export interface IContextMenu {
   display: boolean;
   positionX: number;
   positionY: number;
+  link: string;
 }
 
 const ContextMenu: React.FC<IContextMenu> = ({
   display,
   positionX,
   positionY,
+  link,
 }) => {
   return (
     <>
@@ -53,7 +56,9 @@ const ContextMenu: React.FC<IContextMenu> = ({
         <LineLi />
         <OptionLi>💬 Start Chat</OptionLi>
         <LineLi />
-        <OptionLi>👤 Visit Profile</OptionLi>
+        <Link to={`/profile/${link}`}>
+          <OptionLi>👤 Visit Profile</OptionLi>
+        </Link>
       </StyledUl>
     </>
   );
