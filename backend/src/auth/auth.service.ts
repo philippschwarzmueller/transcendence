@@ -65,26 +65,23 @@ export class AuthService {
   }
 
   async intraLogin(@Res() res: any): Promise<void> {
-		console.log("intra Login gets called")
+    console.log('intra Login gets called');
     const url: string = `https://api.intra.42.fr/oauth/authorize?client_id=${this.clientID}&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fget-token&response_type=code`;
     res.redirect(url);
   }
 
   async exchangeCodeForToken(code: string): Promise<string> {
-    const response: any = await fetch(
-      'https://api.intra.42.fr/oauth/token',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({
-          grant_type: 'authorization_code',
-          client_id: this.clientID,
-          client_secret: this.clientSecret,
-          code: code,
-          redirect_uri: 'http://localhost:3000/get-token',
-        }),
-      },
-    ).catch(e => console.error(e));
+    const response: any = await fetch('https://api.intra.42.fr/oauth/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        grant_type: 'authorization_code',
+        client_id: this.clientID,
+        client_secret: this.clientSecret,
+        code: code,
+        redirect_uri: 'http://localhost:3000/get-token',
+      }),
+    }).catch((e) => console.error(e));
 
     if (!response.ok) {
       throw new Error('Failed to exchange code for token');
