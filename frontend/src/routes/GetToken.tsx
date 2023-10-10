@@ -20,12 +20,24 @@ const GetToken: React.FC = () => {
           if (text) {
             sessionStorage.setItem("token", text);
             sessionStorage.removeItem("code");
+            setUsername(text);
             setredirect(true);
           }
         });
     }
   }, []);
 
+  function setUsername(token: string) {
+    fetch("https://api.intra.42.fr/v2/me", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        sessionStorage.setItem("user", data.login);
+      });
+  }
   useEffect(() => {
     if (redirect) {
       nav("/chat");
