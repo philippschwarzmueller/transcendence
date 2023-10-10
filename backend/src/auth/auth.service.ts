@@ -47,9 +47,7 @@ export class AuthService {
       throw new Error('Wrong password');
     }
 
-    return {
-      message: 'Login successful',
-    };
+    return foundUser;
   }
 
   async signup(user: CreateUserDto): Promise<any> {
@@ -67,13 +65,12 @@ export class AuthService {
   }
 
   async intraLogin(@Res() res: any): Promise<void> {
-		console.log("intra Login gets called")
     const url: string = `https://api.intra.42.fr/oauth/authorize?client_id=${this.clientID}&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fget-token&response_type=code`;
     res.redirect(url);
   }
 
   async exchangeCodeForToken(code: string): Promise<string> {
-    const response: any = await fetch(
+    const response: Response | void = await fetch(
       'https://api.intra.42.fr/oauth/token',
       {
         method: 'POST',
@@ -86,13 +83,17 @@ export class AuthService {
           redirect_uri: 'http://localhost:3000/get-token',
         }),
       },
-    ).catch(e => console.error(e));
+    ).catch((e) => console.error(e));
 
-    if (!response.ok) {
+    if (response instanceof Response && !response.ok) {
       throw new Error('Failed to exchange code for token');
     }
 
-    const data: any = await response.json();
-    return data.access_token;
+    if (response instanceof Response && response.ok) {
+      const data: tokenResponse = await response.json();
+      return data.access_token;
+    } else {
+      throw new Error('Failed to fetch');
+    }
   }
 }
