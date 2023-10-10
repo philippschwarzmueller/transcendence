@@ -1,4 +1,3 @@
-import React, { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const GetToken: React.FC = () => {
@@ -10,7 +9,7 @@ const GetToken: React.FC = () => {
   if (code && !value) {
     sessionStorage.setItem("code", code);
   }
-  if (code && code != value) {
+  if (code && code !== value) {
     fetch(`http://localhost:4000/auth/get-token?code=${code}`)
       .then((response) => response.text())
       .then((text) => {

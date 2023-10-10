@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from "react";
 import properties, { IGame, ballSpawn, gameSpawn, IPaddle } from "./properties";
 import Button from "../button";
 import Centerdiv from "../centerdiv";
-import Gamecanvas from "../gamecanvas";
+import Gamecanvas from "../gamecanvas/Gamecanvas";
 import {
   drawBackground,
   drawBall,
