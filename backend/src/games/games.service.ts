@@ -48,9 +48,6 @@ export class GamesService {
   }
 
   private GameLoop(gameId: number): void {
-    const paddleHalf: number = Math.floor(
-      (properties.window.height * properties.paddle.height) / 100 / 2,
-    );
     const newBall: IBall = advanceBall(this.games[gameId].ball);
     if (ballHitPaddle(newBall, this.games[gameId].right)) {
       // hit right paddle
