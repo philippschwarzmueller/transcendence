@@ -1,6 +1,5 @@
 import { useState } from "react";
 import styled from "styled-components"
-import Button from "../button/Button";
 
 const StyledWindow = styled.div`
   position: absolute;
@@ -28,25 +27,17 @@ const Windowbar = styled.div`
 `;
 
 const Moveablewindow: React.FC<WindowProps> = (props: WindowProps) => {
-  const [isDragging, setIsDragging] = useState(false);
-  const [offsetX, setOffsetX] = useState<number | null>(null);
-  const [offsetY, setOffsetY] = useState<number | null>(null);
+  const [offsetX, setOffsetX] = useState<number>(0);
+  const [offsetY, setOffsetY] = useState<number>(0);
 
   const startDrag = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    setIsDragging(true);
     setOffsetX(event.nativeEvent.offsetX);
     setOffsetY(event.nativeEvent.offsetY);
   };
 
-  const endDrag = () => {
-    setIsDragging(false);
-    setOffsetX(null);
-    setOffsetY(null);
-  };
-
-  const handleDrag = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    if (isDragging && offsetX !== null && offsetY !== null) {
-      const window = event.currentTarget.parentElement; // Get the parent element (StyledWindow)
+  const endDrag = (event: React.DragEvent<HTMLDivElement>) => {
+    if (offsetX !== null && offsetY !== null) {
+      const window = event.currentTarget.parentElement;
       if (window) {
         const newX = event.clientX - offsetX;
         const newY = event.clientY - offsetY;
@@ -54,16 +45,28 @@ const Moveablewindow: React.FC<WindowProps> = (props: WindowProps) => {
         window.style.top = `${newY}px`;
       }
     }
+    setOffsetX(0);
+    setOffsetY(0);
+  };
+
+  const handleDrag = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    if (offsetX !== null && offsetY !== null) {
+      const window = event.currentTarget.parentElement;
+      if (window) {
+        window.style.left = `${event.clientX - offsetX}px`;
+        window.style.top = `${event.clientY - offsetY}px`;
+      }
+    }
   };
 
   return (
     <>
-      <StyledWindow
-      >
+      <StyledWindow>
       <Windowbar
-      onMouseDown={startDrag}
-      onMouseUp={endDrag}
-      onMouseMove={handleDrag}
+      draggable={true}
+      onDragStart={startDrag}
+      onDragEnd={endDrag}
+      onDrag={handleDrag}
       ><img width="16" height="16" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABQ0lEQVR4AcXBAW6DMBBFwedo78XezH9vtj6ZS5pURSgECoTOFN6Q1DmZpMKEsUBSd3fOMgwDEcGoA4WnGy9I6u7OWYZhICJ4xZiR1GutnCkiWGJMSOq1VlprXMVYkJkcVWultcY7xgJJHCNqZZXxVme/YIsbazofZWxWWNbZy1hT+CaJWitzpRSOMHYoJfglIHgQ0PkLYwcJaq3MlSL+ythIEpK4k8RZjM06v4KzGDtIQhJnMHbpnMVYJCD4NGNB75UrGAtaa5xNEpIYdUaSijETEXyCJCRx5+5kJqNuTEjiUyRx5+5kJj+MkaTOBdydzGTKJPVaK1eICOaMp9Ya/8E4IDPZwt1ZYsz44NxlS9ZIYovMZIkxFzw4qzKTVzITd2cLYyY9OcrdWSOJUbnxDyQxKoyMUURwFUmMCk+Fh851ChNfhxx7+xF1KZkAAAAASUVORK5CYII="></img>
       </Windowbar>
         { props.children }
