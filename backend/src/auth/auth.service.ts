@@ -74,7 +74,6 @@ export class AuthService {
       },
     );
     const data = await response.json();
-		console.log(data.image);
     const imageLink: string = data.image.versions.large;
 		const user : string  = data.login;
     await this.usersRepository.insert({
@@ -93,7 +92,6 @@ export class AuthService {
       },
     );
     const data = await response.json();
-		console.log(data.image);
     const imageLink: string = data.image.versions[size];
 		return imageLink;
 	}

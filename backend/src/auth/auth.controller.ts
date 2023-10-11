@@ -73,15 +73,17 @@ export class AuthController {
     }
   }
 
-  @Post('get-intra-profile-img')
-  @HttpCode(201)
+  @Get('get-intra-profile-img')
   async getIntraImage(
-    @Body() IntraUserData: IntraImgRequest,
-  ): Promise<{ message: string; data: any }> {
+		@Query('size') size: string,
+		@Query('token') token: string
+	): Promise<{ message: string; data: any }> {
+		console.log(token);
+		console.log(size);
     try {
       return await this.authService.getIntraImage(
-        IntraUserData.size,
-        IntraUserData.token,
+        size,
+        token,
       );
     } catch (error) {
       if (error.message === 'Fetching Intra Image failed in controller') {
