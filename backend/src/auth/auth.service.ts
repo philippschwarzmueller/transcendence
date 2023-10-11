@@ -64,6 +64,40 @@ export class AuthService {
     }
   }
 
+  async createIntraUser(token: string): Promise<any> {
+    const response: Response | void = await fetch(
+      'https://api.intra.42.fr/v2/me',
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+    const data = await response.json();
+		console.log(data.image);
+    const imageLink: string = data.image.versions.large;
+		const user : string  = data.login;
+    await this.usersRepository.insert({
+      name: user,
+      profilePictureUrl: imageLink,
+    });
+  }
+
+	async getIntraImage(size: string, token: string): Promise<any> {
+		const response: Response | void = await fetch(
+      'https://api.intra.42.fr/v2/me',
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+    const data = await response.json();
+		console.log(data.image);
+    const imageLink: string = data.image.versions[size];
+		return imageLink;
+	}
+
   async intraLogin(@Res() res: any): Promise<void> {
     const url: string = `https://api.intra.42.fr/oauth/authorize?client_id=${this.clientID}&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fget-token&response_type=code`;
     res.redirect(url);

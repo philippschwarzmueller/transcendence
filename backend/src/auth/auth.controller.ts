@@ -13,6 +13,15 @@ import { AuthService } from './auth.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { User } from '../users/user.entity';
 
+class CreateIntraUser {
+  token: string;
+}
+
+class IntraImgRequest {
+  token: string;
+  size: string;
+}
+
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
@@ -44,6 +53,38 @@ export class AuthController {
       return await this.authService.signup(createUserDto);
     } catch (error) {
       if (error.message === 'User already exists') {
+        throw new HttpException(error.message, HttpStatus.CONFLICT);
+      }
+    }
+  }
+
+  @Post('create-intra-user')
+  @HttpCode(201)
+  async createIntraUser(
+    @Body() IntraUserData: CreateIntraUser,
+  ): Promise<{ message: string; data: any }> {
+    console.log(`in controller: ${IntraUserData.token}`);
+    try {
+      return await this.authService.createIntraUser(IntraUserData.token);
+    } catch (error) {
+      if (error.message === 'User already exists') {
+        throw new HttpException(error.message, HttpStatus.CONFLICT);
+      }
+    }
+  }
+
+  @Post('get-intra-profile-img')
+  @HttpCode(201)
+  async getIntraImage(
+    @Body() IntraUserData: IntraImgRequest,
+  ): Promise<{ message: string; data: any }> {
+    try {
+      return await this.authService.getIntraImage(
+        IntraUserData.size,
+        IntraUserData.token,
+      );
+    } catch (error) {
+      if (error.message === 'Fetching Intra Image failed in controller') {
         throw new HttpException(error.message, HttpStatus.CONFLICT);
       }
     }
