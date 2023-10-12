@@ -17,6 +17,7 @@ import {
   drawText,
 } from "./drawFunctions";
 import { io } from "socket.io-client";
+import { useParams } from "react-router-dom";
 
 const GAMESOCKET: string = `ws://${window.location.hostname}:${6969}`;
 
@@ -45,6 +46,7 @@ const movePaddle = (keyState: any, localPaddleRef: any): void => {
 };
 
 const GameWindow: React.FC = () => {
+  const params = useParams();
   const backgroundCanvasRef: any = useRef<HTMLCanvasElement | null>(null);
   const scoreCanvasRef: any = useRef<HTMLCanvasElement | null>(null);
   const paddleCanvasRef: any = useRef<HTMLCanvasElement | null>(null);
@@ -52,9 +54,11 @@ const GameWindow: React.FC = () => {
   const keystateRef = useRef<IKeyState>({ down: false, up: false });
   const ballRef: any = useRef<IBall>(ballSpawn);
   const gameStateRef = useRef<IGame>(gameSpawn);
-  const gameIdRef = useRef<number>(-1);
+  const gameIdRef = useRef<number>(
+    parseInt(params.gameId !== undefined ? params.gameId : "-1")
+  );
   const localPaddleRef = useRef<IPaddle>({
-    side: "",
+    side: `${params.side}`,
     height: properties.window.height / 2,
   });
   const socketRef = useRef(io(""));

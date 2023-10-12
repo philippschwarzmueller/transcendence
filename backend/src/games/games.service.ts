@@ -12,6 +12,11 @@ const newGameCopy = (): IGame => {
   return JSON.parse(JSON.stringify(gameSpawn));
 };
 
+interface IGameStart {
+  gameId: number;
+  side: string;
+}
+
 @Injectable()
 export class GamesService {
   constructor() {
@@ -94,10 +99,9 @@ export class GamesService {
     this.clients.push(client);
     if (this.clients.length >= 2) {
       const newGameId: number = this.startGameLoop();
-      this.clients.forEach((c) => {
-        c.emit('queue found', `${newGameId}`);
-      });
-      this.clients = [];
+      this.clients[0].emit('queue found', { gameId: newGameId, side: 'left' });
+      this.clients[1].emit('queue found', { gameId: newGameId, side: 'right' });
+      this.clients.slice(0, 1);
     }
     return 0;
   }
