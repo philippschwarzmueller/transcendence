@@ -13,4 +13,14 @@ export class UsersService {
   findAll(): Promise<User[]> {
     return this.usersRepository.find();
   }
+  async findOneByName(userId: string): Promise<User> {
+    const res: User = await this.usersRepository.findOne({
+      where: { name: userId },
+    });
+    if (res) {
+      return res;
+    } else {
+      throw new Error('User not found');
+    }
+  }
 }
