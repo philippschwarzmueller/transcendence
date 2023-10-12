@@ -6,6 +6,7 @@ import properties, {
   IPaddle,
   IBall,
   IGameSocketPayload,
+  IKeyState,
 } from "./properties";
 import Centerdiv from "../centerdiv";
 import Gamecanvas from "../gamecanvas/Gamecanvas";
@@ -17,33 +18,6 @@ import {
 } from "./drawFunctions";
 import { useParams } from "react-router-dom";
 import { GAMESOCKET } from "../queue/Queue";
-
-interface IKeyState {
-  up: boolean;
-  down: boolean;
-}
-
-const movePaddle = (
-  keyState: React.MutableRefObject<IKeyState>,
-  localPaddleRef: React.MutableRefObject<IPaddle>
-): void => {
-  const step: number = Math.floor(
-    properties.paddle.speed / properties.framerate
-  );
-  if (
-    keyState.current.down === true &&
-    keyState.current.up === false &&
-    localPaddleRef.current.height + step < properties.window.height
-  ) {
-    localPaddleRef.current.height += step;
-  } else if (
-    keyState.current.up === true &&
-    keyState.current.down === false &&
-    localPaddleRef.current.height - step > 0
-  ) {
-    localPaddleRef.current.height -= step;
-  }
-};
 
 const GameWindow: React.FC = () => {
   const params = useParams();
@@ -64,7 +38,8 @@ const GameWindow: React.FC = () => {
 
   const GameLoop = (keyState: React.MutableRefObject<IKeyState>): void => {
     const gameSocketPayload: IGameSocketPayload = {
-      paddle: localPaddleRef.current,
+      side: `${params.side}`,
+      keystate: keyState.current,
       gameId: gameIdRef.current,
     };
     if (GAMESOCKET.connected)
@@ -72,7 +47,6 @@ const GameWindow: React.FC = () => {
         gameStateRef.current = res;
       });
     else gameStateRef.current = gameSpawn;
-    movePaddle(keyState, localPaddleRef);
     ballRef.current = gameStateRef.current.ball;
     drawBall(ballCanvasRef.current.getContext("2d"), ballRef.current);
     drawBothPaddles(

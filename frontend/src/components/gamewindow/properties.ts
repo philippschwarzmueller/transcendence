@@ -45,9 +45,15 @@ export interface IBall {
   speed_y: number;
 }
 
+export interface IKeyState {
+  up: boolean;
+  down: boolean;
+}
+
 export interface IGameSocketPayload {
+  side: string;
   gameId: number;
-  paddle: IPaddle;
+  keystate: IKeyState;
 }
 
 export interface IGameStart {
