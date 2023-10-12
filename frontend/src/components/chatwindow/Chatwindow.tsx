@@ -1,4 +1,4 @@
-import styled from "styled-components"
+import styled from "styled-components";
 import React, { useState, useEffect } from "react";
 import Input from "../input/Input";
 import Button from "../button/Button";
@@ -28,9 +28,10 @@ const Textfield = styled.div`
   border-width: 1px 0px 0px 1px;
   border-top-color: rgb(134, 138, 142);
   border-left-color: rgb(134, 138, 142);
-  box-shadow: rgb(195, 199, 203) -1px -1px 0px 0px inset,
-              rgb(0, 0, 0) 1px 1px 0px 0px inset,
-              rgb(255, 255, 255) 0.5px 0.5px 0px 0.5px;
+  box-shadow:
+    rgb(195, 199, 203) -1px -1px 0px 0px inset,
+    rgb(0, 0, 0) 1px 1px 0px 0px inset,
+    rgb(255, 255, 255) 0.5px 0.5px 0px 0.5px;
 `;
 
 // not triggerable for actice state yet
@@ -86,32 +87,34 @@ const Chatwindow: React.FC = () => {
 
   return (
     <>
-    <Moveablewindow>
-      <Tabbar>
-        <StyledLi>tab</StyledLi>
-        <StyledLi>anothertab</StyledLi>
-      </Tabbar>
-      <Textfield>
-        <StyledUl>
-          {messages.map((mes) => {
-            return <li key={mes}>{mes}</li>;
-          })}
-        </StyledUl>
-      </Textfield>
-      <Msgfield>
-        <Input
-          value={input}
-          label="Type here"
-          placeholder="Enter message"
-          onChange={(e) => setInput(e.target.value)}
-        ></Input>
-        <Button onClick={(event: React.MouseEvent) => send(event)}>Send</Button>
-        <Button onClick={() => setSocket(io("ws://localhost:8080"))}>
-        Connect
-        </Button>
-        <Button onClick={() => socket.disconnect()}>Disconnect</Button>
-      </Msgfield>
-    </Moveablewindow>
+      <Moveablewindow>
+        <Tabbar>
+          <StyledLi>tab</StyledLi>
+          <StyledLi>anothertab</StyledLi>
+        </Tabbar>
+        <Textfield>
+          <StyledUl>
+            {messages.map((mes) => {
+              return <li key={mes}>{mes}</li>;
+            })}
+          </StyledUl>
+        </Textfield>
+        <Msgfield>
+          <Input
+            value={input}
+            label="Type here"
+            placeholder="Enter message"
+            onChange={(e) => setInput(e.target.value)}
+          ></Input>
+          <Button onClick={(event: React.MouseEvent) => send(event)}>
+            Send
+          </Button>
+          <Button onClick={() => setSocket(io("ws://localhost:8080"))}>
+            Connect
+          </Button>
+          <Button onClick={() => socket.disconnect()}>Disconnect</Button>
+        </Msgfield>
+      </Moveablewindow>
     </>
   );
 };
