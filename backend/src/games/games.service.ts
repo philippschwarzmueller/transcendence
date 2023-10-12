@@ -7,6 +7,7 @@ import properties, {
   IPaddle,
 } from './properties';
 import { advanceBall, ballHitPaddle, bounceOnPaddle } from './games.gamelogic';
+import { Socket } from 'dgram';
 
 const newGameCopy = (): IGame => {
   return JSON.parse(JSON.stringify(gameSpawn));
@@ -18,11 +19,13 @@ export class GamesService {
     this.games = []; // array with all gamedata
     this.intervals = []; // array with all gameloops (to kill them)
     this.amountOfGammes = 0;
+    this.clients = [];
   }
 
   public amountOfGammes: number;
   public games: IGame[];
   public intervals: NodeJS.Timeout[];
+  public clients: Socket[];
 
   stopAll(): void {
     this.games = [];
@@ -83,5 +86,15 @@ export class GamesService {
     );
     this.intervals.push(interval);
     return gameId;
+  }
+
+  public queue(body: string, client: Socket): void {
+    this.clients.push(client);
+    if (this.clients.length >= 2) {
+      const newGameId: number = this.startGameLoop();
+      this.clients[0].emit('queue found', { gameId: newGameId, side: 'left' });
+      this.clients[1].emit('queue found', { gameId: newGameId, side: 'right' });
+      this.clients.splice(0, 2);
+    }
   }
 }

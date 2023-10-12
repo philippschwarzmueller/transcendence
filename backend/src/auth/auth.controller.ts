@@ -13,6 +13,10 @@ import { AuthService } from './auth.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { User } from '../users/user.entity';
 
+interface ICreateIntraUser {
+  token: string;
+}
+
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
@@ -46,6 +50,29 @@ export class AuthController {
       if (error.message === 'User already exists') {
         throw new HttpException(error.message, HttpStatus.CONFLICT);
       }
+    }
+  }
+
+  @Post('create-intra-user')
+  @HttpCode(201)
+  async createIntraUser(
+    @Body() IntraUserData: ICreateIntraUser,
+  ): Promise<void> {
+    try {
+      await this.authService.createIntraUser(IntraUserData.token);
+    } catch (error) {
+      if (error.message === 'User already exists') {
+        throw new HttpException(error.message, HttpStatus.CONFLICT);
+      }
+    }
+  }
+
+  @Get('get-intra-profile-img')
+  async getIntraImage(@Query('user') user: string): Promise<string> {
+    try {
+      return await this.authService.getIntraImage(user);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.CONFLICT);
     }
   }
 

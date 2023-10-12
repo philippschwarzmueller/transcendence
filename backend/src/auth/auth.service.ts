@@ -64,6 +64,52 @@ export class AuthService {
     }
   }
 
+  async createIntraUser(token: string): Promise<void> {
+    const response: Response | void = await fetch(
+      'https://api.intra.42.fr/v2/me',
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+    const data = await response.json();
+    const imageLink: string = data.image.versions.large;
+    const user: string = data.login;
+
+    let userExists = await this.usersRepository.exist({
+      where: { name: user },
+    });
+
+    if (!userExists) {
+      await this.usersRepository.insert({
+        name: user,
+        profilePictureUrl: imageLink,
+      });
+    }
+
+    const specificValue =
+      'https://i.ds.at/XWrfig/rs:fill:750:0/plain/2020/01/16/harold.jpg';
+    const userWithDefaultProfilePicture = await this.usersRepository.findOne({
+      where: { name: user, profilePictureUrl: specificValue },
+    });
+
+    if (userWithDefaultProfilePicture) {
+      await this.usersRepository.save({ profilePictureUrl: imageLink });
+    }
+  }
+
+  async getIntraImage(user: string): Promise<string | null> {
+    const userRecord = await this.usersRepository.findOne({
+      where: { name: user },
+    });
+    if (userRecord) {
+      const imageUrl: string = userRecord.profilePictureUrl;
+      return imageUrl;
+    }
+    throw new Error('No User Records');
+  }
+
   async intraLogin(@Res() res: any): Promise<void> {
     const url: string = `https://api.intra.42.fr/oauth/authorize?client_id=${this.clientID}&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fget-token&response_type=code`;
     res.redirect(url);
