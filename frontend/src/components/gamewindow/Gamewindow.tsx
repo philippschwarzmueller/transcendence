@@ -18,7 +18,7 @@ import {
 } from "./drawFunctions";
 import { io } from "socket.io-client";
 import { useParams } from "react-router-dom";
-
+import { gamesocket } from "../queue/Queue";
 const GAMESOCKET: string = `ws://${window.location.hostname}:${6969}`;
 
 interface IKeyState {
@@ -62,6 +62,7 @@ const GameWindow: React.FC = () => {
     height: properties.window.height / 2,
   });
   const socketRef = useRef(io(""));
+  socketRef.current = gamesocket;
 
   const GameLoop = (keyState: React.MutableRefObject<IKeyState>): void => {
     const gameSocketPayload: IGameSocketPayload = {

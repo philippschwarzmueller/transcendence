@@ -101,7 +101,7 @@ export class GamesService {
       const newGameId: number = this.startGameLoop();
       this.clients[0].emit('queue found', { gameId: newGameId, side: 'left' });
       this.clients[1].emit('queue found', { gameId: newGameId, side: 'right' });
-      this.clients.slice(0, 1);
+      this.clients.splice(0, 2);
     }
     return 0;
   }

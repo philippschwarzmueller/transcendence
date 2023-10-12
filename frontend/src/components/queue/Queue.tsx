@@ -5,15 +5,16 @@ import { io } from "socket.io-client";
 
 const GAMESOCKET: string = `ws://${window.location.hostname}:${6969}`;
 
+export let gamesocket: any;
 const queueUp = (socket: any): void => {
   socket.emit("queue", "hello world");
 };
 
 const Queue: React.FC = () => {
-  const socket = io(GAMESOCKET);
+  gamesocket = io(GAMESOCKET);
   const nav = useNavigate();
-  socket.on("queue found", (body) => {
-    nav(`/game/${body.gameId}/${body.side}`);
+  gamesocket.on("queue found", (body: any) => {
+    nav(`/play/${body.gameId}/${body.side}`);
   });
 
   return (
@@ -21,7 +22,7 @@ const Queue: React.FC = () => {
       <Centerdiv>
         <Button
           onClick={() => {
-            queueUp(socket);
+            queueUp(gamesocket);
           }}
         >
           Queue up
