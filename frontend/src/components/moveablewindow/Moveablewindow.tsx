@@ -1,5 +1,5 @@
 import { useState } from "react";
-import styled from "styled-components"
+import styled from "styled-components";
 
 const StyledWindow = styled.div`
   position: absolute;
@@ -11,7 +11,7 @@ const StyledWindow = styled.div`
 `;
 
 export interface WindowProps {
-  children: React.ReactNode
+  children: React.ReactNode;
 }
 
 const Windowbar = styled.div`
@@ -28,14 +28,14 @@ const Windowbar = styled.div`
 
 const Moveablewindow: React.FC<WindowProps> = (props: WindowProps) => {
   const [position, setPosition] = useState({ x: 100, y: 200 });
-  const [offset, setOffset] = useState({ x: 0, y: 0 })
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
 
   const startDrag = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     if (event.clientX >= 0 && event.clientY >= 0) {
       setOffset({
         x: event.clientX - position.x,
         y: event.clientY - position.y,
-      })
+      });
     }
   };
 
@@ -44,13 +44,12 @@ const Moveablewindow: React.FC<WindowProps> = (props: WindowProps) => {
       setPosition({
         x: event.clientX - offset.x,
         y: event.clientY - offset.y,
-      })
-    }
-    else {
+      });
+    } else {
       setPosition({
-          x: position.x + offset.x,
-          y: position.y + offset.y,
-        })
+        x: position.x + offset.x,
+        y: position.y + offset.y,
+      });
     }
   };
 
@@ -61,34 +60,39 @@ const Moveablewindow: React.FC<WindowProps> = (props: WindowProps) => {
   const endDrag = (event: React.DragEvent<HTMLDivElement>) => {
     if (event.clientX >= 0 && event.clientY >= 0) {
       setPosition({
-          x: event.clientX - offset.x,
-          y: event.clientY - offset.y,
-        })
+        x: event.clientX - offset.x,
+        y: event.clientY - offset.y,
+      });
       setOffset({
-          x: 0,
-          y: 0,
-        })
-    }
-    else {
+        x: 0,
+        y: 0,
+      });
+    } else {
       setPosition({
-          x: position.x + offset.x,
-          y: position.y + offset.y,
-        })
+        x: position.x + offset.x,
+        y: position.y + offset.y,
+      });
     }
   };
 
   return (
     <>
-      <StyledWindow style={{top: position.y, left: position.x}}>
-      <Windowbar
-      draggable={true}
-      onDragStart={startDrag}
-      onDrag={handleDrag}
-      onDragEnd={endDrag}
-      onDragOver={handleDrop}
-      ><img width="16" height="16" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABQ0lEQVR4AcXBAW6DMBBFwedo78XezH9vtj6ZS5pURSgECoTOFN6Q1DmZpMKEsUBSd3fOMgwDEcGoA4WnGy9I6u7OWYZhICJ4xZiR1GutnCkiWGJMSOq1VlprXMVYkJkcVWultcY7xgJJHCNqZZXxVme/YIsbazofZWxWWNbZy1hT+CaJWitzpRSOMHYoJfglIHgQ0PkLYwcJaq3MlSL+ythIEpK4k8RZjM06v4KzGDtIQhJnMHbpnMVYJCD4NGNB75UrGAtaa5xNEpIYdUaSijETEXyCJCRx5+5kJqNuTEjiUyRx5+5kJj+MkaTOBdydzGTKJPVaK1eICOaMp9Ya/8E4IDPZwt1ZYsz44NxlS9ZIYovMZIkxFzw4qzKTVzITd2cLYyY9OcrdWSOJUbnxDyQxKoyMUURwFUmMCk+Fh851ChNfhxx7+xF1KZkAAAAASUVORK5CYII="></img>
-      </Windowbar>
-        { props.children }
+      <StyledWindow style={{ top: position.y, left: position.x }}>
+        <Windowbar
+          draggable={true}
+          onDragStart={startDrag}
+          onDrag={handleDrag}
+          onDragEnd={endDrag}
+          onDragOver={handleDrop}
+        >
+          <img
+            width="16"
+            height="16"
+            src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABQ0lEQVR4AcXBAW6DMBBFwedo78XezH9vtj6ZS5pURSgECoTOFN6Q1DmZpMKEsUBSd3fOMgwDEcGoA4WnGy9I6u7OWYZhICJ4xZiR1GutnCkiWGJMSOq1VlprXMVYkJkcVWultcY7xgJJHCNqZZXxVme/YIsbazofZWxWWNbZy1hT+CaJWitzpRSOMHYoJfglIHgQ0PkLYwcJaq3MlSL+ythIEpK4k8RZjM06v4KzGDtIQhJnMHbpnMVYJCD4NGNB75UrGAtaa5xNEpIYdUaSijETEXyCJCRx5+5kJqNuTEjiUyRx5+5kJj+MkaTOBdydzGTKJPVaK1eICOaMp9Ya/8E4IDPZwt1ZYsz44NxlS9ZIYovMZIkxFzw4qzKTVzITd2cLYyY9OcrdWSOJUbnxDyQxKoyMUURwFUmMCk+Fh851ChNfhxx7+xF1KZkAAAAASUVORK5CYII="
+            alt="Monitor"
+          ></img>
+        </Windowbar>
+        {props.children}
       </StyledWindow>
     </>
   );
