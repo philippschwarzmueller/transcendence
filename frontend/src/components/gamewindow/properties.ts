@@ -45,6 +45,11 @@ export interface IBall {
   speed_y: number;
 }
 
+export interface IGameSocketPayload {
+  gameId: number;
+  paddle: IPaddle;
+}
+
 const properties: IProperties = {
   window: { width: 960, height: 640, color: "black" },
   paddle: { width: 2, height: 15, speed: 200, color: "white" },
