@@ -29,4 +29,9 @@ export class GamesGateway {
   stop(@MessageBody() gameId: number): void {
     this.gamesService.stop(gameId);
   }
+
+  @SubscribeMessage('queue')
+  queue(@MessageBody() body: string): number {
+    return this.gamesService.queue(body);
+  }
 }

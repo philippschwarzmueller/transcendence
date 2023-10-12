@@ -84,4 +84,8 @@ export class GamesService {
     this.intervals.push(interval);
     return gameId;
   }
+
+  public queue(body: string): number {
+    return 0;
+  }
 }
