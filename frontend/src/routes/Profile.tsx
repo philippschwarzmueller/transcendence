@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import Button from "../components/button";
 import Playercard from "../components/playercard";
 import CenterDiv from "../components/centerdiv";
+import ProfilePicture from "../components/profilepicture/ProfilePicture";
 
 const friends: string[] = ["mgraefen", "fsandel", "luntiet-", "oheinzel"];
 
@@ -13,10 +14,11 @@ const Profile: React.FC = () => {
     if (userId === undefined && !sessionStorage.getItem("user")) {
       navigate("/login");
     }
-  }, []);
+  }, [navigate, userId]);
   return (
     <>
       <h1>{userId || sessionStorage.getItem("user")}'s Profile</h1>
+      <ProfilePicture></ProfilePicture>
       <h2>Stats</h2>
       <p>Games played: 420</p>
       <p>Win/Loss: 69%</p>

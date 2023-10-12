@@ -9,6 +9,11 @@ export class User {
   @Column({ name: 'name' })
   name: string;
 
-  @Column()
+  @Column({ default: 'safepw' })
   password: string;
+
+  @Column({
+    default: 'https://i.ds.at/XWrfig/rs:fill:750:0/plain/2020/01/16/harold.jpg',
+  })
+  profilePictureUrl: string;
 }
