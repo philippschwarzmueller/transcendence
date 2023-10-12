@@ -1,12 +1,14 @@
 import React from "react";
 import Pagetitle from "../components/pagetitle/Pagetitle";
+import Queue from "../components/queue/";
 
-const Queue: React.FC = () => {
+const QueuePage: React.FC = () => {
   return (
     <>
       <Pagetitle>Queue</Pagetitle>
+      <Queue />
     </>
   );
 };
 
-export default Queue;
+export default QueuePage;
