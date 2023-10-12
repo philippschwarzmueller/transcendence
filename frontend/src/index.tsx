@@ -12,6 +12,7 @@ import SignUp from "./routes/SignUp";
 import Login from "./routes/Login";
 import Profile from "./routes/Profile";
 import ProfileSettings from "./routes/ProfileSettings";
+import GetToken from "./routes/GetToken";
 
 const router = createBrowserRouter([
   {
@@ -57,6 +58,10 @@ const router = createBrowserRouter([
         path: "/profile/settings",
         element: <ProfileSettings />,
       },
+      {
+        path: "/get-token",
+        element: <GetToken />,
+      },
     ],
   },
 ]);
@@ -64,5 +69,5 @@ const router = createBrowserRouter([
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <RouterProvider router={router} />
-  </React.StrictMode>,
+  </React.StrictMode>
 );

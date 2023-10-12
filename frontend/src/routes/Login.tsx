@@ -21,7 +21,7 @@ const Login: React.FC = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(input),
-        },
+        }
       );
 
       const data: any = await response.json();
@@ -39,11 +39,7 @@ const Login: React.FC = () => {
   };
 
   const handleIntraLogin = async (event: React.MouseEvent) => {
-    window.open(
-      "http://localhost:4000/auth/intra-login",
-      "IntraLogin",
-      "width=600,height=400,popup=true",
-    );
+    window.location.replace("http://localhost:4000/auth/intra-login");
   };
 
   return (
