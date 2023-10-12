@@ -1,4 +1,4 @@
-import properties, { IBall } from "./properties";
+import properties, { IBall, IGame } from "./properties";
 
 export const drawPaddle = (
   context: CanvasRenderingContext2D,
@@ -36,24 +36,17 @@ export const drawPaddle = (
 
 export const drawBothPaddles = (
   context: CanvasRenderingContext2D,
-  leftHeight: number,
-  rightHeight: number
+  gameState: IGame
 ): void => {
-  drawPaddle(context, "left", leftHeight);
-  drawPaddle(context, "right", rightHeight);
+  drawPaddle(context, "left", gameState.left.height);
+  drawPaddle(context, "right", gameState.right.height);
 };
 
 export const drawBall = (
   context: CanvasRenderingContext2D,
-  ball: IBall,
-  old_ball: IBall
+  ball: IBall
 ): void => {
-  context.clearRect(
-    old_ball.x - properties.ballProperties.radius * 2,
-    old_ball.y - properties.ballProperties.radius * 2,
-    properties.ballProperties.radius * 4,
-    properties.ballProperties.radius * 4
-  );
+  context.clearRect(0, 0, properties.window.width, properties.window.width);
   context.fillStyle = properties.ballProperties.color;
   context.beginPath();
   context.arc(ball.x, ball.y, properties.ballProperties.radius, 0, 2 * Math.PI);
