@@ -114,6 +114,7 @@ export class AuthService {
     const url: string = `https://api.intra.42.fr/oauth/authorize?client_id=${this.clientID}&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fget-token&response_type=code`;
     res.redirect(url);
   }
+	
 
   async exchangeCodeForToken(code: string): Promise<string> {
     const response: Response | void = await fetch(
