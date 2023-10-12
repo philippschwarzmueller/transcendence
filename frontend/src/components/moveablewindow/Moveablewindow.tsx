@@ -27,7 +27,7 @@ const Windowbar = styled.div`
 `;
 
 const Moveablewindow: React.FC<WindowProps> = (props: WindowProps) => {
-  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [position, setPosition] = useState({ x: 100, y: 200 });
   const [offset, setOffset] = useState({ x: 0, y: 0 })
 
   const startDrag = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
