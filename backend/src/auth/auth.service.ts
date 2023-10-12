@@ -75,7 +75,6 @@ export class AuthService {
     );
     const data = await response.json();
     const imageLink: string = data.image.versions.large;
-    console.log(imageLink);
     const user: string = data.login;
 
     let userExists = await this.usersRepository.exist({
