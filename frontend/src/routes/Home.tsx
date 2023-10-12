@@ -1,11 +1,11 @@
 import React from "react";
-import { useState } from "react";
+import { useState, useContext } from "react";
 import Button from "../components/button";
 import Form from "../components/form";
 import Input from "../components/input";
-import Spinner from "../components/spinner";
 import Pagetitle from "../components/pagetitle/";
 import Playercard from "../components/playercard";
+import { AuthContext } from "./root";
 
 const lastMatches: string[] = [
   "Win against A",
@@ -48,9 +48,9 @@ const Home: React.FC = () => {
       });
     event.preventDefault();
   }
+  let auth = useContext(AuthContext);
   return (
     <>
-      <Spinner />
       <div
         style={{
           display: "flex",
@@ -61,6 +61,14 @@ const Home: React.FC = () => {
           //backgroundColor: "rgb(85, 170, 170)",
         }}
       >
+        {auth.loggedIn ? <span>logged in</span> : <span>logged out</span>}
+        <button
+          onClick={(e) => {
+            auth.setContext(!auth.loggedIn);
+          }}
+        >
+          change context
+        </button>
         <Pagetitle>Welcome to WinPong</Pagetitle>
         {user ? <p>logged in</p> : <p>logged out</p>}
         <Form>
