@@ -1,4 +1,5 @@
 import {
+  ConnectedSocket,
   MessageBody,
   SubscribeMessage,
   WebSocketGateway,
@@ -7,7 +8,12 @@ import {
 import { GamesService } from './games.service';
 import { IGame, IGameSocketPayload } from './properties';
 
-@WebSocketGateway(6969, {})
+@WebSocketGateway(6969, {
+  cors: {
+    // origin: ['http://localhost:3000'],
+    credentials: true,
+  },
+})
 export class GamesGateway {
   constructor(private gamesService: GamesService) {}
   @SubscribeMessage('gamestate')
@@ -31,7 +37,8 @@ export class GamesGateway {
   }
 
   @SubscribeMessage('queue')
-  queue(@MessageBody() body: string): number {
-    return this.gamesService.queue(body);
+  queue(@MessageBody() body: string, @ConnectedSocket() client: any): number {
+    console.log('gateway queue function');
+    return this.gamesService.queue(body, client);
   }
 }

@@ -18,11 +18,16 @@ export class GamesService {
     this.games = []; // array with all gamedata
     this.intervals = []; // array with all gameloops (to kill them)
     this.amountOfGammes = 0;
+    this.clients = [];
+    setInterval(() => {
+      console.log(`clients in queue: ${this.clients.length}`);
+    }, 500);
   }
 
   public amountOfGammes: number;
   public games: IGame[];
   public intervals: NodeJS.Timeout[];
+  public clients: any[];
 
   stopAll(): void {
     this.games = [];
@@ -85,7 +90,15 @@ export class GamesService {
     return gameId;
   }
 
-  public queue(body: string): number {
+  public queue(body: string, client: any): number {
+    this.clients.push(client);
+    if (this.clients.length >= 2) {
+      const newGameId: number = this.startGameLoop();
+      this.clients.forEach((c) => {
+        c.emit('queue found', `${newGameId}`);
+      });
+      this.clients = [];
+    }
     return 0;
   }
 }
