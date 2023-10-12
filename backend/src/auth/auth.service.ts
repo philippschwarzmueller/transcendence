@@ -89,7 +89,8 @@ export class AuthService {
       });
     }
 
-    const specificValue = 'default-image-url.jpg';
+    const specificValue =
+      'https://i.ds.at/XWrfig/rs:fill:750:0/plain/2020/01/16/harold.jpg';
     const userWithDefaultProfilePicture = await this.usersRepository.findOne({
       where: { name: user, profilePictureUrl: specificValue },
     });
@@ -109,7 +110,7 @@ export class AuthService {
       const imageUrl: string = userRecord.profilePictureUrl;
       return imageUrl;
     }
-    return null;
+    throw new Error('No User Records');
   }
 
   async intraLogin(@Res() res: any): Promise<void> {

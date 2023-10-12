@@ -17,7 +17,6 @@ const ProfilePicture: React.FC<any> = () => {
         return;
       }
       const imageUrl = await response.text();
-      console.log(imageUrl);
       setImageUrl(imageUrl);
     };
     fetchData();
