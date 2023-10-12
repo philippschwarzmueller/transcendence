@@ -95,9 +95,7 @@ export class AuthService {
     });
 
     if (userWithDefaultProfilePicture) {
-      await this.usersRepository.insert({
-        profilePictureUrl: imageLink,
-      });
+      await this.usersRepository.save({ profilePictureUrl: imageLink });
     }
   }
 
