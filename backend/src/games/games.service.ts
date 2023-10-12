@@ -5,7 +5,6 @@ import properties, {
   IBall,
   IGame,
   IKeyState,
-  IPaddle,
 } from './properties';
 import {
   advanceBall,

@@ -31,10 +31,6 @@ const GameWindow: React.FC = () => {
   const gameIdRef = useRef<number>(
     parseInt(params.gameId !== undefined ? params.gameId : "-1")
   );
-  const localPaddleRef = useRef<IPaddle>({
-    side: `${params.side}`,
-    height: properties.window.height / 2,
-  });
 
   const GameLoop = (keyState: React.MutableRefObject<IKeyState>): void => {
     const gameSocketPayload: IGameSocketPayload = {
