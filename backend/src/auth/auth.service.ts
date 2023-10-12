@@ -6,6 +6,16 @@ import { User } from '../users/user.entity';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { hash as bcrypt_hash, compare as bcrypt_compare } from 'bcrypt';
 
+interface tokenResponse {
+  access_token: string;
+  token_type: string;
+  expires_in: number;
+  refresh_token: string;
+  scope: string;
+  created_at: number;
+  secret_valid_until: number;
+}
+
 @Injectable()
 export class AuthService {
   private clientID: string;
@@ -55,28 +65,35 @@ export class AuthService {
   }
 
   async intraLogin(@Res() res: any): Promise<void> {
-    const url: string = `https://api.intra.42.fr/oauth/authorize?client_id=${this.clientID}&redirect_uri=http%3A%2F%2Flocalhost%3A4000%2Fauth%2Fcallback&response_type=code`;
+    const url: string = `https://api.intra.42.fr/oauth/authorize?client_id=${this.clientID}&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fget-token&response_type=code`;
     res.redirect(url);
   }
 
   async exchangeCodeForToken(code: string): Promise<string> {
-    const response: Response = await fetch('https://api.intra.42.fr/oauth/token', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        grant_type: 'authorization_code',
-        client_id: this.clientID,
-        client_secret: this.clientSecret,
-        code,
-        redirect_uri: 'http://localhost:4000/auth/callback',
-      }),
-    });
+    const response: Response | void = await fetch(
+      'https://api.intra.42.fr/oauth/token',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          grant_type: 'authorization_code',
+          client_id: this.clientID,
+          client_secret: this.clientSecret,
+          code: code,
+          redirect_uri: 'http://localhost:3000/get-token',
+        }),
+      },
+    ).catch((e) => console.error(e));
 
-    if (!response.ok) {
+    if (response instanceof Response && !response.ok) {
       throw new Error('Failed to exchange code for token');
     }
 
-    const data: any = await response.json();
-    return data.access_token;
+    if (response instanceof Response && response.ok) {
+      const data: tokenResponse = await response.json();
+      return data.access_token;
+    } else {
+      throw new Error('Failed to fetch');
+    }
   }
 }
