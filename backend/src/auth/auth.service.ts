@@ -75,26 +75,42 @@ export class AuthService {
     );
     const data = await response.json();
     const imageLink: string = data.image.versions.large;
-		const user : string  = data.login;
-    await this.usersRepository.insert({
-      name: user,
-      profilePictureUrl: imageLink,
+    console.log(imageLink);
+    const user: string = data.login;
+
+    let userExists = await this.usersRepository.exist({
+      where: { name: user },
     });
+
+    if (!userExists) {
+      await this.usersRepository.insert({
+        name: user,
+        profilePictureUrl: imageLink,
+      });
+    }
+
+    const specificValue = 'default-image-url.jpg';
+    const userWithDefaultProfilePicture = await this.usersRepository.findOne({
+      where: { name: user, profilePictureUrl: specificValue },
+    });
+
+    if (userWithDefaultProfilePicture) {
+      await this.usersRepository.insert({
+        profilePictureUrl: imageLink,
+      });
+    }
   }
 
-	async getIntraImage(size: string, token: string): Promise<any> {
-		const response: Response | void = await fetch(
-      'https://api.intra.42.fr/v2/me',
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },
-    );
-    const data = await response.json();
-    const imageLink: string = data.image.versions[size];
-		return imageLink;
-	}
+  async getIntraImage(user: string): Promise<string | null> {
+    const userRecord = await this.usersRepository.findOne({
+      where: { name: user },
+    });
+    if (userRecord) {
+      const imageUrl: string = userRecord.profilePictureUrl;
+      return imageUrl;
+    }
+    return null;
+  }
 
   async intraLogin(@Res() res: any): Promise<void> {
     const url: string = `https://api.intra.42.fr/oauth/authorize?client_id=${this.clientID}&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fget-token&response_type=code`;

@@ -14,11 +14,11 @@ const Profile: React.FC = () => {
     if (userId === undefined && !sessionStorage.getItem("user")) {
       navigate("/login");
     }
-  }, []);
+  }, [navigate, userId]);
   return (
     <>
       <h1>{userId || sessionStorage.getItem("user")}'s Profile</h1>
-			<ProfilePicture size="medium"></ProfilePicture>
+      <ProfilePicture></ProfilePicture>
       <h2>Stats</h2>
       <p>Games played: 420</p>
       <p>Win/Loss: 69%</p>

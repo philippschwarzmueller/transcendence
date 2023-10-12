@@ -63,7 +63,6 @@ export class AuthController {
   async createIntraUser(
     @Body() IntraUserData: CreateIntraUser,
   ): Promise<{ message: string; data: any }> {
-    console.log(`in controller: ${IntraUserData.token}`);
     try {
       return await this.authService.createIntraUser(IntraUserData.token);
     } catch (error) {
@@ -74,21 +73,11 @@ export class AuthController {
   }
 
   @Get('get-intra-profile-img')
-  async getIntraImage(
-		@Query('size') size: string,
-		@Query('token') token: string
-	): Promise<{ message: string; data: any }> {
-		console.log(token);
-		console.log(size);
+  async getIntraImage(@Query('user') user: string): Promise<string> {
     try {
-      return await this.authService.getIntraImage(
-        size,
-        token,
-      );
+      return await this.authService.getIntraImage(user);
     } catch (error) {
-      if (error.message === 'Fetching Intra Image failed in controller') {
-        throw new HttpException(error.message, HttpStatus.CONFLICT);
-      }
+      throw new HttpException(error.message, HttpStatus.CONFLICT);
     }
   }
 

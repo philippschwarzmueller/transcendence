@@ -3,40 +3,31 @@ import styled from "styled-components";
 
 const StyledProfilePicture = styled.img``;
 
-interface ProfilePictureProps {
-  size: string;
-}
+const ProfilePicture: React.FC<any> = () => {
+  const [imageUrl, setImageUrl] = useState("");
 
-const ProfilePicture: React.FC<ProfilePictureProps> = ({ size }) => {
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
-
-	useEffect(() => {
+  useEffect(() => {
     const fetchData = async () => {
-        const token = sessionStorage.getItem("token");
-        const response = await fetch(`http://localhost:4000/auth/get-intra-profile-img?size=${size}&token=${token}`);
-        
-        if (!response.ok) {
-            console.error(`Server error: ${response.statusText}`);
-            return;
-        }
-
-        const data = await response.json();
-        console.log(data);
-
-        if (data && data.data) {
-            setImageUrl(data.data);
-        }
+      const user = sessionStorage.getItem("user");
+      const response = await fetch(
+        `http://localhost:4000/auth/get-intra-profile-img?user=${user}`
+      );
+      if (!response.ok) {
+        console.error(`Server error: ${response.statusText}`);
+        return;
+      }
+      const imageUrl = await response.text();
+      console.log(imageUrl);
+      setImageUrl(imageUrl);
     };
-
     fetchData();
-}, [size]);
+  }, []);
+
   return (
     <div>
-      {imageUrl ? <StyledProfilePicture src={imageUrl} /> : "Loading..."}
+      <StyledProfilePicture src={imageUrl} />
     </div>
   );
 };
 
 export default ProfilePicture;
-
-
