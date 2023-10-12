@@ -13,13 +13,8 @@ import { AuthService } from './auth.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { User } from '../users/user.entity';
 
-class CreateIntraUser {
+interface ICreateIntraUser {
   token: string;
-}
-
-class IntraImgRequest {
-  token: string;
-  size: string;
 }
 
 @Controller('auth')
@@ -61,10 +56,10 @@ export class AuthController {
   @Post('create-intra-user')
   @HttpCode(201)
   async createIntraUser(
-    @Body() IntraUserData: CreateIntraUser,
-  ): Promise<{ message: string; data: any }> {
+    @Body() IntraUserData: ICreateIntraUser,
+  ): Promise<void> {
     try {
-      return await this.authService.createIntraUser(IntraUserData.token);
+      await this.authService.createIntraUser(IntraUserData.token);
     } catch (error) {
       if (error.message === 'User already exists') {
         throw new HttpException(error.message, HttpStatus.CONFLICT);

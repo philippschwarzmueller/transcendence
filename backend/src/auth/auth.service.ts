@@ -64,7 +64,7 @@ export class AuthService {
     }
   }
 
-  async createIntraUser(token: string): Promise<any> {
+  async createIntraUser(token: string): Promise<void> {
     const response: Response | void = await fetch(
       'https://api.intra.42.fr/v2/me',
       {
