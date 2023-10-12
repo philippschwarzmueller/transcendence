@@ -54,7 +54,7 @@ const PlayerCard: React.FC<IPlayerCard> = ({ name }) => {
   return (
     <>
       <StyledDiv onClick={(e) => openContextMenu(e)}>
-        <Avatar />
+        <Avatar name={name}/>
         <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
           <p style={{ margin: "3px", fontWeight: "800" }}>{name}</p>
           <p style={{ margin: "3px" }}>W/L%: 40</p>
