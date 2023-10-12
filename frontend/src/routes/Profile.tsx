@@ -28,7 +28,7 @@ const Profile: React.FC = () => {
       <h2>Stats</h2>
       <p>Games played: 420</p>
       <p>Win/Loss: 69%</p>
-      <p>{userData.name}</p>
+      <p>Username fetched from backend: <b>{userData.name}</b></p>
       <h2>Fake Dummy Friends</h2>
       <CenterDiv>
         <ul
