@@ -7,6 +7,7 @@ import Home from "./routes/Home";
 import Chat from "./routes/Chat";
 import Game from "./routes/Game";
 import App from "./routes/App";
+import Queue from "./routes/Queue";
 import ErrorPage from "./routes/error-page";
 import SignUp from "./routes/SignUp";
 import Login from "./routes/Login";
@@ -27,6 +28,18 @@ const router = createBrowserRouter([
       {
         path: "/play",
         element: <Game />,
+        children: [
+          {
+            path: ":gameId",
+            element: <Game />,
+            children: [
+              {
+                path: ":side",
+                element: <Game />,
+              },
+            ],
+          },
+        ],
       },
       {
         path: "/chat",
@@ -57,6 +70,10 @@ const router = createBrowserRouter([
       {
         path: "/profile/settings",
         element: <ProfileSettings />,
+      },
+      {
+        path: "/queue",
+        element: <Queue />,
       },
       {
         path: "/get-token",
