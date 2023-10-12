@@ -7,10 +7,10 @@ import {
 
 import { GamesService } from './games.service';
 import { IGame, IGameSocketPayload } from './properties';
+import { Socket } from 'dgram';
 
 @WebSocketGateway(6969, {
   cors: {
-    // origin: ['http://localhost:3000'],
     credentials: true,
   },
 })
@@ -37,8 +37,7 @@ export class GamesGateway {
   }
 
   @SubscribeMessage('queue')
-  queue(@MessageBody() body: string, @ConnectedSocket() client: any): number {
-    console.log('gateway queue function');
-    return this.gamesService.queue(body, client);
+  queue(@MessageBody() body: string, @ConnectedSocket() client: Socket): void {
+    this.gamesService.queue(body, client);
   }
 }

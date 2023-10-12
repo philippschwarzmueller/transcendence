@@ -7,7 +7,6 @@ import properties, {
   IBall,
   IGameSocketPayload,
 } from "./properties";
-import Button from "../button";
 import Centerdiv from "../centerdiv";
 import Gamecanvas from "../gamecanvas/Gamecanvas";
 import {
@@ -16,17 +15,18 @@ import {
   drawBothPaddles,
   drawText,
 } from "./drawFunctions";
-import { io } from "socket.io-client";
 import { useParams } from "react-router-dom";
-import { gamesocket } from "../queue/Queue";
-const GAMESOCKET: string = `ws://${window.location.hostname}:${6969}`;
+import { GAMESOCKET } from "../queue/Queue";
 
 interface IKeyState {
   up: boolean;
   down: boolean;
 }
 
-const movePaddle = (keyState: any, localPaddleRef: any): void => {
+const movePaddle = (
+  keyState: React.MutableRefObject<IKeyState>,
+  localPaddleRef: React.MutableRefObject<IPaddle>
+): void => {
   const step: number = Math.floor(
     properties.paddle.speed / properties.framerate
   );
@@ -61,16 +61,14 @@ const GameWindow: React.FC = () => {
     side: `${params.side}`,
     height: properties.window.height / 2,
   });
-  const socketRef = useRef(io(""));
-  socketRef.current = gamesocket;
 
   const GameLoop = (keyState: React.MutableRefObject<IKeyState>): void => {
     const gameSocketPayload: IGameSocketPayload = {
       paddle: localPaddleRef.current,
       gameId: gameIdRef.current,
     };
-    if (socketRef.current.connected)
-      socketRef.current.emit("gamestate", gameSocketPayload, (res: IGame) => {
+    if (GAMESOCKET.connected)
+      GAMESOCKET.emit("gamestate", gameSocketPayload, (res: IGame) => {
         gameStateRef.current = res;
       });
     else gameStateRef.current = gameSpawn;
@@ -86,33 +84,6 @@ const GameWindow: React.FC = () => {
       gameStateRef.current.pointsLeft,
       gameStateRef.current.pointsRight
     );
-  };
-
-  const spawnGame = (): void => {
-    socketRef.current = io(GAMESOCKET, {
-      transports: ["websocket"],
-      upgrade: false,
-    });
-    socketRef.current.emit("start", null, (res: number) => {
-      gameIdRef.current = res;
-    });
-  };
-
-  const stop = (): void => {
-    socketRef.current.emit("stop", gameIdRef.current);
-    socketRef.current.disconnect();
-  };
-
-  const stopAllGames = (): void => {
-    socketRef.current.emit("stopall");
-    socketRef.current.disconnect();
-  };
-  const joinLeftPlayer = (): void => {
-    localPaddleRef.current.side = "left";
-  };
-
-  const joinRightPlayer = (): void => {
-    localPaddleRef.current.side = "right";
   };
 
   useEffect(() => {
@@ -144,27 +115,7 @@ const GameWindow: React.FC = () => {
 
   return (
     <>
-      <div>
-        <Centerdiv>
-          <Button onClick={spawnGame}>Spawn game in backend</Button>
-          <br />
-        </Centerdiv>
-
-        <Centerdiv>
-          <Button onClick={stop}>stopOneGame</Button>
-          <br />
-        </Centerdiv>
-
-        <Centerdiv>
-          <Button onClick={stopAllGames}>stopAllGames</Button>
-          <br />
-        </Centerdiv>
-
-        <Centerdiv>
-          <Button onClick={joinLeftPlayer}>join left player</Button>
-          <Button onClick={joinRightPlayer}>join right player</Button>
-        </Centerdiv>
-      </div>
+      <div></div>
       <Centerdiv>
         <div>
           <Gamecanvas

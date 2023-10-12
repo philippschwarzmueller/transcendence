@@ -50,6 +50,11 @@ export interface IGameSocketPayload {
   paddle: IPaddle;
 }
 
+export interface IGameStart {
+  gameId: number;
+  side: string;
+}
+
 const properties: IProperties = {
   window: { width: 960, height: 640, color: 'black' },
   paddle: { width: 2, height: 15, speed: 200, color: 'white' },
