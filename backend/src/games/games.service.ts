@@ -4,9 +4,15 @@ import properties, {
   gameSpawn,
   IBall,
   IGame,
+  IKeyState,
   IPaddle,
 } from './properties';
-import { advanceBall, ballHitPaddle, bounceOnPaddle } from './games.gamelogic';
+import {
+  advanceBall,
+  ballHitPaddle,
+  bounceOnPaddle,
+  movePaddle,
+} from './games.gamelogic';
 import { Socket } from 'dgram';
 
 const newGameCopy = (): IGame => {
@@ -40,17 +46,18 @@ export class GamesService {
     clearInterval(this.intervals[gameId]);
   }
 
-  gamestate(paddle: IPaddle, gameId: number): IGame {
+  gamestate(side: string, keystate: IKeyState, gameId: number): IGame {
     if (this.amountOfGammes <= 0) return newGameCopy();
-    if (paddle.side === 'left')
-      this.games[gameId].left = { side: 'left', height: paddle.height };
-    if (paddle.side === 'right')
-      this.games[gameId].right = { side: 'right', height: paddle.height };
+
+    if (side === 'left') this.games[gameId].keyStateLeft = keystate;
+    else if (side === 'right') this.games[gameId].keyStateRight = keystate;
     this.games[gameId].gameId = gameId;
     return this.games[gameId];
   }
 
   private GameLoop(gameId: number): void {
+    movePaddle(this.games[gameId].keyStateLeft, this.games[gameId].left);
+    movePaddle(this.games[gameId].keyStateRight, this.games[gameId].right);
     const newBall: IBall = advanceBall(this.games[gameId].ball);
     if (ballHitPaddle(newBall, this.games[gameId].right)) {
       // hit right paddle
