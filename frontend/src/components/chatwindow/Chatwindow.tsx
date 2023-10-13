@@ -1,28 +1,21 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import Input from "../input/Input";
 import Button from "../button/Button";
-import { io } from "socket.io-client";
+import { ChatSocketContext } from "../../routes/root";
+import { Socket } from "socket.io-client";
 
 const Chatwindow: React.FC = () => {
-  let [messages, setMessages] = useState<string[]>([]);
-  let [input, setInput] = useState("");
-  let [socket, setSocket] = useState(
-    io(`http://${window.location.hostname}:${8080}`),
-  );
+  const [messages, setMessages] = useState<string[]>([]);
+  const [input, setInput] = useState<string>("");
+  const socket: Socket = useContext(ChatSocketContext);
   const user = sessionStorage.getItem("user");
-  let counter = 0;
+  let listKey = 0;
 
   useEffect(() => {
-    socket.on("connect", () => {
-      console.log("Connected");
-    });
-    socket.on("disconnect", () => {
-      console.log("Disconnected");
-    });
     socket.on("message", (res: string) => setMessages([...messages, res]));
   }, [socket, messages]);
 
-  function send(event: React.MouseEvent | React.KeyboardEvent): void {
+  function send(event: React.MouseEvent | React.KeyboardEvent) {
     event.preventDefault();
     if (input.trim() !== "") {
       socket.emit("message", { user, input });
@@ -34,7 +27,7 @@ const Chatwindow: React.FC = () => {
     <>
       <ul>
         {messages.map((mes) => {
-          return <li key={counter++}>{mes}</li>;
+          return <li key={listKey++}>{mes}</li>;
         })}
       </ul>
       <Input
@@ -42,15 +35,11 @@ const Chatwindow: React.FC = () => {
         label="Type here"
         placeholder="Enter message"
         onChange={(e) => setInput(e.target.value)}
-        onKeyPress={(e: React.KeyboardEvent) => {if(e.key === "Enter") send(e);}}
+        onKeyPress={(e: React.KeyboardEvent) => {
+          if (e.key === "Enter") send(e);
+        }}
       ></Input>
-      <Button
-        onClick={(e: React.MouseEvent) => send(e)}
-      >Send</Button>
-      <Button onClick={() => setSocket(io("ws://localhost:8080"))}>
-        Connect
-      </Button>
-      <Button onClick={() => socket.disconnect()}>Disconnect</Button>
+      <Button onClick={(e: React.MouseEvent) => send(e)}>Send</Button>
     </>
   );
 };
