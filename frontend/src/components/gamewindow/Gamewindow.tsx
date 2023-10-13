@@ -31,6 +31,7 @@ const GameWindow: React.FC = () => {
   const gameIdRef = useRef<number>(
     parseInt(params.gameId !== undefined ? params.gameId : "-1")
   );
+  let gameInterval: any;
 
   const GameLoop = (keyState: React.MutableRefObject<IKeyState>): void => {
     const gameSocketPayload: IGameSocketPayload = {
@@ -58,6 +59,9 @@ const GameWindow: React.FC = () => {
 
   useEffect(() => {
     drawBackground(backgroundCanvasRef.current.getContext("2d"));
+    GAMESOCKET.on("endgame", () => {
+      clearInterval(gameInterval);
+    });
     window.addEventListener(
       "keydown",
       (e) => {
@@ -76,7 +80,7 @@ const GameWindow: React.FC = () => {
       true
     );
 
-    /*const interval = */ setInterval(
+    gameInterval = setInterval(
       GameLoop,
       1000 / properties.framerate,
       keystateRef
