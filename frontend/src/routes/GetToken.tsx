@@ -1,10 +1,13 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
+import { AuthContext } from "./root";
 
 const GetToken: React.FC = () => {
   const nav = useNavigate();
   const location = useLocation();
   const [redirect, setredirect] = useState(false);
+
+  const auth = useContext(AuthContext);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
@@ -19,6 +22,13 @@ const GetToken: React.FC = () => {
         .then((token) => {
           if (token) {
             sessionStorage.setItem("token", token);
+            auth.setContext({
+              // TODO set actual values
+              id: 1,
+              name: "pschwarz",
+              image: "",
+              token: token,
+            });
             sessionStorage.removeItem("code");
             setUsername(token);
             setDbEntry(token);
@@ -42,23 +52,25 @@ const GetToken: React.FC = () => {
 
       const data = await response.json();
       sessionStorage.setItem("user", data.login);
+      // TODO set actual values
+      auth.setContext({...auth.loggedIn, name: data.login})
       return data.login;
     } catch (error) {
       console.error(
         "There has been a problem with your fetch operation:",
-        error
+        error,
       );
     }
   }
 
   async function setDbEntry(token: string) {
     fetch("http://localhost:4000/auth/create-intra-user", {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({
-				token,
-			}),
-		});
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        token,
+      }),
+    });
   }
 
   useEffect(() => {

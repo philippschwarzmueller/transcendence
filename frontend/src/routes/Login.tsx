@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import Button from "../components/button";
 import Input from "../components/input";
 import Form from "../components/form";
 import Pagetitle from "../components/pagetitle";
+import { AuthContext } from "../routes/root";
 
 interface loginBody {
   name: string;
@@ -11,6 +12,7 @@ interface loginBody {
 
 const Login: React.FC = () => {
   const [input, setInput] = useState<loginBody>({ name: "", password: "" });
+  const auth = useContext(AuthContext);
 
   const handleSubmit = async (event: React.MouseEvent) => {
     event.preventDefault();
@@ -50,6 +52,8 @@ const Login: React.FC = () => {
       ) : (
         <span>Logged out</span>
       )}
+      <h1>{auth.loggedIn.name}</h1>
+      <h2>{auth.loggedIn.token}</h2>
       <Form>
         <Input
           value={input.name}
