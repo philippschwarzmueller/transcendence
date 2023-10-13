@@ -5,6 +5,7 @@ import properties, {
   IBall,
   IGame,
   IKeyState,
+  maxScore,
 } from './properties';
 import {
   advanceBall,
@@ -82,8 +83,8 @@ export class GamesService {
     }
     this.games[gameId].ball = advanceBall(this.games[gameId].ball); // actually moving ball
     if (
-      this.games[gameId].pointsLeft >= 2 ||
-      this.games[gameId].pointsRight >= 2
+      this.games[gameId].pointsLeft >= maxScore ||
+      this.games[gameId].pointsRight >= maxScore
     ) {
       this.stop(gameId);
       leftPlayer.emit('endgame');
