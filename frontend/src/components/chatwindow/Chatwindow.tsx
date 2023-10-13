@@ -1,9 +1,10 @@
-import styled from "styled-components";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import Input from "../input/Input";
 import Button from "../button/Button";
+import { ChatSocketContext } from "../../routes/root";
+import { Socket } from "socket.io-client";
+import styled from "styled-components";
 import Moveablewindow from "../moveablewindow/Moveablewindow";
-import { io } from "socket.io-client";
 
 const Msgfield = styled.div`
   width: 320px;
@@ -62,25 +63,20 @@ const StyledUl = styled.ul`
 `;
 
 const Chatwindow: React.FC = () => {
-  let [messages, setMessages] = useState<string[]>([]);
-  let [input, setInput] = useState("");
-  let [socket, setSocket] = useState(io("ws://localhost:8080"));
+  const [messages, setMessages] = useState<string[]>([]);
+  const [input, setInput] = useState<string>("");
+  const socket: Socket = useContext(ChatSocketContext);
+  const user = sessionStorage.getItem("user");
+  let listKey = 0;
 
   useEffect(() => {
-    socket.on("connect", () => {
-      console.log("Connected");
-    });
-    socket.on("disconnect", () => {
-      console.log("Disconnected");
-    });
-  }, [socket]);
+    socket.on("message", (res: string) => setMessages([...messages, res]));
+  }, [socket, messages]);
 
-  function send(event: React.MouseEvent): void {
+  function send(event: React.MouseEvent | React.KeyboardEvent) {
     event.preventDefault();
     if (input.trim() !== "") {
-      socket.emit("message", input, (res: any) =>
-        setMessages([...messages, res]),
-      );
+      socket.emit("message", { user, input });
       setInput("");
     }
   }
@@ -95,7 +91,7 @@ const Chatwindow: React.FC = () => {
         <Textfield>
           <StyledUl>
             {messages.map((mes) => {
-              return <li key={mes}>{mes}</li>;
+              return <li key={listKey}>{mes}</li>;
             })}
           </StyledUl>
         </Textfield>
@@ -105,14 +101,11 @@ const Chatwindow: React.FC = () => {
             label="Type here"
             placeholder="Enter message"
             onChange={(e) => setInput(e.target.value)}
+            onKeyPress={(e: React.KeyboardEvent) => {
+              if (e.key === "Enter") send(e);
+            }}
           ></Input>
-          <Button onClick={(event: React.MouseEvent) => send(event)}>
-            Send
-          </Button>
-          <Button onClick={() => setSocket(io("ws://localhost:8080"))}>
-            Connect
-          </Button>
-          <Button onClick={() => socket.disconnect()}>Disconnect</Button>
+          <Button onClick={(e: React.MouseEvent) => send(e)}>Send</Button>
         </Msgfield>
       </Moveablewindow>
     </>
