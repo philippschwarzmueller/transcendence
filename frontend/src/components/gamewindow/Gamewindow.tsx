@@ -15,15 +15,13 @@ import {
   drawBothPaddles,
   drawText,
 } from "./drawFunctions";
-import {
-  NavigateFunction,
-  useLocation,
-  useNavigate,
-  useParams,
-} from "react-router-dom";
+import { NavigateFunction, useNavigate, useParams } from "react-router-dom";
 import { GAMESOCKET } from "../queue/Queue";
 
-const finishGame = (gameInterval: any, navigate: NavigateFunction): void => {
+const finishGame = (
+  gameInterval: ReturnType<typeof setInterval>,
+  navigate: NavigateFunction
+): void => {
   clearInterval(gameInterval);
   navigate("/home");
 };
@@ -34,13 +32,16 @@ const GameWindow: React.FC = () => {
   const scoreCanvasRef: any = useRef<HTMLCanvasElement | null>(null);
   const paddleCanvasRef: any = useRef<HTMLCanvasElement | null>(null);
   const ballCanvasRef: any = useRef<HTMLCanvasElement | null>(null);
-  const keystateRef = useRef<IKeyState>({ down: false, up: false });
-  const ballRef: any = useRef<IBall>(ballSpawn);
-  const gameStateRef = useRef<IGame>(gameSpawn);
-  const gameIdRef = useRef<number>(
+  const keystateRef: React.MutableRefObject<IKeyState> = useRef<IKeyState>({
+    down: false,
+    up: false,
+  });
+  const ballRef: React.MutableRefObject<IBall> = useRef<IBall>(ballSpawn);
+  const gameStateRef: React.MutableRefObject<IGame> = useRef<IGame>(gameSpawn);
+  const gameIdRef: React.MutableRefObject<number> = useRef<number>(
     parseInt(params.gameId !== undefined ? params.gameId : "-1")
   );
-  let gameInterval: any;
+  let gameInterval: ReturnType<typeof setInterval>;
   const navigate = useNavigate();
 
   const GameLoop = (keyState: React.MutableRefObject<IKeyState>): void => {
