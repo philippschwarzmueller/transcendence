@@ -77,6 +77,8 @@ export const ballSpawn: IBall = {
   speed_y: 0,
 };
 
+export const maxScore: number = 2;
+
 export const gameSpawn: IGame = {
   gameId: 0,
   ball: ballSpawn,
