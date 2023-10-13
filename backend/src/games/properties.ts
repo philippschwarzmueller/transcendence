@@ -76,6 +76,7 @@ export interface IGameBackend {
   rightPlayer: IGameUser;
   game: IGame;
   spectatorSockets: Socket[];
+  interval?: NodeJS.Timeout;
 }
 
 const properties: IProperties = {

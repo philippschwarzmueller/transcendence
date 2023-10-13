@@ -24,27 +24,25 @@ const newGameCopy = (): IGame => {
 export class GamesService {
   constructor() {
     this.games = new Map<string, IGameBackend>();
-    this.intervals = []; // array with all gameloops (to kill them)
     this.amountOfGammes = 0;
     this.clients = [];
   }
 
   public amountOfGammes: number;
   public games: Map<string, IGameBackend>;
-  public intervals: NodeJS.Timeout[];
   public clients: Socket[];
 
   stopAll(): void {
+    this.games.forEach((game) => {
+      if (game.interval !== undefined) clearInterval(game.interval);
+    });
     this.games.clear();
     this.amountOfGammes = 0;
-    this.intervals.forEach((interval) => {
-      clearInterval(interval);
-    });
-    this.intervals = [];
   }
 
   stop(gameId: number): void {
-    clearInterval(this.intervals[gameId]);
+    if (this.games.get(`${gameId}`).interval !== undefined)
+      clearInterval(this.games.get(`${gameId}`).interval);
   }
 
   gamestate(side: string, keystate: IKeyState, gameId: number): IGame {
@@ -54,8 +52,6 @@ export class GamesService {
       this.games.get(`${gameId}`).game.keyStateLeft = keystate;
     else if (side === 'right')
       this.games.get(`${gameId}`).game.keyStateRight = keystate;
-    // this.games[gameId].gameId = gameId;
-    // return this.games[gameId];
     return this.games.get(`${gameId}`).game;
   }
 
@@ -106,7 +102,7 @@ export class GamesService {
       properties.framerate,
       this.games.get(`${gameId}`),
     );
-    this.intervals.push(interval);
+    this.games.get(`${gameId}`).interval = interval;
     return gameId;
   }
 
