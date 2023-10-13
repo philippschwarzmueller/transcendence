@@ -21,11 +21,6 @@ export class GamesGateway {
     return this.gamesService.gamestate(body.side, body.keystate, body.gameId);
   }
 
-  // @SubscribeMessage('start')
-  // startGameLoop(): number {
-  //   return this.gamesService.startGameLoop();
-  // }
-
   @SubscribeMessage('stopall')
   stopAll(): void {
     this.gamesService.stopAll();
