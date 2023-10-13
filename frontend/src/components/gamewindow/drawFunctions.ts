@@ -5,6 +5,7 @@ export const drawPaddle = (
   side: string,
   height: number
 ): void => {
+  if (context === undefined) return;
   const paddleHeight: number = Math.floor(
     (properties.window.height * properties.paddle.height) / 100
   );
@@ -38,6 +39,7 @@ export const drawBothPaddles = (
   context: CanvasRenderingContext2D,
   gameState: IGame
 ): void => {
+  if (context === undefined) return;
   drawPaddle(context, "left", gameState.left.height);
   drawPaddle(context, "right", gameState.right.height);
 };
@@ -46,6 +48,7 @@ export const drawBall = (
   context: CanvasRenderingContext2D,
   ball: IBall
 ): void => {
+  if (context === undefined) return;
   context.clearRect(0, 0, properties.window.width, properties.window.width);
   context.fillStyle = properties.ballProperties.color;
   context.beginPath();
@@ -54,6 +57,7 @@ export const drawBall = (
 };
 
 export const drawBackground = (context: CanvasRenderingContext2D): void => {
+  if (context === undefined) return;
   context.fillStyle = properties.window.color;
   context.fillRect(0, 0, properties.window.width, properties.window.height);
   context.fillStyle = properties.paddle.color;
@@ -75,6 +79,7 @@ export const drawText = (
   pointsLeft: number,
   pointsRight: number
 ): void => {
+  if (context === undefined) return;
   const fontSize: number = properties.window.height / 6;
   context.clearRect(0, 0, properties.window.width, properties.window.height);
   context.font = `${fontSize}px Arial`;

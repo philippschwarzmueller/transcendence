@@ -101,6 +101,8 @@ export class GamesService {
       this.GameLoop.bind(this),
       properties.framerate,
       gameId,
+      leftPlayer,
+      rightPlayer,
     );
     this.intervals.push(interval);
     return gameId;
@@ -111,7 +113,7 @@ export class GamesService {
     if (this.clients.length >= 2) {
       const newGameId: number = this.startGameLoop(
         this.clients[0],
-        this.clients[0],
+        this.clients[1],
       );
       this.clients[0].emit('queue found', { gameId: newGameId, side: 'left' });
       this.clients[1].emit('queue found', { gameId: newGameId, side: 'right' });

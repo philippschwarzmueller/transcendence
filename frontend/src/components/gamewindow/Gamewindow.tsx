@@ -3,7 +3,6 @@ import properties, {
   IGame,
   ballSpawn,
   gameSpawn,
-  IPaddle,
   IBall,
   IGameSocketPayload,
   IKeyState,
@@ -16,8 +15,18 @@ import {
   drawBothPaddles,
   drawText,
 } from "./drawFunctions";
-import { useParams } from "react-router-dom";
+import {
+  NavigateFunction,
+  useLocation,
+  useNavigate,
+  useParams,
+} from "react-router-dom";
 import { GAMESOCKET } from "../queue/Queue";
+
+const finishGame = (gameInterval: any, navigate: NavigateFunction): void => {
+  clearInterval(gameInterval);
+  navigate("/home");
+};
 
 const GameWindow: React.FC = () => {
   const params = useParams();
@@ -32,8 +41,17 @@ const GameWindow: React.FC = () => {
     parseInt(params.gameId !== undefined ? params.gameId : "-1")
   );
   let gameInterval: any;
+  const navigate = useNavigate();
 
   const GameLoop = (keyState: React.MutableRefObject<IKeyState>): void => {
+    if (
+      ballCanvasRef.current === undefined ||
+      backgroundCanvasRef.current === undefined ||
+      scoreCanvasRef.current === undefined ||
+      paddleCanvasRef.current === undefined
+    ) {
+      finishGame(gameInterval, navigate);
+    }
     const gameSocketPayload: IGameSocketPayload = {
       side: `${params.side}`,
       keystate: keyState.current,
@@ -45,22 +63,38 @@ const GameWindow: React.FC = () => {
       });
     else gameStateRef.current = gameSpawn;
     ballRef.current = gameStateRef.current.ball;
-    drawBall(ballCanvasRef.current.getContext("2d"), ballRef.current);
+    drawBall(ballCanvasRef.current?.getContext("2d"), ballRef.current);
     drawBothPaddles(
-      paddleCanvasRef.current.getContext("2d"),
+      paddleCanvasRef.current?.getContext("2d"),
       gameStateRef.current
     );
     drawText(
-      scoreCanvasRef.current.getContext("2d"),
+      scoreCanvasRef.current?.getContext("2d"),
       gameStateRef.current.pointsLeft,
       gameStateRef.current.pointsRight
     );
   };
 
   useEffect(() => {
-    drawBackground(backgroundCanvasRef.current.getContext("2d"));
+    if (
+      ballCanvasRef.current === undefined ||
+      backgroundCanvasRef.current === undefined ||
+      scoreCanvasRef.current === undefined ||
+      paddleCanvasRef.current === undefined
+    ) {
+      finishGame(gameInterval, navigate);
+    }
+  }, [
+    ballCanvasRef.current !== undefined,
+    backgroundCanvasRef.current !== undefined,
+    scoreCanvasRef.current !== undefined,
+    paddleCanvasRef.current !== undefined,
+  ]);
+
+  useEffect(() => {
+    drawBackground(backgroundCanvasRef.current?.getContext("2d"));
     GAMESOCKET.on("endgame", () => {
-      clearInterval(gameInterval);
+      finishGame(gameInterval, navigate);
     });
     window.addEventListener(
       "keydown",
