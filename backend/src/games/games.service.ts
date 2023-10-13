@@ -4,6 +4,7 @@ import properties, {
   gameSpawn,
   IBall,
   IGame,
+  IGameBackend,
   IKeyState,
   maxScore,
 } from './properties';
@@ -13,7 +14,7 @@ import {
   bounceOnPaddle,
   movePaddle,
 } from './games.gamelogic';
-import { Socket } from 'dgram';
+import { Socket } from 'socket.io';
 
 const newGameCopy = (): IGame => {
   return JSON.parse(JSON.stringify(gameSpawn));
@@ -22,19 +23,19 @@ const newGameCopy = (): IGame => {
 @Injectable()
 export class GamesService {
   constructor() {
-    this.games = []; // array with all gamedata
+    this.games = new Map<string, IGameBackend>();
     this.intervals = []; // array with all gameloops (to kill them)
     this.amountOfGammes = 0;
     this.clients = [];
   }
 
   public amountOfGammes: number;
-  public games: IGame[];
+  public games: Map<string, IGameBackend>;
   public intervals: NodeJS.Timeout[];
   public clients: Socket[];
 
   stopAll(): void {
-    this.games = [];
+    this.games.clear();
     this.amountOfGammes = 0;
     this.intervals.forEach((interval) => {
       clearInterval(interval);
@@ -49,46 +50,42 @@ export class GamesService {
   gamestate(side: string, keystate: IKeyState, gameId: number): IGame {
     if (this.amountOfGammes <= 0) return newGameCopy();
 
-    if (side === 'left') this.games[gameId].keyStateLeft = keystate;
-    else if (side === 'right') this.games[gameId].keyStateRight = keystate;
-    this.games[gameId].gameId = gameId;
-    return this.games[gameId];
+    if (side === 'left')
+      this.games.get(`${gameId}`).game.keyStateLeft = keystate;
+    else if (side === 'right')
+      this.games.get(`${gameId}`).game.keyStateRight = keystate;
+    // this.games[gameId].gameId = gameId;
+    // return this.games[gameId];
+    return this.games.get(`${gameId}`).game;
   }
 
-  private GameLoop(
-    gameId: number,
-    leftPlayer: Socket,
-    rightPlayer: Socket,
-  ): void {
-    movePaddle(this.games[gameId].keyStateLeft, this.games[gameId].left);
-    movePaddle(this.games[gameId].keyStateRight, this.games[gameId].right);
-    const newBall: IBall = advanceBall(this.games[gameId].ball);
-    if (ballHitPaddle(newBall, this.games[gameId].right)) {
+  private GameLoop(game: IGameBackend): void {
+    movePaddle(game.game.keyStateLeft, game.game.left);
+    movePaddle(game.game.keyStateRight, game.game.right);
+    const newBall: IBall = advanceBall(game.game.ball);
+    if (ballHitPaddle(newBall, game.game.right)) {
       // hit right paddle
-      bounceOnPaddle(this.games[gameId].ball, this.games[gameId].right);
+      bounceOnPaddle(game.game.ball, game.game.right);
     } else if (newBall.x > properties.window.width) {
       // missed right paddle
-      this.games[gameId].ball = ballSpawn;
-      this.games[gameId].pointsLeft++;
-    } else if (ballHitPaddle(newBall, this.games[gameId].left)) {
+      game.game.ball = ballSpawn;
+      game.game.pointsLeft++;
+    } else if (ballHitPaddle(newBall, game.game.left)) {
       // hit left paddle
-      bounceOnPaddle(this.games[gameId].ball, this.games[gameId].left);
+      bounceOnPaddle(game.game.ball, game.game.left);
     } else if (newBall.x < 0) {
       // missed left paddle
-      this.games[gameId].ball = ballSpawn;
-      this.games[gameId].pointsRight++;
+      game.game.ball = ballSpawn;
+      game.game.pointsRight++;
     } else if (newBall.y > properties.window.height || newBall.y < 0) {
       //collision on top/botton
-      this.games[gameId].ball.speed_y *= -1;
+      game.game.ball.speed_y *= -1;
     }
-    this.games[gameId].ball = advanceBall(this.games[gameId].ball); // actually moving ball
-    if (
-      this.games[gameId].pointsLeft >= maxScore ||
-      this.games[gameId].pointsRight >= maxScore
-    ) {
-      this.stop(gameId);
-      leftPlayer.emit('endgame');
-      rightPlayer.emit('endgame');
+    game.game.ball = advanceBall(game.game.ball); // actually moving ball
+    if (game.game.pointsLeft >= maxScore || game.game.pointsRight >= maxScore) {
+      this.stop(Number(game.gameId));
+      game.leftPlayer.socket.emit('endgame');
+      game.rightPlayer.socket.emit('endgame');
     }
   }
 
@@ -96,14 +93,18 @@ export class GamesService {
     const newGame: IGame = newGameCopy();
     const gameId: number = this.amountOfGammes;
     newGame.gameId = gameId;
-    this.games.push(newGame);
+    this.games.set(`${gameId}`, {
+      gameId: `${gameId}`,
+      spectatorSockets: [],
+      game: newGame,
+      leftPlayer: { userId: 'left', socket: leftPlayer },
+      rightPlayer: { userId: 'right', socket: rightPlayer },
+    });
     this.amountOfGammes++;
     const interval = setInterval(
       this.GameLoop.bind(this),
       properties.framerate,
-      gameId,
-      leftPlayer,
-      rightPlayer,
+      this.games.get(`${gameId}`),
     );
     this.intervals.push(interval);
     return gameId;

@@ -7,7 +7,7 @@ import {
 
 import { GamesService } from './games.service';
 import { IGame, IGameSocketPayload } from './properties';
-import { Socket } from 'dgram';
+import { Socket } from 'socket.io';
 
 @WebSocketGateway(6969, {
   cors: {
