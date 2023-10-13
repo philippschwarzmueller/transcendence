@@ -105,9 +105,7 @@ const Chatwindow: React.FC = () => {
               if (e.key === "Enter") send(e);
             }}
           ></Input>
-          <Button onClick={(event: React.MouseEvent) => send(event)}>
-            Send
-          </Button>
+          <Button onClick={(e: React.MouseEvent) => send(e)}>Send</Button>
         </Msgfield>
       </Moveablewindow>
     </>
