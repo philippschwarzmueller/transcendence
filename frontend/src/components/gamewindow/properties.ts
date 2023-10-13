@@ -1,3 +1,5 @@
+import { Socket } from "socket.io-client";
+
 interface IWindow {
   width: number; // gamewindow width in px
   height: number; // gamewindow height in px
@@ -61,6 +63,19 @@ export interface IGameSocketPayload {
 export interface IGameStart {
   gameId: number;
   side: string;
+}
+
+export interface IGameUser {
+  userId: string;
+  socket: Socket;
+}
+
+export interface IGameBackend {
+  gameId: string;
+  leftPlayer: IGameUser;
+  rightPlayer: IGameUser;
+  game: IGame;
+  spectatorSockets: Socket[];
 }
 
 const properties: IProperties = {
