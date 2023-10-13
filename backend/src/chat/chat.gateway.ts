@@ -16,7 +16,6 @@ import { Socket, Server } from 'socket.io';
 
 @WebSocketGateway(8080, {
   cors: {
-    // origin: [0],
     credentials: true,
   },
 })
