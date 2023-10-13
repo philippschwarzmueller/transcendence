@@ -9,8 +9,8 @@ import Playercard from "../components/playercard";
 
 const lastMatches: string[] = [
   "Win against A",
-  "Win against A",
-  "Loss against A",
+  "Win against B",
+  "Loss against C",
 ];
 const onlineFriends: string[] = ["pschwarz", "mgraefen"];
 
@@ -91,7 +91,7 @@ const Home: React.FC = () => {
             <h2>Last matches</h2>
             <ul>
               {lastMatches.map((match: string) => {
-                return <li>{match}</li>;
+                return <li key={match}>{match}</li>;
               })}
             </ul>
           </div>
@@ -100,7 +100,7 @@ const Home: React.FC = () => {
             <ul>
               {onlineFriends.map((friend: string) => {
                 return (
-                  <li>
+                  <li key={friend}>
                     <Playercard name={friend} />
                   </li>
                 );

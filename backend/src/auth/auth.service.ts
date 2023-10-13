@@ -6,6 +6,16 @@ import { User } from '../users/user.entity';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { hash as bcrypt_hash, compare as bcrypt_compare } from 'bcrypt';
 
+interface tokenResponse {
+  access_token: string;
+  token_type: string;
+  expires_in: number;
+  refresh_token: string;
+  scope: string;
+  created_at: number;
+  secret_valid_until: number;
+}
+
 @Injectable()
 export class AuthService {
   private clientID: string;
@@ -54,29 +64,82 @@ export class AuthService {
     }
   }
 
+  async createIntraUser(token: string): Promise<void> {
+    const response: Response | void = await fetch(
+      'https://api.intra.42.fr/v2/me',
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+    const data = await response.json();
+    const imageLink: string = data.image.versions.large;
+    const user: string = data.login;
+
+    let userExists = await this.usersRepository.exist({
+      where: { name: user },
+    });
+
+    if (!userExists) {
+      await this.usersRepository.insert({
+        name: user,
+        profilePictureUrl: imageLink,
+      });
+    }
+
+    const specificValue =
+      'https://i.ds.at/XWrfig/rs:fill:750:0/plain/2020/01/16/harold.jpg';
+    const userWithDefaultProfilePicture = await this.usersRepository.findOne({
+      where: { name: user, profilePictureUrl: specificValue },
+    });
+
+    if (userWithDefaultProfilePicture) {
+      await this.usersRepository.save({ profilePictureUrl: imageLink });
+    }
+  }
+
+  async getIntraImage(user: string): Promise<string | null> {
+    const userRecord = await this.usersRepository.findOne({
+      where: { name: user },
+    });
+    if (userRecord) {
+      const imageUrl: string = userRecord.profilePictureUrl;
+      return imageUrl;
+    }
+    throw new Error('No User Records');
+  }
+
   async intraLogin(@Res() res: any): Promise<void> {
-    const url: string = `https://api.intra.42.fr/oauth/authorize?client_id=${this.clientID}&redirect_uri=http%3A%2F%2Flocalhost%3A4000%2Fauth%2Fcallback&response_type=code`;
+    const url: string = `https://api.intra.42.fr/oauth/authorize?client_id=${this.clientID}&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fget-token&response_type=code`;
     res.redirect(url);
   }
 
   async exchangeCodeForToken(code: string): Promise<string> {
-    const response: Response = await fetch('https://api.intra.42.fr/oauth/token', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        grant_type: 'authorization_code',
-        client_id: this.clientID,
-        client_secret: this.clientSecret,
-        code,
-        redirect_uri: 'http://localhost:4000/auth/callback',
-      }),
-    });
+    const response: Response | void = await fetch(
+      'https://api.intra.42.fr/oauth/token',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          grant_type: 'authorization_code',
+          client_id: this.clientID,
+          client_secret: this.clientSecret,
+          code: code,
+          redirect_uri: 'http://localhost:3000/get-token',
+        }),
+      },
+    ).catch((e) => console.error(e));
 
-    if (!response.ok) {
+    if (response instanceof Response && !response.ok) {
       throw new Error('Failed to exchange code for token');
     }
 
-    const data: any = await response.json();
-    return data.access_token;
+    if (response instanceof Response && response.ok) {
+      const data: tokenResponse = await response.json();
+      return data.access_token;
+    } else {
+      throw new Error('Failed to fetch');
+    }
   }
 }

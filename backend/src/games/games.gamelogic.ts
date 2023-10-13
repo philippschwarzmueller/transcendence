@@ -1,4 +1,27 @@
-import properties, { IBall, IPaddle } from './properties';
+import properties, { IBall, IKeyState, IPaddle } from './properties';
+
+export const movePaddle = (
+  keyState: IKeyState,
+  oldPaddlePos: IPaddle,
+): IPaddle => {
+  const step: number = Math.floor(
+    properties.paddle.speed / properties.framerate,
+  );
+  if (
+    keyState.down === true &&
+    keyState.up === false &&
+    oldPaddlePos.height + step < properties.window.height
+  ) {
+    oldPaddlePos.height += step;
+  } else if (
+    keyState.up === true &&
+    keyState.down === false &&
+    oldPaddlePos.height - step > 0
+  ) {
+    oldPaddlePos.height -= step;
+  }
+  return oldPaddlePos;
+};
 
 export const advanceBall = (oldBall: IBall): IBall => {
   const newBall: IBall = {

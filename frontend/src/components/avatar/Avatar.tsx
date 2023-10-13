@@ -12,6 +12,7 @@ export interface IAvatar {
 }
 
 const Avatar: React.FC<IAvatar> = ({
+	
   src = "https://ideastest.org.uk/wp-content/uploads/2019/04/default-avatar-1.jpg",
 }) => {
   return (

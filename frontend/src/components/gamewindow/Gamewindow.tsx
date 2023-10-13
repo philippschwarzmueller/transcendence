@@ -1,112 +1,107 @@
-import React, { useRef, useEffect, useState } from "react";
-import properties, { IGame, ballSpawn, gameSpawn, IPaddle } from "./properties";
-import Button from "../button";
+import React, { useRef, useEffect } from "react";
+import properties, {
+  IGame,
+  ballSpawn,
+  gameSpawn,
+  IBall,
+  IGameSocketPayload,
+  IKeyState,
+} from "./properties";
 import Centerdiv from "../centerdiv";
-import Gamecanvas from "../gamecanvas";
+import Gamecanvas from "../gamecanvas/Gamecanvas";
 import {
   drawBackground,
   drawBall,
   drawBothPaddles,
   drawText,
 } from "./drawFunctions";
+import { NavigateFunction, useNavigate, useParams } from "react-router-dom";
+import { GAMESOCKET } from "../queue/Queue";
 
-const BACKEND: string = `http://${window.location.hostname}:${4000}`;
-
-interface IKeyState {
-  up: boolean;
-  down: boolean;
-}
-
-const fetchGameState = async (
-  gameId: number,
-  localPaddle: IPaddle
-): Promise<IGame> => {
-  const response = await fetch(`${BACKEND}/games/gamestate/${gameId}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(localPaddle),
-  });
-  const ball: IGame = await response.json();
-  return ball;
-};
-
-const stopAllGames = async (): Promise<void> => {
-  await fetch(`${BACKEND}/games/stopall`, {
-    method: "POST",
-  });
+const finishGame = (
+  gameInterval: ReturnType<typeof setInterval>,
+  navigate: NavigateFunction
+): void => {
+  clearInterval(gameInterval);
+  navigate("/home");
 };
 
 const GameWindow: React.FC = () => {
-  const backgroundRef: any = useRef<HTMLCanvasElement | null>(null);
-  const scoreRef: any = useRef<HTMLCanvasElement | null>(null);
-  const paddleRef: any = useRef<HTMLCanvasElement | null>(null);
-  const ballRef: any = useRef<HTMLCanvasElement | null>(null);
-  const keyState = useRef<IKeyState>({ down: false, up: false });
-  let [ball, setBall] = useState(ballSpawn);
-  let [oldBall, setOldBall] = useState(ballSpawn);
-  const gameState = useRef<IGame>(gameSpawn);
-  const gameId = useRef<number>(0);
-  const localPaddle = useRef<IPaddle>({
-    side: "",
-    height: properties.window.height / 2,
+  const params = useParams();
+  const backgroundCanvasRef: any = useRef<HTMLCanvasElement | null>(null);
+  const scoreCanvasRef: any = useRef<HTMLCanvasElement | null>(null);
+  const paddleCanvasRef: any = useRef<HTMLCanvasElement | null>(null);
+  const ballCanvasRef: any = useRef<HTMLCanvasElement | null>(null);
+  const keystateRef: React.MutableRefObject<IKeyState> = useRef<IKeyState>({
+    down: false,
+    up: false,
   });
+  const ballRef: React.MutableRefObject<IBall> = useRef<IBall>(ballSpawn);
+  const gameStateRef: React.MutableRefObject<IGame> = useRef<IGame>(gameSpawn);
+  const gameIdRef: React.MutableRefObject<number> = useRef<number>(
+    parseInt(params.gameId !== undefined ? params.gameId : "-1")
+  );
+  let gameInterval: ReturnType<typeof setInterval>;
+  const navigate = useNavigate();
 
-  const GameLoop = async (
-    keyState: React.MutableRefObject<IKeyState>
-  ): Promise<void> => {
-    const step: number = Math.floor(
-      properties.paddle.speed / properties.framerate
-    );
+  const GameLoop = (keyState: React.MutableRefObject<IKeyState>): void => {
     if (
-      keyState.current.down === true &&
-      keyState.current.up === false &&
-      localPaddle.current.height + step < properties.window.height
+      ballCanvasRef.current === undefined ||
+      backgroundCanvasRef.current === undefined ||
+      scoreCanvasRef.current === undefined ||
+      paddleCanvasRef.current === undefined
     ) {
-      localPaddle.current.height += step;
-    } else if (
-      keyState.current.up === true &&
-      keyState.current.down === false &&
-      localPaddle.current.height - step > 0
-    ) {
-      localPaddle.current.height -= step;
+      finishGame(gameInterval, navigate);
     }
-    gameState.current = await fetchGameState(
-      gameId.current,
-      localPaddle.current
+    const gameSocketPayload: IGameSocketPayload = {
+      side: `${params.side}`,
+      keystate: keyState.current,
+      gameId: gameIdRef.current,
+    };
+    if (GAMESOCKET.connected)
+      GAMESOCKET.emit("gamestate", gameSocketPayload, (res: IGame) => {
+        gameStateRef.current = res;
+      });
+    else gameStateRef.current = gameSpawn;
+    ballRef.current = gameStateRef.current.ball;
+    drawBall(ballCanvasRef.current?.getContext("2d"), ballRef.current);
+    drawBothPaddles(
+      paddleCanvasRef.current?.getContext("2d"),
+      gameStateRef.current
     );
-    setBall(gameState.current.ball);
-  };
-
-  const spawnGame = async (): Promise<void> => {
-    const incomingGameId = await fetch(`${BACKEND}/games/start`, {
-      method: "POST",
-    });
-    gameId.current = await incomingGameId.json();
-  };
-
-  const stop = async (): Promise<void> => {
-    await fetch(`${BACKEND}/games/stop/${gameId.current}`, {
-      method: "POST",
-    });
-  };
-
-  const joinLeftPlayer = (): void => {
-    localPaddle.current.side = "left";
-  };
-
-  const joinRightPlayer = (): void => {
-    localPaddle.current.side = "right";
+    drawText(
+      scoreCanvasRef.current?.getContext("2d"),
+      gameStateRef.current.pointsLeft,
+      gameStateRef.current.pointsRight
+    );
   };
 
   useEffect(() => {
-    drawBackground(backgroundRef.current.getContext("2d"));
+    if (
+      ballCanvasRef.current === undefined ||
+      backgroundCanvasRef.current === undefined ||
+      scoreCanvasRef.current === undefined ||
+      paddleCanvasRef.current === undefined
+    ) {
+      finishGame(gameInterval, navigate);
+    }
+  }, [
+    ballCanvasRef.current !== undefined,
+    backgroundCanvasRef.current !== undefined,
+    scoreCanvasRef.current !== undefined,
+    paddleCanvasRef.current !== undefined,
+  ]);
+
+  useEffect(() => {
+    drawBackground(backgroundCanvasRef.current?.getContext("2d"));
+    GAMESOCKET.on("endgame", () => {
+      finishGame(gameInterval, navigate);
+    });
     window.addEventListener(
       "keydown",
       (e) => {
-        if (e.key === "ArrowUp") keyState.current.up = true;
-        if (e.key === "ArrowDown") keyState.current.down = true;
+        if (e.key === "ArrowUp") keystateRef.current.up = true;
+        if (e.key === "ArrowDown") keystateRef.current.down = true;
       },
       true
     );
@@ -114,73 +109,27 @@ const GameWindow: React.FC = () => {
     window.addEventListener(
       "keyup",
       (e) => {
-        if (e.key === "ArrowUp") keyState.current.up = false;
-        if (e.key === "ArrowDown") keyState.current.down = false;
+        if (e.key === "ArrowUp") keystateRef.current.up = false;
+        if (e.key === "ArrowDown") keystateRef.current.down = false;
       },
       true
     );
 
-    /*const interval = */ setInterval(
+    gameInterval = setInterval(
       GameLoop,
       1000 / properties.framerate,
-      keyState
+      keystateRef
     );
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  useEffect(() => {
-    drawBothPaddles(
-      paddleRef.current.getContext("2d"),
-      gameState.current.left.height,
-      gameState.current.right.height
-    );
-  }, [gameState.current.left.height, gameState.current.right.height]);
-
-  useEffect(() => {
-    drawText(
-      scoreRef.current.getContext("2d"),
-      gameState.current.pointsLeft,
-      gameState.current.pointsRight
-    );
-  }, [gameState.current.pointsLeft, gameState.current.pointsRight]);
-
-  useEffect(() => {
-    const canvas: HTMLCanvasElement = ballRef.current;
-    canvas.focus();
-    const context: CanvasRenderingContext2D = ballRef.current.getContext("2d");
-
-    drawBall(context, ball, oldBall);
-
-    setOldBall(ball);
-  }, [ball, oldBall]);
-
   return (
     <>
-      <div>
-        <Centerdiv>
-          <Button onClick={spawnGame}>Spawn game in backend</Button>
-          <br />
-        </Centerdiv>
-
-        <Centerdiv>
-          <Button onClick={stop}>stopOneGame</Button>
-          <br />
-        </Centerdiv>
-
-        <Centerdiv>
-          <Button onClick={stopAllGames}>stopAllGames</Button>
-          <br />
-        </Centerdiv>
-
-        <Centerdiv>
-          <Button onClick={joinLeftPlayer}>join left player</Button>
-          <Button onClick={joinRightPlayer}>join right player</Button>
-        </Centerdiv>
-      </div>
+      <div></div>
       <Centerdiv>
         <div>
           <Gamecanvas
             id="backgroundCanvas"
-            ref={backgroundRef}
+            ref={backgroundCanvasRef}
             width={properties.window.width}
             height={properties.window.height}
             tabIndex={0}
@@ -189,7 +138,7 @@ const GameWindow: React.FC = () => {
         <div>
           <Gamecanvas
             id="scoreCanvas"
-            ref={scoreRef}
+            ref={scoreCanvasRef}
             width={properties.window.width}
             height={properties.window.height}
             tabIndex={0}
@@ -198,7 +147,7 @@ const GameWindow: React.FC = () => {
         <div>
           <Gamecanvas
             id="paddleCanvas"
-            ref={paddleRef}
+            ref={paddleCanvasRef}
             width={properties.window.width}
             height={properties.window.height}
             tabIndex={0}
@@ -207,22 +156,12 @@ const GameWindow: React.FC = () => {
         <div>
           <Gamecanvas
             id="ballCanvas"
-            ref={ballRef}
+            ref={ballCanvasRef}
             width={properties.window.width}
             height={properties.window.height}
             tabIndex={1}
           ></Gamecanvas>
         </div>
-      </Centerdiv>
-
-      <Centerdiv>
-        <p>Gameid: {gameState.current.gameId}</p>
-      </Centerdiv>
-      <Centerdiv>
-        <p>
-          Left Player Points: {gameState.current.pointsLeft} Right Player
-          Points: {gameState.current.pointsRight}
-        </p>
       </Centerdiv>
     </>
   );
