@@ -54,7 +54,11 @@ export class GamesService {
     return this.games[gameId];
   }
 
-  private GameLoop(gameId: number): void {
+  private GameLoop(
+    gameId: number,
+    leftPlayer: Socket,
+    rightPlayer: Socket,
+  ): void {
     movePaddle(this.games[gameId].keyStateLeft, this.games[gameId].left);
     movePaddle(this.games[gameId].keyStateRight, this.games[gameId].right);
     const newBall: IBall = advanceBall(this.games[gameId].ball);
@@ -77,9 +81,17 @@ export class GamesService {
       this.games[gameId].ball.speed_y *= -1;
     }
     this.games[gameId].ball = advanceBall(this.games[gameId].ball); // actually moving ball
+    if (
+      this.games[gameId].pointsLeft >= 2 ||
+      this.games[gameId].pointsRight >= 2
+    ) {
+      this.stop(gameId);
+      leftPlayer.emit('endgame');
+      rightPlayer.emit('endgame');
+    }
   }
 
-  public startGameLoop(): number {
+  public startGameLoop(leftPlayer: Socket, rightPlayer: Socket): number {
     const newGame: IGame = newGameCopy();
     const gameId: number = this.amountOfGammes;
     newGame.gameId = gameId;
@@ -97,7 +109,10 @@ export class GamesService {
   public queue(body: string, client: Socket): void {
     this.clients.push(client);
     if (this.clients.length >= 2) {
-      const newGameId: number = this.startGameLoop();
+      const newGameId: number = this.startGameLoop(
+        this.clients[0],
+        this.clients[0],
+      );
       this.clients[0].emit('queue found', { gameId: newGameId, side: 'left' });
       this.clients[1].emit('queue found', { gameId: newGameId, side: 'right' });
       this.clients.splice(0, 2);
