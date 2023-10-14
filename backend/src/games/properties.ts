@@ -32,7 +32,7 @@ export interface IPaddle {
 }
 
 export interface IGame {
-  gameId: number;
+  gameId: string;
   ball: IBall;
   left: IPaddle;
   right: IPaddle;
@@ -56,8 +56,9 @@ export interface IKeyState {
 
 export interface IGameSocketPayload {
   side: string;
-  gameId: number;
+  gameId: string;
   keystate: IKeyState;
+  user: IGameUser;
 }
 
 export interface IGameStart {
@@ -96,7 +97,7 @@ export const ballSpawn: IBall = {
 export const maxScore: number = 2;
 
 export const gameSpawn: IGame = {
-  gameId: 0,
+  gameId: '0',
   ball: ballSpawn,
   left: {
     height: 320,

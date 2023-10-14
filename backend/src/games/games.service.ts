@@ -32,6 +32,10 @@ export class GamesService {
   public games: Map<string, IGameBackend>;
   public clients: Socket[];
 
+  private generateGameId(): string {
+    return `${this.amountOfGammes}`;
+  }
+
   stopAll(): void {
     this.games.forEach((game) => {
       if (game.interval !== undefined) clearInterval(game.interval);
@@ -85,12 +89,12 @@ export class GamesService {
     }
   }
 
-  public startGameLoop(leftPlayer: Socket, rightPlayer: Socket): number {
+  public startGameLoop(leftPlayer: Socket, rightPlayer: Socket): string {
     const newGame: IGame = newGameCopy();
-    const gameId: number = this.amountOfGammes;
+    const gameId: string = this.generateGameId();
     newGame.gameId = gameId;
-    this.games.set(`${gameId}`, {
-      gameId: `${gameId}`,
+    this.games.set(gameId, {
+      gameId: gameId,
       spectatorSockets: [],
       game: newGame,
       leftPlayer: { userId: 'left', socket: leftPlayer },
@@ -109,7 +113,7 @@ export class GamesService {
   public queue(body: string, client: Socket): void {
     this.clients.push(client);
     if (this.clients.length >= 2) {
-      const newGameId: number = this.startGameLoop(
+      const newGameId: string = this.startGameLoop(
         this.clients[0],
         this.clients[1],
       );
