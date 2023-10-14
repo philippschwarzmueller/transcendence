@@ -6,6 +6,7 @@ import properties, {
   IBall,
   IGameSocketPayload,
   IKeyState,
+  IGameUser,
 } from "./properties";
 import Centerdiv from "../centerdiv";
 import Gamecanvas from "../gamecanvas/Gamecanvas";
@@ -38,11 +39,14 @@ const GameWindow: React.FC = () => {
   });
   const ballRef: React.MutableRefObject<IBall> = useRef<IBall>(ballSpawn);
   const gameStateRef: React.MutableRefObject<IGame> = useRef<IGame>(gameSpawn);
-  const gameIdRef: React.MutableRefObject<number> = useRef<number>(
-    parseInt(params.gameId !== undefined ? params.gameId : "-1")
+  const gameIdRef: React.MutableRefObject<string> = useRef<string>(
+    params.gameId !== undefined ? params.gameId : "-1"
   );
   let gameInterval: ReturnType<typeof setInterval>;
   const navigate = useNavigate();
+  const localUser: React.MutableRefObject<IGameUser> = useRef<IGameUser>({
+    userId: "placeholder",
+  });
 
   const GameLoop = (keyState: React.MutableRefObject<IKeyState>): void => {
     if (
@@ -57,6 +61,7 @@ const GameWindow: React.FC = () => {
       side: `${params.side}`,
       keystate: keyState.current,
       gameId: gameIdRef.current,
+      user: localUser.current,
     };
     if (GAMESOCKET.connected)
       GAMESOCKET.emit("gamestate", gameSocketPayload, (res: IGame) => {
@@ -76,21 +81,21 @@ const GameWindow: React.FC = () => {
     );
   };
 
-  useEffect(() => {
-    if (
-      ballCanvasRef.current === undefined ||
-      backgroundCanvasRef.current === undefined ||
-      scoreCanvasRef.current === undefined ||
-      paddleCanvasRef.current === undefined
-    ) {
-      finishGame(gameInterval, navigate);
-    }
-  }, [
-    ballCanvasRef.current !== undefined,
-    backgroundCanvasRef.current !== undefined,
-    scoreCanvasRef.current !== undefined,
-    paddleCanvasRef.current !== undefined,
-  ]);
+  // useEffect(() => {
+  //   if (
+  //     ballCanvasRef.current === undefined ||
+  //     backgroundCanvasRef.current === undefined ||
+  //     scoreCanvasRef.current === undefined ||
+  //     paddleCanvasRef.current === undefined
+  //   ) {
+  //     finishGame(gameInterval, navigate);
+  //   }
+  // }, [
+  //   ballCanvasRef.current !== undefined,
+  //   backgroundCanvasRef.current !== undefined,
+  //   scoreCanvasRef.current !== undefined,
+  //   paddleCanvasRef.current !== undefined,
+  // ]);
 
   useEffect(() => {
     drawBackground(backgroundCanvasRef.current?.getContext("2d"));
