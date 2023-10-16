@@ -36,6 +36,8 @@ export interface IGame {
   right: IPaddle;
   pointsLeft: number;
   pointsRight: number;
+  keyStateLeft: IKeyState;
+  keyStateRight: IKeyState;
 }
 
 export interface IBall {
@@ -45,9 +47,20 @@ export interface IBall {
   speed_y: number;
 }
 
+export interface IKeyState {
+  up: boolean;
+  down: boolean;
+}
+
 export interface IGameSocketPayload {
+  side: string;
   gameId: number;
-  paddle: IPaddle;
+  keystate: IKeyState;
+}
+
+export interface IGameStart {
+  gameId: number;
+  side: string;
 }
 
 const properties: IProperties = {
@@ -64,6 +77,8 @@ export const ballSpawn: IBall = {
   speed_y: 0,
 };
 
+export const maxScore: number = 2;
+
 export const gameSpawn: IGame = {
   gameId: 0,
   ball: ballSpawn,
@@ -77,6 +92,8 @@ export const gameSpawn: IGame = {
   },
   pointsLeft: 0,
   pointsRight: 0,
+  keyStateLeft: { up: false, down: false },
+  keyStateRight: { up: false, down: false },
 };
 
 export default properties;
