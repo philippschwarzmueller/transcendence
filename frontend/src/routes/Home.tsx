@@ -95,18 +95,6 @@ const Home: React.FC = () => {
               })}
             </ul>
           </div>
-          <div>
-            <h2>Online Friends</h2>
-            <ul>
-              {onlineFriends.map((friend: string) => {
-                return (
-                  <li key={friend}>
-                    <Playercard name={friend} />
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
         </div>
       </div>
     </>
