@@ -4,7 +4,9 @@ import Centerdiv from "../centerdiv";
 import { io, Socket } from "socket.io-client";
 import { IGameStart } from "../gamewindow/properties";
 
-const GAMESOCKETADDRESS: string = `ws://${window.location.hostname}:${6969}`;
+export const GAMESOCKETADDRESS: string = `ws://${
+  window.location.hostname
+}:${6969}`;
 
 export let GAMESOCKET: Socket;
 
