@@ -4,7 +4,6 @@ import styled from "styled-components";
 const StyledProfilePicture = styled.img`
   max-height: 300px;
   max-width: 300px;
-	image-rendering: pixelated;
 	box-shadow:
     rgb(255, 255, 255) 1px 1px 0px 1px inset,
     rgb(134, 138, 142) 0px 0px 0px 1px inset,
