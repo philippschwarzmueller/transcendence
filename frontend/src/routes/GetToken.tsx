@@ -1,6 +1,15 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 
+export function getCookie(cname : string) : string {
+  const name : string = cname + "=";
+  const cookies : string[] = decodeURIComponent(document.cookie).split(';');
+  console.log(cookies);
+  const foundCookie : string | undefined = cookies.find(cookie => cookie.trim().startsWith(name));
+  
+  return foundCookie ? foundCookie.trim().substring(name.length) : "";
+}
+
 const GetToken: React.FC = () => {
   const nav = useNavigate();
   const location = useLocation();
@@ -18,8 +27,8 @@ const GetToken: React.FC = () => {
         .then((response) => response.text())
         .then((token) => {
           if (token) {
-            sessionStorage.setItem("token", token);
             sessionStorage.removeItem("code");
+            document.cookie = `token=${token}`;
             setUsername(token);
             setDbEntry(token);
             setredirect(true);
@@ -41,7 +50,8 @@ const GetToken: React.FC = () => {
       }
 
       const data = await response.json();
-      sessionStorage.setItem("user", data.login);
+      document.cookie = `user=${data.login}`;
+      //sessionStorage.setItem("user", data.login);
       return data.login;
     } catch (error) {
       console.error(
@@ -62,11 +72,11 @@ const GetToken: React.FC = () => {
   }
 
   useEffect(() => {
-    const user: string | null = sessionStorage.getItem("user");
+    const user: string | null = getCookie("user");
     if (redirect) {
       nav(`/profile/${user}`);
     }
-  }, [redirect]);
+  }, [redirect, nav]);
 
   return null;
 };

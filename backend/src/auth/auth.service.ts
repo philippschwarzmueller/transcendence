@@ -51,7 +51,7 @@ export class AuthService {
   }
 
   async signup(user: CreateUserDto): Promise<any> {
-    let userExists = await this.usersRepository.exist({
+    const userExists = await this.usersRepository.exist({
       where: { name: user.name },
     });
     if (!userExists) {
@@ -77,7 +77,7 @@ export class AuthService {
     const imageLink: string = data.image.versions.large;
     const user: string = data.login;
 
-    let userExists = await this.usersRepository.exist({
+    const userExists = await this.usersRepository.exist({
       where: { name: user },
     });
 

@@ -5,6 +5,7 @@ import { ChatSocketContext } from "../../routes/root";
 import { Socket } from "socket.io-client";
 import styled from "styled-components";
 import Moveablewindow from "../moveablewindow/Moveablewindow";
+import { getCookie } from "../../routes/GetToken"
 
 const Msgfield = styled.div`
   width: 320px;
@@ -66,7 +67,7 @@ const Chatwindow: React.FC = () => {
   const [messages, setMessages] = useState<string[]>([]);
   const [input, setInput] = useState<string>("");
   const socket: Socket = useContext(ChatSocketContext);
-  const user = sessionStorage.getItem("user");
+  const user = getCookie("user");
   let listKey = 0;
 
   useEffect(() => {
