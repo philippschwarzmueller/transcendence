@@ -84,7 +84,9 @@ const StyledUl = styled.ul`
 `;
 
 const Chatwindow: React.FC = () => {
-  const [messages, setMessages] = useState<string[][]>([[]]);
+  const [messages, setMessages] = useState<Map<string, string[]>>(
+    new Map<string, string[]>([["general", []]]),
+  );
   const [input, setInput] = useState<string>("");
   const [rinput, setRinput] = useState<string>("");
   const [room, setRoom] = useState<string>("general");
@@ -98,11 +100,11 @@ const Chatwindow: React.FC = () => {
 
   useEffect(() => {
     socket.emit("join", { user, input, room });
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     socket.on("message", (res: string) => addStringToMessages(res));
-  }, [socket]);
+  }, [socket]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function send(event: React.MouseEvent | React.KeyboardEvent) {
     event.preventDefault();
@@ -113,25 +115,27 @@ const Chatwindow: React.FC = () => {
     }
   }
 
-  const addStringToMessages = (newString: string) => {
-    const messagesCopy = [...messages];
-    if (!messagesCopy[tabs.indexOf(room)]) {
-      messagesCopy[tabs.indexOf(room)] = [];
-    }
-    messagesCopy[tabs.indexOf(room)].push(newString);
+  function addStringToMessages(newString: string) {
+    let messagesCopy: Map<string, string[]> = messages;
+    messagesCopy?.get(room)?.push(newString);
     setMessages(messagesCopy);
-  };
+  }
 
-  function joinRoom(event: React.KeyboardEvent) {
-    console.log(rinput);
-    setRoom(rinput);
-    setMessages([...messages, []]);
+  useEffect(() => {
+    if (tabs.includes(room)) {
+      socket.emit("join", { user, input, room });
+      return;
+    }
+    let tmp: Map<string, string[]> = messages;
+    tmp.set(room, []);
+    setMessages(tmp);
     setTabs([...tabs, room]);
     socket.emit("join", { user, input, room });
     setRinput("");
-  }
+  }, [room]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function openRoom(event: React.MouseEvent) {
+    event.preventDefault();
     setPositionX(event.pageX);
     setPositionY(event.pageY);
     setDisplay(!display);
@@ -147,7 +151,10 @@ const Chatwindow: React.FC = () => {
           placeholder="Enter room name"
           onChange={(e) => setRinput(e.target.value)}
           onKeyPress={(e: React.KeyboardEvent) => {
-            if (e.key === "Enter") joinRoom(e);
+            if (e.key === "Enter") {
+              setRoom(rinput);
+              setDisplay(false);
+            }
           }}
         ></Input>
       </InputField>
@@ -155,16 +162,21 @@ const Chatwindow: React.FC = () => {
         <Tabbar>
           {tabs.map((tab) => {
             return (
-              <StyledLi onClick={(e: React.MouseEvent) => setRoom(tab)}>
+              <StyledLi
+                onClick={(e: React.MouseEvent) => setRoom(tab)}
+                key={tab}
+              >
                 {tab}
               </StyledLi>
             );
           })}
-          <StyledLi onClick={(e: React.MouseEvent) => openRoom(e)}>+</StyledLi>
+          <StyledLi key="+" onClick={(e: React.MouseEvent) => openRoom(e)}>
+            +
+          </StyledLi>
         </Tabbar>
         <Textfield>
           <StyledUl>
-            {messages[tabs.indexOf(room)].map((mes) => {
+            {messages?.get(room)?.map((mes) => {
               return <li key={listKey}>{mes}</li>;
             })}
           </StyledUl>
