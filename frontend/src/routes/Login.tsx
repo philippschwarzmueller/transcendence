@@ -3,6 +3,7 @@ import Button from "../components/button";
 import Input from "../components/input";
 import Form from "../components/form";
 import Pagetitle from "../components/pagetitle";
+import { getCookie } from "../routes/GetToken"
 
 interface loginBody {
   name: string;
@@ -45,8 +46,8 @@ const Login: React.FC = () => {
   return (
     <>
       <Pagetitle>Login to your Account</Pagetitle>
-      {window.sessionStorage.getItem("user") ? (
-        <span>Logged in as {window.sessionStorage.getItem("user")}</span>
+      {getCookie("user") ? (
+        <span>Logged in as {getCookie("user")}</span>
       ) : (
         <span>Logged out</span>
       )}
