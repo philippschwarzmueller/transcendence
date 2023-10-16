@@ -53,19 +53,20 @@ const GetToken: React.FC = () => {
 
   async function setDbEntry(token: string) {
     fetch("http://localhost:4000/auth/create-intra-user", {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({
-				token,
-			}),
-		});
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        token,
+      }),
+    });
   }
 
   useEffect(() => {
+    const user: string | null = sessionStorage.getItem("user");
     if (redirect) {
-      nav("/profile");
+      nav(`/profile/${user}`);
     }
-  }, [redirect, nav]);
+  }, [redirect]);
 
   return null;
 };

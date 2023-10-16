@@ -5,51 +5,54 @@ import Playercard from "../components/playercard";
 import CenterDiv from "../components/centerdiv";
 import ProfilePicture from "../components/profilepicture/ProfilePicture";
 
-const friends: string[] = ["mgraefen", "fsandel", "luntiet-", "oheinzel"];
+export interface User {
+  id: number;
+  name: string;
+  profilePictureUrl: string;
+}
 
 const Profile: React.FC = () => {
   let { userId } = useParams();
   let navigate = useNavigate();
-  let [friends2, setFriends] = useState<any[]>([]);
-  let [userData, setUserData] = useState<any>({});
+  if (userId === undefined && !sessionStorage.getItem("user")) {
+    navigate("/login");
+  }
+
+  let [users, setUsers] = useState<User[]>([]);
   useEffect(() => {
-    if (userId === undefined && !sessionStorage.getItem("user")) {
-      navigate("/login");
-    }
-    fetch("http://localhost:4000/users")
+    fetch(`http://localhost:4000/users`)
       .then((res) => res.json())
-      .then((friends) => setFriends(friends));
-    fetch(`http://localhost:4000/users/${userId}`)
-      .then((res) => res.json())
-      .then((user) => setUserData(user));
+      .then((users) => setUsers(users));
   }, []);
+
+  let [user, setUser] = useState<User>();
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await fetch(`http://localhost:4000/users/${userId}`);
+        const userData = await res.json();
+        setUser(userData);
+      } catch (error) {
+        console.error("Failed to fetch user:", error);
+      }
+    };
+
+    fetchUser();
+  }, [userId]);
+
   return (
     <>
       <h1>{userId || sessionStorage.getItem("user")}'s Profile</h1>
-      <ProfilePicture></ProfilePicture>
+      {user && (
+        <ProfilePicture
+          profilePictureUrl={user.profilePictureUrl}
+          name={user?.name}
+        ></ProfilePicture>
+      )}
       <h2>Stats</h2>
       <p>Games played: 420</p>
       <p>Win/Loss: 69%</p>
-      <p>Username fetched from backend: <b>{userData.name}</b></p>
-      <h2>Fake Dummy Friends</h2>
-      <CenterDiv>
-        <ul
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            gap: "10px",
-            listStyleType: "none",
-          }}
-        >
-          {friends.map((friend: string) => {
-            return (
-              <li key={friend}>
-                <Playercard name={friend} />
-              </li>
-            );
-          })}
-        </ul>
-      </CenterDiv>
       <h2>All Users From Backend As Friends</h2>
       <CenterDiv>
         <ul
@@ -60,10 +63,14 @@ const Profile: React.FC = () => {
             listStyleType: "none",
           }}
         >
-          {friends2.map((friend: any) => {
+          {users.map((users: User) => {
             return (
-              <li key={friend.name}>
-                <Playercard name={friend.name} />
+              <li key={users.name}>
+                <Playercard
+                  name={users.name}
+                  profilePictureUrl={users.profilePictureUrl}
+                  id={users.id}
+                />
               </li>
             );
           })}

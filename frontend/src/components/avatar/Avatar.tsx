@@ -16,33 +16,11 @@ const StyledImg = styled.img`
 `;
 
 export interface IAvatar {
-  src?: string;
   name?: string;
+  src?: string;
 }
 
-async function getUserImage(user: string): Promise<string> {
-  try {
-    const src = await fetch(
-      `http://localhost:4000/auth/get-intra-profile-img?user=${user}`
-    );
-    const imageUrl = await src.text();
-    return imageUrl;
-  } catch (error) {
-    return "";
-  }
-}
-
-const Avatar: React.FC<IAvatar> = ({ name = "user" }) => {
-  const [src, setSrc] = useState<string>("");
-
-  useEffect(() => {
-    async function fetchImage() {
-      const url = await getUserImage(name);
-      setSrc(url);
-    }
-    fetchImage();
-  }, [name]);
-
+const Avatar: React.FC<IAvatar> = ({ name = "user", src }) => {
   return (
     <>
       <ImageContainer>
