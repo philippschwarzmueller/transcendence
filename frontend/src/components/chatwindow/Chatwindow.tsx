@@ -57,10 +57,14 @@ const StyledLi = styled.li`
   }
 `;
 
-const InputField = styled.div<{ $display: boolean; $posX: number; $posY: number }>`
+const InputField = styled.div<{
+  $display: boolean;
+  $posX: number;
+  $posY: number;
+}>`
   display: ${(props) => (props.$display ? "" : "none")};
   position: absolute;
-  z-index:100;
+  z-index: 100;
   left: ${(props) => props.$posX + "px"};
   top: ${(props) => props.$posY + "px"};
   background-color: rgb(195, 199, 203);
@@ -80,25 +84,51 @@ const StyledUl = styled.ul`
 `;
 
 const Chatwindow: React.FC = () => {
-  const [messages, setMessages] = useState<string[]>([]);
+  const [messages, setMessages] = useState<string[][]>([[]]);
   const [input, setInput] = useState<string>("");
+  const [rinput, setRinput] = useState<string>("");
+  const [room, setRoom] = useState<string>("general");
+  const [tabs, setTabs] = useState<string[]>(["general"]);
   const socket: Socket = useContext(ChatSocketContext);
   const user = sessionStorage.getItem("user");
   let listKey = 0;
-  let [display, setDisplay] =useState<boolean>(false);
+  let [display, setDisplay] = useState<boolean>(false);
   let [positionX, setPositionX] = useState<number>(0);
   let [positionY, setPositionY] = useState<number>(0);
 
   useEffect(() => {
-    socket.on("message", (res: string) => setMessages([...messages, res]));
-  }, [socket, messages]);
+    socket.emit("join", { user, input, room });
+  }, []);
+
+  useEffect(() => {
+    socket.on("message", (res: string) => addStringToMessages(res));
+  }, [socket]);
 
   function send(event: React.MouseEvent | React.KeyboardEvent) {
     event.preventDefault();
     if (input.trim() !== "") {
-      socket.emit("message", { user, input });
+      addStringToMessages(`me: ${input}`);
+      socket.emit("message", { user, input, room });
       setInput("");
     }
+  }
+
+  const addStringToMessages = (newString: string) => {
+    const messagesCopy = [...messages];
+    if (!messagesCopy[tabs.indexOf(room)]) {
+      messagesCopy[tabs.indexOf(room)] = [];
+    }
+    messagesCopy[tabs.indexOf(room)].push(newString);
+    setMessages(messagesCopy);
+  };
+
+  function joinRoom(event: React.KeyboardEvent) {
+    console.log(rinput);
+    setRoom(rinput);
+    setMessages([...messages, []]);
+    setTabs([...tabs, room]);
+    socket.emit("join", { user, input, room });
+    setRinput("");
   }
 
   function openRoom(event: React.MouseEvent) {
@@ -112,24 +142,29 @@ const Chatwindow: React.FC = () => {
       <InputField $display={display} $posX={positionX} $posY={positionY}>
         This is a WIP
         <Input
-          value={input}
+          value={rinput}
           label="Type here"
           placeholder="Enter room name"
-          onChange={(e) => setInput(e.target.value)}
+          onChange={(e) => setRinput(e.target.value)}
           onKeyPress={(e: React.KeyboardEvent) => {
-            if (e.key === "Enter") send(e);
+            if (e.key === "Enter") joinRoom(e);
           }}
         ></Input>
       </InputField>
       <Moveablewindow>
         <Tabbar>
-          <StyledLi>tab</StyledLi>
-          <StyledLi>anothertab</StyledLi>
+          {tabs.map((tab) => {
+            return (
+              <StyledLi onClick={(e: React.MouseEvent) => setRoom(tab)}>
+                {tab}
+              </StyledLi>
+            );
+          })}
           <StyledLi onClick={(e: React.MouseEvent) => openRoom(e)}>+</StyledLi>
         </Tabbar>
         <Textfield>
           <StyledUl>
-            {messages.map((mes) => {
+            {messages[tabs.indexOf(room)].map((mes) => {
               return <li key={listKey}>{mes}</li>;
             })}
           </StyledUl>
