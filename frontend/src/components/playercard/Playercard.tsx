@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import Avatar from "../avatar";
 import ContextMenu from "../contextmenu/ContextMenu";
-import { User } from "../../routes/Profile";
+import { IUser } from "../../routes/Profile";
 
 const StyledDiv = styled.div`
   text-align: center;
@@ -34,7 +34,7 @@ const StyledDiv = styled.div`
 `;
 
 
-const PlayerCard: React.FC<User> = ({ name, profilePictureUrl }) => {
+const PlayerCard: React.FC<IUser> = ({ name, profilePictureUrl }) => {
   let [showContext, setShowContext] = useState<boolean>(false);
   let [x, setX] = useState<number>(0);
   let [y, setY] = useState<number>(0);

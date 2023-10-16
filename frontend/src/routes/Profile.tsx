@@ -5,7 +5,7 @@ import Playercard from "../components/playercard";
 import CenterDiv from "../components/centerdiv";
 import ProfilePicture from "../components/profilepicture/ProfilePicture";
 
-export interface User {
+export interface IUser {
   id: number;
   name: string;
   profilePictureUrl: string;
@@ -18,14 +18,14 @@ const Profile: React.FC = () => {
     navigate("/login");
   }
 
-  let [users, setUsers] = useState<User[]>([]);
+  let [users, setUsers] = useState<IUser[]>([]);
   useEffect(() => {
     fetch(`http://localhost:4000/users`)
       .then((res) => res.json())
       .then((users) => setUsers(users));
   }, []);
 
-  let [user, setUser] = useState<User>();
+  let [user, setUser] = useState<IUser>();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -63,7 +63,7 @@ const Profile: React.FC = () => {
             listStyleType: "none",
           }}
         >
-          {users.map((users: User) => {
+          {users.map((users: IUser) => {
             return (
               <li key={users.name}>
                 <Playercard
