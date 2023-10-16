@@ -5,6 +5,7 @@ import properties, {
   IBall,
   IGame,
   IGameBackend,
+  IGameUser,
   IKeyState,
   maxScore,
 } from './properties';
@@ -30,7 +31,7 @@ export class GamesService {
 
   public amountOfGammes: number;
   public games: Map<string, IGameBackend>;
-  public clients: Socket[];
+  public clients: IGameUser[];
 
   private generateGameId(): string {
     return `${this.amountOfGammes}`;
@@ -49,11 +50,23 @@ export class GamesService {
       clearInterval(this.games.get(gameId).interval);
   }
 
-  gamestate(side: string, keystate: IKeyState, gameId: string): IGame {
+  gamestate(
+    side: string,
+    keystate: IKeyState,
+    gameId: string,
+    userId: string | null,
+  ): IGame {
     if (this.amountOfGammes <= 0) return newGameCopy();
-
-    if (side === 'left') this.games.get(gameId).game.keyStateLeft = keystate;
-    else if (side === 'right')
+    if (!this.games.has(gameId)) return newGameCopy();
+    // reimplement the next line if you want to force users to be logged in
+    // right now as comment for testing
+    // if (userId === null) return this.games.get(gameId).game;
+    if (side === 'left' && userId === this.games.get(gameId).leftPlayer.userId)
+      this.games.get(gameId).game.keyStateLeft = keystate;
+    else if (
+      side === 'right' &&
+      userId === this.games.get(gameId).rightPlayer.userId
+    )
       this.games.get(gameId).game.keyStateRight = keystate;
     return this.games.get(gameId).game;
   }
@@ -88,7 +101,7 @@ export class GamesService {
     }
   }
 
-  public startGameLoop(leftPlayer: Socket, rightPlayer: Socket): string {
+  public startGameLoop(leftPlayer: IGameUser, rightPlayer: IGameUser): string {
     const newGame: IGame = newGameCopy();
     const gameId: string = this.generateGameId();
     newGame.gameId = gameId;
@@ -96,28 +109,34 @@ export class GamesService {
       gameId: gameId,
       spectatorSockets: [],
       game: newGame,
-      leftPlayer: { userId: 'left', socket: leftPlayer },
-      rightPlayer: { userId: 'right', socket: rightPlayer },
+      leftPlayer: leftPlayer,
+      rightPlayer: rightPlayer,
     });
     this.amountOfGammes++;
     const interval = setInterval(
       this.GameLoop.bind(this),
       properties.framerate,
-      this.games.get(`${gameId}`),
+      this.games.get(gameId),
     );
-    this.games.get(`${gameId}`).interval = interval;
+    this.games.get(gameId).interval = interval;
     return gameId;
   }
 
   public queue(body: string, client: Socket): void {
-    this.clients.push(client);
+    this.clients.push({ userId: body, socket: client });
     if (this.clients.length >= 2) {
       const newGameId: string = this.startGameLoop(
         this.clients[0],
         this.clients[1],
       );
-      this.clients[0].emit('queue found', { gameId: newGameId, side: 'left' });
-      this.clients[1].emit('queue found', { gameId: newGameId, side: 'right' });
+      this.clients[0].socket.emit('queue found', {
+        gameId: newGameId,
+        side: 'left',
+      });
+      this.clients[1].socket.emit('queue found', {
+        gameId: newGameId,
+        side: 'right',
+      });
       this.clients.splice(0, 2);
     }
   }

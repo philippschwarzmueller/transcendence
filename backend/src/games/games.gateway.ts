@@ -18,7 +18,12 @@ export class GamesGateway {
   constructor(private gamesService: GamesService) {}
   @SubscribeMessage('gamestate')
   gamestate(@MessageBody() body: IGameSocketPayload): IGame {
-    return this.gamesService.gamestate(body.side, body.keystate, body.gameId);
+    return this.gamesService.gamestate(
+      body.side,
+      body.keystate,
+      body.gameId,
+      body.user,
+    );
   }
 
   @SubscribeMessage('stopall')

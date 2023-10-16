@@ -1,12 +1,9 @@
 import React, { useRef, useEffect } from "react";
 import properties, {
   IGame,
-  ballSpawn,
   gameSpawn,
-  IBall,
   IGameSocketPayload,
   IKeyState,
-  IGameUser,
 } from "./properties";
 import Centerdiv from "../centerdiv";
 import Gamecanvas from "../gamecanvas/Gamecanvas";
@@ -47,21 +44,18 @@ const GameWindow: React.FC = () => {
     down: false,
     up: false,
   });
-  const ballRef: React.MutableRefObject<IBall> = useRef<IBall>(ballSpawn);
   const gameStateRef: React.MutableRefObject<IGame> = useRef<IGame>(gameSpawn);
-  const gameIdRef: React.MutableRefObject<string> = useRef<string>(
-    params.gameId !== undefined ? params.gameId : "-1"
-  );
+  const gameId: string = params.gameId !== undefined ? params.gameId : "-1";
   const gameInterval: React.MutableRefObject<
     ReturnType<typeof setInterval> | undefined
   > = useRef<ReturnType<typeof setInterval>>();
   const navigate = useNavigate();
-  const localUser: React.MutableRefObject<IGameUser> = useRef<IGameUser>({
-    userId: "placeholder",
-  });
+  const localUser: string | null = sessionStorage.getItem("user");
   let socket: Socket = GAMESOCKET;
+
   if (socket === undefined || socket.connected === false)
     socket = io(GAMESOCKETADDRESS);
+
   const GameLoop = (keyState: React.MutableRefObject<IKeyState>): void => {
     if (
       gameCanvas.background === undefined ||
@@ -71,19 +65,22 @@ const GameWindow: React.FC = () => {
     ) {
       finishGame(gameInterval.current, navigate);
     }
+    console.log(params.side);
     const gameSocketPayload: IGameSocketPayload = {
-      side: `${params.side}`,
+      side: params.side !== undefined ? params.side : "viewer",
       keystate: keyState.current,
-      gameId: gameIdRef.current,
-      user: localUser.current,
+      gameId: gameId,
+      user: localUser,
     };
     if (socket.connected)
       socket.emit("gamestate", gameSocketPayload, (res: IGame) => {
         gameStateRef.current = res;
       });
     else gameStateRef.current = gameSpawn;
-    ballRef.current = gameStateRef.current.ball;
-    drawBall(gameCanvas.ball?.current?.getContext("2d"), ballRef.current);
+    drawBall(
+      gameCanvas.ball?.current?.getContext("2d"),
+      gameStateRef.current.ball
+    );
     drawBothPaddles(
       gameCanvas.paddle?.current?.getContext("2d"),
       gameStateRef.current

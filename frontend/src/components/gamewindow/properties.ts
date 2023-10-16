@@ -58,7 +58,7 @@ export interface IGameSocketPayload {
   side: string;
   gameId: string;
   keystate: IKeyState;
-  user: IGameUser;
+  user: string | null;
 }
 
 export interface IGameStart {
