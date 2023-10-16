@@ -58,6 +58,23 @@ const StyledLi = styled.li`
   }
 `;
 
+const InputField = styled.div<{ $display: boolean; $posX: number; $posY: number }>`
+  display: ${(props) => (props.$display ? "" : "none")};
+  position: absolute;
+  z-index:100;
+  left: ${(props) => props.$posX + "px"};
+  top: ${(props) => props.$posY + "px"};
+  background-color: rgb(195, 199, 203);
+  min-width: 100px;
+  margin-block-start: 0px;
+  margin-inline-start: 0px;
+  padding-inline-start: 0px;
+  box-shadow:
+    rgb(255, 255, 255) 1px 1px 0px 1px inset,
+    rgb(134, 138, 142) 0px 0px 0px 1px inset,
+    rgb(0, 0, 0) 1px 1px 0px 1px;
+`;
+
 // has to be switched to links for individual chats
 const StyledUl = styled.ul`
   list-style: none;
@@ -69,6 +86,9 @@ const Chatwindow: React.FC = () => {
   const socket: Socket = useContext(ChatSocketContext);
   const user = getCookie("user");
   let listKey = 0;
+  let [display, setDisplay] =useState<boolean>(false);
+  let [positionX, setPositionX] = useState<number>(0);
+  let [positionY, setPositionY] = useState<number>(0);
 
   useEffect(() => {
     socket.on("message", (res: string) => setMessages([...messages, res]));
@@ -82,12 +102,31 @@ const Chatwindow: React.FC = () => {
     }
   }
 
+  function openRoom(event: React.MouseEvent) {
+    setPositionX(event.pageX);
+    setPositionY(event.pageY);
+    setDisplay(!display);
+  }
+
   return (
     <>
+      <InputField $display={display} $posX={positionX} $posY={positionY}>
+        This is a WIP
+        <Input
+          value={input}
+          label="Type here"
+          placeholder="Enter room name"
+          onChange={(e) => setInput(e.target.value)}
+          onKeyPress={(e: React.KeyboardEvent) => {
+            if (e.key === "Enter") send(e);
+          }}
+        ></Input>
+      </InputField>
       <Moveablewindow>
         <Tabbar>
           <StyledLi>tab</StyledLi>
           <StyledLi>anothertab</StyledLi>
+          <StyledLi onClick={(e: React.MouseEvent) => openRoom(e)}>+</StyledLi>
         </Tabbar>
         <Textfield>
           <StyledUl>
