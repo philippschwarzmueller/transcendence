@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { User } from "../../routes/Profile";
+import { IUser } from "../../routes/Profile";
 
 interface IProfilePicture {
   name: string;

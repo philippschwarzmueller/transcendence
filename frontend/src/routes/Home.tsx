@@ -5,7 +5,6 @@ import Form from "../components/form";
 import Input from "../components/input";
 import Spinner from "../components/spinner";
 import Pagetitle from "../components/pagetitle/";
-import Playercard from "../components/playercard";
 
 const lastMatches: string[] = [
   "Win against A",
