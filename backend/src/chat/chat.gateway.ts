@@ -1,6 +1,7 @@
 interface message {
   user: string;
   input: string;
+  room: string;
 }
 
 import {
@@ -26,7 +27,15 @@ export class ChatGateway implements OnGatewayInit {
   @SubscribeMessage('message')
   handleEvent(@MessageBody() data: message, @ConnectedSocket() client: Socket) {
     console.log(data);
-    this.server.emit('message', `${data.user}: ${data.input}`);
+    client.to(data.room).emit('message', `${data.user}: ${data.input}`);
+  }
+
+  @SubscribeMessage('join')
+  joinRoom(@MessageBody() data: message, @ConnectedSocket() client: Socket) {
+    this.server
+      .to(data.room)
+      .emit('message', `${data.user} joined ${data.room}`);
+    client.join(data.room);
   }
 
   afterInit(server: any): any {
