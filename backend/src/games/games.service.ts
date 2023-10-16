@@ -44,19 +44,18 @@ export class GamesService {
     this.amountOfGammes = 0;
   }
 
-  stop(gameId: number): void {
-    if (this.games.get(`${gameId}`).interval !== undefined)
-      clearInterval(this.games.get(`${gameId}`).interval);
+  stop(gameId: string): void {
+    if (this.games.get(gameId).interval !== undefined)
+      clearInterval(this.games.get(gameId).interval);
   }
 
-  gamestate(side: string, keystate: IKeyState, gameId: number): IGame {
+  gamestate(side: string, keystate: IKeyState, gameId: string): IGame {
     if (this.amountOfGammes <= 0) return newGameCopy();
 
-    if (side === 'left')
-      this.games.get(`${gameId}`).game.keyStateLeft = keystate;
+    if (side === 'left') this.games.get(gameId).game.keyStateLeft = keystate;
     else if (side === 'right')
-      this.games.get(`${gameId}`).game.keyStateRight = keystate;
-    return this.games.get(`${gameId}`).game;
+      this.games.get(gameId).game.keyStateRight = keystate;
+    return this.games.get(gameId).game;
   }
 
   private GameLoop(game: IGameBackend): void {
@@ -83,7 +82,7 @@ export class GamesService {
     }
     game.game.ball = advanceBall(game.game.ball); // actually moving ball
     if (game.game.pointsLeft >= maxScore || game.game.pointsRight >= maxScore) {
-      this.stop(Number(game.gameId));
+      this.stop(game.gameId);
       game.leftPlayer.socket.emit('endgame');
       game.rightPlayer.socket.emit('endgame');
     }

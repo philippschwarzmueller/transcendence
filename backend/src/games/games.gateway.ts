@@ -27,7 +27,7 @@ export class GamesGateway {
   }
 
   @SubscribeMessage('stop')
-  stop(@MessageBody() gameId: number): void {
+  stop(@MessageBody() gameId: string): void {
     this.gamesService.stop(gameId);
   }
 
