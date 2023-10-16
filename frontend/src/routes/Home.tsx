@@ -11,7 +11,6 @@ const lastMatches: string[] = [
   "Win against B",
   "Loss against C",
 ];
-const onlineFriends: string[] = ["pschwarz", "mgraefen"];
 
 export interface fielddata {
   username: string | null;
