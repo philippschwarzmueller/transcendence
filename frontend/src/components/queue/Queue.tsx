@@ -11,14 +11,15 @@ export const GAMESOCKETADDRESS: string = `ws://${
 export let GAMESOCKET: Socket;
 
 const queueUp = (socket: Socket): void => {
-  socket.emit("queue");
+  const userId: string | null = sessionStorage.getItem("user");
+  socket.emit("queue", userId);
 };
 
 const Queue: React.FC = () => {
   GAMESOCKET = io(GAMESOCKETADDRESS);
-  const nav = useNavigate();
+  const navigate = useNavigate();
   GAMESOCKET.on("queue found", (body: IGameStart) => {
-    nav(`/play/${body.gameId}/${body.side}`);
+    navigate(`/play/${body.gameId}/${body.side}`);
   });
 
   return (
