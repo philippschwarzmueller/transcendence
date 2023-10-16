@@ -60,7 +60,12 @@ const PlayerCard: React.FC<IPlayerCard> = ({ name }) => {
           <p style={{ margin: "3px" }}>W/L%: 40</p>
         </div>
       </StyledDiv>
-      <ContextMenu display={showContext} positionX={x} positionY={y} />
+      <ContextMenu
+        display={showContext}
+        positionX={x}
+        positionY={y}
+        link={name}
+      />
     </>
   );
 };
