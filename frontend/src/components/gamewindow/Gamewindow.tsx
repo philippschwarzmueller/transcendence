@@ -20,7 +20,7 @@ import { NavigateFunction, useNavigate, useParams } from "react-router-dom";
 import { GAMESOCKET } from "../queue/Queue";
 
 const finishGame = (
-  gameInterval: ReturnType<typeof setInterval>,
+  gameInterval: ReturnType<typeof setInterval> | undefined,
   navigate: NavigateFunction
 ): void => {
   clearInterval(gameInterval);
@@ -42,7 +42,9 @@ const GameWindow: React.FC = () => {
   const gameIdRef: React.MutableRefObject<string> = useRef<string>(
     params.gameId !== undefined ? params.gameId : "-1"
   );
-  let gameInterval: ReturnType<typeof setInterval>;
+  const gameInterval: React.MutableRefObject<
+    ReturnType<typeof setInterval> | undefined
+  > = useRef<ReturnType<typeof setInterval>>();
   const navigate = useNavigate();
   const localUser: React.MutableRefObject<IGameUser> = useRef<IGameUser>({
     userId: "placeholder",
@@ -55,7 +57,7 @@ const GameWindow: React.FC = () => {
       scoreCanvasRef.current === undefined ||
       paddleCanvasRef.current === undefined
     ) {
-      finishGame(gameInterval, navigate);
+      finishGame(gameInterval.current, navigate);
     }
     const gameSocketPayload: IGameSocketPayload = {
       side: `${params.side}`,
@@ -81,26 +83,10 @@ const GameWindow: React.FC = () => {
     );
   };
 
-  // useEffect(() => {
-  //   if (
-  //     ballCanvasRef.current === undefined ||
-  //     backgroundCanvasRef.current === undefined ||
-  //     scoreCanvasRef.current === undefined ||
-  //     paddleCanvasRef.current === undefined
-  //   ) {
-  //     finishGame(gameInterval, navigate);
-  //   }
-  // }, [
-  //   ballCanvasRef.current !== undefined,
-  //   backgroundCanvasRef.current !== undefined,
-  //   scoreCanvasRef.current !== undefined,
-  //   paddleCanvasRef.current !== undefined,
-  // ]);
-
   useEffect(() => {
     drawBackground(backgroundCanvasRef.current?.getContext("2d"));
     GAMESOCKET.on("endgame", () => {
-      finishGame(gameInterval, navigate);
+      finishGame(gameInterval.current, navigate);
     });
     window.addEventListener(
       "keydown",
@@ -120,7 +106,7 @@ const GameWindow: React.FC = () => {
       true
     );
 
-    gameInterval = setInterval(
+    gameInterval.current = setInterval(
       GameLoop,
       1000 / properties.framerate,
       keystateRef
@@ -129,7 +115,6 @@ const GameWindow: React.FC = () => {
 
   return (
     <>
-      <div></div>
       <Centerdiv>
         <div>
           <Gamecanvas
