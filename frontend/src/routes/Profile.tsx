@@ -26,7 +26,6 @@ const Profile: React.FC = () => {
   }, []);
 
   let [user, setUser] = useState<IUser>();
-
   useEffect(() => {
     const fetchUser = async () => {
       try {
