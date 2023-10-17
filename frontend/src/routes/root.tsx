@@ -1,40 +1,30 @@
-import React, { useState } from "react";
+import React from "react";
 import { Outlet } from "react-router-dom";
 import Nav from "../components/nav";
 import GlobalStyle from "./GlobalStyle";
-import { createContext } from "react";
-
-interface IUser {
-  id: number;
-  name: string;
-  image: string;
-  token: string;
-}
-
-type AuthContextType = {
-  loggedIn: IUser;
-  setContext: React.Dispatch<React.SetStateAction<IUser>>;
-};
-
-const IUserContextState = {
-  loggedIn: { id: 0, name: "", image: "", token: "" },
-  setContext: () => {},
-};
-
-export const AuthContext = createContext<AuthContextType>(IUserContextState);
+import { AuthContext, IUser } from "../context/auth";
 
 const Root: React.FC = () => {
-  const [loggedIn, setContext] = useState<IUser>({
-    // TODO check if this is best way to init or if it should rather be queried
-    // from local/session storage token -> backend query
-    id: 0,
-    name: "",
-    image: "",
-    token: "",
+  const [user, setUser] = React.useState<IUser>({
+    id: undefined,
+    name: undefined,
+    image: undefined,
+    token: undefined,
   });
+  const logIn = (user: IUser) => {
+    setUser(user);
+  };
+  const logOut = () => {
+    setUser({
+      id: undefined,
+      name: undefined,
+      image: undefined,
+      token: undefined,
+    });
+  };
   return (
     <>
-      <AuthContext.Provider value={{ loggedIn, setContext }}>
+      <AuthContext.Provider value={{ user, logIn, logOut }}>
         <GlobalStyle />
         <Nav />
         <Outlet />

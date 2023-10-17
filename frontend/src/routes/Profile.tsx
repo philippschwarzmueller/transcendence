@@ -4,7 +4,7 @@ import Button from "../components/button";
 import Playercard from "../components/playercard";
 import CenterDiv from "../components/centerdiv";
 import ProfilePicture from "../components/profilepicture/ProfilePicture";
-import { AuthContext } from "./root";
+import { AuthContext } from "../context/auth";
 
 const friends: string[] = ["mgraefen", "fsandel", "luntiet-", "oheinzel"];
 
@@ -13,13 +13,13 @@ const Profile: React.FC = () => {
   let { userId } = useParams();
   let navigate = useNavigate();
   useEffect(() => {
-    if (userId === undefined && !sessionStorage.getItem("user")) {
+    if (userId === undefined && !auth.user.token) {
       navigate("/login");
     }
   }, [navigate, userId]);
   return (
     <>
-      <h1>{auth.loggedIn.name}'s Profile</h1>
+      <h1>{auth.user.name}'s Profile</h1>
       <ProfilePicture></ProfilePicture>
       <h2>Stats</h2>
       <p>Games played: 420</p>
