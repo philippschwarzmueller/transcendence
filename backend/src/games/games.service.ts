@@ -108,6 +108,15 @@ export class GamesService {
       localGame.gameState.pointsRight >= maxScore
     ) {
       this.stop(localGame.gameId);
+      localGame.gameState.isFinished = true;
+      localGame.gameState.winner =
+        localGame.gameState.pointsLeft === maxScore
+          ? localGame.leftPlayer.userId
+          : localGame.rightPlayer.userId;
+      localGame.gameState.looser =
+        localGame.gameState.pointsLeft !== maxScore
+          ? localGame.leftPlayer.userId
+          : localGame.rightPlayer.userId;
       localGame.leftPlayer.socket.emit('endgame');
       localGame.rightPlayer.socket.emit('endgame');
     }

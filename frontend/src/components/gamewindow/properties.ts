@@ -40,6 +40,9 @@ export interface IGame {
   pointsRight: number;
   keyStateLeft: IKeyState;
   keyStateRight: IKeyState;
+  winner?: string;
+  looser?: string;
+  isFinished: boolean;
 }
 
 export interface IBall {
@@ -111,6 +114,7 @@ export const gameSpawn: IGame = {
   pointsRight: 0,
   keyStateLeft: { up: false, down: false },
   keyStateRight: { up: false, down: false },
+  isFinished: false,
 };
 
 export default properties;
