@@ -34,8 +34,8 @@ export interface IPaddle {
 export interface IGame {
   gameId: string;
   ball: IBall;
-  left: IPaddle;
-  right: IPaddle;
+  leftPaddle: IPaddle;
+  rightPaddle: IPaddle;
   pointsLeft: number;
   pointsRight: number;
   keyStateLeft: IKeyState;
@@ -99,11 +99,11 @@ export const maxScore: number = 2;
 export const gameSpawn: IGame = {
   gameId: "0",
   ball: ballSpawn,
-  left: {
+  leftPaddle: {
     height: 320,
     side: "left",
   },
-  right: {
+  rightPaddle: {
     height: 320,
     side: "right",
   },

@@ -40,8 +40,8 @@ export const drawBothPaddles = (
   gameState: IGame
 ): void => {
   if (context === undefined || context === null) return;
-  drawPaddle(context, "left", gameState.left.height);
-  drawPaddle(context, "right", gameState.right.height);
+  drawPaddle(context, "left", gameState.leftPaddle.height);
+  drawPaddle(context, "right", gameState.rightPaddle.height);
 };
 
 export const drawBall = (
