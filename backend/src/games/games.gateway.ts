@@ -17,9 +17,9 @@ import { Socket } from 'socket.io';
 export class GamesGateway {
   constructor(private gamesService: GamesService) {}
 
-  @SubscribeMessage('gamestate')
-  gamestate(@MessageBody() body: IGameSocketPayload): IGame {
-    return this.gamesService.gamestate(
+  @SubscribeMessage('alterGameData')
+  alterGameData(@MessageBody() body: IGameSocketPayload): IGame {
+    return this.gamesService.alterGameData(
       body.side,
       body.keystate,
       body.gameId,
@@ -27,18 +27,13 @@ export class GamesGateway {
     );
   }
 
-  @SubscribeMessage('stopall')
-  stopAll(): void {
-    this.gamesService.stopAll();
-  }
-
-  @SubscribeMessage('stop')
-  stop(@MessageBody() gameId: string): void {
-    this.gamesService.stop(gameId);
-  }
-
   @SubscribeMessage('queue')
   queue(@MessageBody() body: string, @ConnectedSocket() client: Socket): void {
     this.gamesService.queue(body, client);
+  }
+
+  @SubscribeMessage('getGameData')
+  getGameData(@MessageBody() gameId: string): IGame {
+    return this.gamesService.getGameData(gameId);
   }
 }

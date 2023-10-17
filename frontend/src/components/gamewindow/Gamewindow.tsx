@@ -75,7 +75,7 @@ const GameWindow: React.FC = () => {
       user: localUser,
     };
     if (socket.connected)
-      socket.emit("gamestate", gameSocketPayload, (res: IGame) => {
+      socket.emit("alterGameData", gameSocketPayload, (res: IGame) => {
         gameStateRef.current = res;
         isGameFinished.current = res.isFinished;
       });
@@ -107,13 +107,7 @@ const GameWindow: React.FC = () => {
     socket.on("endgame", () => {
       isGameFinished.current = true;
       finishGame(gameInterval.current, navigate);
-      const gameSocketPayload: IGameSocketPayload = {
-        side: params.side !== undefined ? params.side : "viewer",
-        keystate: keystateRef.current,
-        gameId: gameId,
-        user: localUser,
-      };
-      socket.emit("gamestate", gameSocketPayload, (res: IGame) => {
+      socket.emit("getGameData", gameId, (res: IGame) => {
         gameStateRef.current = res;
         isGameFinished.current = res.isFinished;
       });
