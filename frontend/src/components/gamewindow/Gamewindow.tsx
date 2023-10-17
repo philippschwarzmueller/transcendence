@@ -107,10 +107,16 @@ const GameWindow: React.FC = () => {
     socket.on("endgame", () => {
       isGameFinished.current = true;
       finishGame(gameInterval.current, navigate);
-      // drawEndScreen(
-      //   gameStateRef.current,
-      //   gameCanvas.endScreen?.current?.getContext("2d")
-      // );
+      const gameSocketPayload: IGameSocketPayload = {
+        side: params.side !== undefined ? params.side : "viewer",
+        keystate: keystateRef.current,
+        gameId: gameId,
+        user: localUser,
+      };
+      socket.emit("gamestate", gameSocketPayload, (res: IGame) => {
+        gameStateRef.current = res;
+        isGameFinished.current = res.isFinished;
+      });
     });
     window.addEventListener(
       "keydown",

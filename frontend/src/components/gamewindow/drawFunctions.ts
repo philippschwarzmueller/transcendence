@@ -93,7 +93,7 @@ export const drawEndScreen = (
     properties.window.height / 6
   );
   context.fillText(
-    `${gameState.pointsLeft} -  ${gameState.pointsRight}`,
+    `${gameState.pointsLeft} - ${gameState.pointsRight}`,
     properties.window.width / 2,
     properties.window.height / 3
   );
