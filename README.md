@@ -1,8 +1,9 @@
-#Transcendence - a fullstack pong game
+# Transcendence - a fullstack pong game
 
 This project is about recreating PONG, but in the browser.
 
 The subjects requirements as tldr:
+
 - Backend: NestJS
 - Frontend: whatever we wanted, chose React
 - Database: PostgreSQL
@@ -10,6 +11,7 @@ The subjects requirements as tldr:
 - Infrastructure: Docker Containers with docker compose
 
 Features that should be implemented:
+
 - User Account that uses OAuth of 42-intranet
 - 2FA
 - Add, remove friends, block users
