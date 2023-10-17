@@ -37,20 +37,12 @@ export class GamesService {
     return `${this.amountOfGammes}`;
   }
 
-  stopAll(): void {
-    this.gameStorage.forEach((game) => {
-      if (game.interval !== undefined) clearInterval(game.interval);
-    });
-    this.gameStorage.clear();
-    this.amountOfGammes = 0;
-  }
-
-  stop(gameId: string): void {
+  private stop(gameId: string): void {
     if (this.gameStorage.get(gameId).interval !== undefined)
       clearInterval(this.gameStorage.get(gameId).interval);
   }
 
-  gamestate(
+  public alterGameData(
     side: string,
     keystate: IKeyState,
     gameId: string,
@@ -160,5 +152,11 @@ export class GamesService {
       });
       this.clients.splice(0, 2);
     }
+  }
+
+  public getGameData(gameId: string): IGame {
+    if (this.amountOfGammes <= 0) return newGameCopy();
+    if (!this.gameStorage.has(gameId)) return newGameCopy();
+    return this.gameStorage.get(gameId).gameState;
   }
 }
