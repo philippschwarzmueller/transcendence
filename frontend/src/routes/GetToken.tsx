@@ -1,43 +1,59 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 
-export function getCookie(cname : string) : string {
-  const name : string = cname + "=";
-  const cookies : string[] = decodeURIComponent(document.cookie).split(';');
-  console.log(cookies);
-  const foundCookie : string | undefined = cookies.find(cookie => cookie.trim().startsWith(name));
-  
+export function getCookie(cname: string): string {
+  const name: string = cname + "=";
+  const cookies: string[] = decodeURIComponent(document.cookie).split(";");
+  const foundCookie: string | undefined = cookies.find((cookie) =>
+    cookie.trim().startsWith(name)
+  );
   return foundCookie ? foundCookie.trim().substring(name.length) : "";
 }
 
 const GetToken: React.FC = () => {
   const nav = useNavigate();
   const location = useLocation();
-  const [redirect, setredirect] = useState(false);
+  const [redirect, setRedirect] = useState(false);
+  const [user, setUser] = useState<string | null>(null);
 
   useEffect(() => {
-    const urlParams = new URLSearchParams(location.search);
-    const code: string | null = urlParams.get("code");
-    const value: string | null = sessionStorage.getItem("code");
-    if (code && !value) {
-      sessionStorage.setItem("code", code);
-    }
-    if (code && code !== value) {
-      fetch(`http://localhost:4000/auth/get-token?code=${code}`)
-        .then((response) => response.text())
-        .then((token) => {
+    const handleTokenFetch = async () => {
+      const urlParams = new URLSearchParams(location.search);
+      const code: string | null = urlParams.get("code");
+      const value: string | null = sessionStorage.getItem("code");
+
+      if (code && !value) {
+        sessionStorage.setItem("code", code);
+      }
+
+      if (code && code !== value) {
+        try {
+          const response = await fetch(
+            `http://localhost:4000/auth/get-token?code=${code}`
+          );
+          const token = await response.text();
+
           if (token) {
             sessionStorage.removeItem("code");
             document.cookie = `token=${token}`;
-            setUsername(token);
-            setDbEntry(token);
-            setredirect(true);
+
+            const username = await setUsername(token);
+            if (username) {
+              setDbEntry(token);
+              setUser(username);
+              setRedirect(true);
+            }
           }
-        });
-    }
+        } catch (error) {
+          console.error("Error fetching token:", error);
+        }
+      }
+    };
+
+    handleTokenFetch();
   }, [location.search]);
 
-  async function setUsername(token: string) {
+  async function setUsername(token: string): Promise<string | null> {
     try {
       const response = await fetch("https://api.intra.42.fr/v2/me", {
         headers: {
@@ -51,17 +67,17 @@ const GetToken: React.FC = () => {
 
       const data = await response.json();
       document.cookie = `user=${data.login}`;
-      //sessionStorage.setItem("user", data.login);
       return data.login;
     } catch (error) {
       console.error(
         "There has been a problem with your fetch operation:",
         error
       );
+      return null;
     }
   }
 
-  async function setDbEntry(token: string) {
+  function setDbEntry(token: string) {
     fetch("http://localhost:4000/auth/create-intra-user", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -72,11 +88,10 @@ const GetToken: React.FC = () => {
   }
 
   useEffect(() => {
-    const user: string | null = getCookie("user");
-    if (redirect) {
+    if (redirect && user) {
       nav(`/profile/${user}`);
     }
-  }, [redirect, nav]);
+  }, [redirect, user, nav]);
 
   return null;
 };
