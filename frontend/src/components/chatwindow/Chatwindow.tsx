@@ -121,6 +121,7 @@ const Chatwindow: React.FC = () => {
   socket.on("room update", (res: string[]) => setTabs(res));
 
   useEffect(() => {
+    if (user === null) return;
     socket.emit("join", { user, input, room }, (res: string[]) =>
       setMessages(res),
     );
@@ -128,10 +129,11 @@ const Chatwindow: React.FC = () => {
 
   function send(event: React.MouseEvent | React.KeyboardEvent) {
     event.preventDefault();
-    if (input.trim() !== "") {
+    if (user === null)
+      setMessages([...messages, "you have to be logged in to text"]);
+    if (input.trim() !== "" && user !== null)
       socket.emit("message", { user, input, room });
-      setInput("");
-    }
+    setInput("");
   }
 
   function openRoom(event: React.MouseEvent) {
@@ -190,6 +192,18 @@ const Chatwindow: React.FC = () => {
             }}
           ></Input>
           <Button onClick={(e: React.MouseEvent) => send(e)}>Send</Button>
+          <Button
+            onClick={(e: React.MouseEvent) =>
+              socket.emit("clear", room, (res: string[]) => setMessages(res))
+            }
+          >
+            Clear
+          </Button>
+          <Button
+            onClick={(e: React.MouseEvent) => socket.emit("remove", room)}
+          >
+            Remove
+          </Button>
         </Msgfield>
       </Moveablewindow>
     </>
