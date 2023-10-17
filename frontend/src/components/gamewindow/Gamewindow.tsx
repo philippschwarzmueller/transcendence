@@ -14,7 +14,7 @@ import {
   drawText,
   drawEndScreen,
 } from "./drawFunctions";
-import { NavigateFunction, useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { GAMESOCKET, GAMESOCKETADDRESS } from "../queue/Queue";
 import { io, Socket } from "socket.io-client";
 
@@ -27,8 +27,7 @@ interface IGameCanvas {
 }
 
 const finishGame = (
-  gameInterval: ReturnType<typeof setInterval> | undefined,
-  navigate: NavigateFunction
+  gameInterval: ReturnType<typeof setInterval> | undefined
 ): void => {
   clearInterval(gameInterval);
 };
@@ -51,7 +50,6 @@ const GameWindow: React.FC = () => {
   const gameInterval: React.MutableRefObject<
     ReturnType<typeof setInterval> | undefined
   > = useRef<ReturnType<typeof setInterval>>();
-  const navigate = useNavigate();
   const localUser: string | null = sessionStorage.getItem("user");
   let socket: Socket = GAMESOCKET;
   let isGameFinished: React.MutableRefObject<boolean> = useRef<boolean>(false);
@@ -66,7 +64,7 @@ const GameWindow: React.FC = () => {
       gameCanvas.paddle === undefined ||
       gameCanvas.ball === undefined
     ) {
-      finishGame(gameInterval.current, navigate);
+      finishGame(gameInterval.current);
     }
     const gameSocketPayload: IGameSocketPayload = {
       side: params.side !== undefined ? params.side : "viewer",
@@ -106,7 +104,7 @@ const GameWindow: React.FC = () => {
     drawBackground(gameCanvas.background?.current?.getContext("2d"));
     socket.on("endgame", () => {
       isGameFinished.current = true;
-      finishGame(gameInterval.current, navigate);
+      finishGame(gameInterval.current);
       socket.emit("getGameData", gameId, (res: IGame) => {
         gameStateRef.current = res;
         isGameFinished.current = res.isFinished;
