@@ -1,3 +1,5 @@
+import { Socket } from 'socket.io';
+
 interface IWindow {
   width: number; // gamewindow width in px
   height: number; // gamewindow height in px
@@ -30,12 +32,14 @@ export interface IPaddle {
 }
 
 export interface IGame {
-  gameId: number;
+  gameId: string;
   ball: IBall;
-  left: IPaddle;
-  right: IPaddle;
+  leftPaddle: IPaddle;
+  rightPaddle: IPaddle;
   pointsLeft: number;
   pointsRight: number;
+  keyStateLeft: IKeyState;
+  keyStateRight: IKeyState;
 }
 
 export interface IBall {
@@ -45,14 +49,35 @@ export interface IBall {
   speed_y: number;
 }
 
+export interface IKeyState {
+  up: boolean;
+  down: boolean;
+}
+
 export interface IGameSocketPayload {
-  gameId: number;
-  paddle: IPaddle;
+  side: string;
+  gameId: string;
+  keystate: IKeyState;
+  user: string | null;
 }
 
 export interface IGameStart {
   gameId: number;
   side: string;
+}
+
+export interface IGameUser {
+  userId: string | null;
+  socket: Socket;
+}
+
+export interface IGameBackend {
+  gameId: string;
+  leftPlayer: IGameUser;
+  rightPlayer: IGameUser;
+  gameState: IGame;
+  spectatorSockets: Socket[];
+  interval?: NodeJS.Timeout;
 }
 
 const properties: IProperties = {
@@ -69,19 +94,23 @@ export const ballSpawn: IBall = {
   speed_y: 0,
 };
 
+export const maxScore: number = 2;
+
 export const gameSpawn: IGame = {
-  gameId: 0,
+  gameId: '0',
   ball: ballSpawn,
-  left: {
+  leftPaddle: {
     height: 320,
     side: 'left',
   },
-  right: {
+  rightPaddle: {
     height: 320,
     side: 'right',
   },
   pointsLeft: 0,
   pointsRight: 0,
+  keyStateLeft: { up: false, down: false },
+  keyStateRight: { up: false, down: false },
 };
 
 export default properties;

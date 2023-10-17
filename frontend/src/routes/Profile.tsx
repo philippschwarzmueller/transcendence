@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import Button from "../components/button";
 import Playercard from "../components/playercard";
@@ -6,7 +6,11 @@ import CenterDiv from "../components/centerdiv";
 import ProfilePicture from "../components/profilepicture/ProfilePicture";
 import { AuthContext } from "../context/auth";
 
-const friends: string[] = ["mgraefen", "fsandel", "luntiet-", "oheinzel"];
+export interface IUser {
+  id: number;
+  name: string;
+  profilePictureUrl: string;
+}
 
 const Profile: React.FC = () => {
   const auth = useContext(AuthContext);
@@ -19,14 +23,25 @@ const Profile: React.FC = () => {
     }
   }, [auth.user.token, navigate, userId]);
 
+  let [users, setUsers] = useState<IUser[]>([]);
+  useEffect(() => {
+    fetch(`http://localhost:4000/users`)
+      .then((res) => res.json())
+      .then((users) => setUsers(users));
+  }, []);
+
   return (
     <>
       <h1>{auth.user.name}'s Profile</h1>
-      <ProfilePicture></ProfilePicture>
+      <p>{auth.user.image}</p>
+      <ProfilePicture
+        name={auth.user.name}
+        profilePictureUrl={auth.user.image}
+      ></ProfilePicture>
       <h2>Stats</h2>
       <p>Games played: 420</p>
       <p>Win/Loss: 69%</p>
-      <h2>Friends</h2>
+      <h2>All Users From Backend As Friends</h2>
       <CenterDiv>
         <ul
           style={{
@@ -36,10 +51,14 @@ const Profile: React.FC = () => {
             listStyleType: "none",
           }}
         >
-          {friends.map((friend: string) => {
+          {users.map((users: IUser) => {
             return (
-              <li key={friend}>
-                <Playercard name={friend} />
+              <li key={users.name}>
+                <Playercard
+                  name={users.name}
+                  profilePictureUrl={users.profilePictureUrl}
+                  id={users.id}
+                />
               </li>
             );
           })}

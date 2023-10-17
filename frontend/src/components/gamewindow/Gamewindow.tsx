@@ -1,11 +1,9 @@
 import React, { useRef, useEffect } from "react";
 import properties, {
   IGame,
-  ballSpawn,
   gameSpawn,
-  IPaddle,
-  IBall,
   IGameSocketPayload,
+  IKeyState,
 } from "./properties";
 import Centerdiv from "../centerdiv";
 import Gamecanvas from "../gamecanvas/Gamecanvas";
@@ -15,79 +13,89 @@ import {
   drawBothPaddles,
   drawText,
 } from "./drawFunctions";
-import { useParams } from "react-router-dom";
-import { GAMESOCKET } from "../queue/Queue";
+import { NavigateFunction, useNavigate, useParams } from "react-router-dom";
+import { GAMESOCKET, GAMESOCKETADDRESS } from "../queue/Queue";
+import { io, Socket } from "socket.io-client";
 
-interface IKeyState {
-  up: boolean;
-  down: boolean;
+interface IGameCanvas {
+  background: React.MutableRefObject<HTMLCanvasElement | null>;
+  score: React.MutableRefObject<HTMLCanvasElement | null>;
+  paddle: React.MutableRefObject<HTMLCanvasElement | null>;
+  ball: React.MutableRefObject<HTMLCanvasElement | null>;
 }
 
-const movePaddle = (
-  keyState: React.MutableRefObject<IKeyState>,
-  localPaddleRef: React.MutableRefObject<IPaddle>
+const finishGame = (
+  gameInterval: ReturnType<typeof setInterval> | undefined,
+  navigate: NavigateFunction
 ): void => {
-  const step: number = Math.floor(
-    properties.paddle.speed / properties.framerate
-  );
-  if (
-    keyState.current.down === true &&
-    keyState.current.up === false &&
-    localPaddleRef.current.height + step < properties.window.height
-  ) {
-    localPaddleRef.current.height += step;
-  } else if (
-    keyState.current.up === true &&
-    keyState.current.down === false &&
-    localPaddleRef.current.height - step > 0
-  ) {
-    localPaddleRef.current.height -= step;
-  }
+  clearInterval(gameInterval);
+  navigate("/home");
 };
 
 const GameWindow: React.FC = () => {
   const params = useParams();
-  const backgroundCanvasRef: any = useRef<HTMLCanvasElement | null>(null);
-  const scoreCanvasRef: any = useRef<HTMLCanvasElement | null>(null);
-  const paddleCanvasRef: any = useRef<HTMLCanvasElement | null>(null);
-  const ballCanvasRef: any = useRef<HTMLCanvasElement | null>(null);
-  const keystateRef = useRef<IKeyState>({ down: false, up: false });
-  const ballRef: any = useRef<IBall>(ballSpawn);
-  const gameStateRef = useRef<IGame>(gameSpawn);
-  const gameIdRef = useRef<number>(
-    parseInt(params.gameId !== undefined ? params.gameId : "-1")
-  );
-  const localPaddleRef = useRef<IPaddle>({
-    side: `${params.side}`,
-    height: properties.window.height / 2,
+  const gameCanvas: IGameCanvas = {
+    background: useRef<HTMLCanvasElement | null>(null),
+    score: useRef<HTMLCanvasElement | null>(null),
+    paddle: useRef<HTMLCanvasElement | null>(null),
+    ball: useRef<HTMLCanvasElement | null>(null),
+  };
+  const keystateRef: React.MutableRefObject<IKeyState> = useRef<IKeyState>({
+    down: false,
+    up: false,
   });
+  const gameStateRef: React.MutableRefObject<IGame> = useRef<IGame>(gameSpawn);
+  const gameId: string = params.gameId !== undefined ? params.gameId : "-1";
+  const gameInterval: React.MutableRefObject<
+    ReturnType<typeof setInterval> | undefined
+  > = useRef<ReturnType<typeof setInterval>>();
+  const navigate = useNavigate();
+  const localUser: string | null = sessionStorage.getItem("user");
+  let socket: Socket = GAMESOCKET;
+
+  if (socket === undefined || socket.connected === false)
+    socket = io(GAMESOCKETADDRESS);
 
   const GameLoop = (keyState: React.MutableRefObject<IKeyState>): void => {
+    if (
+      gameCanvas.background === undefined ||
+      gameCanvas.score === undefined ||
+      gameCanvas.paddle === undefined ||
+      gameCanvas.ball === undefined
+    ) {
+      finishGame(gameInterval.current, navigate);
+    }
     const gameSocketPayload: IGameSocketPayload = {
-      paddle: localPaddleRef.current,
-      gameId: gameIdRef.current,
+      side: params.side !== undefined ? params.side : "viewer",
+      keystate: keyState.current,
+      gameId: gameId,
+      user: localUser,
     };
-    if (GAMESOCKET.connected)
-      GAMESOCKET.emit("gamestate", gameSocketPayload, (res: IGame) => {
+    if (socket.connected)
+      socket.emit("gamestate", gameSocketPayload, (res: IGame) => {
         gameStateRef.current = res;
       });
     else gameStateRef.current = gameSpawn;
-    movePaddle(keyState, localPaddleRef);
-    ballRef.current = gameStateRef.current.ball;
-    drawBall(ballCanvasRef.current.getContext("2d"), ballRef.current);
+    drawBall(
+      gameCanvas.ball?.current?.getContext("2d"),
+      gameStateRef.current.ball
+    );
     drawBothPaddles(
-      paddleCanvasRef.current.getContext("2d"),
+      gameCanvas.paddle?.current?.getContext("2d"),
       gameStateRef.current
     );
     drawText(
-      scoreCanvasRef.current.getContext("2d"),
+      gameCanvas.score?.current?.getContext("2d"),
       gameStateRef.current.pointsLeft,
       gameStateRef.current.pointsRight
     );
   };
 
   useEffect(() => {
-    drawBackground(backgroundCanvasRef.current.getContext("2d"));
+    drawBackground(gameCanvas.background?.current?.getContext("2d"));
+    socket.on("endgame", () => {
+      finishGame(gameInterval.current, navigate);
+    });
     window.addEventListener(
       "keydown",
       (e) => {
@@ -106,7 +114,7 @@ const GameWindow: React.FC = () => {
       true
     );
 
-    /*const interval = */ setInterval(
+    gameInterval.current = setInterval(
       GameLoop,
       1000 / properties.framerate,
       keystateRef
@@ -115,12 +123,11 @@ const GameWindow: React.FC = () => {
 
   return (
     <>
-      <div></div>
       <Centerdiv>
         <div>
           <Gamecanvas
             id="backgroundCanvas"
-            ref={backgroundCanvasRef}
+            ref={gameCanvas.background}
             width={properties.window.width}
             height={properties.window.height}
             tabIndex={0}
@@ -129,7 +136,7 @@ const GameWindow: React.FC = () => {
         <div>
           <Gamecanvas
             id="scoreCanvas"
-            ref={scoreCanvasRef}
+            ref={gameCanvas.score}
             width={properties.window.width}
             height={properties.window.height}
             tabIndex={0}
@@ -138,7 +145,7 @@ const GameWindow: React.FC = () => {
         <div>
           <Gamecanvas
             id="paddleCanvas"
-            ref={paddleCanvasRef}
+            ref={gameCanvas.paddle}
             width={properties.window.width}
             height={properties.window.height}
             tabIndex={0}
@@ -147,7 +154,7 @@ const GameWindow: React.FC = () => {
         <div>
           <Gamecanvas
             id="ballCanvas"
-            ref={ballCanvasRef}
+            ref={gameCanvas.ball}
             width={properties.window.width}
             height={properties.window.height}
             tabIndex={1}
