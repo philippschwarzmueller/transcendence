@@ -12,6 +12,7 @@ import {
   drawBall,
   drawBothPaddles,
   drawText,
+  drawEndScreen,
 } from "./drawFunctions";
 import { NavigateFunction, useNavigate, useParams } from "react-router-dom";
 import { GAMESOCKET, GAMESOCKETADDRESS } from "../queue/Queue";
@@ -22,6 +23,7 @@ interface IGameCanvas {
   score: React.MutableRefObject<HTMLCanvasElement | null>;
   paddle: React.MutableRefObject<HTMLCanvasElement | null>;
   ball: React.MutableRefObject<HTMLCanvasElement | null>;
+  endScreen: React.MutableRefObject<HTMLCanvasElement | null>;
 }
 
 const finishGame = (
@@ -29,7 +31,6 @@ const finishGame = (
   navigate: NavigateFunction
 ): void => {
   clearInterval(gameInterval);
-  navigate("/home");
 };
 
 const GameWindow: React.FC = () => {
@@ -39,6 +40,7 @@ const GameWindow: React.FC = () => {
     score: useRef<HTMLCanvasElement | null>(null),
     paddle: useRef<HTMLCanvasElement | null>(null),
     ball: useRef<HTMLCanvasElement | null>(null),
+    endScreen: useRef<HTMLCanvasElement | null>(null),
   };
   const keystateRef: React.MutableRefObject<IKeyState> = useRef<IKeyState>({
     down: false,
@@ -52,6 +54,7 @@ const GameWindow: React.FC = () => {
   const navigate = useNavigate();
   const localUser: string | null = sessionStorage.getItem("user");
   let socket: Socket = GAMESOCKET;
+  let isGameFinished: React.MutableRefObject<boolean> = useRef<boolean>(false);
 
   if (socket === undefined || socket.connected === false)
     socket = io(GAMESOCKETADDRESS);
@@ -74,27 +77,40 @@ const GameWindow: React.FC = () => {
     if (socket.connected)
       socket.emit("gamestate", gameSocketPayload, (res: IGame) => {
         gameStateRef.current = res;
+        isGameFinished.current = res.isFinished;
       });
     else gameStateRef.current = gameSpawn;
-    drawBall(
-      gameCanvas.ball?.current?.getContext("2d"),
-      gameStateRef.current.ball
-    );
-    drawBothPaddles(
-      gameCanvas.paddle?.current?.getContext("2d"),
-      gameStateRef.current
-    );
-    drawText(
-      gameCanvas.score?.current?.getContext("2d"),
-      gameStateRef.current.pointsLeft,
-      gameStateRef.current.pointsRight
-    );
+    if (isGameFinished.current === true)
+      drawEndScreen(
+        gameStateRef.current,
+        gameCanvas.endScreen?.current?.getContext("2d")
+      );
+    else {
+      drawBall(
+        gameCanvas.ball?.current?.getContext("2d"),
+        gameStateRef.current.ball
+      );
+      drawBothPaddles(
+        gameCanvas.paddle?.current?.getContext("2d"),
+        gameStateRef.current
+      );
+      drawText(
+        gameCanvas.score?.current?.getContext("2d"),
+        gameStateRef.current.pointsLeft,
+        gameStateRef.current.pointsRight
+      );
+    }
   };
 
   useEffect(() => {
     drawBackground(gameCanvas.background?.current?.getContext("2d"));
     socket.on("endgame", () => {
+      isGameFinished.current = true;
       finishGame(gameInterval.current, navigate);
+      // drawEndScreen(
+      //   gameStateRef.current,
+      //   gameCanvas.endScreen?.current?.getContext("2d")
+      // );
     });
     window.addEventListener(
       "keydown",
@@ -155,6 +171,13 @@ const GameWindow: React.FC = () => {
           <Gamecanvas
             id="ballCanvas"
             ref={gameCanvas.ball}
+            width={properties.window.width}
+            height={properties.window.height}
+            tabIndex={1}
+          ></Gamecanvas>
+          <Gamecanvas
+            id="endScreenCanvas"
+            ref={gameCanvas.endScreen}
             width={properties.window.width}
             height={properties.window.height}
             tabIndex={1}
