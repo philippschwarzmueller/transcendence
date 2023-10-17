@@ -25,6 +25,8 @@ const Tabbar = styled.div`
 const Textfield = styled.div`
   width: 334px;
   height: 200px;
+  padding: 0px;
+  margin: 0px;
   background-color: white;
   border-radius: 0px;
   border-width: 1px 0px 0px 1px;
@@ -34,6 +36,22 @@ const Textfield = styled.div`
     rgb(195, 199, 203) -1px -1px 0px 0px inset,
     rgb(0, 0, 0) 1px 1px 0px 0px inset,
     rgb(255, 255, 255) 0.5px 0.5px 0px 0.5px;
+  overflow: auto;
+  &::-webkit-scrollbar {
+    width: 1em;
+  }
+  &::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+  }
+  &::-webkit-scrollbar-thumb {
+    box-shadow:
+      rgb(0, 0, 0) -1px -1px 0px 0px inset,
+      rgb(210, 210, 210) 1px 1px 0px 0px inset,
+      rgb(134, 138, 142) -2px -2px 0px 0px inset,
+      rgb(255, 255, 255) 2px 2px 0px 0px inset;
+    background-color: rgb(195, 199, 203);
+    minheight: 24;
+  }
 `;
 
 // not triggerable for actice state yet
@@ -81,6 +99,8 @@ const InputField = styled.div<{
 
 // has to be switched to links for individual chats
 const StyledUl = styled.ul`
+  padding: 5px;
+  margin: 5px;
   list-style: none;
 `;
 
@@ -130,7 +150,7 @@ const Chatwindow: React.FC = () => {
           label="Type here"
           placeholder="Enter room name"
           onChange={(e) => setRinput(e.target.value)}
-          onKeyPress={(e: React.KeyboardEvent) => {
+          onKeyUp={(e: React.KeyboardEvent) => {
             if (e.key === "Enter") {
               setRoom(rinput);
               setDisplay(false);
@@ -143,10 +163,7 @@ const Chatwindow: React.FC = () => {
         <Tabbar>
           {tabs.map((tab) => {
             return (
-              <StyledLi
-                onClick={(e: React.MouseEvent) => setRoom(tab)}
-                key={tab}
-              >
+              <StyledLi onClick={() => setRoom(tab)} key={tab}>
                 {tab}
               </StyledLi>
             );
@@ -168,7 +185,7 @@ const Chatwindow: React.FC = () => {
             label="Type here"
             placeholder="Enter message"
             onChange={(e) => setInput(e.target.value)}
-            onKeyPress={(e: React.KeyboardEvent) => {
+            onKeyUp={(e: React.KeyboardEvent) => {
               if (e.key === "Enter") send(e);
             }}
           ></Input>
