@@ -49,7 +49,6 @@ export class ChatGateway implements OnGatewayInit {
   }
 
   afterInit(server: any): any {
-    console.log('init');
   }
 
   //following function are purely dev functions

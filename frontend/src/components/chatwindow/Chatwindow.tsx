@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import Input from "../input/Input";
 import Button from "../button/Button";
 import { ChatSocketContext } from "../../routes/root";
@@ -38,19 +38,23 @@ const Textfield = styled.div`
     rgb(255, 255, 255) 0.5px 0.5px 0px 0.5px;
   overflow: auto;
   &::-webkit-scrollbar {
-    width: 1em;
+    width: 17x;
+    height: 17px;
   }
   &::-webkit-scrollbar-track {
     -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
   }
   &::-webkit-scrollbar-thumb {
+    box-sizing: border-box;
+    display: inline-block;
+    background: rgb(195, 199, 203);
+    color: rgb(0, 0, 0);
+    border: 0px;
     box-shadow:
       rgb(0, 0, 0) -1px -1px 0px 0px inset,
       rgb(210, 210, 210) 1px 1px 0px 0px inset,
       rgb(134, 138, 142) -2px -2px 0px 0px inset,
       rgb(255, 255, 255) 2px 2px 0px 0px inset;
-    background-color: rgb(195, 199, 203);
-    minheight: 24;
   }
 `;
 
@@ -117,6 +121,8 @@ const Chatwindow: React.FC = () => {
   let [positionX, setPositionX] = useState<number>(0);
   let [positionY, setPositionY] = useState<number>(0);
 
+  const msgField: any = useRef<HTMLCanvasElement | null>(null);
+
   socket.on("message", (res: string) => setMessages([...messages, res]));
   socket.on("room update", (res: string[]) => setTabs(res));
 
@@ -130,11 +136,20 @@ const Chatwindow: React.FC = () => {
   function send(event: React.MouseEvent | React.KeyboardEvent) {
     event.preventDefault();
     if (user === null)
-      setMessages([...messages, "you have to be logged in to text"]);
+      setMessages([...messages, "you have to be logged in to chat!"]);
     if (input.trim() !== "" && user !== null)
       socket.emit("message", { user, input, room });
     setInput("");
   }
+  useEffect(
+    () =>
+      msgField.current.scrollIntoView({
+        behavior: "smooth",
+        block: "end",
+        inline: "nearest",
+      }),
+    [messages],
+  );
 
   function openRoom(event: React.MouseEvent) {
     event.preventDefault();
@@ -175,7 +190,7 @@ const Chatwindow: React.FC = () => {
           </StyledLi>
         </Tabbar>
         <Textfield>
-          <StyledUl>
+          <StyledUl ref={msgField} id="msgField">
             {messages.map((mes) => {
               return <li key={listKey++}>{mes}</li>;
             })}
@@ -193,17 +208,13 @@ const Chatwindow: React.FC = () => {
           ></Input>
           <Button onClick={(e: React.MouseEvent) => send(e)}>Send</Button>
           <Button
-            onClick={(e: React.MouseEvent) =>
+            onClick={() =>
               socket.emit("clear", room, (res: string[]) => setMessages(res))
             }
           >
             Clear
           </Button>
-          <Button
-            onClick={(e: React.MouseEvent) => socket.emit("remove", room)}
-          >
-            Remove
-          </Button>
+          <Button onClick={() => socket.emit("remove", room)}>Remove</Button>
         </Msgfield>
       </Moveablewindow>
     </>
