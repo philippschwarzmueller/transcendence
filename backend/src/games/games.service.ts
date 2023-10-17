@@ -24,13 +24,13 @@ const newGameCopy = (): IGame => {
 @Injectable()
 export class GamesService {
   constructor() {
-    this.games = new Map<string, IGameBackend>();
+    this.gameStorage = new Map<string, IGameBackend>();
     this.amountOfGammes = 0;
     this.clients = [];
   }
 
   public amountOfGammes: number;
-  public games: Map<string, IGameBackend>;
+  public gameStorage: Map<string, IGameBackend>;
   public clients: IGameUser[];
 
   private generateGameId(): string {
@@ -38,16 +38,16 @@ export class GamesService {
   }
 
   stopAll(): void {
-    this.games.forEach((game) => {
+    this.gameStorage.forEach((game) => {
       if (game.interval !== undefined) clearInterval(game.interval);
     });
-    this.games.clear();
+    this.gameStorage.clear();
     this.amountOfGammes = 0;
   }
 
   stop(gameId: string): void {
-    if (this.games.get(gameId).interval !== undefined)
-      clearInterval(this.games.get(gameId).interval);
+    if (this.gameStorage.get(gameId).interval !== undefined)
+      clearInterval(this.gameStorage.get(gameId).interval);
   }
 
   gamestate(
@@ -57,47 +57,59 @@ export class GamesService {
     userId: string | null,
   ): IGame {
     if (this.amountOfGammes <= 0) return newGameCopy();
-    if (!this.games.has(gameId)) return newGameCopy();
+    if (!this.gameStorage.has(gameId)) return newGameCopy();
     // reimplement the next line if you want to force users to be logged in
     // right now as comment for testing
     // if (userId === null) return this.games.get(gameId).game;
-    if (side === 'left' && userId === this.games.get(gameId).leftPlayer.userId)
-      this.games.get(gameId).game.keyStateLeft = keystate;
+    if (
+      side === 'left' &&
+      userId === this.gameStorage.get(gameId).leftPlayer.userId
+    )
+      this.gameStorage.get(gameId).gameState.keyStateLeft = keystate;
     else if (
       side === 'right' &&
-      userId === this.games.get(gameId).rightPlayer.userId
+      userId === this.gameStorage.get(gameId).rightPlayer.userId
     )
-      this.games.get(gameId).game.keyStateRight = keystate;
-    return this.games.get(gameId).game;
+      this.gameStorage.get(gameId).gameState.keyStateRight = keystate;
+    return this.gameStorage.get(gameId).gameState;
   }
 
-  private GameLoop(game: IGameBackend): void {
-    movePaddle(game.game.keyStateLeft, game.game.left);
-    movePaddle(game.game.keyStateRight, game.game.right);
-    const newBall: IBall = advanceBall(game.game.ball);
-    if (ballHitPaddle(newBall, game.game.right)) {
+  private GameLoop(localGame: IGameBackend): void {
+    movePaddle(
+      localGame.gameState.keyStateLeft,
+      localGame.gameState.leftPaddle,
+    );
+    movePaddle(
+      localGame.gameState.keyStateRight,
+      localGame.gameState.rightPaddle,
+    );
+    const newBall: IBall = advanceBall(localGame.gameState.ball);
+    if (ballHitPaddle(newBall, localGame.gameState.rightPaddle)) {
       // hit right paddle
-      bounceOnPaddle(game.game.ball, game.game.right);
+      bounceOnPaddle(localGame.gameState.ball, localGame.gameState.rightPaddle);
     } else if (newBall.x > properties.window.width) {
       // missed right paddle
-      game.game.ball = ballSpawn;
-      game.game.pointsLeft++;
-    } else if (ballHitPaddle(newBall, game.game.left)) {
+      localGame.gameState.ball = ballSpawn;
+      localGame.gameState.pointsLeft++;
+    } else if (ballHitPaddle(newBall, localGame.gameState.leftPaddle)) {
       // hit left paddle
-      bounceOnPaddle(game.game.ball, game.game.left);
+      bounceOnPaddle(localGame.gameState.ball, localGame.gameState.leftPaddle);
     } else if (newBall.x < 0) {
       // missed left paddle
-      game.game.ball = ballSpawn;
-      game.game.pointsRight++;
+      localGame.gameState.ball = ballSpawn;
+      localGame.gameState.pointsRight++;
     } else if (newBall.y > properties.window.height || newBall.y < 0) {
       //collision on top/botton
-      game.game.ball.speed_y *= -1;
+      localGame.gameState.ball.speed_y *= -1;
     }
-    game.game.ball = advanceBall(game.game.ball); // actually moving ball
-    if (game.game.pointsLeft >= maxScore || game.game.pointsRight >= maxScore) {
-      this.stop(game.gameId);
-      game.leftPlayer.socket.emit('endgame');
-      game.rightPlayer.socket.emit('endgame');
+    localGame.gameState.ball = advanceBall(localGame.gameState.ball); // actually moving ball
+    if (
+      localGame.gameState.pointsLeft >= maxScore ||
+      localGame.gameState.pointsRight >= maxScore
+    ) {
+      this.stop(localGame.gameId);
+      localGame.leftPlayer.socket.emit('endgame');
+      localGame.rightPlayer.socket.emit('endgame');
     }
   }
 
@@ -105,10 +117,10 @@ export class GamesService {
     const newGame: IGame = newGameCopy();
     const gameId: string = this.generateGameId();
     newGame.gameId = gameId;
-    this.games.set(gameId, {
+    this.gameStorage.set(gameId, {
       gameId: gameId,
       spectatorSockets: [],
-      game: newGame,
+      gameState: newGame,
       leftPlayer: leftPlayer,
       rightPlayer: rightPlayer,
     });
@@ -116,9 +128,9 @@ export class GamesService {
     const interval = setInterval(
       this.GameLoop.bind(this),
       properties.framerate,
-      this.games.get(gameId),
+      this.gameStorage.get(gameId),
     );
-    this.games.get(gameId).interval = interval;
+    this.gameStorage.get(gameId).interval = interval;
     return gameId;
   }
 
