@@ -72,7 +72,7 @@ const GetToken: React.FC = () => {
       }
 
       const data = await response.json();
-      document.cookie = `user=${data.login}`;
+      setCookie("user", data.login, 7);
       return data.login;
     } catch (error) {
       console.error(
