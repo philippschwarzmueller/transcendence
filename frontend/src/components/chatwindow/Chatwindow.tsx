@@ -85,9 +85,7 @@ const StyledUl = styled.ul`
 `;
 
 const Chatwindow: React.FC = () => {
-  const [messages, setMessages] = useState<Map<string, string[]>>(
-    new Map<string, string[]>([["general", []]]),
-  );
+  const [messages, setMessages] = useState<string[]>([]);
   const [input, setInput] = useState<string>("");
   const [rinput, setRinput] = useState<string>("");
   const [room, setRoom] = useState<string>("general");
@@ -99,41 +97,22 @@ const Chatwindow: React.FC = () => {
   let [positionX, setPositionX] = useState<number>(0);
   let [positionY, setPositionY] = useState<number>(0);
 
-  useEffect(() => {
-    socket.emit("join", { user, input, room });
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  socket.on("message", (res: string) => setMessages([...messages, res]));
+  socket.on("room update", (res: string[]) => setTabs(res));
 
   useEffect(() => {
-    socket.on("message", (res: string) => addStringToMessages(res));
-  }, [socket]); // eslint-disable-line react-hooks/exhaustive-deps
+    socket.emit("join", { user, input, room }, (res: string[]) =>
+      setMessages(res),
+    );
+  }, [room]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function send(event: React.MouseEvent | React.KeyboardEvent) {
     event.preventDefault();
     if (input.trim() !== "") {
-      addStringToMessages(`me: ${input}`);
       socket.emit("message", { user, input, room });
       setInput("");
     }
   }
-
-  function addStringToMessages(newString: string) {
-    let messagesCopy: Map<string, string[]> = messages;
-    messagesCopy?.get(room)?.push(newString);
-    setMessages(messagesCopy);
-  }
-
-  useEffect(() => {
-    if (tabs.includes(room)) {
-      socket.emit("join", { user, input, room });
-      return;
-    }
-    let tmp: Map<string, string[]> = messages;
-    tmp.set(room, []);
-    setMessages(tmp);
-    setTabs([...tabs, room]);
-    socket.emit("join", { user, input, room });
-    setRinput("");
-  }, [room]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function openRoom(event: React.MouseEvent) {
     event.preventDefault();
@@ -155,6 +134,7 @@ const Chatwindow: React.FC = () => {
             if (e.key === "Enter") {
               setRoom(rinput);
               setDisplay(false);
+              setRinput("");
             }
           }}
         ></Input>
@@ -177,8 +157,8 @@ const Chatwindow: React.FC = () => {
         </Tabbar>
         <Textfield>
           <StyledUl>
-            {messages?.get(room)?.map((mes) => {
-              return <li key={listKey}>{mes}</li>;
+            {messages.map((mes) => {
+              return <li key={listKey++}>{mes}</li>;
             })}
           </StyledUl>
         </Textfield>
