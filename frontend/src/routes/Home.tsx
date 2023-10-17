@@ -5,14 +5,12 @@ import Form from "../components/form";
 import Input from "../components/input";
 import Spinner from "../components/spinner";
 import Pagetitle from "../components/pagetitle/";
-import Playercard from "../components/playercard";
 
 const lastMatches: string[] = [
   "Win against A",
   "Win against B",
   "Loss against C",
 ];
-const onlineFriends: string[] = ["pschwarz", "mgraefen"];
 
 export interface fielddata {
   username: string | null;
@@ -92,18 +90,6 @@ const Home: React.FC = () => {
             <ul>
               {lastMatches.map((match: string) => {
                 return <li key={match}>{match}</li>;
-              })}
-            </ul>
-          </div>
-          <div>
-            <h2>Online Friends</h2>
-            <ul>
-              {onlineFriends.map((friend: string) => {
-                return (
-                  <li key={friend}>
-                    <Playercard name={friend} />
-                  </li>
-                );
               })}
             </ul>
           </div>
