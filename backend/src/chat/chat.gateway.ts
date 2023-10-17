@@ -36,13 +36,15 @@ export class ChatGateway implements OnGatewayInit {
 
   @SubscribeMessage('join')
   joinRoom(@MessageBody() data: message, @ConnectedSocket() client: Socket) {
+    const mess = `${data.user} joined ${data.room}`;
     client.join(data.room);
     if (!messages.has(data.room)) {
       messages.set(data.room, []);
       rooms.push(data.room);
     }
     this.server.emit('room update', rooms);
-    messages.get(data.room).push(`${data.user} joined ${data.room}`);
+    client.to(data.room).emit('message', mess);
+    messages.get(data.room).push(mess);
     return messages.get(data.room);
   }
 
