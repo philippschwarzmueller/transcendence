@@ -3,7 +3,7 @@ import Button from "../components/button";
 import Input from "../components/input";
 import Form from "../components/form";
 import Pagetitle from "../components/pagetitle";
-import { getCookie } from "../routes/GetToken"
+import { useCookies } from "react-cookie";
 
 interface loginBody {
   name: string;
@@ -12,7 +12,7 @@ interface loginBody {
 
 const Login: React.FC = () => {
   const [input, setInput] = useState<loginBody>({ name: "", password: "" });
-
+  const [cookies, setCookie, removeCookie] = useCookies(["user", "token"]);
   const handleSubmit = async (event: React.MouseEvent) => {
     event.preventDefault();
     try {
@@ -46,8 +46,8 @@ const Login: React.FC = () => {
   return (
     <>
       <Pagetitle>Login to your Account</Pagetitle>
-      {getCookie("user") ? (
-        <span>Logged in as {getCookie("user")}</span>
+      {cookies.user ? (
+        <span>Logged in as {cookies.user}</span>
       ) : (
         <span>Logged out</span>
       )}

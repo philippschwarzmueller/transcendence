@@ -5,7 +5,7 @@ import { ChatSocketContext } from "../../routes/root";
 import { Socket } from "socket.io-client";
 import styled from "styled-components";
 import Moveablewindow from "../moveablewindow/Moveablewindow";
-import { getCookie } from "../../routes/GetToken"
+import { useCookies } from "react-cookie";
 
 const Msgfield = styled.div`
   width: 320px;
@@ -30,10 +30,8 @@ const Textfield = styled.div`
   border-width: 1px 0px 0px 1px;
   border-top-color: rgb(134, 138, 142);
   border-left-color: rgb(134, 138, 142);
-  box-shadow:
-    rgb(195, 199, 203) -1px -1px 0px 0px inset,
-    rgb(0, 0, 0) 1px 1px 0px 0px inset,
-    rgb(255, 255, 255) 0.5px 0.5px 0px 0.5px;
+  box-shadow: rgb(195, 199, 203) -1px -1px 0px 0px inset,
+    rgb(0, 0, 0) 1px 1px 0px 0px inset, rgb(255, 255, 255) 0.5px 0.5px 0px 0.5px;
 `;
 
 // not triggerable for actice state yet
@@ -66,8 +64,9 @@ const StyledUl = styled.ul`
 const Chatwindow: React.FC = () => {
   const [messages, setMessages] = useState<string[]>([]);
   const [input, setInput] = useState<string>("");
+  const [cookies, setCookie, removeCookie] = useCookies(["user", "token"]);
   const socket: Socket = useContext(ChatSocketContext);
-  const user = getCookie("user");
+  const user = cookies.user;
   let listKey = 0;
 
   useEffect(() => {
