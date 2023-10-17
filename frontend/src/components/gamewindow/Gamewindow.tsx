@@ -57,7 +57,7 @@ const GameWindow: React.FC = () => {
   if (socket === undefined || socket.connected === false)
     socket = io(GAMESOCKETADDRESS);
 
-  const GameLoop = (keyState: React.MutableRefObject<IKeyState>): void => {
+  const GameLoop = (): void => {
     if (
       gameCanvas.background === undefined ||
       gameCanvas.score === undefined ||
@@ -68,7 +68,7 @@ const GameWindow: React.FC = () => {
     }
     const gameSocketPayload: IGameSocketPayload = {
       side: params.side !== undefined ? params.side : "viewer",
-      keystate: keyState.current,
+      keystate: keystateRef.current,
       gameId: gameId,
       user: localUser,
     };
@@ -128,11 +128,7 @@ const GameWindow: React.FC = () => {
       true
     );
 
-    gameInterval.current = setInterval(
-      GameLoop,
-      1000 / properties.framerate,
-      keystateRef
-    );
+    gameInterval.current = setInterval(GameLoop, 1000 / properties.framerate);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
