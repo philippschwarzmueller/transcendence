@@ -49,4 +49,19 @@ export class ChatGateway implements OnGatewayInit {
   afterInit(server: any): any {
     console.log('init');
   }
+
+  //following function are purely dev functions
+  @SubscribeMessage('clear')
+  clearRoom(@MessageBody() room: string) {
+    messages.get(room).splice(0, messages.get(room).length);
+    return messages.get(room);
+  }
+
+  @SubscribeMessage('remove')
+  removeRoom(@MessageBody() room: string) {
+    messages.delete(room);
+    rooms.splice(rooms.indexOf(room), 1);
+    this.server.emit('room update', rooms);
+    console.log(rooms);
+  }
 }
