@@ -4,6 +4,7 @@ import Button from "../components/button";
 import Playercard from "../components/playercard";
 import CenterDiv from "../components/centerdiv";
 import ProfilePicture from "../components/profilepicture/ProfilePicture";
+import {getCookie} from "../routes/GetToken"
 
 export interface IUser {
   id: number;
@@ -14,7 +15,7 @@ export interface IUser {
 const Profile: React.FC = () => {
   let { userId } = useParams();
   let navigate = useNavigate();
-  if (userId === undefined && !sessionStorage.getItem("user")) {
+  if (userId === undefined && !getCookie("user")) {
     navigate("/login");
   }
 
@@ -42,7 +43,7 @@ const Profile: React.FC = () => {
 
   return (
     <>
-      <h1>{userId || sessionStorage.getItem("user")}'s Profile</h1>
+      <h1>{userId || getCookie("user")}'s Profile</h1>
       {user && (
         <ProfilePicture
           profilePictureUrl={user.profilePictureUrl}
