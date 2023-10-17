@@ -10,6 +10,13 @@ export function getCookie(cname: string): string {
   return foundCookie ? foundCookie.trim().substring(name.length) : "";
 }
 
+export function setCookie(cname: string, cvalue: string, exdays: number) {
+  const date: Date = new Date();
+  date.setTime(date.getTime() + exdays * 24 * 60 * 60 * 1000);
+  const expires: string = `expires=${date.toUTCString()}`;
+  document.cookie = `${cname}=${cvalue};${expires};path=/;secure;httpOnly;sameSite=Lax`;
+}
+
 const GetToken: React.FC = () => {
   const nav = useNavigate();
   const location = useLocation();
@@ -35,8 +42,7 @@ const GetToken: React.FC = () => {
 
           if (token) {
             sessionStorage.removeItem("code");
-            document.cookie = `token=${token}`;
-
+            setCookie("token", token, 7);
             const username = await setUsername(token);
             if (username) {
               setDbEntry(token);
