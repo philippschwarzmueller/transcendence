@@ -18,22 +18,25 @@ export class GamesGateway {
   constructor(private gamesService: GamesService) {}
 
   @SubscribeMessage('alterGameData')
-  alterGameData(@MessageBody() body: IGameSocketPayload): IGame {
+  public alterGameData(@MessageBody() payload: IGameSocketPayload): IGame {
     return this.gamesService.alterGameData(
-      body.side,
-      body.keystate,
-      body.gameId,
-      body.user,
+      payload.side,
+      payload.keystate,
+      payload.gameId,
+      payload.user,
     );
   }
 
   @SubscribeMessage('queue')
-  queue(@MessageBody() body: string, @ConnectedSocket() client: Socket): void {
+  public queue(
+    @MessageBody() body: string,
+    @ConnectedSocket() client: Socket,
+  ): void {
     this.gamesService.queue(body, client);
   }
 
   @SubscribeMessage('getGameData')
-  getGameData(@MessageBody() gameId: string): IGame {
+  public getGameData(@MessageBody() gameId: string): IGame {
     return this.gamesService.getGameData(gameId);
   }
 }
