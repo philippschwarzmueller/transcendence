@@ -65,7 +65,6 @@ const GameWindow: React.FC = () => {
     ) {
       finishGame(gameInterval.current, navigate);
     }
-    console.log(params.side);
     const gameSocketPayload: IGameSocketPayload = {
       side: params.side !== undefined ? params.side : "viewer",
       keystate: keyState.current,

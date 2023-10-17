@@ -16,6 +16,7 @@ import { Socket } from 'socket.io';
 })
 export class GamesGateway {
   constructor(private gamesService: GamesService) {}
+
   @SubscribeMessage('gamestate')
   gamestate(@MessageBody() body: IGameSocketPayload): IGame {
     return this.gamesService.gamestate(
