@@ -12,11 +12,13 @@ const Profile: React.FC = () => {
   const auth = useContext(AuthContext);
   let { userId } = useParams();
   let navigate = useNavigate();
+
   useEffect(() => {
     if (userId === undefined && !auth.user.token) {
       navigate("/login");
     }
-  }, [navigate, userId]);
+  }, [auth.user.token, navigate, userId]);
+
   return (
     <>
       <h1>{auth.user.name}'s Profile</h1>
