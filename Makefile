@@ -27,6 +27,7 @@ clean:
 
 #take down, remove images
 fclean: clean
+	-docker rm -f $(shell docker ps -aq)
 	-docker image rm $(shell docker image ls -q)
 	-docker volume rm $(shell docker volume ls -q)
 

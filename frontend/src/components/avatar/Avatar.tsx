@@ -1,23 +1,31 @@
 import React from "react";
 import styled from "styled-components";
 
-const StyledImg = styled.img`
-  max-height: 50px;
-  max-width: 50px;
+const ImageContainer = styled.div`
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
+  overflow: hidden;
+`;
+
+const StyledImg = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: left-top;
 `;
 
 export interface IAvatar {
+  name?: string;
   src?: string;
 }
 
-const Avatar: React.FC<IAvatar> = ({
-	
-  src = "https://ideastest.org.uk/wp-content/uploads/2019/04/default-avatar-1.jpg",
-}) => {
+const Avatar: React.FC<IAvatar> = ({ name = "user", src }) => {
   return (
     <>
-      <StyledImg src={src} alt={`avatar`} />
+      <ImageContainer>
+        <StyledImg src={src} alt={`${name}'s avatar`} />
+      </ImageContainer>
     </>
   );
 };

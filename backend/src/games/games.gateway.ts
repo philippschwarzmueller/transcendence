@@ -7,7 +7,7 @@ import {
 
 import { GamesService } from './games.service';
 import { IGame, IGameSocketPayload } from './properties';
-import { Socket } from 'dgram';
+import { Socket } from 'socket.io';
 
 @WebSocketGateway(6969, {
   cors: {
@@ -16,9 +16,15 @@ import { Socket } from 'dgram';
 })
 export class GamesGateway {
   constructor(private gamesService: GamesService) {}
+
   @SubscribeMessage('gamestate')
   gamestate(@MessageBody() body: IGameSocketPayload): IGame {
-    return this.gamesService.gamestate(body.side, body.keystate, body.gameId);
+    return this.gamesService.gamestate(
+      body.side,
+      body.keystate,
+      body.gameId,
+      body.user,
+    );
   }
 
   @SubscribeMessage('stopall')
@@ -27,7 +33,7 @@ export class GamesGateway {
   }
 
   @SubscribeMessage('stop')
-  stop(@MessageBody() gameId: number): void {
+  stop(@MessageBody() gameId: string): void {
     this.gamesService.stop(gameId);
   }
 
