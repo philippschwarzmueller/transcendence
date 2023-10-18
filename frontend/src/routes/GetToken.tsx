@@ -7,9 +7,9 @@ const GetToken: React.FC = () => {
   const nav = useNavigate();
   const location = useLocation();
   const [redirect, setRedirect] = useState(false);
-	const expiryDate : Date = new Date();
-	expiryDate.setTime(expiryDate.getTime()+ (24 * 60 * 60 * 1000)); // 1 day
-	const [cookies, setCookie] = useCookies(['user']);
+  const expiryDate: Date = new Date();
+  expiryDate.setTime(expiryDate.getTime() + 24 * 60 * 60 * 1000); // 1 day
+  const [cookies, setCookie] = useCookies(["user"]);
   let auth = useContext(AuthContext);
 
   useEffect(() => {
@@ -25,9 +25,8 @@ const GetToken: React.FC = () => {
               name: res.name,
               image: res.profilePictureUrl,
               token: res.token,
-            }
-						);
-						setCookie('user', res.name, { path: '/', expires: expiryDate });
+            });
+            setCookie("user", res.name, { path: "/", expires: expiryDate });
           }
           setRedirect(true);
         });
