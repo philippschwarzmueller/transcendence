@@ -1,3 +1,5 @@
+import { Socket } from "socket.io-client";
+
 interface IWindow {
   width: number; // gamewindow width in px
   height: number; // gamewindow height in px
@@ -30,10 +32,10 @@ export interface IPaddle {
 }
 
 export interface IGame {
-  gameId: number;
+  gameId: string;
   ball: IBall;
-  left: IPaddle;
-  right: IPaddle;
+  leftPaddle: IPaddle;
+  rightPaddle: IPaddle;
   pointsLeft: number;
   pointsRight: number;
   keyStateLeft: IKeyState;
@@ -54,13 +56,28 @@ export interface IKeyState {
 
 export interface IGameSocketPayload {
   side: string;
-  gameId: number;
+  gameId: string;
   keystate: IKeyState;
+  user: string | null;
 }
 
 export interface IGameStart {
   gameId: number;
   side: string;
+}
+
+export interface IGameUser {
+  userId: string;
+  socket?: Socket;
+}
+
+export interface IGameBackend {
+  gameId: string;
+  leftPlayer: IGameUser;
+  rightPlayer: IGameUser;
+  game: IGame;
+  spectatorSockets: Socket[];
+  interval?: NodeJS.Timeout;
 }
 
 const properties: IProperties = {
@@ -80,13 +97,13 @@ export const ballSpawn: IBall = {
 export const maxScore: number = 2;
 
 export const gameSpawn: IGame = {
-  gameId: 0,
+  gameId: "0",
   ball: ballSpawn,
-  left: {
+  leftPaddle: {
     height: 320,
     side: "left",
   },
-  right: {
+  rightPaddle: {
     height: 320,
     side: "right",
   },

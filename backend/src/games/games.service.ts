@@ -4,6 +4,8 @@ import properties, {
   gameSpawn,
   IBall,
   IGame,
+  IGameBackend,
+  IGameUser,
   IKeyState,
   maxScore,
 } from './properties';
@@ -13,7 +15,7 @@ import {
   bounceOnPaddle,
   movePaddle,
 } from './games.gamelogic';
-import { Socket } from 'dgram';
+import { Socket } from 'socket.io';
 
 const newGameCopy = (): IGame => {
   return JSON.parse(JSON.stringify(gameSpawn));
@@ -22,102 +24,131 @@ const newGameCopy = (): IGame => {
 @Injectable()
 export class GamesService {
   constructor() {
-    this.games = []; // array with all gamedata
-    this.intervals = []; // array with all gameloops (to kill them)
+    this.gameStorage = new Map<string, IGameBackend>();
     this.amountOfGammes = 0;
     this.clients = [];
   }
 
   public amountOfGammes: number;
-  public games: IGame[];
-  public intervals: NodeJS.Timeout[];
-  public clients: Socket[];
+  public gameStorage: Map<string, IGameBackend>;
+  public clients: IGameUser[];
+
+  private generateGameId(): string {
+    return `${this.amountOfGammes}`;
+  }
 
   stopAll(): void {
-    this.games = [];
-    this.amountOfGammes = 0;
-    this.intervals.forEach((interval) => {
-      clearInterval(interval);
+    this.gameStorage.forEach((game) => {
+      if (game.interval !== undefined) clearInterval(game.interval);
     });
-    this.intervals = [];
+    this.gameStorage.clear();
+    this.amountOfGammes = 0;
   }
 
-  stop(gameId: number): void {
-    clearInterval(this.intervals[gameId]);
+  stop(gameId: string): void {
+    if (this.gameStorage.get(gameId).interval !== undefined)
+      clearInterval(this.gameStorage.get(gameId).interval);
   }
 
-  gamestate(side: string, keystate: IKeyState, gameId: number): IGame {
+  gamestate(
+    side: string,
+    keystate: IKeyState,
+    gameId: string,
+    userId: string | null,
+  ): IGame {
     if (this.amountOfGammes <= 0) return newGameCopy();
-
-    if (side === 'left') this.games[gameId].keyStateLeft = keystate;
-    else if (side === 'right') this.games[gameId].keyStateRight = keystate;
-    this.games[gameId].gameId = gameId;
-    return this.games[gameId];
+    if (!this.gameStorage.has(gameId)) return newGameCopy();
+    // reimplement the next line if you want to force users to be logged in
+    // right now as comment for testing
+    // if (userId === null) return this.games.get(gameId).game;
+    if (
+      side === 'left' &&
+      userId === this.gameStorage.get(gameId).leftPlayer.userId
+    )
+      this.gameStorage.get(gameId).gameState.keyStateLeft = keystate;
+    else if (
+      side === 'right' &&
+      userId === this.gameStorage.get(gameId).rightPlayer.userId
+    )
+      this.gameStorage.get(gameId).gameState.keyStateRight = keystate;
+    return this.gameStorage.get(gameId).gameState;
   }
 
-  private GameLoop(
-    gameId: number,
-    leftPlayer: Socket,
-    rightPlayer: Socket,
-  ): void {
-    movePaddle(this.games[gameId].keyStateLeft, this.games[gameId].left);
-    movePaddle(this.games[gameId].keyStateRight, this.games[gameId].right);
-    const newBall: IBall = advanceBall(this.games[gameId].ball);
-    if (ballHitPaddle(newBall, this.games[gameId].right)) {
+  private GameLoop(localGame: IGameBackend): void {
+    movePaddle(
+      localGame.gameState.keyStateLeft,
+      localGame.gameState.leftPaddle,
+    );
+    movePaddle(
+      localGame.gameState.keyStateRight,
+      localGame.gameState.rightPaddle,
+    );
+    const newBall: IBall = advanceBall(localGame.gameState.ball);
+    if (ballHitPaddle(newBall, localGame.gameState.rightPaddle)) {
       // hit right paddle
-      bounceOnPaddle(this.games[gameId].ball, this.games[gameId].right);
+      bounceOnPaddle(localGame.gameState.ball, localGame.gameState.rightPaddle);
     } else if (newBall.x > properties.window.width) {
       // missed right paddle
-      this.games[gameId].ball = ballSpawn;
-      this.games[gameId].pointsLeft++;
-    } else if (ballHitPaddle(newBall, this.games[gameId].left)) {
+      localGame.gameState.ball = ballSpawn;
+      localGame.gameState.pointsLeft++;
+    } else if (ballHitPaddle(newBall, localGame.gameState.leftPaddle)) {
       // hit left paddle
-      bounceOnPaddle(this.games[gameId].ball, this.games[gameId].left);
+      bounceOnPaddle(localGame.gameState.ball, localGame.gameState.leftPaddle);
     } else if (newBall.x < 0) {
       // missed left paddle
-      this.games[gameId].ball = ballSpawn;
-      this.games[gameId].pointsRight++;
+      localGame.gameState.ball = ballSpawn;
+      localGame.gameState.pointsRight++;
     } else if (newBall.y > properties.window.height || newBall.y < 0) {
       //collision on top/botton
-      this.games[gameId].ball.speed_y *= -1;
+      localGame.gameState.ball.speed_y *= -1;
     }
-    this.games[gameId].ball = advanceBall(this.games[gameId].ball); // actually moving ball
+    localGame.gameState.ball = advanceBall(localGame.gameState.ball); // actually moving ball
     if (
-      this.games[gameId].pointsLeft >= maxScore ||
-      this.games[gameId].pointsRight >= maxScore
+      localGame.gameState.pointsLeft >= maxScore ||
+      localGame.gameState.pointsRight >= maxScore
     ) {
-      this.stop(gameId);
-      leftPlayer.emit('endgame');
-      rightPlayer.emit('endgame');
+      this.stop(localGame.gameId);
+      localGame.leftPlayer.socket.emit('endgame');
+      localGame.rightPlayer.socket.emit('endgame');
     }
   }
 
-  public startGameLoop(leftPlayer: Socket, rightPlayer: Socket): number {
+  public startGameLoop(leftPlayer: IGameUser, rightPlayer: IGameUser): string {
     const newGame: IGame = newGameCopy();
-    const gameId: number = this.amountOfGammes;
+    const gameId: string = this.generateGameId();
     newGame.gameId = gameId;
-    this.games.push(newGame);
+    this.gameStorage.set(gameId, {
+      gameId: gameId,
+      spectatorSockets: [],
+      gameState: newGame,
+      leftPlayer: leftPlayer,
+      rightPlayer: rightPlayer,
+    });
     this.amountOfGammes++;
     const interval = setInterval(
       this.GameLoop.bind(this),
       properties.framerate,
-      gameId,
-      leftPlayer,
-      rightPlayer,
+      this.gameStorage.get(gameId),
     );
-    this.intervals.push(interval);
+    this.gameStorage.get(gameId).interval = interval;
     return gameId;
   }
 
   public queue(body: string, client: Socket): void {
-    this.clients.push(client);
+    this.clients.push({ userId: body, socket: client });
     if (this.clients.length >= 2) {
-      const newGameId: number = this.startGameLoop(
+      const newGameId: string = this.startGameLoop(
         this.clients[0],
         this.clients[1],
       );
-      this.clients[0].emit('queue found', { gameId: newGameId, side: 'left' });
-      this.clients[1].emit('queue found', { gameId: newGameId, side: 'right' });
+      this.clients[0].socket.emit('queue found', {
+        gameId: newGameId,
+        side: 'left',
+      });
+      this.clients[1].socket.emit('queue found', {
+        gameId: newGameId,
+        side: 'right',
+      });
       this.clients.splice(0, 2);
     }
   }
