@@ -16,10 +16,16 @@ const Profile: React.FC = () => {
   const auth = useContext(AuthContext);
   let { userId } = useParams();
   let navigate = useNavigate();
+  let [user, setUser] = useState<IUser>();
 
   useEffect(() => {
     if (userId === undefined && !auth.user.token) {
       navigate("/login");
+    }
+    if (userId) {
+      fetch(`http://localhost:4000/users/${userId}`)
+        .then((res) => res.json())
+        .then((resuser) => setUser(resuser));
     }
   }, [auth.user.token, navigate, userId]);
 
@@ -32,11 +38,11 @@ const Profile: React.FC = () => {
 
   return (
     <>
-      <h1>{auth.user.name}'s Profile</h1>
-      <p>{auth.user.image}</p>
+      <h1>{user ? user.name : auth.user.name}'s Profile</h1>
+      <p>{user ? user.profilePictureUrl : auth.user.image}</p>
       <ProfilePicture
-        name={auth.user.name}
-        profilePictureUrl={auth.user.image}
+        name={user ? user.name : auth.user.name}
+        profilePictureUrl={user ? user.profilePictureUrl : auth.user.image}
       ></ProfilePicture>
       <h2>Stats</h2>
       <p>Games played: 420</p>
