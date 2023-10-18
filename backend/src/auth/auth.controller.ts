@@ -17,6 +17,10 @@ interface ICreateIntraUser {
   token: string;
 }
 
+interface IGetUser extends User {
+  token: string,
+}
+
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
@@ -83,8 +87,14 @@ export class AuthController {
 
   @Get('get-token')
   @HttpCode(200)
-  async getToken(@Query('code') code: string): Promise<string> {
+  async getToken(@Query('code') code: string): Promise<IGetUser> {
+    try {
+
     const token: string = await this.authService.exchangeCodeForToken(code);
-    return token;
+    const user: User = await this.authService.createIntraUser(token);
+    return {...user, token: token};
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.CONFLICT);
+    }
   }
 }

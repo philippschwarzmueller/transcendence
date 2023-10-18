@@ -2,8 +2,8 @@ import React from "react";
 import styled from "styled-components";
 
 interface IProfilePicture {
-  name: string;
-  profilePictureUrl: string;
+  name?: string;
+  profilePictureUrl?: string;
 }
 
 const StyledProfilePicture = styled.img`
