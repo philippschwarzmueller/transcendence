@@ -138,7 +138,7 @@ const Chatwindow: React.FC = () => {
     event.preventDefault();
     if (user === undefined)
       setMessages([...messages, "you have to be logged in to chat!"]);
-    if (input.trim() !== "" && user !== null)
+    if (input.trim() !== "" && user !== undefined)
       socket.emit("message", { user, input, room });
     setInput("");
   }
