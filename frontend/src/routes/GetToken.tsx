@@ -1,28 +1,15 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import React, { useEffect, useState, useContext } from "react";
 import { AuthContext } from "../context/auth";
-
-export function getCookie(cname: string): string {
-  const name: string = cname + "=";
-  const cookies: string[] = decodeURIComponent(document.cookie).split(";");
-  const foundCookie: string | undefined = cookies.find((cookie) =>
-    cookie.trim().startsWith(name),
-  );
-  return foundCookie ? foundCookie.trim().substring(name.length) : "";
-}
-
-export function setCookie(cname: string, cvalue: string, exdays: number) {
-  const date: Date = new Date();
-  date.setTime(date.getTime() + exdays * 24 * 60 * 60 * 1000);
-  const expires: string = `expires=${date.toUTCString()}`;
-  document.cookie = `${cname}=${cvalue};${expires};path=/;secure;httpOnly;sameSite=Lax`;
-}
+import { useCookies } from "react-cookie";
 
 const GetToken: React.FC = () => {
   const nav = useNavigate();
   const location = useLocation();
   const [redirect, setRedirect] = useState(false);
-
+	const expiryDate : Date = new Date();
+	expiryDate.setTime(expiryDate.getTime()+ (24 * 60 * 60 * 1000)); // 1 day
+	const [cookies, setCookie] = useCookies(['user']);
   let auth = useContext(AuthContext);
 
   useEffect(() => {
@@ -38,8 +25,9 @@ const GetToken: React.FC = () => {
               name: res.name,
               image: res.profilePictureUrl,
               token: res.token,
-            });
-            setCookie("token", res.token, 7);
+            }
+						);
+						setCookie('user', res.name, { path: '/', expires: expiryDate });
           }
           setRedirect(true);
         });

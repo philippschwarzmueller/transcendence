@@ -31,13 +31,15 @@ const Root: React.FC = () => {
   };
   return (
     <>
-      <AuthContext.Provider value={{ user, logIn, logOut }}>
-      <ChatSocketContext.Provider value={chatSocket}>
-        <GlobalStyle />
-        <Nav />
-        <Outlet />
-      </ChatSocketContext.Provider>
-      </AuthContext.Provider>
+      <CookiesProvider>
+        <AuthContext.Provider value={{ user, logIn, logOut }}>
+          <ChatSocketContext.Provider value={chatSocket}>
+            <GlobalStyle />
+            <Nav />
+            <Outlet />
+          </ChatSocketContext.Provider>
+        </AuthContext.Provider>
+      </CookiesProvider>
     </>
   );
 };
