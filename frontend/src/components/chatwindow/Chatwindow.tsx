@@ -115,7 +115,7 @@ const Chatwindow: React.FC = () => {
   const [room, setRoom] = useState<string>("general");
   const [tabs, setTabs] = useState<string[]>(["general"]);
   const socket: Socket = useContext(ChatSocketContext);
-  const user = getCookie("user");
+  const user = sessionStorage.getItem("user");
   let listKey = 0;
   let [display, setDisplay] = useState<boolean>(false);
   let [positionX, setPositionX] = useState<number>(0);

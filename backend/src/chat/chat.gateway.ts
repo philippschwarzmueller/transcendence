@@ -48,8 +48,7 @@ export class ChatGateway implements OnGatewayInit {
     return messages.get(data.room);
   }
 
-  afterInit(server: any): any {
-  }
+  afterInit(server: any): any {}
 
   //following function are purely dev functions
   @SubscribeMessage('clear')
