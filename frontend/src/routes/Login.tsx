@@ -22,7 +22,7 @@ const Login: React.FC = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(input),
-        }
+        },
       );
 
       const data: any = await response.json();

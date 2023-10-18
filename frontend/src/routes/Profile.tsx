@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import Button from "../components/button";
 import Playercard from "../components/playercard";
 import CenterDiv from "../components/centerdiv";
 import ProfilePicture from "../components/profilepicture/ProfilePicture";
-import {getCookie} from "../routes/GetToken"
+import { AuthContext } from "../context/auth";
 
 export interface IUser {
   id: number;
@@ -13,11 +13,21 @@ export interface IUser {
 }
 
 const Profile: React.FC = () => {
+  const auth = useContext(AuthContext);
   let { userId } = useParams();
   let navigate = useNavigate();
-  if (userId === undefined && !getCookie("user")) {
-    navigate("/login");
-  }
+  let [user, setUser] = useState<IUser>();
+
+  useEffect(() => {
+    if (userId === undefined && !auth.user.token) {
+      navigate("/login");
+    }
+    if (userId) {
+      fetch(`http://localhost:4000/users/${userId}`)
+        .then((res) => res.json())
+        .then((resuser) => setUser(resuser));
+    }
+  }, [auth.user.token, navigate, userId]);
 
   let [users, setUsers] = useState<IUser[]>([]);
   useEffect(() => {
@@ -26,30 +36,14 @@ const Profile: React.FC = () => {
       .then((users) => setUsers(users));
   }, []);
 
-  let [user, setUser] = useState<IUser>();
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await fetch(`http://localhost:4000/users/${userId}`);
-        const userData = await res.json();
-        setUser(userData);
-      } catch (error) {
-        console.error("Failed to fetch user:", error);
-      }
-    };
-
-    fetchUser();
-  }, [userId]);
-
   return (
     <>
-      <h1>{userId || getCookie("user")}'s Profile</h1>
-      {user && (
-        <ProfilePicture
-          profilePictureUrl={user.profilePictureUrl}
-          name={user?.name}
-        ></ProfilePicture>
-      )}
+      <h1>{user ? user.name : auth.user.name}'s Profile</h1>
+      <p>{user ? user.profilePictureUrl : auth.user.image}</p>
+      <ProfilePicture
+        name={user ? user.name : auth.user.name}
+        profilePictureUrl={user ? user.profilePictureUrl : auth.user.image}
+      ></ProfilePicture>
       <h2>Stats</h2>
       <p>Games played: 420</p>
       <p>Win/Loss: 69%</p>
