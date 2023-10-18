@@ -100,23 +100,13 @@ export class AuthService {
     return this.usersRepository.findOne({ where: { name: user } });
   }
 
-  async getIntraImage(user: string): Promise<string | null> {
-    const userRecord = await this.usersRepository.findOne({
-      where: { name: user },
-    });
-    if (userRecord) {
-      const imageUrl: string = userRecord.profilePictureUrl;
-      return imageUrl;
-    }
-    throw new Error('No User Records');
-  }
-
   async intraLogin(@Res() res: any): Promise<void> {
-    const url: string = `https://api.intra.42.fr/oauth/authorize?client_id=${this.clientID}&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fget-token&response_type=code`;
+    const url: string = `https://api.intra.42.fr/oauth/authorize?client_id=${this.clientID}&redirect_uri=http%3A%2F%2Flocalhost%3A4000%2Fauth%2Fcallback&response_type=code`;
     res.redirect(url);
   }
 
   async exchangeCodeForToken(code: string): Promise<string> {
+		console.log(`code in xchange ${code}`);
     const response: Response | void = await fetch(
       'https://api.intra.42.fr/oauth/token',
       {
@@ -127,11 +117,10 @@ export class AuthService {
           client_id: this.clientID,
           client_secret: this.clientSecret,
           code: code,
-          redirect_uri: 'http://localhost:3000/get-token',
+          redirect_uri: 'http://localhost:4000/auth/callback',
         }),
       },
     ).catch((e) => console.error(e));
-
     if (response instanceof Response && !response.ok) {
       throw new Error('Failed to exchange code for token');
     }

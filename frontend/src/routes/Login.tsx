@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import Button from "../components/button";
 import Input from "../components/input";
 import Form from "../components/form";
 import Pagetitle from "../components/pagetitle";
-import { getCookie } from "../routes/GetToken"
+import { AuthContext } from "../context/auth";
 
 interface loginBody {
   name: string;
@@ -12,6 +12,7 @@ interface loginBody {
 
 const Login: React.FC = () => {
   const [input, setInput] = useState<loginBody>({ name: "", password: "" });
+	let auth = useContext(AuthContext);
 
   const handleSubmit = async (event: React.MouseEvent) => {
     event.preventDefault();
@@ -46,8 +47,8 @@ const Login: React.FC = () => {
   return (
     <>
       <Pagetitle>Login to your Account</Pagetitle>
-      {getCookie("user") ? (
-        <span>Logged in as {getCookie("user")}</span>
+      {auth.user ? (
+        <span>Logged in as {auth.user.name}</span>
       ) : (
         <span>Logged out</span>
       )}

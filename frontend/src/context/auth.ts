@@ -4,7 +4,7 @@ export interface IUser {
   id: number | undefined;
   name: string | undefined;
   image: string | undefined;
-  token: string | undefined;
+  token?: string | undefined;
 }
 
 let default_user: IUser = {
