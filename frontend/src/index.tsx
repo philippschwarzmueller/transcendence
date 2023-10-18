@@ -76,7 +76,7 @@ const router = createBrowserRouter([
         element: <Queue />,
       },
       {
-        path: "/get-token",
+        path: "/set-user",
         element: <GetToken />,
       },
     ],

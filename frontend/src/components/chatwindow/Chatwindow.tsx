@@ -5,7 +5,6 @@ import { ChatSocketContext } from "../../routes/root";
 import { Socket } from "socket.io-client";
 import styled from "styled-components";
 import Moveablewindow from "../moveablewindow/Moveablewindow";
-import { getCookie } from "../../routes/GetToken";
 import { AuthContext } from "../../context/auth";
 
 const Msgfield = styled.div`

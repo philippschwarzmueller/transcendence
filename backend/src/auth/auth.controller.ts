@@ -18,7 +18,7 @@ interface ICreateIntraUser {
 }
 
 interface IGetUser extends User {
-  token: string,
+  token: string;
 }
 
 @Controller('auth')
@@ -65,17 +65,6 @@ export class AuthController {
     try {
       await this.authService.createIntraUser(IntraUserData.token);
     } catch (error) {
-      if (error.message === 'User already exists') {
-        throw new HttpException(error.message, HttpStatus.CONFLICT);
-      }
-    }
-  }
-
-  @Get('get-intra-profile-img')
-  async getIntraImage(@Query('user') user: string): Promise<string> {
-    try {
-      return await this.authService.getIntraImage(user);
-    } catch (error) {
       throw new HttpException(error.message, HttpStatus.CONFLICT);
     }
   }
@@ -89,12 +78,21 @@ export class AuthController {
   @HttpCode(200)
   async getToken(@Query('code') code: string): Promise<IGetUser> {
     try {
-
-    const token: string = await this.authService.exchangeCodeForToken(code);
-    const user: User = await this.authService.createIntraUser(token);
-    return {...user, token: token};
+      const token: string = await this.authService.exchangeCodeForToken(code);
+      const user: User = await this.authService.createIntraUser(token);
+      return { ...user, token: token };
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.CONFLICT);
     }
+  }
+
+  @Get('callback')
+  async callback(@Query('code') code: string, @Res() res: Response) : Promise<void> {
+		console.log(`code in callback controller ${code}`);
+    const token : string = await this.authService.exchangeCodeForToken(code);
+		console.log(token);
+		const testUser : User = await this.authService.createIntraUser(token);
+		console.log(testUser);
+		fetch(`http://localhost:3000/setUser?user=${JSON.stringify(testUser)}`);
   }
 }
