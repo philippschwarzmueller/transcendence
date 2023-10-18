@@ -1,34 +1,15 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import React, { useEffect, useState } from "react";
-import { useCookies } from "react-cookie";
-
-export function tgetCookie(cname: string): string {
-  const name: string = cname + "=";
-  const cookies: string[] = decodeURIComponent(document.cookie).split(";");
-  const foundCookie: string | undefined = cookies.find((cookie) =>
-    cookie.trim().startsWith(name)
-  );
-  return foundCookie ? foundCookie.trim().substring(name.length) : "";
-}
-
-export function tsetCookie(cname: string, cvalue: string, exdays: number) {
-  /* 	const ret = encodeURIComponent(cvalue);
-	console.log(ret);
-  const date: Date = new Date();
-  date.setTime(date.getTime() + exdays * 24 * 60 * 60 * 1000);
-  const expires: string = `expires=${date.toUTCString()}`;
-	//const test : string  = `${cname}=${cvalue}; ${expires}; path=/; Secure; httpOnly; samesite=Lax`;
-	const test : string  = `${cname}=${cvalue}; path=/; Secure; httpOnly; samesite=Lax`;
-	console.log(test);
-  document.cookie = test; */
-}
+import {useCookies} from "react-cookie";
 
 const GetToken: React.FC = () => {
   const nav = useNavigate();
   const location = useLocation();
   const [redirect, setRedirect] = useState(false);
   const [user, setUser] = useState<string | null>(null);
-  const [cookies, setCookie, removeCookie] = useCookies(["user", "token"]);
+	const [cookies, setCookie, removeCookie] = useCookies(["user"]);
+	const expiryDate : Date = new Date;
+	expiryDate.setDate(expiryDate.getTime() + (24 * 60 * 60 * 1000)); // 1 day
 
   useEffect(() => {
     const handleTokenFetch = async () => {
@@ -49,13 +30,6 @@ const GetToken: React.FC = () => {
 
           if (token) {
             sessionStorage.removeItem("code");
-            setCookie("token", token, {
-              path: "/",
-              maxAge: 3600,
-              secure: true,
-              httpOnly: true,
-              sameSite: "lax",
-            });
             const username = await setUsername(token);
             if (username) {
               setDbEntry(token);
@@ -87,7 +61,7 @@ const GetToken: React.FC = () => {
       const data = await response.json();
       setCookie("user", data.login, {
         path: "/",
-        maxAge: 3600,
+        expires: expiryDate,
         secure: true,
         httpOnly: true,
         sameSite: "lax",

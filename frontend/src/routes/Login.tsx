@@ -13,6 +13,8 @@ interface loginBody {
 const Login: React.FC = () => {
   const [input, setInput] = useState<loginBody>({ name: "", password: "" });
   const [cookies, setCookie, removeCookie] = useCookies(["user", "token"]);
+	const expiryDate : Date = new Date;
+	expiryDate.setDate(expiryDate.getTime() + (24 * 60 * 60 * 1000)); // 1 day
   const handleSubmit = async (event: React.MouseEvent) => {
     event.preventDefault();
     try {
@@ -30,7 +32,7 @@ const Login: React.FC = () => {
       if (response.ok) {
         alert("Login Successful!");
         setInput({ name: "", password: "" });
-        sessionStorage.setItem("user", data.name);
+				setCookie('user', data.name, { path: '/', expires: expiryDate });
       } else {
         alert("Login Failed: " + (data.message || "Unknown Error"));
       }
@@ -70,7 +72,7 @@ const Login: React.FC = () => {
           Login
         </Button>
       </Form>
-      <Button onClick={() => sessionStorage.removeItem("user")}>Log Out</Button>
+      <Button onClick={() => removeCookie("user")}>Log Out</Button>
       <Button onClick={(event: React.MouseEvent) => handleIntraLogin(event)}>
         Login via 42 intra
       </Button>
