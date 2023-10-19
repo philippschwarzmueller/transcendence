@@ -17,6 +17,9 @@ import {
   movePaddle,
 } from './games.gamelogic';
 import { Socket } from 'socket.io';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Game } from './game.entity';
+import { Repository } from 'typeorm';
 
 const newGameCopy = (): IGame => {
   return JSON.parse(JSON.stringify(gameSpawn));
@@ -24,7 +27,10 @@ const newGameCopy = (): IGame => {
 
 @Injectable()
 export class GamesService {
-  constructor() {
+  constructor(
+    @InjectRepository(Game)
+    private gamesRepository: Repository<Game>, // private configService: ConfigService,
+  ) {
     this.gameStorage = new Map<string, IGameBackend>();
     this.amountOfGammes = 0;
     this.clients = [];
@@ -100,6 +106,7 @@ export class GamesService {
       localGame.gameState.pointsLeft >= maxScore ||
       localGame.gameState.pointsRight >= maxScore
     ) {
+      this.gamesRepository.insert({ winner: 'left', looser: 'right' });
       this.stop(localGame.gameId);
       localGame.gameState.isFinished = true;
       localGame.gameState.winner =
