@@ -1,11 +1,12 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import Input from "../input/Input";
 import Button from "../button/Button";
 import { ChatSocketContext } from "../../routes/root";
 import { Socket } from "socket.io-client";
 import styled from "styled-components";
 import Moveablewindow from "../moveablewindow/Moveablewindow";
-import { getCookie } from "../../routes/GetToken"
+import { getCookie } from "../../routes/GetToken";
+import { AuthContext } from "../../context/auth";
 
 const Msgfield = styled.div`
   width: 320px;
@@ -25,6 +26,8 @@ const Tabbar = styled.div`
 const Textfield = styled.div`
   width: 334px;
   height: 200px;
+  padding: 0px;
+  margin: 0px;
   background-color: white;
   border-radius: 0px;
   border-width: 1px 0px 0px 1px;
@@ -34,6 +37,26 @@ const Textfield = styled.div`
     rgb(195, 199, 203) -1px -1px 0px 0px inset,
     rgb(0, 0, 0) 1px 1px 0px 0px inset,
     rgb(255, 255, 255) 0.5px 0.5px 0px 0.5px;
+  overflow: auto;
+  &::-webkit-scrollbar {
+    width: 17x;
+    height: 17px;
+  }
+  &::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+  }
+  &::-webkit-scrollbar-thumb {
+    box-sizing: border-box;
+    display: inline-block;
+    background: rgb(195, 199, 203);
+    color: rgb(0, 0, 0);
+    border: 0px;
+    box-shadow:
+      rgb(0, 0, 0) -1px -1px 0px 0px inset,
+      rgb(210, 210, 210) 1px 1px 0px 0px inset,
+      rgb(134, 138, 142) -2px -2px 0px 0px inset,
+      rgb(255, 255, 255) 2px 2px 0px 0px inset;
+  }
 `;
 
 // not triggerable for actice state yet
@@ -58,41 +81,119 @@ const StyledLi = styled.li`
   }
 `;
 
+const InputField = styled.div<{
+  $display: boolean;
+  $posX: number;
+  $posY: number;
+}>`
+  display: ${(props) => (props.$display ? "" : "none")};
+  position: absolute;
+  z-index: 100;
+  left: ${(props) => props.$posX + "px"};
+  top: ${(props) => props.$posY + "px"};
+  background-color: rgb(195, 199, 203);
+  min-width: 100px;
+  margin-block-start: 0px;
+  margin-inline-start: 0px;
+  padding-inline-start: 0px;
+  box-shadow:
+    rgb(255, 255, 255) 1px 1px 0px 1px inset,
+    rgb(134, 138, 142) 0px 0px 0px 1px inset,
+    rgb(0, 0, 0) 1px 1px 0px 1px;
+`;
+
 // has to be switched to links for individual chats
 const StyledUl = styled.ul`
+  padding: 5px;
+  margin: 5px;
   list-style: none;
 `;
 
 const Chatwindow: React.FC = () => {
   const [messages, setMessages] = useState<string[]>([]);
   const [input, setInput] = useState<string>("");
+  const [rinput, setRinput] = useState<string>("");
+  const [room, setRoom] = useState<string>("general");
+  const [tabs, setTabs] = useState<string[]>(["general"]);
   const socket: Socket = useContext(ChatSocketContext);
-  const user = getCookie("user");
+  const user = useContext(AuthContext).user.name;
   let listKey = 0;
+  let [display, setDisplay] = useState<boolean>(false);
+  let [positionX, setPositionX] = useState<number>(0);
+  let [positionY, setPositionY] = useState<number>(0);
+
+  const msgField: any = useRef<HTMLCanvasElement | null>(null);
+
+  socket.on("message", (res: string) => setMessages([...messages, res]));
+  socket.on("room update", (res: string[]) => setTabs(res));
 
   useEffect(() => {
-    socket.on("message", (res: string) => setMessages([...messages, res]));
-  }, [socket, messages]);
+    if (user === undefined) return;
+    socket.emit("join", { user, input, room }, (res: string[]) =>
+      setMessages(res),
+    );
+  }, [room]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function send(event: React.MouseEvent | React.KeyboardEvent) {
     event.preventDefault();
-    if (input.trim() !== "") {
-      socket.emit("message", { user, input });
-      setInput("");
-    }
+    if (user === undefined)
+      setMessages([...messages, "you have to be logged in to chat!"]);
+    if (input.trim() !== "" && user !== undefined)
+      socket.emit("message", { user, input, room });
+    setInput("");
+  }
+  useEffect(
+    () =>
+      msgField.current.scrollIntoView({
+        behavior: "smooth",
+        block: "end",
+        inline: "nearest",
+      }),
+    [messages],
+  );
+
+  function openRoom(event: React.MouseEvent) {
+    event.preventDefault();
+    setPositionX(event.pageX);
+    setPositionY(event.pageY);
+    setDisplay(!display);
   }
 
   return (
     <>
+      <InputField $display={display} $posX={positionX} $posY={positionY}>
+        This is a WIP
+        <Input
+          value={rinput}
+          label="Type here"
+          placeholder="Enter room name"
+          onChange={(e) => setRinput(e.target.value)}
+          onKeyUp={(e: React.KeyboardEvent) => {
+            if (e.key === "Enter") {
+              setRoom(rinput);
+              setDisplay(false);
+              setRinput("");
+            }
+          }}
+        ></Input>
+      </InputField>
       <Moveablewindow>
         <Tabbar>
-          <StyledLi>tab</StyledLi>
-          <StyledLi>anothertab</StyledLi>
+          {tabs.map((tab) => {
+            return (
+              <StyledLi onClick={() => setRoom(tab)} key={tab}>
+                {tab}
+              </StyledLi>
+            );
+          })}
+          <StyledLi key="+" onClick={(e: React.MouseEvent) => openRoom(e)}>
+            +
+          </StyledLi>
         </Tabbar>
         <Textfield>
-          <StyledUl>
+          <StyledUl ref={msgField} id="msgField">
             {messages.map((mes) => {
-              return <li key={listKey}>{mes}</li>;
+              return <li key={listKey++}>{mes}</li>;
             })}
           </StyledUl>
         </Textfield>
@@ -102,11 +203,19 @@ const Chatwindow: React.FC = () => {
             label="Type here"
             placeholder="Enter message"
             onChange={(e) => setInput(e.target.value)}
-            onKeyPress={(e: React.KeyboardEvent) => {
+            onKeyUp={(e: React.KeyboardEvent) => {
               if (e.key === "Enter") send(e);
             }}
           ></Input>
           <Button onClick={(e: React.MouseEvent) => send(e)}>Send</Button>
+          <Button
+            onClick={() =>
+              socket.emit("clear", room, (res: string[]) => setMessages(res))
+            }
+          >
+            Clear
+          </Button>
+          <Button onClick={() => socket.emit("remove", room)}>Remove</Button>
         </Msgfield>
       </Moveablewindow>
     </>

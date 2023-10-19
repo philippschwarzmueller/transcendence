@@ -64,7 +64,7 @@ export class AuthService {
     }
   }
 
-  async createIntraUser(token: string): Promise<void> {
+  async createIntraUser(token: string): Promise<User> {
     const response: Response | void = await fetch(
       'https://api.intra.42.fr/v2/me',
       {
@@ -97,6 +97,7 @@ export class AuthService {
     if (userWithDefaultProfilePicture) {
       await this.usersRepository.save({ profilePictureUrl: imageLink });
     }
+    return this.usersRepository.findOne({ where: { name: user } });
   }
 
   async getIntraImage(user: string): Promise<string | null> {
