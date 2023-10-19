@@ -20,6 +20,7 @@ import { Socket } from 'socket.io';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Game } from './game.entity';
 import { Repository } from 'typeorm';
+import { CreateGameDto } from './dto/create-game.dto';
 
 const newGameCopy = (): IGame => {
   return JSON.parse(JSON.stringify(gameSpawn));
@@ -40,8 +41,11 @@ export class GamesService {
   public gameStorage: Map<string, IGameBackend>;
   public clients: IGameUser[];
 
-  private generateGameId(): string {
-    return `${this.amountOfGammes}`;
+  private async generateGameId(): Promise<string> {
+    const newGame = this.gamesRepository.create({ isFinished: false });
+    await this.gamesRepository.save(newGame); // This inserts the new game and assigns an ID
+
+    return `${newGame.gameId}`;
   }
 
   private stop(gameId: string): void {
@@ -106,7 +110,6 @@ export class GamesService {
       localGame.gameState.pointsLeft >= maxScore ||
       localGame.gameState.pointsRight >= maxScore
     ) {
-      this.gamesRepository.insert({ winner: 'left', looser: 'right' });
       this.stop(localGame.gameId);
       localGame.gameState.isFinished = true;
       localGame.gameState.winner =
@@ -122,9 +125,12 @@ export class GamesService {
     }
   }
 
-  public startGameLoop(leftPlayer: IGameUser, rightPlayer: IGameUser): string {
+  public async startGameLoop(
+    leftPlayer: IGameUser,
+    rightPlayer: IGameUser,
+  ): Promise<string> {
     const newGame: IGame = newGameCopy();
-    const gameId: string = this.generateGameId();
+    const gameId: string = await this.generateGameId();
     newGame.gameId = gameId;
     this.gameStorage.set(gameId, {
       gameId: gameId,
@@ -143,10 +149,10 @@ export class GamesService {
     return gameId;
   }
 
-  public queue(user: IUser, client: Socket): void {
+  public async queue(user: IUser, client: Socket): Promise<void> {
     this.clients.push({ user: user, socket: client });
     if (this.clients.length >= 2) {
-      const newGameId: string = this.startGameLoop(
+      const newGameId: string = await this.startGameLoop(
         this.clients[0],
         this.clients[1],
       );
