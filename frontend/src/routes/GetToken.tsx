@@ -11,23 +11,23 @@ const GetToken: React.FC = () => {
 
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
-    const code: string | null = urlParams.get("code");
-    if (code) {
-      fetch(`http://localhost:4000/auth/get-token?code=${code}`)
-        .then((response) => (response.ok ? response.json() : null))
-        .then((res) => {
-          if (res) {
-            auth.logIn({
-              id: res.id,
-              name: res.name,
-              image: res.profilePictureUrl,
-              token: res.token,
-            });
-          }
-          setRedirect(true);
-        });
+    const name: string | null = urlParams.get("name");
+    const profilePictureUrl: string | null = urlParams.get("profilePictureUrl");
+		const id: string | null = urlParams.get("id");
+		console.log(` in get Token ${id}`);
+
+    if (name && profilePictureUrl) {
+      auth.logIn({
+        id: Number(id),
+        name: name,
+        image: profilePictureUrl,
+        token: "jaja"
+      }
+			);
+			console.log(`${Number(id)}`);
     }
-  }, [auth, location.search]);
+    setRedirect(true);
+  }, [location.search]);
 
   useEffect(() => {
     if (redirect) {
