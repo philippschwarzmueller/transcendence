@@ -77,7 +77,7 @@ export class GamesService {
     return this.gameStorage.get(gameId).gameState;
   }
 
-  private GameLoop(localGame: IGameBackend): void {
+  private async GameLoop(localGame: IGameBackend): Promise<void> {
     movePaddle(
       localGame.gameState.keyStateLeft,
       localGame.gameState.leftPaddle,
@@ -112,16 +112,42 @@ export class GamesService {
     ) {
       this.stop(localGame.gameId);
       localGame.gameState.isFinished = true;
-      localGame.gameState.winner =
+      const winner: IUser =
         localGame.gameState.pointsLeft === maxScore
           ? localGame.leftPlayer.user
           : localGame.rightPlayer.user;
-      localGame.gameState.looser =
+      const looser: IUser =
         localGame.gameState.pointsLeft !== maxScore
           ? localGame.leftPlayer.user
           : localGame.rightPlayer.user;
+      localGame.gameState.winner = winner;
+      localGame.gameState.looser = looser;
+      const winnerPoints = Math.max(
+        localGame.gameState.pointsLeft,
+        localGame.gameState.pointsRight,
+      );
+      const looserPoints = Math.min(
+        localGame.gameState.pointsLeft,
+        localGame.gameState.pointsRight,
+      );
       localGame.leftPlayer.socket.emit('endgame');
       localGame.rightPlayer.socket.emit('endgame');
+
+      const game = await this.gamesRepository.findOne({
+        where: { gameId: parseInt(localGame.gameId) },
+      });
+
+      if (!game) return;
+      const updatedData: Game = {
+        gameId: parseInt(localGame.gameId),
+        winner: winner != null && winner != undefined ? winner.name : 'null',
+        looser: looser != null && winner != undefined ? winner.name : 'null',
+        winnerPoints: winnerPoints,
+        looserPoints: looserPoints,
+        isFinished: true,
+      };
+      Object.assign(game, updatedData);
+      await this.gamesRepository.save(game);
     }
   }
 
