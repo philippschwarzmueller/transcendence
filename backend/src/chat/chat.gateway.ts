@@ -1,7 +1,7 @@
 interface message {
   user: string;
   input: string;
-  room: string;
+  reciever: string;
 }
 
 import {
@@ -30,38 +30,38 @@ export class ChatGateway implements OnGatewayInit {
   @SubscribeMessage('message')
   handleEvent(@MessageBody() data: message) {
     const mess = `${data.user}: ${data.input}`;
-    this.server.to(data.room).emit('message', mess);
-    messages.get(data.room).push(mess);
+    this.server.to(data.reciever).emit('message', mess);
+    messages.get(data.reciever).push(mess);
   }
 
   @SubscribeMessage('join')
   joinRoom(@MessageBody() data: message, @ConnectedSocket() client: Socket) {
-    const mess = `${data.user} joined ${data.room}`;
-    client.join(data.room);
-    if (!messages.has(data.room)) {
-      messages.set(data.room, []);
-      rooms.push(data.room);
+    const mess = `${data.user} joined ${data.reciever}`;
+    client.join(data.reciever);
+    if (!messages.has(data.reciever)) {
+      messages.set(data.reciever, []);
+      rooms.push(data.reciever);
     }
-    this.server.emit('room update', rooms);
-    client.to(data.room).emit('message', mess);
-    messages.get(data.room).push(mess);
-    return messages.get(data.room);
+    this.server.emit('reciever update', rooms);
+    client.to(data.reciever).emit('message', mess);
+    messages.get(data.reciever).push(mess);
+    return messages.get(data.reciever);
   }
 
   afterInit(server: any): any {}
 
   //following function are purely dev functions
   @SubscribeMessage('clear')
-  clearRoom(@MessageBody() room: string) {
-    messages.get(room).splice(0, messages.get(room).length);
-    return messages.get(room);
+  clearRoom(@MessageBody() reciever: string) {
+    messages.get(reciever).splice(0, messages.get(reciever).length);
+    return messages.get(reciever);
   }
 
   @SubscribeMessage('remove')
-  removeRoom(@MessageBody() room: string) {
-    messages.delete(room);
-    rooms.splice(rooms.indexOf(room), 1);
-    this.server.emit('room update', rooms);
+  removeRoom(@MessageBody() reciever: string) {
+    messages.delete(reciever);
+    rooms.splice(rooms.indexOf(reciever), 1);
+    this.server.emit('reciever update', rooms);
     console.log(rooms);
   }
 }
