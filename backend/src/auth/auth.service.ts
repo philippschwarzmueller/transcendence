@@ -106,7 +106,6 @@ export class AuthService {
   }
 
   async exchangeCodeForToken(code: string): Promise<string> {
-		console.log(`code in xchange ${code}`);
     const response: Response | void = await fetch(
       'https://api.intra.42.fr/oauth/token',
       {
