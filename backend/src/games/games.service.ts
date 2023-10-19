@@ -18,9 +18,9 @@ import {
 } from './games.gamelogic';
 import { Socket } from 'socket.io';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Game } from './game.entity';
+import { DatabaseGame } from './game.entity';
 import { Repository } from 'typeorm';
-import { CreateGameDto } from './dto/create-game.dto';
+import { GameDto } from './dto/create-game.dto';
 
 const newGameCopy = (): IGame => {
   return JSON.parse(JSON.stringify(gameSpawn));
@@ -29,8 +29,8 @@ const newGameCopy = (): IGame => {
 @Injectable()
 export class GamesService {
   constructor(
-    @InjectRepository(Game)
-    private gamesRepository: Repository<Game>, // private configService: ConfigService,
+    @InjectRepository(DatabaseGame)
+    private gamesRepository: Repository<DatabaseGame>, // private configService: ConfigService,
   ) {
     this.gameStorage = new Map<string, IGameBackend>();
     this.amountOfGammes = 0;
@@ -42,10 +42,12 @@ export class GamesService {
   public clients: IGameUser[];
 
   private async generateGameId(): Promise<string> {
-    const newGame = this.gamesRepository.create({ isFinished: false });
+    const newGame: DatabaseGame = this.gamesRepository.create({
+      isFinished: false,
+    });
     await this.gamesRepository.save(newGame); // This inserts the new game and assigns an ID
 
-    return `${newGame.gameId}`;
+    return newGame.gameId;
   }
 
   private stop(gameId: string): void {
@@ -133,21 +135,21 @@ export class GamesService {
       localGame.leftPlayer.socket.emit('endgame');
       localGame.rightPlayer.socket.emit('endgame');
 
-      const game = await this.gamesRepository.findOne({
-        where: { gameId: parseInt(localGame.gameId) },
+      const databaseGame: GameDto = await this.gamesRepository.findOne({
+        where: { gameId: localGame.gameId },
       });
 
-      if (!game) return;
-      const updatedData: Game = {
-        gameId: parseInt(localGame.gameId),
+      if (!databaseGame) return;
+      const updatedDatabaseGame: GameDto = {
+        gameId: localGame.gameId,
         winner: winner != null && winner != undefined ? winner.name : 'null',
         looser: looser != null && winner != undefined ? winner.name : 'null',
         winnerPoints: winnerPoints,
         looserPoints: looserPoints,
         isFinished: true,
       };
-      Object.assign(game, updatedData);
-      await this.gamesRepository.save(game);
+      Object.assign(databaseGame, updatedDatabaseGame);
+      await this.gamesRepository.save(databaseGame);
     }
   }
 

@@ -2,9 +2,9 @@ import { Column, Entity, PrimaryGeneratedColumn, Unique } from 'typeorm';
 
 @Entity('games')
 @Unique(['gameId'])
-export class Game {
+export class DatabaseGame {
   @PrimaryGeneratedColumn()
-  gameId: number;
+  gameId: string;
 
   @Column({ nullable: true })
   winner?: string;

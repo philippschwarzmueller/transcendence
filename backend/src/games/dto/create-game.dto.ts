@@ -1,4 +1,4 @@
-export class CreateGameDto {
+export class GameDto {
   gameId: string;
   winner?: string;
   looser?: string;
