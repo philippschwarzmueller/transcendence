@@ -6,9 +6,18 @@ export class Game {
   @PrimaryGeneratedColumn()
   gameId: number;
 
-  @Column()
-  winner: string;
+  @Column({ nullable: true })
+  winner?: string;
 
-  @Column()
-  looser: string;
+  @Column({ nullable: true })
+  looser?: string;
+
+  @Column({ nullable: true })
+  winnerPoints?: number;
+
+  @Column({ nullable: true })
+  looserPoints?: number;
+
+  @Column({ nullable: true })
+  isFinished: boolean;
 }
