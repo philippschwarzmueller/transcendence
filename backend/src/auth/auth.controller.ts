@@ -8,7 +8,7 @@ import {
   HttpException,
   HttpStatus,
   Res,
-  Request,
+  Injectable,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
@@ -25,7 +25,10 @@ interface IGetUser extends User {
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+
+  ) {}
   @Post('login')
   @HttpCode(200)
   async login(@Body() createUserDto: CreateUserDto): Promise<User> {
@@ -80,15 +83,17 @@ export class AuthController {
   ): Promise<void> {
     const token: string = await this.authService.exchangeCodeForToken(code);
     const user: User = await this.authService.createIntraUser(token);
+    res.redirect(`http://localhost:3000/set-user?user=${user.name}`);
+  }
 
-		console.log(`${JSON.stringify(user)}`);
+  @Get('get-user')
+  async getUser(@Res() res: Response) {
+    const user = this.UserStorage.getUser();
 
-    fetch('http://localhost:3000/set-user', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(user),
-    });
+    if (user) {
+      res.set('set-cookie', 'token=TEST; Secure; HttpOnly').json(user);
+    } else {
+      res.status(404).send('User not found');
+    }
   }
 }
