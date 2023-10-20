@@ -63,15 +63,6 @@ export class AuthController {
     return this.authService.intraLogin(res);
   }
 
-  /*   @Get('callback')
-  async callback(@Query('code') code: string,@Res() res: Response) : Promise<void> {
-    const token : string = await this.authService.exchangeCodeForToken(code);
-		const testUser : User = await this.authService.createIntraUser(token);
-		
-		res.redirect(`http://localhost:3000/set-user?name=${testUser.name}&profilePictureUrl=${testUser.profilePictureUrl}&id=${testUser.id.toString()}`);
-		res.
-  } */
-
   @Get('callback')
   async callback(
     @Query('code') code: string,
@@ -79,18 +70,8 @@ export class AuthController {
   ): Promise<void> {
     const token: string = await this.authService.exchangeCodeForToken(code);
     const user: User = await this.authService.createIntraUser(token);
+    res.cookie('token', token, { secure: true, httpOnly: true });
     res.redirect(`http://localhost:3000/set-user?user=${user.name}`);
   }
 }
 
-/*   @Get('get-user')
-  async getUser(@Res() res: Response) {
-    const user : User = await this.getUser();
-
-    if (user) {
-      res.set('set-cookie', 'token=TEST; Secure; HttpOnly').json(user);
-    } else {
-      res.status(404).send('User not found');
-    }
-  }
-} */
