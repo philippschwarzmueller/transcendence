@@ -1,6 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import React, { useEffect, useState, useContext } from "react";
 import { AuthContext } from "../context/auth";
+import { IUser } from "../routes/Profile";
 
 /* const GetToken: React.FC = () => {
   const nav = useNavigate();
@@ -42,12 +43,29 @@ const SetUser: React.FC = () => {
   const nav = useNavigate();
   const location = useLocation();
   const [redirect, setRedirect] = useState(false);
+  let [user, setUser] = useState<IUser>();
 
   let auth = useContext(AuthContext);
 
-	useEffect(() => {
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const userName: string | null = urlParams.get("user");
+    fetch(`http://localhost:4000/auth/users/${userName}`)
+    .then((res) => res.json())
+    .then((resuser) => setUser(resuser));
+    console.log(user);
+    if (user) {
+      auth.logIn({
+        id: Number(user.id),
+        name: user.name,
+        image: user.profilePictureUrl,
+      })
+    }
+  }, [location.search, auth, user]);
+
+/* 	useEffect(() => {
 		fetch("http://localhost:3000/get-user").then((response) => {console.log(response)})
-	}, []);
+	}, []); */
 
   /* useEffect(() => {
     const urlParams = new URLSearchParams(location.search);

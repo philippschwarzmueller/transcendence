@@ -8,7 +8,6 @@ import {
   HttpException,
   HttpStatus,
   Res,
-  Injectable,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
@@ -25,10 +24,7 @@ interface IGetUser extends User {
 
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private authService: AuthService,
-
-  ) {}
+  constructor(private authService: AuthService) {}
   @Post('login')
   @HttpCode(200)
   async login(@Body() createUserDto: CreateUserDto): Promise<User> {
@@ -85,10 +81,11 @@ export class AuthController {
     const user: User = await this.authService.createIntraUser(token);
     res.redirect(`http://localhost:3000/set-user?user=${user.name}`);
   }
+}
 
-  @Get('get-user')
+/*   @Get('get-user')
   async getUser(@Res() res: Response) {
-    const user = this.UserStorage.getUser();
+    const user : User = await this.getUser();
 
     if (user) {
       res.set('set-cookie', 'token=TEST; Secure; HttpOnly').json(user);
@@ -96,4 +93,4 @@ export class AuthController {
       res.status(404).send('User not found');
     }
   }
-}
+} */

@@ -13,7 +13,7 @@ import SignUp from "./routes/SignUp";
 import Login from "./routes/Login";
 import Profile from "./routes/Profile";
 import ProfileSettings from "./routes/ProfileSettings";
-import SetUser from "./routes/GetToken";
+import SetUser from "./routes/SetUser";
 
 const router = createBrowserRouter([
   {
