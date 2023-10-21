@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useRef } from "react";
+import React, { useState, forwardRef, useImperativeHandle, Ref } from "react";
 import Input from "../input/Input";
 import styled from "styled-components";
 
@@ -27,11 +27,19 @@ interface props {
   setRoom: (s: string) => void;
 }
 
-function Chatwindow({ setRoom }: props) {
+interface refs {
+  openRoom: (event: React.MouseEvent) => void;
+}
+
+function Popup({ setRoom }: props, ref: Ref<refs>) {
   const [rinput, setRinput] = useState<string>("");
   let [display, setDisplay] = useState<boolean>(false);
   let [positionX, setPositionX] = useState<number>(0);
   let [positionY, setPositionY] = useState<number>(0);
+
+  useImperativeHandle(ref, () => ({
+    openRoom,
+  }));
 
   function openRoom(event: React.MouseEvent) {
     event.preventDefault();
@@ -62,4 +70,4 @@ function Chatwindow({ setRoom }: props) {
   );
 }
 
-export default Chatwindow;
+export default forwardRef(Popup);
