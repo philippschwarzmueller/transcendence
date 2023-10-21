@@ -1,6 +1,6 @@
-interface message {
+interface payload {
   user: string;
-  input: string;
+  content: string;
   room: string;
 }
 
@@ -28,14 +28,14 @@ export class ChatGateway implements OnGatewayInit {
   server: Server;
 
   @SubscribeMessage('message')
-  handleEvent(@MessageBody() data: message) {
-    const mess = `${data.user}: ${data.input}`;
+  handleEvent(@MessageBody() data: payload) {
+    const mess = `${data.user}: ${data.content}`;
     this.server.to(data.room).emit('message', mess);
     messages.get(data.room).push(mess);
   }
 
   @SubscribeMessage('join')
-  joinRoom(@MessageBody() data: message, @ConnectedSocket() client: Socket) {
+  joinRoom(@MessageBody() data: payload, @ConnectedSocket() client: Socket) {
     const mess = `${data.user} joined ${data.room}`;
     client.join(data.room);
     if (!messages.has(data.room)) {

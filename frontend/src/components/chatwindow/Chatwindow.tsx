@@ -7,6 +7,7 @@ import styled from "styled-components";
 import Moveablewindow from "../moveablewindow/Moveablewindow";
 import { AuthContext } from "../../context/auth";
 import Popup from "../popup/Popup";
+import { IMessage } from "./properties";
 
 const Msgfield = styled.div`
   width: 320px;
@@ -95,6 +96,7 @@ const Chatwindow: React.FC = () => {
   const [tabs, setTabs] = useState<string[]>(["general"]);
   const socket: Socket = useContext(ChatSocketContext);
   const user = useContext(AuthContext).user.name;
+  let payload: IMessage = { user: user, content: input, room: room };
   let listKey = 0;
 
   const msgField: any = useRef<HTMLCanvasElement | null>(null);
@@ -105,19 +107,8 @@ const Chatwindow: React.FC = () => {
 
   useEffect(() => {
     if (user === undefined) return;
-    socket.emit("join", { user, input, room }, (res: string[]) =>
-      setMessages(res),
-    );
+    socket.emit("join", payload, (res: string[]) => setMessages(res));
   }, [room]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  function send(event: React.MouseEvent | React.KeyboardEvent) {
-    event.preventDefault();
-    if (user === undefined)
-      setMessages([...messages, "you have to be logged in to chat!"]);
-    if (input.trim() !== "" && user !== undefined)
-      socket.emit("message", { user, input, room });
-    setInput("");
-  }
 
   useEffect(
     () =>
@@ -128,6 +119,15 @@ const Chatwindow: React.FC = () => {
       }),
     [messages],
   );
+
+  function send(event: React.MouseEvent | React.KeyboardEvent) {
+    event.preventDefault();
+    if (user === undefined)
+      setMessages([...messages, "you have to be logged in to chat!"]);
+    if (input.trim() !== "" && user !== undefined)
+      socket.emit("message", payload);
+    setInput("");
+  }
 
   return (
     <>
