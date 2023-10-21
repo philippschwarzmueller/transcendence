@@ -1,4 +1,4 @@
-import React, { useState, forwardRef, useImperativeHandle, Ref } from "react";
+import React, { useState, forwardRef, useImperativeHandle, Ref, ReactNode } from "react";
 import Input from "../input/Input";
 import styled from "styled-components";
 
@@ -24,15 +24,17 @@ const InputField = styled.div<{
 `;
 
 interface props {
-  setRoom: (s: string) => void;
+  onKey: (s: string) => void;
+  placeholder: string;
+  children: ReactNode;
 }
 
 interface refs {
   openRoom: (event: React.MouseEvent) => void;
 }
 
-function Popup({ setRoom }: props, ref: Ref<refs>) {
-  const [rinput, setRinput] = useState<string>("");
+function Popup({ onKey , placeholder, children }: props, ref: Ref<refs>) {
+  const [input, setInput] = useState<string>("");
   let [display, setDisplay] = useState<boolean>(false);
   let [positionX, setPositionX] = useState<number>(0);
   let [positionY, setPositionY] = useState<number>(0);
@@ -51,17 +53,17 @@ function Popup({ setRoom }: props, ref: Ref<refs>) {
   return (
     <>
       <InputField $display={display} $posX={positionX} $posY={positionY}>
-        This is a WIP
+        {children}
         <Input
-          value={rinput}
+          value={input}
           label="Type here"
-          placeholder="Enter room name"
-          onChange={(e) => setRinput(e.target.value)}
+          placeholder={placeholder}
+          onChange={(e) => setInput(e.target.value)}
           onKeyUp={(e: React.KeyboardEvent) => {
             if (e.key === "Enter") {
-              setRoom(rinput);
+              onKey(input);
               setDisplay(false);
-              setRinput("");
+              setInput("");
             }
           }}
         ></Input>

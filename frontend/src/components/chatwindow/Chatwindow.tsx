@@ -8,6 +8,7 @@ import Moveablewindow from "../moveablewindow/Moveablewindow";
 import { AuthContext } from "../../context/auth";
 import Popup from "../popup/Popup";
 import { IMessage } from "./properties";
+import { invite } from "./invite";
 
 const Msgfield = styled.div`
   width: 320px;
@@ -96,14 +97,21 @@ const Chatwindow: React.FC = () => {
   const [tabs, setTabs] = useState<string[]>(["general"]);
   const socket: Socket = useContext(ChatSocketContext);
   const user = useContext(AuthContext).user.name;
-  let payload: IMessage = { user: user, content: input, room: room };
+  let [payload, setPayload]= useState<IMessage>( { user: user, content: input, room: room });
   let listKey = 0;
 
   const msgField: any = useRef<HTMLCanvasElement | null>(null);
-  const popupRef: any = useRef<typeof Popup | null>(null);
+  const roomRef: any = useRef<typeof Popup | null>(null);
+  const gameRef: any = useRef<typeof Popup | null>(null);
 
   socket.on("message", (res: string) => setMessages([...messages, res]));
   socket.on("room update", (res: string[]) => setTabs(res));
+  socket.on("pong", (res: IMessage) => {
+    if (user !== res.user) return;
+    setMessages([...messages, res.content]);
+    setPayload(res);
+    gameRef.current.openRoom();
+  });
 
   useEffect(() => {
     if (user === undefined) return;
@@ -120,18 +128,29 @@ const Chatwindow: React.FC = () => {
     [messages],
   );
 
+  function accept(message: string) {
+    payload.content = message;
+    socket.emit("pong accept", payload);
+    setPayload({ user: user, content: input, room: room });
+  }
+
   function send(event: React.MouseEvent | React.KeyboardEvent) {
     event.preventDefault();
     if (user === undefined)
       setMessages([...messages, "you have to be logged in to chat!"]);
-    if (input.trim() !== "" && user !== undefined)
+    if (input.trim() !== "" && user !== undefined && !invite(payload, socket))
       socket.emit("message", payload);
     setInput("");
   }
 
   return (
     <>
-      <Popup setRoom={setRoom} ref={popupRef} />
+      <Popup onKey={setRoom} placeholder="type room name here" ref={roomRef}>
+        Create a new Room
+      </Popup>
+      <Popup onKey={accept} placeholder="Yes or No" ref={gameRef}>
+        You got challenged to play pong
+      </Popup>
       <Moveablewindow>
         <Tabbar>
           {tabs.map((tab) => {
@@ -143,7 +162,7 @@ const Chatwindow: React.FC = () => {
           })}
           <StyledLi
             key="+"
-            onClick={(e: React.MouseEvent) => popupRef.current.openRoom(e)}
+            onClick={(e: React.MouseEvent) => roomRef.current.openRoom(e)}
           >
             +
           </StyledLi>

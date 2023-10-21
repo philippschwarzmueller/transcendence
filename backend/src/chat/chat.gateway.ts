@@ -34,6 +34,22 @@ export class ChatGateway implements OnGatewayInit {
     messages.get(data.room).push(mess);
   }
 
+  @SubscribeMessage('pong')
+  challenge(@MessageBody() data: payload) {
+    const challenged = data.content.substring(6);
+    const invitation = `${data.user} wants to play [Y/N]:`;
+    this.server
+      .to(data.room)
+      .emit('pong', { user: challenged, content: invitation, room: data.user });
+  }
+
+  @SubscribeMessage('pong accept')
+  play(@MessageBody() data: payload) {
+    if (data.content === 'Yes')
+      console.log(`${data.user} wants to play ${data.room}`);
+    else console.log(`${data.user} refused to play ${data.room}`);
+  }
+
   @SubscribeMessage('join')
   joinRoom(@MessageBody() data: payload, @ConnectedSocket() client: Socket) {
     const mess = `${data.user} joined ${data.room}`;
