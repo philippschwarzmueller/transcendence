@@ -70,8 +70,9 @@ export class AuthController {
   ): Promise<void> {
     const token: string = await this.authService.exchangeCodeForToken(code);
     const user: User = await this.authService.createIntraUser(token);
-    res.cookie('token', token, { secure: true, httpOnly: true });
+    const hashedToken: string = await this.authService.hashToken(token);
+    console.log(token);
+    res.cookie('token', hashedToken, { secure: true, httpOnly: true });
     res.redirect(`http://localhost:3000/set-user?user=${user.name}`);
   }
 }
-

@@ -81,10 +81,18 @@ export class AuthService {
       where: { name: user },
     });
 
-    if (!userExists) {
+    if (userExists) {
+      await this.usersRepository.update(
+        {
+          name: user,
+        },
+        { token: token },
+      );
+    } else {
       await this.usersRepository.insert({
         name: user,
         profilePictureUrl: imageLink,
+        token: token,
       });
     }
 
@@ -130,5 +138,11 @@ export class AuthService {
     } else {
       throw new Error('Failed to fetch');
     }
+  }
+
+  async hashToken(token: string): Promise<string> {
+    const saltRounds: number = 10;
+    const hashedToken: string = await bcrypt_hash(token, saltRounds);
+    return hashedToken;
   }
 }
