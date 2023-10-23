@@ -7,6 +7,7 @@ import properties, {
   IGameBackend,
   IGameUser,
   IKeyState,
+  IUser,
   maxScore,
 } from './properties';
 import {
@@ -37,24 +38,16 @@ export class GamesService {
     return `${this.amountOfGammes}`;
   }
 
-  stopAll(): void {
-    this.gameStorage.forEach((game) => {
-      if (game.interval !== undefined) clearInterval(game.interval);
-    });
-    this.gameStorage.clear();
-    this.amountOfGammes = 0;
-  }
-
-  stop(gameId: string): void {
+  private stop(gameId: string): void {
     if (this.gameStorage.get(gameId).interval !== undefined)
       clearInterval(this.gameStorage.get(gameId).interval);
   }
 
-  gamestate(
+  public alterGameData(
     side: string,
     keystate: IKeyState,
     gameId: string,
-    userId: string | null,
+    user: IUser,
   ): IGame {
     if (this.amountOfGammes <= 0) return newGameCopy();
     if (!this.gameStorage.has(gameId)) return newGameCopy();
@@ -63,12 +56,12 @@ export class GamesService {
     // if (userId === null) return this.games.get(gameId).game;
     if (
       side === 'left' &&
-      userId === this.gameStorage.get(gameId).leftPlayer.userId
+      user.id === this.gameStorage.get(gameId).leftPlayer.user.id
     )
       this.gameStorage.get(gameId).gameState.keyStateLeft = keystate;
     else if (
       side === 'right' &&
-      userId === this.gameStorage.get(gameId).rightPlayer.userId
+      user.id === this.gameStorage.get(gameId).rightPlayer.user.id
     )
       this.gameStorage.get(gameId).gameState.keyStateRight = keystate;
     return this.gameStorage.get(gameId).gameState;
@@ -108,6 +101,15 @@ export class GamesService {
       localGame.gameState.pointsRight >= maxScore
     ) {
       this.stop(localGame.gameId);
+      localGame.gameState.isFinished = true;
+      localGame.gameState.winner =
+        localGame.gameState.pointsLeft === maxScore
+          ? localGame.leftPlayer.user
+          : localGame.rightPlayer.user;
+      localGame.gameState.looser =
+        localGame.gameState.pointsLeft !== maxScore
+          ? localGame.leftPlayer.user
+          : localGame.rightPlayer.user;
       localGame.leftPlayer.socket.emit('endgame');
       localGame.rightPlayer.socket.emit('endgame');
     }
@@ -134,8 +136,8 @@ export class GamesService {
     return gameId;
   }
 
-  public queue(body: string, client: Socket): void {
-    this.clients.push({ userId: body, socket: client });
+  public queue(user: IUser, client: Socket): void {
+    this.clients.push({ user: user, socket: client });
     if (this.clients.length >= 2) {
       const newGameId: string = this.startGameLoop(
         this.clients[0],
@@ -151,5 +153,11 @@ export class GamesService {
       });
       this.clients.splice(0, 2);
     }
+  }
+
+  public getGameData(gameId: string): IGame {
+    if (this.amountOfGammes <= 0) return newGameCopy();
+    if (!this.gameStorage.has(gameId)) return newGameCopy();
+    return this.gameStorage.get(gameId).gameState;
   }
 }
