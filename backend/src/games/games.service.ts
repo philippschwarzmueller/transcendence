@@ -8,7 +8,6 @@ import properties, {
   IGameUser,
   IKeyState,
   IUser,
-  maxScore,
 } from './properties';
 import {
   advanceBall,
@@ -87,6 +86,7 @@ export class GamesService {
       localGame.gameState.keyStateRight,
       localGame.gameState.rightPaddle,
     );
+
     const newBall: IBall = advanceBall(localGame.gameState.ball);
     if (ballHitPaddle(newBall, localGame.gameState.rightPaddle)) {
       // hit right paddle
@@ -106,6 +106,7 @@ export class GamesService {
       //collision on top/botton
       localGame.gameState.ball.speed_y *= -1;
     }
+
     // actually moving ball
     localGame.gameState.ball = advanceBall(localGame.gameState.ball);
 
