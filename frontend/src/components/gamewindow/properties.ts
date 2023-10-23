@@ -1,4 +1,5 @@
 import { Socket } from "socket.io-client";
+import { IUser } from "../../context/auth";
 
 interface IWindow {
   width: number; // gamewindow width in px
@@ -40,8 +41,8 @@ export interface IGame {
   pointsRight: number;
   keyStateLeft: IKeyState;
   keyStateRight: IKeyState;
-  winner?: string;
-  looser?: string;
+  winner?: IUser;
+  looser?: IUser;
   isFinished: boolean;
 }
 
@@ -61,7 +62,7 @@ export interface IGameSocketPayload {
   side: string;
   gameId: string;
   keystate: IKeyState;
-  user: string | null;
+  user: IUser;
 }
 
 export interface IGameStart {
@@ -70,8 +71,8 @@ export interface IGameStart {
 }
 
 export interface IGameUser {
-  userId: string;
-  socket?: Socket;
+  user: IUser;
+  socket: Socket;
 }
 
 export interface IGameBackend {
