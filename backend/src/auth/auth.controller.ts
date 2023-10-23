@@ -8,11 +8,12 @@ import {
   HttpException,
   HttpStatus,
   Res,
+  Req,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { User } from '../users/user.entity';
-import { Response } from 'express';
+import { Response, Request } from 'express';
 
 interface ICreateIntraUser {
   token: string;
@@ -74,5 +75,20 @@ export class AuthController {
     console.log(token);
     res.cookie('token', hashedToken, { secure: true, httpOnly: true });
     res.redirect(`http://localhost:3000/set-user?user=${user.name}`);
+  }
+
+  @Get('validate-token')
+  async validateToken(@Req() req: Request): Promise<boolean> {
+    const token = req.cookies.token; // Extract the token from the cookie
+    const user = req.body.username;
+    const unhashedToken: string = await this.authService.getUnhashedToken(
+      token,
+      user,
+    );
+    const tokenStatus: boolean = await this.authService.isValidToken(
+      unhashedToken,
+      user,
+    );
+    return tokenStatus;
   }
 }

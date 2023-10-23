@@ -145,4 +145,37 @@ export class AuthService {
     const hashedToken: string = await bcrypt_hash(token, saltRounds);
     return hashedToken;
   }
+
+  async getUnhashedToken(token: string, user: string): Promise<string> {
+    const userEntity = await this.usersRepository.findOne({
+      where: { name: user },
+    });
+    let unhashedToken: string;
+    if (userEntity) {
+      unhashedToken = userEntity.token;
+    }
+    const tokenMatch: boolean = await bcrypt_compare(unhashedToken, token);
+    if (tokenMatch) {
+      return unhashedToken;
+    }
+    return null;
+  }
+
+  async isValidToken(token: string, name: string): Promise<boolean> {
+    const response: Response | void = await fetch(
+      'https://api.intra.42.fr/v2/me',
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+    if (response.ok) {
+      const data = await response.json();
+      if (data.login === name) {
+        return true;
+      }
+    }
+    return false;
+  }
 }
