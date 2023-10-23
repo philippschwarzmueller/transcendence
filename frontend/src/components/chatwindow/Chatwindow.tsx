@@ -94,7 +94,9 @@ const Chatwindow: React.FC = () => {
   const [room, setRoom] = useState<string>("general");
   const [tabs, setTabs] = useState<string[]>(["general"]);
   const socket: Socket = useContext(ChatSocketContext);
-  const user = useContext(AuthContext).user.name;
+  let user: string | undefined | null = useContext(AuthContext).user.name;
+  if (user === undefined)
+    user = sessionStorage.getItem("user");
   let listKey = 0;
 
   const msgField: any = useRef<HTMLCanvasElement | null>(null);
