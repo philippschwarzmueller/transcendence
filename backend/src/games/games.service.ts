@@ -134,7 +134,7 @@ export class GamesService {
       localGame.rightPlayer.socket.emit('endgame');
 
       const databaseGame = await this.gamesRepository.findOne({
-        where: { gameId: parseInt(localGame.gameId) },
+        where: { gameId: localGame.gameId },
       });
 
       if (!databaseGame) return;

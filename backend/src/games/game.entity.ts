@@ -4,7 +4,7 @@ import { Column, Entity, PrimaryGeneratedColumn, Unique } from 'typeorm';
 @Unique(['gameId'])
 export class Game {
   @PrimaryGeneratedColumn()
-  gameId: number;
+  gameId: string;
 
   @Column({ nullable: true })
   winner?: string;
