@@ -21,6 +21,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Game } from './game.entity';
 import { Repository } from 'typeorm';
 import { CreateGameDto } from './dto/create-game.dto';
+import { getWinnerLooser, isGameFinished } from './games.utils';
 
 const newGameCopy = (): IGame => {
   return JSON.parse(JSON.stringify(gameSpawn));
@@ -105,50 +106,11 @@ export class GamesService {
       //collision on top/botton
       localGame.gameState.ball.speed_y *= -1;
     }
-    localGame.gameState.ball = advanceBall(localGame.gameState.ball); // actually moving ball
-    if (
-      localGame.gameState.pointsLeft >= maxScore ||
-      localGame.gameState.pointsRight >= maxScore
-    ) {
-      this.stop(localGame.gameId);
-      localGame.gameState.isFinished = true;
-      const winner: IUser =
-        localGame.gameState.pointsLeft === maxScore
-          ? localGame.leftPlayer.user
-          : localGame.rightPlayer.user;
-      const looser: IUser =
-        localGame.gameState.pointsLeft !== maxScore
-          ? localGame.leftPlayer.user
-          : localGame.rightPlayer.user;
-      localGame.gameState.winner = winner;
-      localGame.gameState.looser = looser;
-      const winnerPoints = Math.max(
-        localGame.gameState.pointsLeft,
-        localGame.gameState.pointsRight,
-      );
-      const looserPoints = Math.min(
-        localGame.gameState.pointsLeft,
-        localGame.gameState.pointsRight,
-      );
-      localGame.leftPlayer.socket.emit('endgame');
-      localGame.rightPlayer.socket.emit('endgame');
+    // actually moving ball
+    localGame.gameState.ball = advanceBall(localGame.gameState.ball);
 
-      const databaseGame = await this.gamesRepository.findOne({
-        where: { gameId: localGame.gameId },
-      });
-
-      if (!databaseGame) return;
-      const updatedDatabaseGame: CreateGameDto = {
-        gameId: localGame.gameId,
-        winner: winner != null && winner != undefined ? winner.name : 'null',
-        looser: looser != null && winner != undefined ? winner.name : 'null',
-        winnerPoints: winnerPoints,
-        looserPoints: looserPoints,
-        isFinished: true,
-      };
-      Object.assign(databaseGame, updatedDatabaseGame);
-      await this.gamesRepository.save(databaseGame);
-    }
+    // check if game is done, and finish it
+    if (isGameFinished(localGame)) await this.cleanUpFinishedGame(localGame);
   }
 
   public async startGameLoop(
@@ -198,5 +160,39 @@ export class GamesService {
     if (this.amountOfGammes <= 0) return newGameCopy();
     if (!this.gameStorage.has(gameId)) return newGameCopy();
     return this.gameStorage.get(gameId).gameState;
+  }
+
+  private async cleanUpFinishedGame(localGame: IGameBackend): Promise<void> {
+    this.stop(localGame.gameId);
+    localGame.gameState.isFinished = true;
+    const [winner, looser] = getWinnerLooser(localGame);
+    localGame.gameState.winner = winner;
+    localGame.gameState.looser = looser;
+    const winnerPoints = Math.max(
+      localGame.gameState.pointsLeft,
+      localGame.gameState.pointsRight,
+    );
+    const looserPoints = Math.min(
+      localGame.gameState.pointsLeft,
+      localGame.gameState.pointsRight,
+    );
+    localGame.leftPlayer.socket.emit('endgame');
+    localGame.rightPlayer.socket.emit('endgame');
+
+    const databaseGame = await this.gamesRepository.findOne({
+      where: { gameId: localGame.gameId },
+    });
+
+    if (!databaseGame) return;
+    const updatedDatabaseGame: CreateGameDto = {
+      gameId: localGame.gameId,
+      winner: winner != null && winner != undefined ? winner.name : 'null',
+      looser: looser != null && winner != undefined ? winner.name : 'null',
+      winnerPoints: winnerPoints,
+      looserPoints: looserPoints,
+      isFinished: true,
+    };
+    Object.assign(databaseGame, updatedDatabaseGame);
+    await this.gamesRepository.save(databaseGame);
   }
 }
