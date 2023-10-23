@@ -6,7 +6,7 @@ import {
 } from '@nestjs/websockets';
 
 import { GamesService } from './games.service';
-import { IGame, IGameSocketPayload } from './properties';
+import { IGame, IGameSocketPayload, IUser } from './properties';
 import { Socket } from 'socket.io';
 
 @WebSocketGateway(6969, {
@@ -29,10 +29,10 @@ export class GamesGateway {
 
   @SubscribeMessage('queue')
   public queue(
-    @MessageBody() body: string,
+    @MessageBody() user: IUser,
     @ConnectedSocket() client: Socket,
   ): void {
-    this.gamesService.queue(body, client);
+    this.gamesService.queue(user, client);
   }
 
   @SubscribeMessage('getGameData')

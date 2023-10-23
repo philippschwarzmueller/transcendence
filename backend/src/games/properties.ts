@@ -40,9 +40,16 @@ export interface IGame {
   pointsRight: number;
   keyStateLeft: IKeyState;
   keyStateRight: IKeyState;
-  winner?: string;
-  looser?: string;
+  winner?: IUser;
+  looser?: IUser;
   isFinished: boolean;
+}
+
+export interface IUser {
+  id: number | undefined;
+  name: string | undefined;
+  image: string | undefined;
+  token: string | undefined;
 }
 
 export interface IBall {
@@ -61,7 +68,7 @@ export interface IGameSocketPayload {
   side: string;
   gameId: string;
   keystate: IKeyState;
-  user: string | null;
+  user: IUser;
 }
 
 export interface IGameStart {
@@ -70,7 +77,7 @@ export interface IGameStart {
 }
 
 export interface IGameUser {
-  userId: string | null;
+  user: IUser;
   socket: Socket;
 }
 

@@ -7,6 +7,7 @@ import properties, {
   IGameBackend,
   IGameUser,
   IKeyState,
+  IUser,
   maxScore,
 } from './properties';
 import {
@@ -46,7 +47,7 @@ export class GamesService {
     side: string,
     keystate: IKeyState,
     gameId: string,
-    userId: string | null,
+    user: IUser,
   ): IGame {
     if (this.amountOfGammes <= 0) return newGameCopy();
     if (!this.gameStorage.has(gameId)) return newGameCopy();
@@ -55,12 +56,12 @@ export class GamesService {
     // if (userId === null) return this.games.get(gameId).game;
     if (
       side === 'left' &&
-      userId === this.gameStorage.get(gameId).leftPlayer.userId
+      user.id === this.gameStorage.get(gameId).leftPlayer.user.id
     )
       this.gameStorage.get(gameId).gameState.keyStateLeft = keystate;
     else if (
       side === 'right' &&
-      userId === this.gameStorage.get(gameId).rightPlayer.userId
+      user.id === this.gameStorage.get(gameId).rightPlayer.user.id
     )
       this.gameStorage.get(gameId).gameState.keyStateRight = keystate;
     return this.gameStorage.get(gameId).gameState;
@@ -103,12 +104,12 @@ export class GamesService {
       localGame.gameState.isFinished = true;
       localGame.gameState.winner =
         localGame.gameState.pointsLeft === maxScore
-          ? localGame.leftPlayer.userId
-          : localGame.rightPlayer.userId;
+          ? localGame.leftPlayer.user
+          : localGame.rightPlayer.user;
       localGame.gameState.looser =
         localGame.gameState.pointsLeft !== maxScore
-          ? localGame.leftPlayer.userId
-          : localGame.rightPlayer.userId;
+          ? localGame.leftPlayer.user
+          : localGame.rightPlayer.user;
       localGame.leftPlayer.socket.emit('endgame');
       localGame.rightPlayer.socket.emit('endgame');
     }
@@ -135,8 +136,8 @@ export class GamesService {
     return gameId;
   }
 
-  public queue(body: string, client: Socket): void {
-    this.clients.push({ userId: body, socket: client });
+  public queue(user: IUser, client: Socket): void {
+    this.clients.push({ user: user, socket: client });
     if (this.clients.length >= 2) {
       const newGameId: string = this.startGameLoop(
         this.clients[0],

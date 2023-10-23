@@ -88,7 +88,7 @@ export const drawEndScreen = (
   context.font = `${fontSize}px Arial`;
   context.fillStyle = "white";
   context.fillText(
-    `${gameState.winner} won`,
+    `${gameState.winner?.name} won`,
     properties.window.width / 2,
     properties.window.height / 6
   );

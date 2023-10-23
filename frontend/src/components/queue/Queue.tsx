@@ -3,6 +3,8 @@ import Button from "../button";
 import Centerdiv from "../centerdiv";
 import { io, Socket } from "socket.io-client";
 import { IGameStart } from "../gamewindow/properties";
+import { AuthContext, IUser } from "../../context/auth";
+import { useContext } from "react";
 
 export const GAMESOCKETADDRESS: string = `ws://${
   window.location.hostname
@@ -10,12 +12,12 @@ export const GAMESOCKETADDRESS: string = `ws://${
 
 export let GAMESOCKET: Socket;
 
-const queueUp = (socket: Socket): void => {
-  const userId: string | null = sessionStorage.getItem("user");
-  socket.emit("queue", userId);
+const queueUp = (socket: Socket, user: IUser): void => {
+  socket.emit("queue", user);
 };
 
 const Queue: React.FC = () => {
+  const user: IUser = useContext(AuthContext).user;
   GAMESOCKET = io(GAMESOCKETADDRESS);
   const navigate = useNavigate();
   GAMESOCKET.on("queue found", (body: IGameStart) => {
@@ -27,7 +29,7 @@ const Queue: React.FC = () => {
       <Centerdiv>
         <Button
           onClick={() => {
-            queueUp(GAMESOCKET);
+            queueUp(GAMESOCKET, user);
           }}
         >
           Queue up

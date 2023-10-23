@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useContext } from "react";
 import properties, {
   IGame,
   gameSpawn,
@@ -17,6 +17,7 @@ import {
 import { useParams } from "react-router-dom";
 import { GAMESOCKET, GAMESOCKETADDRESS } from "../queue/Queue";
 import { io, Socket } from "socket.io-client";
+import { AuthContext, IUser } from "../../context/auth";
 
 interface IGameCanvas {
   background: React.MutableRefObject<HTMLCanvasElement | null>;
@@ -50,10 +51,9 @@ const GameWindow: React.FC = () => {
   const gameInterval: React.MutableRefObject<
     ReturnType<typeof setInterval> | undefined
   > = useRef<ReturnType<typeof setInterval>>();
-  const localUser: string | null = sessionStorage.getItem("user");
+  const localUser: IUser = useContext(AuthContext).user;
   let socket: Socket = GAMESOCKET;
   let isGameFinished: React.MutableRefObject<boolean> = useRef<boolean>(false);
-
   if (socket === undefined || socket.connected === false)
     socket = io(GAMESOCKETADDRESS);
 
