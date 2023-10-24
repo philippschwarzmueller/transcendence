@@ -6,7 +6,7 @@ import { User } from '../users/user.entity';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { hash as bcrypt_hash, compare as bcrypt_compare } from 'bcrypt';
 
-interface tokenResponse {
+export interface TokenResponse {
   access_token: string;
   token_type: string;
   expires_in: number;
@@ -64,35 +64,30 @@ export class AuthService {
     }
   }
 
-  async createIntraUser(token: string): Promise<User> {
+  async createIntraUser(data: TokenResponse): Promise<User> {
     const response: Response | void = await fetch(
       'https://api.intra.42.fr/v2/me',
       {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${data.access_token}`,
         },
       },
     );
-    const data = await response.json();
-    const imageLink: string = data.image.versions.large;
-    const user: string = data.login;
+    const res = await response.json();
+    const imageLink: string = res.image.versions.large;
+    const user: string = res.login;
 
     const userExists = await this.usersRepository.exist({
       where: { name: user },
     });
 
     if (userExists) {
-      await this.usersRepository.update(
-        {
-          name: user,
-        },
-        { token: token },
-      );
+      await this.setUserData(data, user);
     } else {
       await this.usersRepository.insert({
         name: user,
         profilePictureUrl: imageLink,
-        token: token,
+        token: data.access_token,
       });
     }
 
@@ -108,12 +103,26 @@ export class AuthService {
     return this.usersRepository.findOne({ where: { name: user } });
   }
 
+  async setUserData(data: TokenResponse, user: string) {
+    const hashedToken: string = await this.hashToken(data.access_token);
+    await this.usersRepository.update(
+      {
+        name: user,
+      },
+      {
+        token: data.access_token,
+        tokenExpiry: data.created_at + data.expires_in,
+        hashedToken: hashedToken,
+      },
+    );
+  }
+
   async intraLogin(@Res() res: any): Promise<void> {
     const url: string = `https://api.intra.42.fr/oauth/authorize?client_id=${this.clientID}&redirect_uri=http%3A%2F%2Flocalhost%3A4000%2Fauth%2Fcallback&response_type=code`;
     res.redirect(url);
   }
 
-  async exchangeCodeForToken(code: string): Promise<string> {
+  async exchangeCodeForToken(code: string): Promise<TokenResponse> {
     const response: Response | void = await fetch(
       'https://api.intra.42.fr/oauth/token',
       {
@@ -133,8 +142,8 @@ export class AuthService {
     }
 
     if (response instanceof Response && response.ok) {
-      const data: tokenResponse = await response.json();
-      return data.access_token;
+      const data: TokenResponse = await response.json();
+      return data;
     } else {
       throw new Error('Failed to fetch');
     }
@@ -146,7 +155,12 @@ export class AuthService {
     return hashedToken;
   }
 
-  async getUnhashedToken(token: string, user: string): Promise<string> {
+  isValidToken(expirationTime: number): boolean {
+    const currentTime: number = Math.floor(Date.now() / 1000);
+    return currentTime < expirationTime;
+  }
+
+  /*   async getUnhashedToken(token: string, user: string): Promise<string> {
     const userEntity = await this.usersRepository.findOne({
       where: { name: user },
     });
@@ -159,9 +173,9 @@ export class AuthService {
       return unhashedToken;
     }
     return null;
-  }
+  } */
 
-  async isValidToken(token: string, name: string): Promise<boolean> {
+  /*   async isValidToken(token: string, name: string): Promise<User> {
     const response: Response | void = await fetch(
       'https://api.intra.42.fr/v2/me',
       {
@@ -177,5 +191,5 @@ export class AuthService {
       }
     }
     return false;
-  }
+  } */
 }
