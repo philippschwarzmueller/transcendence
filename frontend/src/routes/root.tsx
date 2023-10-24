@@ -16,6 +16,7 @@ const Root: React.FC = () => {
     name: undefined,
     image: undefined,
     token: undefined,
+    activeChats: [],
   });
   const logIn = (user: IUser) => {
     setUser(user);
@@ -26,6 +27,7 @@ const Root: React.FC = () => {
       name: undefined,
       image: undefined,
       token: undefined,
+      activeChats: [],
     });
   };
   return (

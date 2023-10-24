@@ -16,4 +16,7 @@ export class User {
     default: 'https://i.ds.at/XWrfig/rs:fill:750:0/plain/2020/01/16/harold.jpg',
   })
   profilePictureUrl: string;
+
+  @Column("text", { array: true, default: []})
+  activeChats: string[];
 }

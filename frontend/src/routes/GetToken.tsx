@@ -38,6 +38,7 @@ const GetToken: React.FC = () => {
               name: res.name,
               image: res.profilePictureUrl,
               token: res.token,
+              activeChats: res.activeChats,
             });
             setCookie("token", res.token, 7);
           }

@@ -111,10 +111,11 @@ const Chatwindow: React.FC = () => {
   const [input, setInput] = useState<string>("");
   const [rinput, setRinput] = useState<string>("");
   const [uinput, setUinput] = useState<string>("");
-  const [reciever, setRoom] = useState<string>("general");
-  const [tabs, setTabs] = useState<string[]>(["general"]);
+  const [reciever, setRoom] = useState<string>("");
   const socket: Socket = useContext(ChatSocketContext);
   const user = useContext(AuthContext).user.name;
+  const activeChats = useContext(AuthContext).user.activeChats;
+  const [tabs, setTabs] = useState<string[]>(activeChats);
   let listKey = 0;
   let [display, setDisplay] = useState<boolean>(false);
   let [positionX, setPositionX] = useState<number>(0);
@@ -178,6 +179,7 @@ const Chatwindow: React.FC = () => {
           onChange={(e) => setRinput(e.target.value)}
           onKeyUp={(e: React.KeyboardEvent) => {
             if (e.key === "Enter") {
+              activeChats.push(rinput);
               setRoom(rinput);
               setDisplay(false);
               setRinput("");

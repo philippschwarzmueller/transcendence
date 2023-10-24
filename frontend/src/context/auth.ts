@@ -5,6 +5,7 @@ export interface IUser {
   name: string | undefined;
   image: string | undefined;
   token: string | undefined;
+  activeChats: string[];
 }
 
 let default_user: IUser = {
@@ -12,6 +13,7 @@ let default_user: IUser = {
   name: undefined,
   image: undefined,
   token: undefined,
+  activeChats: [],
 };
 
 export const AuthContext = createContext({
