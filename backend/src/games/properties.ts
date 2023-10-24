@@ -40,6 +40,16 @@ export interface IGame {
   pointsRight: number;
   keyStateLeft: IKeyState;
   keyStateRight: IKeyState;
+  winner?: IUser;
+  looser?: IUser;
+  isFinished: boolean;
+}
+
+export interface IUser {
+  id: number | undefined;
+  name: string | undefined;
+  image: string | undefined;
+  token: string | undefined;
 }
 
 export interface IBall {
@@ -58,7 +68,7 @@ export interface IGameSocketPayload {
   side: string;
   gameId: string;
   keystate: IKeyState;
-  user: string | null;
+  user: IUser;
 }
 
 export interface IGameStart {
@@ -67,7 +77,7 @@ export interface IGameStart {
 }
 
 export interface IGameUser {
-  userId: string | null;
+  user: IUser;
   socket: Socket;
 }
 
@@ -111,6 +121,7 @@ export const gameSpawn: IGame = {
   pointsRight: 0,
   keyStateLeft: { up: false, down: false },
   keyStateRight: { up: false, down: false },
+  isFinished: false,
 };
 
 export default properties;

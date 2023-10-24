@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useContext } from "react";
 import properties, {
   IGame,
   gameSpawn,
@@ -12,24 +12,25 @@ import {
   drawBall,
   drawBothPaddles,
   drawText,
+  drawEndScreen,
 } from "./drawFunctions";
-import { NavigateFunction, useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { GAMESOCKET, GAMESOCKETADDRESS } from "../queue/Queue";
 import { io, Socket } from "socket.io-client";
+import { AuthContext, IUser } from "../../context/auth";
 
 interface IGameCanvas {
   background: React.MutableRefObject<HTMLCanvasElement | null>;
   score: React.MutableRefObject<HTMLCanvasElement | null>;
   paddle: React.MutableRefObject<HTMLCanvasElement | null>;
   ball: React.MutableRefObject<HTMLCanvasElement | null>;
+  endScreen: React.MutableRefObject<HTMLCanvasElement | null>;
 }
 
 const finishGame = (
-  gameInterval: ReturnType<typeof setInterval> | undefined,
-  navigate: NavigateFunction
+  gameInterval: ReturnType<typeof setInterval> | undefined
 ): void => {
   clearInterval(gameInterval);
-  navigate("/home");
 };
 
 const GameWindow: React.FC = () => {
@@ -39,6 +40,7 @@ const GameWindow: React.FC = () => {
     score: useRef<HTMLCanvasElement | null>(null),
     paddle: useRef<HTMLCanvasElement | null>(null),
     ball: useRef<HTMLCanvasElement | null>(null),
+    endScreen: useRef<HTMLCanvasElement | null>(null),
   };
   const keystateRef: React.MutableRefObject<IKeyState> = useRef<IKeyState>({
     down: false,
@@ -49,52 +51,64 @@ const GameWindow: React.FC = () => {
   const gameInterval: React.MutableRefObject<
     ReturnType<typeof setInterval> | undefined
   > = useRef<ReturnType<typeof setInterval>>();
-  const navigate = useNavigate();
-  const localUser: string | null = sessionStorage.getItem("user");
+  const localUser: IUser = useContext(AuthContext).user;
   let socket: Socket = GAMESOCKET;
-
+  let isGameFinished: React.MutableRefObject<boolean> = useRef<boolean>(false);
   if (socket === undefined || socket.connected === false)
     socket = io(GAMESOCKETADDRESS);
 
-  const GameLoop = (keyState: React.MutableRefObject<IKeyState>): void => {
+  const GameLoop = (): void => {
     if (
       gameCanvas.background === undefined ||
       gameCanvas.score === undefined ||
       gameCanvas.paddle === undefined ||
       gameCanvas.ball === undefined
     ) {
-      finishGame(gameInterval.current, navigate);
+      finishGame(gameInterval.current);
     }
     const gameSocketPayload: IGameSocketPayload = {
       side: params.side !== undefined ? params.side : "viewer",
-      keystate: keyState.current,
+      keystate: keystateRef.current,
       gameId: gameId,
       user: localUser,
     };
     if (socket.connected)
-      socket.emit("gamestate", gameSocketPayload, (res: IGame) => {
+      socket.emit("alterGameData", gameSocketPayload, (res: IGame) => {
         gameStateRef.current = res;
+        isGameFinished.current = res.isFinished;
       });
     else gameStateRef.current = gameSpawn;
-    drawBall(
-      gameCanvas.ball?.current?.getContext("2d"),
-      gameStateRef.current.ball
-    );
-    drawBothPaddles(
-      gameCanvas.paddle?.current?.getContext("2d"),
-      gameStateRef.current
-    );
-    drawText(
-      gameCanvas.score?.current?.getContext("2d"),
-      gameStateRef.current.pointsLeft,
-      gameStateRef.current.pointsRight
-    );
+    if (isGameFinished.current === true)
+      drawEndScreen(
+        gameStateRef.current,
+        gameCanvas.endScreen?.current?.getContext("2d")
+      );
+    else {
+      drawBall(
+        gameCanvas.ball?.current?.getContext("2d"),
+        gameStateRef.current.ball
+      );
+      drawBothPaddles(
+        gameCanvas.paddle?.current?.getContext("2d"),
+        gameStateRef.current
+      );
+      drawText(
+        gameCanvas.score?.current?.getContext("2d"),
+        gameStateRef.current.pointsLeft,
+        gameStateRef.current.pointsRight
+      );
+    }
   };
 
   useEffect(() => {
     drawBackground(gameCanvas.background?.current?.getContext("2d"));
     socket.on("endgame", () => {
-      finishGame(gameInterval.current, navigate);
+      isGameFinished.current = true;
+      finishGame(gameInterval.current);
+      socket.emit("getGameData", gameId, (res: IGame) => {
+        gameStateRef.current = res;
+        isGameFinished.current = res.isFinished;
+      });
     });
     window.addEventListener(
       "keydown",
@@ -114,11 +128,7 @@ const GameWindow: React.FC = () => {
       true
     );
 
-    gameInterval.current = setInterval(
-      GameLoop,
-      1000 / properties.framerate,
-      keystateRef
-    );
+    gameInterval.current = setInterval(GameLoop, 1000 / properties.framerate);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
@@ -155,6 +165,13 @@ const GameWindow: React.FC = () => {
           <Gamecanvas
             id="ballCanvas"
             ref={gameCanvas.ball}
+            width={properties.window.width}
+            height={properties.window.height}
+            tabIndex={1}
+          ></Gamecanvas>
+          <Gamecanvas
+            id="endScreenCanvas"
+            ref={gameCanvas.endScreen}
             width={properties.window.width}
             height={properties.window.height}
             tabIndex={1}
