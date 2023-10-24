@@ -57,6 +57,12 @@ export class AuthController {
     return this.authService.intraLogin(res);
   }
 
+  @Get('logout')
+  logout(@Res() res: Response) {
+    res.clearCookie('token');
+    res.send('Logged out');
+  }
+
   @Get('callback')
   async callback(
     @Query('code') code: string,
