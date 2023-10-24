@@ -7,7 +7,8 @@ import styled from "styled-components";
 import Moveablewindow from "../moveablewindow/Moveablewindow";
 import { AuthContext, IUser } from "../../context/auth";
 import Popup from "../popup/Popup";
-import { IMessage } from "./properties";
+import { IGameStart } from "../gamewindow/properties";
+import { useNavigate } from "react-router-dom";
 
 const Msgfield = styled.div`
   width: 320px;
@@ -95,6 +96,7 @@ const Chatwindow: React.FC = () => {
   const [room, setRoom] = useState<string>("general");
   const [tabs, setTabs] = useState<string[]>(["general"]);
   const socket: Socket = useContext(ChatSocketContext);
+  const navigate = useNavigate();
   let user: IUser = useContext(AuthContext).user;
   let listKey = 0;
 
@@ -103,6 +105,10 @@ const Chatwindow: React.FC = () => {
 
   socket.on("message", (res: string) => setMessages([...messages, res]));
   socket.on("room update", (res: string[]) => setTabs(res));
+  socket.on("game", (body: IGameStart) => {
+    navigate(`/play/${body.gameId}/${body.side}`);
+  });
+
   useEffect(() => {
     if (user === undefined) return;
     socket.emit("join", { user, input, room }, (res: string[]) =>

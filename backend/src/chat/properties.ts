@@ -1,4 +1,5 @@
 import { Socket } from "socket.io"
+import { IGame, IGameUser } from "src/games/properties";
 
 export interface IUser {
   id: number | undefined;
@@ -14,8 +15,6 @@ export interface message {
 }
 
 export interface userInfo {
-  socket: Socket;
-  room: string;
-  id: number | undefined;
-  invited: Socket;
+  user: IGameUser;
+  opponent: IGameUser | null;
 }
