@@ -12,7 +12,7 @@ export class User {
   @Column({ default: 'safepw' })
   password: string;
 
-  @Column({ default: undefined })
+  @Column({ default: "token" })
   token: string;
 
   @Column({

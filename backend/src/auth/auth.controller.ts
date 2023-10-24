@@ -72,15 +72,18 @@ export class AuthController {
     const token: string = await this.authService.exchangeCodeForToken(code);
     const user: User = await this.authService.createIntraUser(token);
     const hashedToken: string = await this.authService.hashToken(token);
-    console.log(token);
     res.cookie('token', hashedToken, { secure: true, httpOnly: true });
     res.redirect(`http://localhost:3000/set-user?user=${user.name}`);
   }
 
-  @Get('validate-token')
+  @Post('validate-token')
   async validateToken(@Req() req: Request): Promise<boolean> {
-    const token = req.cookies.token; // Extract the token from the cookie
+    const token = req.cookies.token;
     const user = req.body.username;
+		if(token == undefined || user == undefined)
+			return false;
+		console.log(`incoming hashedtoken in controller: ${token}`);
+		console.log(`incoming user in controller: ${user}`);
     const unhashedToken: string = await this.authService.getUnhashedToken(
       token,
       user,

@@ -3,5 +3,5 @@ export class CreateUserDto {
   password?: string;
   id?: number;
   profilePictureUrl?: string;
-  token: string;
+  token?: string;
 }
