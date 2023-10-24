@@ -14,6 +14,7 @@ import { AuthService } from './auth.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { User } from '../users/user.entity';
 import { Response, Request } from 'express';
+import { TokenResponse } from './auth.service';
 
 interface ICreateIntraUser {
   token: string;
@@ -69,21 +70,19 @@ export class AuthController {
     @Query('code') code: string,
     @Res() res: Response,
   ): Promise<void> {
-    const token: string = await this.authService.exchangeCodeForToken(code);
-    const user: User = await this.authService.createIntraUser(token);
-    const hashedToken: string = await this.authService.hashToken(token);
+    const data: TokenResponse = await this.authService.exchangeCodeForToken(code);
+    const user: User = await this.authService.createIntraUser(data);
+    const hashedToken: string = await this.authService.hashToken(data.access_token);
     res.cookie('token', hashedToken, { secure: true, httpOnly: true });
     res.redirect(`http://localhost:3000/set-user?user=${user.name}`);
   }
 
-  @Post('validate-token')
-  async validateToken(@Req() req: Request): Promise<boolean> {
+/*   @Post('validate-token')
+  async validateToken(@Req() req: Request): Promise<User> | null {
     const token = req.cookies.token;
     const user = req.body.username;
-		if(token == undefined || user == undefined)
-			return false;
-		console.log(`incoming hashedtoken in controller: ${token}`);
-		console.log(`incoming user in controller: ${user}`);
+    if (token == undefined) return null;
+    console.log(`incoming hashedtoken in controller: ${token}`);
     const unhashedToken: string = await this.authService.getUnhashedToken(
       token,
       user,
@@ -93,5 +92,5 @@ export class AuthController {
       user,
     );
     return tokenStatus;
-  }
+  } */
 }
