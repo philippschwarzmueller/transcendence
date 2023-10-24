@@ -92,6 +92,7 @@ export class AuthService {
         profilePictureUrl: imageLink,
         token: data.access_token,
         hashedToken: hashedToken,
+				tokenExpiry: data.created_at + data.expires_in,
       });
     }
 
@@ -108,6 +109,8 @@ export class AuthService {
   }
 
   async setUserData(data: TokenResponse, user: string, hashedToken: string) {
+		console.log(data);
+		console.log(data.created_at + data.expires_in);
     await this.usersRepository.update(
       {
         name: user,
@@ -159,11 +162,13 @@ export class AuthService {
   }
 
   async checkToken(frontendToken: string): Promise<User | null> {
+		console.log(frontendToken);
     const user = await this.usersRepository.findOne({
       where: {
         hashedToken: frontendToken,
       },
     });
+		console.log(user);
     if (!user) {
       return null;
     }
@@ -176,6 +181,9 @@ export class AuthService {
 
   isValidToken(expirationTime: number): boolean {
     const currentTime: number = Math.floor(Date.now() / 1000);
+		console.log(currentTime);
+		console.log(expirationTime);
+		console.log(currentTime < expirationTime);
     return currentTime < expirationTime;
   }
 }
