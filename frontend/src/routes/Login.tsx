@@ -44,6 +44,16 @@ const Login: React.FC = () => {
     window.location.replace("http://localhost:4000/auth/intra-login");
   };
 
+  const handleLogout = async (event: React.MouseEvent) => {
+    auth.logOut();
+    fetch('http://localhost:4000/auth/logout', {
+      method: 'GET',
+      credentials: 'include',
+    })
+      .then(response => response.text())
+      .catch(error => console.error('Error:', error));
+  };
+
   return (
     <>
       <Pagetitle>Login to your Account</Pagetitle>
@@ -71,7 +81,7 @@ const Login: React.FC = () => {
           Login
         </Button>
       </Form>
-      <Button onClick={() => sessionStorage.removeItem("user")}>Log Out</Button>
+      <Button onClick={(event: React.MouseEvent) => handleLogout(event)}>Log Out</Button>
       <Button onClick={(event: React.MouseEvent) => handleIntraLogin(event)}>
         Login via 42 intra
       </Button>
