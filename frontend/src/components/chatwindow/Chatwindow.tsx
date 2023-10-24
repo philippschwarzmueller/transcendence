@@ -5,7 +5,7 @@ import { ChatSocketContext } from "../../routes/root";
 import { Socket } from "socket.io-client";
 import styled from "styled-components";
 import Moveablewindow from "../moveablewindow/Moveablewindow";
-import { AuthContext } from "../../context/auth";
+import { AuthContext, IUser } from "../../context/auth";
 import Popup from "../popup/Popup";
 
 const Msgfield = styled.div`
@@ -94,9 +94,7 @@ const Chatwindow: React.FC = () => {
   const [room, setRoom] = useState<string>("general");
   const [tabs, setTabs] = useState<string[]>(["general"]);
   const socket: Socket = useContext(ChatSocketContext);
-  let user: string | undefined | null = useContext(AuthContext).user.name;
-  if (user === undefined)
-    user = sessionStorage.getItem("user");
+  let user: IUser = useContext(AuthContext).user;
   let listKey = 0;
 
   const msgField: any = useRef<HTMLCanvasElement | null>(null);
