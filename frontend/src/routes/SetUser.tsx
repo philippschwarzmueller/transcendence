@@ -28,7 +28,7 @@ const SetUser: React.FC = () => {
           setRedirect(true);
         });
     }
-  }, [location.search, redirect, auth]);
+  }, [location.search, redirect, auth, user?.name]);
 
   useEffect(() => {
     if (redirect) {
