@@ -7,6 +7,7 @@ import styled from "styled-components";
 import Moveablewindow from "../moveablewindow/Moveablewindow";
 import { AuthContext, IUser } from "../../context/auth";
 import Popup from "../popup/Popup";
+import { IMessage } from "./properties";
 
 const Msgfield = styled.div`
   width: 320px;
@@ -98,26 +99,16 @@ const Chatwindow: React.FC = () => {
   let listKey = 0;
 
   const msgField: any = useRef<HTMLCanvasElement | null>(null);
-  const popupRef: any = useRef<typeof Popup | null>(null);
+  const roomRef: any = useRef<typeof Popup | null>(null);
 
   socket.on("message", (res: string) => setMessages([...messages, res]));
   socket.on("room update", (res: string[]) => setTabs(res));
-
   useEffect(() => {
     if (user === undefined) return;
     socket.emit("join", { user, input, room }, (res: string[]) =>
       setMessages(res),
     );
   }, [room]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  function send(event: React.MouseEvent | React.KeyboardEvent) {
-    event.preventDefault();
-    if (user === undefined)
-      setMessages([...messages, "you have to be logged in to chat!"]);
-    if (input.trim() !== "" && user !== undefined)
-      socket.emit("message", { user, input, room });
-    setInput("");
-  }
 
   useEffect(
     () =>
@@ -129,9 +120,20 @@ const Chatwindow: React.FC = () => {
     [messages],
   );
 
+  function send(event: React.MouseEvent | React.KeyboardEvent) {
+    event.preventDefault();
+    if (user === undefined)
+      setMessages([...messages, "you have to be logged in to chat!"]);
+    if (input.trim() !== "" && user !== undefined)
+      socket.emit("message", { user, input, room });
+    setInput("");
+  }
+
   return (
     <>
-      <Popup setRoom={setRoom} ref={popupRef} />
+      <Popup onKey={setRoom} placeholder="type room name here" ref={roomRef}>
+        Create Room
+      </Popup>
       <Moveablewindow>
         <Tabbar>
           {tabs.map((tab) => {
@@ -143,7 +145,7 @@ const Chatwindow: React.FC = () => {
           })}
           <StyledLi
             key="+"
-            onClick={(e: React.MouseEvent) => popupRef.current.openRoom(e)}
+            onClick={(e: React.MouseEvent) => roomRef.current.openRoom(e)}
           >
             +
           </StyledLi>

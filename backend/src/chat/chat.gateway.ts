@@ -7,15 +7,12 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 
-import { IUser, message, userInfo} from "./properties"
-import { manageUsers, gameInvite, gameAccept} from "./chat.gameinvite"
+import { message } from './properties';
+import { manageUsers, gameInvite, gameAccept } from './chat.gameinvite';
 import { Socket, Server } from 'socket.io';
 
 const rooms: string[] = [];
-const users: Map<string, userInfo> = new Map<string, userInfo>();
 const messages: Map<string, string[]> = new Map<string, string[]>();
-
-
 
 @WebSocketGateway(8080, {
   cors: {
@@ -30,7 +27,7 @@ export class ChatGateway implements OnGatewayInit {
   handleEvent(@MessageBody() data: message, @ConnectedSocket() client: Socket) {
     manageUsers(data, client);
     const mess = `${data.user.name}: ${data.input}`;
-    if (!gameInvite(data, this.server) && !gameAccept(data, this.server)){
+    if (!gameInvite(data, this.server) && !gameAccept(data, this.server)) {
       this.server.to(data.room).emit('message', mess);
       messages.get(data.room).push(mess);
     }
