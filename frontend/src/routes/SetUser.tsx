@@ -19,7 +19,6 @@ const SetUser: React.FC = () => {
         .then((res) => res.json())
         .then((resUser) => {
           setUser(resUser);
-          console.log(resUser);
           auth.logIn({
             id: Number(resUser.id),
             name: resUser.name,

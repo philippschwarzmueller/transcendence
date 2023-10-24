@@ -64,7 +64,10 @@ export class AuthService {
     }
   }
 
-  async createIntraUser(data: TokenResponse): Promise<User> {
+  async createIntraUser(
+    data: TokenResponse,
+    hashedToken: string,
+  ): Promise<User> {
     const response: Response | void = await fetch(
       'https://api.intra.42.fr/v2/me',
       {
@@ -82,12 +85,13 @@ export class AuthService {
     });
 
     if (userExists) {
-      await this.setUserData(data, user);
+      await this.setUserData(data, user, hashedToken);
     } else {
       await this.usersRepository.insert({
         name: user,
         profilePictureUrl: imageLink,
         token: data.access_token,
+        hashedToken: hashedToken,
       });
     }
 
@@ -103,8 +107,7 @@ export class AuthService {
     return this.usersRepository.findOne({ where: { name: user } });
   }
 
-  async setUserData(data: TokenResponse, user: string) {
-    const hashedToken: string = await this.hashToken(data.access_token);
+  async setUserData(data: TokenResponse, user: string, hashedToken: string) {
     await this.usersRepository.update(
       {
         name: user,
@@ -155,41 +158,24 @@ export class AuthService {
     return hashedToken;
   }
 
+  async checkToken(frontendToken: string): Promise<User | null> {
+    const user = await this.usersRepository.findOne({
+      where: {
+        hashedToken: frontendToken,
+      },
+    });
+    if (!user) {
+      return null;
+    }
+    const valid: boolean = await this.isValidToken(user.tokenExpiry);
+    if (!valid) {
+      return null;
+    }
+    return user;
+  }
+
   isValidToken(expirationTime: number): boolean {
     const currentTime: number = Math.floor(Date.now() / 1000);
     return currentTime < expirationTime;
   }
-
-  /*   async getUnhashedToken(token: string, user: string): Promise<string> {
-    const userEntity = await this.usersRepository.findOne({
-      where: { name: user },
-    });
-    let unhashedToken: string;
-    if (userEntity) {
-      unhashedToken = userEntity.token;
-    }
-    const tokenMatch: boolean = await bcrypt_compare(unhashedToken, token);
-    if (tokenMatch) {
-      return unhashedToken;
-    }
-    return null;
-  } */
-
-  /*   async isValidToken(token: string, name: string): Promise<User> {
-    const response: Response | void = await fetch(
-      'https://api.intra.42.fr/v2/me',
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },
-    );
-    if (response.ok) {
-      const data = await response.json();
-      if (data.login === name) {
-        return true;
-      }
-    }
-    return false;
-  } */
 }

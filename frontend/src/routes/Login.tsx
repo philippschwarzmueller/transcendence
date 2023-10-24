@@ -12,7 +12,7 @@ interface loginBody {
 
 const Login: React.FC = () => {
   const [input, setInput] = useState<loginBody>({ name: "", password: "" });
-	let auth = useContext(AuthContext);
+  let auth = useContext(AuthContext);
 
   const handleSubmit = async (event: React.MouseEvent) => {
     event.preventDefault();
@@ -23,7 +23,7 @@ const Login: React.FC = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(input),
-        },
+        }
       );
 
       const data: any = await response.json();

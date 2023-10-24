@@ -70,27 +70,24 @@ export class AuthController {
     @Query('code') code: string,
     @Res() res: Response,
   ): Promise<void> {
-    const data: TokenResponse = await this.authService.exchangeCodeForToken(code);
-    const user: User = await this.authService.createIntraUser(data);
-    const hashedToken: string = await this.authService.hashToken(data.access_token);
+    const data: TokenResponse =
+      await this.authService.exchangeCodeForToken(code);
+    const hashedToken: string = await this.authService.hashToken(
+      data.access_token,
+    );
+    const user: User = await this.authService.createIntraUser(
+      data,
+      hashedToken,
+    );
     res.cookie('token', hashedToken, { secure: true, httpOnly: true });
     res.redirect(`http://localhost:3000/set-user?user=${user.name}`);
   }
 
-/*   @Post('validate-token')
+  @Post('validate-token')
   async validateToken(@Req() req: Request): Promise<User> | null {
     const token = req.cookies.token;
-    const user = req.body.username;
     if (token == undefined) return null;
-    console.log(`incoming hashedtoken in controller: ${token}`);
-    const unhashedToken: string = await this.authService.getUnhashedToken(
-      token,
-      user,
-    );
-    const tokenStatus: boolean = await this.authService.isValidToken(
-      unhashedToken,
-      user,
-    );
-    return tokenStatus;
-  } */
+    const User: User | null = await this.authService.checkToken(token);
+    return User;
+  }
 }
