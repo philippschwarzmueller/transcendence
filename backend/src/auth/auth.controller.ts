@@ -16,14 +16,6 @@ import { User } from '../users/user.entity';
 import { Response, Request } from 'express';
 import { TokenResponse } from './auth.service';
 
-interface ICreateIntraUser {
-  token: string;
-}
-
-interface IGetUser extends User {
-  token: string;
-}
-
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}

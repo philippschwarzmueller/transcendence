@@ -16,6 +16,11 @@ export interface TokenResponse {
   secret_valid_until: number;
 }
 
+export function logTime(timestamp: number, msg: string) {
+  const date = new Date(timestamp * 1000);
+  console.log(`${msg}: ${date.toUTCString()}`);
+}
+
 @Injectable()
 export class AuthService {
   private clientID: string;
@@ -87,12 +92,13 @@ export class AuthService {
     if (userExists) {
       await this.setUserData(data, user, hashedToken);
     } else {
+      const currentTime: number = Math.floor(Date.now() / 1000);
       await this.usersRepository.insert({
         name: user,
         profilePictureUrl: imageLink,
         token: data.access_token,
         hashedToken: hashedToken,
-				tokenExpiry: data.created_at + data.expires_in,
+        tokenExpiry: currentTime + data.expires_in,
       });
     }
 
@@ -109,15 +115,16 @@ export class AuthService {
   }
 
   async setUserData(data: TokenResponse, user: string, hashedToken: string) {
-		console.log(data);
-		console.log(data.created_at + data.expires_in);
+    // logTime(data.created_at, 'Data created at');
+    // logTime(data.created_at + data.expires_in, 'Expiry Date in SetUser Data');
+    const currentTime: number = Math.floor(Date.now() / 1000);
     await this.usersRepository.update(
       {
         name: user,
       },
       {
         token: data.access_token,
-        tokenExpiry: data.created_at + data.expires_in,
+        tokenExpiry: currentTime + data.expires_in,
         hashedToken: hashedToken,
       },
     );
@@ -162,13 +169,11 @@ export class AuthService {
   }
 
   async checkToken(frontendToken: string): Promise<User | null> {
-		console.log(frontendToken);
     const user = await this.usersRepository.findOne({
       where: {
         hashedToken: frontendToken,
       },
     });
-		console.log(user);
     if (!user) {
       return null;
     }
@@ -181,9 +186,8 @@ export class AuthService {
 
   isValidToken(expirationTime: number): boolean {
     const currentTime: number = Math.floor(Date.now() / 1000);
-		console.log(currentTime);
-		console.log(expirationTime);
-		console.log(currentTime < expirationTime);
+    // logTime(currentTime, 'Current Time');
+    // logTime(expirationTime, 'Expiration Time from DatabaseToken');
     return currentTime < expirationTime;
   }
 }

@@ -35,7 +35,7 @@ const Home: React.FC = () => {
       if (data == null) {
         navigate("/login");
       }
-      if (auth.user.name == undefined) {
+      if (auth.user.name === undefined) {
         auth.logIn({
           id: Number(data.id),
           name: data.name,
