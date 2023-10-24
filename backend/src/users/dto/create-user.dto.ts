@@ -4,6 +4,6 @@ export class CreateUserDto {
   id?: number;
   profilePictureUrl?: string;
   token?: string;
-	hashedToken?: string;
-	tokenExpiry?: number;
+  hashedToken?: string;
+  tokenExpiry?: number;
 }
