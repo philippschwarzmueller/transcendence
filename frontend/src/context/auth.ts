@@ -1,10 +1,10 @@
 import { createContext } from "react";
 
 export interface IUser {
-  id: number | undefined;
+  id?: number | undefined;
   name: string | undefined;
   image: string | undefined;
-  token: string | undefined;
+  token?: string | undefined;
 }
 
 let default_user: IUser = {
