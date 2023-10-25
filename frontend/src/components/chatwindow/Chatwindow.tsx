@@ -104,7 +104,6 @@ const Chatwindow: React.FC = () => {
   const roomRef: any = useRef<typeof Popup | null>(null);
 
   socket.on("message", (res: string) => setMessages([...messages, res]));
-  socket.on("room update", (res: string[]) => setTabs(res));
   socket.on("game", (body: IGameStart) => {
     navigate(`/play/${body.gameId}/${body.side}`);
   });
@@ -135,19 +134,15 @@ const Chatwindow: React.FC = () => {
     setInput("");
   }
 
-  function setUser(user: string) {
-    try {
-      fetch(`http://${window.location.hostname}:4000/users/${user}`);
-      return true;
-    } catch (e) {
-      console.log(e);
-      return false;
-    }
-  }
-
   return (
     <>
-      <Popup onKey={setRoom} placeholder="type room name here" user={user} ref={roomRef}>
+      <Popup
+        onKey={setRoom}
+        placeholder="type room name here"
+        user={user}
+        ref={roomRef}
+        setTabs={setTabs}
+      >
         Create Room
       </Popup>
       <Moveablewindow>
@@ -186,14 +181,20 @@ const Chatwindow: React.FC = () => {
           <Button onClick={(e: React.MouseEvent) => send(e)}>Send</Button>
           <Button
             onClick={() =>
-              socket.emit("clear", room, (res: string[]) =>
-                setMessages(res),
-              )
+              socket.emit("clear", room, (res: string[]) => setMessages(res))
             }
           >
             Clear
           </Button>
-          <Button onClick={() => socket.emit("remove", room)}>
+          <Button
+            onClick={() => {
+              socket.emit("remove", room);
+              fetch(
+                `http://${window.location.hostname}:4000/chat?userId=${user.name}`,
+                { method: "DELETE" },
+              );
+            }}
+          >
             Remove
           </Button>
         </Msgfield>

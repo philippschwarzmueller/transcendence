@@ -42,7 +42,6 @@ export class ChatGateway implements OnGatewayInit {
       messages.set(data.room, []);
       rooms.push(data.room);
     }
-    this.server.emit('reciever update', rooms);
     client.to(data.room).emit('message', mess);
     messages.get(data.room).push(mess);
     return messages.get(data.room);

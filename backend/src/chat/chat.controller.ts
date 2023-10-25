@@ -11,10 +11,10 @@ export class ChatController {
   async updateActiveChatsColumn(
     @Query('userId') userId: string,
     @Query('newChat') newChat: string,
-  ): Promise<User | undefined> {
+  ): Promise<string[] | undefined> {
     console.log(userId)
     console.log(newChat)
-    return this.chatService.addChat(userId, newChat);
+    return (await (this.chatService.addChat(userId, newChat))).activeChats;
   }
   
   @Delete()

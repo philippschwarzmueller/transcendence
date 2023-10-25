@@ -1,4 +1,10 @@
-import React, { useState, forwardRef, useImperativeHandle, Ref, ReactNode } from "react";
+import React, {
+  useState,
+  forwardRef,
+  useImperativeHandle,
+  Ref,
+  ReactNode,
+} from "react";
 import Input from "../input/Input";
 import styled from "styled-components";
 import { IUser } from "../../context/auth";
@@ -29,13 +35,17 @@ interface props {
   placeholder: string;
   children: ReactNode;
   user: IUser;
+  setTabs: (s: string[]) => void;
 }
 
 interface refs {
   openRoom: (event: React.MouseEvent) => void;
 }
 
-function Popup({ onKey , placeholder, children, user}: props, ref: Ref<refs>) {
+function Popup(
+  { onKey, placeholder, children, user, setTabs }: props,
+  ref: Ref<refs>,
+) {
   const [input, setInput] = useState<string>("");
   let [display, setDisplay] = useState<boolean>(false);
   let [positionX, setPositionX] = useState<number>(0);
@@ -63,9 +73,17 @@ function Popup({ onKey , placeholder, children, user}: props, ref: Ref<refs>) {
           onChange={(e) => setInput(e.target.value)}
           onKeyUp={(e: React.KeyboardEvent) => {
             if (e.key === "Enter") {
-            fetch(
+              fetch(
                 `http://${window.location.hostname}:4000/chat?userId=${user.name}&newChat=${input}`,
-                { method: "POST"} ,)
+                { method: "POST" },
+              )
+                .then((response) => {
+                  if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                  }
+                  return response.json();
+                })
+                .then((res: string[]) => setTabs(res));
               onKey(input);
               setDisplay(false);
               setInput("");
