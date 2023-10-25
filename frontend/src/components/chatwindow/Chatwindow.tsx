@@ -5,7 +5,10 @@ import { ChatSocketContext } from "../../routes/root";
 import { Socket } from "socket.io-client";
 import styled from "styled-components";
 import Moveablewindow from "../moveablewindow/Moveablewindow";
-import { AuthContext } from "../../context/auth";
+import { AuthContext, IUser } from "../../context/auth";
+import Popup from "../popup/Popup";
+import { IGameStart } from "../gamewindow/properties";
+import { useNavigate } from "react-router-dom";
 
 const Msgfield = styled.div`
   width: 320px;
@@ -80,27 +83,6 @@ const StyledLi = styled.li`
   }
 `;
 
-const InputField = styled.div<{
-  $display: boolean;
-  $posX: number;
-  $posY: number;
-}>`
-  display: ${(props) => (props.$display ? "" : "none")};
-  position: absolute;
-  z-index: 100;
-  left: ${(props) => props.$posX + "px"};
-  top: ${(props) => props.$posY + "px"};
-  background-color: rgb(195, 199, 203);
-  min-width: 100px;
-  margin-block-start: 0px;
-  margin-inline-start: 0px;
-  padding-inline-start: 0px;
-  box-shadow:
-    rgb(255, 255, 255) 1px 1px 0px 1px inset,
-    rgb(134, 138, 142) 0px 0px 0px 1px inset,
-    rgb(0, 0, 0) 1px 1px 0px 1px;
-`;
-
 // has to be switched to links for individual chats
 const StyledUl = styled.ul`
   padding: 5px;
@@ -111,20 +93,21 @@ const StyledUl = styled.ul`
 const Chatwindow: React.FC = () => {
   const [messages, setMessages] = useState<string[]>([]);
   const [input, setInput] = useState<string>("");
-  const [rinput, setRinput] = useState<string>("");
   const [room, setRoom] = useState<string>("general");
   const [tabs, setTabs] = useState<string[]>(["general"]);
   const socket: Socket = useContext(ChatSocketContext);
-  const user = useContext(AuthContext).user.name;
+  const navigate = useNavigate();
+  let user: IUser = useContext(AuthContext).user;
   let listKey = 0;
-  let [display, setDisplay] = useState<boolean>(false);
-  let [positionX, setPositionX] = useState<number>(0);
-  let [positionY, setPositionY] = useState<number>(0);
 
   const msgField: any = useRef<HTMLCanvasElement | null>(null);
+  const roomRef: any = useRef<typeof Popup | null>(null);
 
   socket.on("message", (res: string) => setMessages([...messages, res]));
   socket.on("room update", (res: string[]) => setTabs(res));
+  socket.on("game", (body: IGameStart) => {
+    navigate(`/play/${body.gameId}/${body.side}`);
+  });
 
   useEffect(() => {
     if (user === undefined) return;
@@ -133,14 +116,6 @@ const Chatwindow: React.FC = () => {
     );
   }, [room]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  function send(event: React.MouseEvent | React.KeyboardEvent) {
-    event.preventDefault();
-    if (user === undefined)
-      setMessages([...messages, "you have to be logged in to chat!"]);
-    if (input.trim() !== "" && user !== undefined)
-      socket.emit("message", { user, input, room });
-    setInput("");
-  }
   useEffect(
     () =>
       msgField.current.scrollIntoView({
@@ -151,31 +126,20 @@ const Chatwindow: React.FC = () => {
     [messages],
   );
 
-  function openRoom(event: React.MouseEvent) {
+  function send(event: React.MouseEvent | React.KeyboardEvent) {
     event.preventDefault();
-    setPositionX(event.pageX);
-    setPositionY(event.pageY);
-    setDisplay(!display);
+    if (user === undefined)
+      setMessages([...messages, "you have to be logged in to chat!"]);
+    if (input.trim() !== "" && user !== undefined)
+      socket.emit("message", { user, input, room });
+    setInput("");
   }
 
   return (
     <>
-      <InputField $display={display} $posX={positionX} $posY={positionY}>
-        This is a WIP
-        <Input
-          value={rinput}
-          label="Type here"
-          placeholder="Enter room name"
-          onChange={(e) => setRinput(e.target.value)}
-          onKeyUp={(e: React.KeyboardEvent) => {
-            if (e.key === "Enter") {
-              setRoom(rinput);
-              setDisplay(false);
-              setRinput("");
-            }
-          }}
-        ></Input>
-      </InputField>
+      <Popup onKey={setRoom} placeholder="type room name here" ref={roomRef}>
+        Create Room
+      </Popup>
       <Moveablewindow>
         <Tabbar>
           {tabs.map((tab) => {
@@ -185,7 +149,10 @@ const Chatwindow: React.FC = () => {
               </StyledLi>
             );
           })}
-          <StyledLi key="+" onClick={(e: React.MouseEvent) => openRoom(e)}>
+          <StyledLi
+            key="+"
+            onClick={(e: React.MouseEvent) => roomRef.current.openRoom(e)}
+          >
             +
           </StyledLi>
         </Tabbar>
