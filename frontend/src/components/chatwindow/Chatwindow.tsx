@@ -95,8 +95,9 @@ const InputField = styled.div<{
   min-width: 100px;
   margin-block-start: 0px;
   margin-inline-start: 0px;
-  --x-shadow: inset 0.5px 0.5px 0px 0.5px #ffffff, inset 0 0 0 1px #868a8e, 1px 0px 0 0px #000000, 0px 1px 0 0px #000000, 1px 1px 0 0px #000000;
-  box-shadow: var(--x-ring-shadow,0 0 #0000),var(--x-shadow);
+  --x-shadow: inset 0.5px 0.5px 0px 0.5px #ffffff, inset 0 0 0 1px #868a8e,
+    1px 0px 0 0px #000000, 0px 1px 0 0px #000000, 1px 1px 0 0px #000000;
+  box-shadow: var(--x-ring-shadow, 0 0 #0000), var(--x-shadow);
 `;
 
 // has to be switched to links for individual chats
@@ -113,9 +114,8 @@ const Chatwindow: React.FC = () => {
   const [uinput, setUinput] = useState<string>("");
   const [reciever, setRoom] = useState<string>("");
   const socket: Socket = useContext(ChatSocketContext);
-  const user = useContext(AuthContext).user.name;
-  const activeChats = useContext(AuthContext).user.activeChats;
-  const [tabs, setTabs] = useState<string[]>(activeChats);
+  const user = useContext(AuthContext).user;
+  const [tabs, setTabs] = useState<string[]>(user.activeChats);
   let listKey = 0;
   let [display, setDisplay] = useState<boolean>(false);
   let [positionX, setPositionX] = useState<number>(0);
@@ -128,7 +128,7 @@ const Chatwindow: React.FC = () => {
 
   useEffect(() => {
     if (user === undefined) return;
-    socket.emit("join", { user: user, input, reciever }, (res: string[]) =>
+    socket.emit("join", { user: user.name, input, reciever }, (res: string[]) =>
       setMessages(res),
     );
   }, [reciever]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -138,9 +138,10 @@ const Chatwindow: React.FC = () => {
     if (user === undefined)
       setMessages([...messages, "you have to be logged in to chat!"]);
     if (input.trim() !== "" && user !== undefined)
-      socket.emit("message", { user: user, input, reciever });
+      socket.emit("message", { user: user.name, input, reciever });
     setInput("");
   }
+
   useEffect(
     () =>
       msgField.current.scrollIntoView({
@@ -179,7 +180,12 @@ const Chatwindow: React.FC = () => {
           onChange={(e) => setRinput(e.target.value)}
           onKeyUp={(e: React.KeyboardEvent) => {
             if (e.key === "Enter") {
-              activeChats.push(rinput);
+              fetch(
+                `http://${window.location.hostname}:4000/chat?userId=${user.name}&newChat=${rinput}`,
+                {
+                  method: "POST",
+                },
+              );
               setRoom(rinput);
               setDisplay(false);
               setRinput("");
@@ -198,9 +204,8 @@ const Chatwindow: React.FC = () => {
                 setRoom(uinput);
                 setDisplay(false);
                 setUinput("");
-              }
-              else {
-                setUinput("")
+              } else {
+                setUinput("");
               }
             }
           }}
@@ -239,12 +244,16 @@ const Chatwindow: React.FC = () => {
           <Button onClick={(e: React.MouseEvent) => send(e)}>Send</Button>
           <Button
             onClick={() =>
-              socket.emit("clear", reciever, (res: string[]) => setMessages(res))
+              socket.emit("clear", reciever, (res: string[]) =>
+                setMessages(res),
+              )
             }
           >
             Clear
           </Button>
-          <Button onClick={() => socket.emit("remove", reciever)}>Remove</Button>
+          <Button onClick={() => socket.emit("remove", reciever)}>
+            Remove
+          </Button>
         </Msgfield>
       </Moveablewindow>
     </>
