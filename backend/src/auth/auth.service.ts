@@ -6,7 +6,7 @@ import { User } from '../users/user.entity';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { hash as bcrypt_hash, compare as bcrypt_compare } from 'bcrypt';
 
-interface tokenResponse {
+export interface TokenResponse {
   access_token: string;
   token_type: string;
   expires_in: number;
@@ -14,6 +14,11 @@ interface tokenResponse {
   scope: string;
   created_at: number;
   secret_valid_until: number;
+}
+
+export function logTime(timestamp: number, msg: string) {
+  const date = new Date(timestamp * 1000);
+  console.log(`${msg}: ${date.toUTCString()}`);
 }
 
 @Injectable()
@@ -64,27 +69,36 @@ export class AuthService {
     }
   }
 
-  async createIntraUser(token: string): Promise<User> {
+  async createIntraUser(
+    data: TokenResponse,
+    hashedToken: string,
+  ): Promise<User> {
     const response: Response | void = await fetch(
       'https://api.intra.42.fr/v2/me',
       {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${data.access_token}`,
         },
       },
     );
-    const data = await response.json();
-    const imageLink: string = data.image.versions.large;
-    const user: string = data.login;
+    const res = await response.json();
+    const imageLink: string = res.image.versions.large;
+    const user: string = res.login;
 
     const userExists = await this.usersRepository.exist({
       where: { name: user },
     });
 
-    if (!userExists) {
+    if (userExists) {
+      await this.setUserData(data, user, hashedToken);
+    } else {
+      const currentTime: number = Math.floor(Date.now() / 1000);
       await this.usersRepository.insert({
         name: user,
         profilePictureUrl: imageLink,
+        token: data.access_token,
+        hashedToken: hashedToken,
+        tokenExpiry: currentTime + data.expires_in,
       });
     }
 
@@ -100,23 +114,28 @@ export class AuthService {
     return this.usersRepository.findOne({ where: { name: user } });
   }
 
-  async getIntraImage(user: string): Promise<string | null> {
-    const userRecord = await this.usersRepository.findOne({
-      where: { name: user },
-    });
-    if (userRecord) {
-      const imageUrl: string = userRecord.profilePictureUrl;
-      return imageUrl;
-    }
-    throw new Error('No User Records');
+  async setUserData(data: TokenResponse, user: string, hashedToken: string) {
+    // logTime(data.created_at, 'Data created at');
+    // logTime(data.created_at + data.expires_in, 'Expiry Date in SetUser Data');
+    const currentTime: number = Math.floor(Date.now() / 1000);
+    await this.usersRepository.update(
+      {
+        name: user,
+      },
+      {
+        token: data.access_token,
+        tokenExpiry: currentTime + data.expires_in,
+        hashedToken: hashedToken,
+      },
+    );
   }
 
   async intraLogin(@Res() res: any): Promise<void> {
-    const url: string = `https://api.intra.42.fr/oauth/authorize?client_id=${this.clientID}&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fget-token&response_type=code`;
+    const url: string = `https://api.intra.42.fr/oauth/authorize?client_id=${this.clientID}&redirect_uri=http%3A%2F%2Flocalhost%3A4000%2Fauth%2Fcallback&response_type=code`;
     res.redirect(url);
   }
 
-  async exchangeCodeForToken(code: string): Promise<string> {
+  async exchangeCodeForToken(code: string): Promise<TokenResponse> {
     const response: Response | void = await fetch(
       'https://api.intra.42.fr/oauth/token',
       {
@@ -127,20 +146,48 @@ export class AuthService {
           client_id: this.clientID,
           client_secret: this.clientSecret,
           code: code,
-          redirect_uri: 'http://localhost:3000/get-token',
+          redirect_uri: 'http://localhost:4000/auth/callback',
         }),
       },
     ).catch((e) => console.error(e));
-
     if (response instanceof Response && !response.ok) {
       throw new Error('Failed to exchange code for token');
     }
 
     if (response instanceof Response && response.ok) {
-      const data: tokenResponse = await response.json();
-      return data.access_token;
+      const data: TokenResponse = await response.json();
+      return data;
     } else {
       throw new Error('Failed to fetch');
     }
+  }
+
+  async hashToken(token: string): Promise<string> {
+    const saltRounds: number = 10;
+    const hashedToken: string = await bcrypt_hash(token, saltRounds);
+    return hashedToken;
+  }
+
+  async checkToken(frontendToken: string): Promise<User | null> {
+    const user = await this.usersRepository.findOne({
+      where: {
+        hashedToken: frontendToken,
+      },
+    });
+    if (!user) {
+      return null;
+    }
+    const valid: boolean = await this.isValidToken(user.tokenExpiry);
+    if (!valid) {
+      return null;
+    }
+    return user;
+  }
+
+  isValidToken(expirationTime: number): boolean {
+    const currentTime: number = Math.floor(Date.now() / 1000);
+    // logTime(currentTime, 'Current Time');
+    // logTime(expirationTime, 'Expiration Time from DatabaseToken');
+    return currentTime < expirationTime;
   }
 }

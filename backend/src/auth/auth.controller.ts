@@ -8,18 +8,13 @@ import {
   HttpException,
   HttpStatus,
   Res,
+  Req,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { User } from '../users/user.entity';
-
-interface ICreateIntraUser {
-  token: string;
-}
-
-interface IGetUser extends User {
-  token: string,
-}
+import { Response, Request } from 'express';
+import { TokenResponse } from './auth.service';
 
 @Controller('auth')
 export class AuthController {
@@ -57,44 +52,44 @@ export class AuthController {
     }
   }
 
-  @Post('create-intra-user')
-  @HttpCode(201)
-  async createIntraUser(
-    @Body() IntraUserData: ICreateIntraUser,
-  ): Promise<void> {
-    try {
-      await this.authService.createIntraUser(IntraUserData.token);
-    } catch (error) {
-      if (error.message === 'User already exists') {
-        throw new HttpException(error.message, HttpStatus.CONFLICT);
-      }
-    }
-  }
-
-  @Get('get-intra-profile-img')
-  async getIntraImage(@Query('user') user: string): Promise<string> {
-    try {
-      return await this.authService.getIntraImage(user);
-    } catch (error) {
-      throw new HttpException(error.message, HttpStatus.CONFLICT);
-    }
-  }
-
   @Get('intra-login')
   async intraLogin(@Res() res: any): Promise<void> {
     return this.authService.intraLogin(res);
   }
 
-  @Get('get-token')
-  @HttpCode(200)
-  async getToken(@Query('code') code: string): Promise<IGetUser> {
-    try {
+  @Get('logout')
+  logout(@Res() res: Response) {
+    res.clearCookie('token');
+    res.send('Logged out');
+  }
 
-    const token: string = await this.authService.exchangeCodeForToken(code);
-    const user: User = await this.authService.createIntraUser(token);
-    return {...user, token: token};
-    } catch (error) {
-      throw new HttpException(error.message, HttpStatus.CONFLICT);
-    }
+  @Get('callback')
+  async callback(
+    @Query('code') code: string,
+    @Res() res: Response,
+  ): Promise<void> {
+    const data: TokenResponse =
+      await this.authService.exchangeCodeForToken(code);
+    const hashedToken: string = await this.authService.hashToken(
+      data.access_token,
+    );
+    const user: User = await this.authService.createIntraUser(
+      data,
+      hashedToken,
+    );
+    res.cookie('token', hashedToken, {
+      secure: true,
+      httpOnly: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+    res.redirect(`http://localhost:3000/set-user?user=${user.name}`);
+  }
+
+  @Post('validate-token')
+  async validateToken(@Req() req: Request): Promise<User> | null {
+    const token = req.cookies.token;
+    if (token == undefined) return null;
+    const User: User | null = await this.authService.checkToken(token);
+    return User;
   }
 }
