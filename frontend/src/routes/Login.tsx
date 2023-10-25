@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import Button from "../components/button";
 import Input from "../components/input";
 import Form from "../components/form";
 import Pagetitle from "../components/pagetitle";
-import { getCookie } from "../routes/GetToken"
+import { AuthContext } from "../context/auth";
 
 interface loginBody {
   name: string;
@@ -12,6 +12,7 @@ interface loginBody {
 
 const Login: React.FC = () => {
   const [input, setInput] = useState<loginBody>({ name: "", password: "" });
+  let auth = useContext(AuthContext);
 
   const handleSubmit = async (event: React.MouseEvent) => {
     event.preventDefault();
@@ -22,7 +23,7 @@ const Login: React.FC = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(input),
-        },
+        }
       );
 
       const data: any = await response.json();
@@ -43,11 +44,21 @@ const Login: React.FC = () => {
     window.location.replace("http://localhost:4000/auth/intra-login");
   };
 
+  const handleLogout = async (event: React.MouseEvent) => {
+    auth.logOut();
+    fetch('http://localhost:4000/auth/logout', {
+      method: 'GET',
+      credentials: 'include',
+    })
+      .then(response => response.text())
+      .catch(error => console.error('Error:', error));
+  };
+
   return (
     <>
       <Pagetitle>Login to your Account</Pagetitle>
-      {getCookie("user") ? (
-        <span>Logged in as {getCookie("user")}</span>
+      {auth.user ? (
+        <span>Logged in as {auth.user.name}</span>
       ) : (
         <span>Logged out</span>
       )}
@@ -70,7 +81,7 @@ const Login: React.FC = () => {
           Login
         </Button>
       </Form>
-      <Button onClick={() => sessionStorage.removeItem("user")}>Log Out</Button>
+      <Button onClick={(event: React.MouseEvent) => handleLogout(event)}>Log Out</Button>
       <Button onClick={(event: React.MouseEvent) => handleIntraLogin(event)}>
         Login via 42 intra
       </Button>

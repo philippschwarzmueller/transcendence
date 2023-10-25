@@ -1,9 +1,3 @@
-interface message {
-  user: string;
-  input: string;
-  room: string;
-}
-
 import {
   ConnectedSocket,
   MessageBody,
@@ -13,6 +7,8 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 
+import { message } from './properties';
+import { manageUsers, gameInvite, gameAccept } from './chat.gameinvite';
 import { Socket, Server } from 'socket.io';
 
 const rooms: string[] = [];
@@ -28,15 +24,19 @@ export class ChatGateway implements OnGatewayInit {
   server: Server;
 
   @SubscribeMessage('message')
-  handleEvent(@MessageBody() data: message) {
-    const mess = `${data.user}: ${data.input}`;
-    this.server.to(data.room).emit('message', mess);
-    messages.get(data.room).push(mess);
+  handleEvent(@MessageBody() data: message, @ConnectedSocket() client: Socket) {
+    manageUsers(data, client);
+    const mess = `${data.user.name}: ${data.input}`;
+    if (!gameInvite(data, this.server) && !gameAccept(data, this.server)) {
+      this.server.to(data.room).emit('message', mess);
+      messages.get(data.room).push(mess);
+    }
   }
 
   @SubscribeMessage('join')
   joinRoom(@MessageBody() data: message, @ConnectedSocket() client: Socket) {
-    const mess = `${data.user} joined ${data.room}`;
+    const mess = `${data.user.name} joined ${data.room}`;
+    manageUsers(data, client);
     client.join(data.room);
     if (!messages.has(data.room)) {
       messages.set(data.room, []);

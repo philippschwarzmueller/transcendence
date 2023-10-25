@@ -19,7 +19,7 @@ const Profile: React.FC = () => {
   let [user, setUser] = useState<IUser>();
 
   useEffect(() => {
-    if (userId === undefined && !auth.user.token) {
+    if (userId === undefined && !auth.user.token ) {
       navigate("/login");
     }
     if (userId) {
