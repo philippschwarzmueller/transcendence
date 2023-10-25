@@ -1,11 +1,7 @@
 import { Socket, Server } from 'socket.io';
-import { IUser, message, userInfo } from './properties';
+import { message, userInfo } from './properties';
 import { IGameUser } from '../games/properties';
 import { GamesService } from '../games/games.service';
-import { InjectRepository, getRepositoryToken } from '@nestjs/typeorm';
-import { Game } from 'src/games/game.entity';
-import { DataSource, Repository, getRepository } from 'typeorm';
-import { databaseProviders } from 'src/database.providers';
 
 const users: Map<string, userInfo> = new Map<string, userInfo>();
 
@@ -35,7 +31,7 @@ export function gameInvite(data: message, server: Server): boolean {
 }
 
 async function startGame(user: IGameUser, opponent: IGameUser, server: Server) {
-  const gs: GamesService = new GamesService(getRepository(Game)); // null is not correct but placeholder
+  const gs: GamesService = new GamesService(null); // null is not correct but placeholder
   const gameid: string = await gs.startGameLoop(opponent, user);
   server.to(user.socket.id).emit('game', { gameId: gameid, side: 'right' });
   server.to(opponent.socket.id).emit('game', { gameId: gameid, side: 'left' });
