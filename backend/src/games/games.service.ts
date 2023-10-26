@@ -41,8 +41,15 @@ export class GamesService {
   public gameStorage: Map<string, IGameBackend>;
   public clients: IGameUser[];
 
-  private async generateGameId(): Promise<string> {
-    const newGame = this.gamesRepository.create({ isFinished: false });
+  private async generateGameId(
+    leftPlayerName: string,
+    rightPlayerName: string,
+  ): Promise<string> {
+    const newGame = this.gamesRepository.create({
+      isFinished: false,
+      leftPlayer: leftPlayerName,
+      rightPlayer: rightPlayerName,
+    });
     await this.gamesRepository.save(newGame); // This inserts the new game and assigns an ID
 
     return `${newGame.gameId}`;
@@ -119,7 +126,10 @@ export class GamesService {
     rightPlayer: IGameUser,
   ): Promise<string> {
     const newGame: IGame = newGameCopy();
-    const gameId: string = await this.generateGameId();
+    const gameId: string = await this.generateGameId(
+      leftPlayer.user.name,
+      rightPlayer.user.name,
+    );
     newGame.gameId = gameId;
     this.gameStorage.set(gameId, {
       gameId: gameId,
