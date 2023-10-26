@@ -12,8 +12,6 @@ export class ChatController {
     @Query('userId') userId: string,
     @Query('newChat') newChat: string,
   ): Promise<string[] | undefined> {
-    console.log(userId)
-    console.log(newChat)
     return (await (this.chatService.addChat(userId, newChat))).activeChats;
   }
   
