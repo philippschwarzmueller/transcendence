@@ -1,5 +1,5 @@
 import { Socket, Server } from 'socket.io';
-import { IUser, message, userInfo } from './properties';
+import { message, userInfo } from './properties';
 import { IGameUser } from '../games/properties';
 import { GamesService } from '../games/games.service';
 
@@ -30,9 +30,9 @@ export function gameInvite(data: message, server: Server): boolean {
   return true;
 }
 
-function startGame(user: IGameUser, opponent: IGameUser, server: Server) {
-  const gs: GamesService = new GamesService();
-  const gameid: string = gs.startGameLoop(opponent, user);
+async function startGame(user: IGameUser, opponent: IGameUser, server: Server) {
+  const gs: GamesService = new GamesService(null); // null is not correct but placeholder
+  const gameid: string = await gs.startGameLoop(opponent, user);
   server.to(user.socket.id).emit('game', { gameId: gameid, side: 'right' });
   server.to(opponent.socket.id).emit('game', { gameId: gameid, side: 'left' });
 }

@@ -7,6 +7,7 @@ import { User } from './users/user.entity';
 import { AuthModule } from './auth/auth.module';
 import { GamesModule } from './games/games.module';
 import { ChatModule } from './chat/chat.module';
+import { Game } from './games/game.entity';
 
 @Module({
   imports: [
@@ -17,13 +18,13 @@ import { ChatModule } from './chat/chat.module';
       username: 'root',
       password: 'testpwd',
       database: 'transcendence',
-      entities: [User],
+      entities: [User, Game],
       synchronize: true,
     }),
     UsersModule,
     AuthModule,
     GamesModule,
-    ChatModule
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [GreetingService],

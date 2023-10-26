@@ -1,5 +1,4 @@
-import { Socket } from "socket.io"
-import { IGame, IGameUser } from "src/games/properties";
+import { IGame, IGameUser } from 'src/games/properties';
 
 export interface IUser {
   id: number | undefined;
