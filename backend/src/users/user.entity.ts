@@ -23,6 +23,9 @@ export class User {
   })
   profilePictureUrl: string;
 
+  @Column('text', { array: true, default: [] })
+  activeChats: string[];
+
   @Column({
     default: 0,
   })

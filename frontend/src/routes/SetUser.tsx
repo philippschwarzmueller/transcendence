@@ -23,6 +23,7 @@ const SetUser: React.FC = () => {
             id: Number(resUser.id),
             name: resUser.name,
             image: resUser.profilePictureUrl,
+            activeChats: resUser.activeChats,
           });
           setRedirect(true);
         });

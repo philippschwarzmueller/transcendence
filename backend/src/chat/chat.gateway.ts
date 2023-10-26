@@ -42,7 +42,6 @@ export class ChatGateway implements OnGatewayInit {
       messages.set(data.room, []);
       rooms.push(data.room);
     }
-    this.server.emit('room update', rooms);
     client.to(data.room).emit('message', mess);
     messages.get(data.room).push(mess);
     return messages.get(data.room);
@@ -52,16 +51,16 @@ export class ChatGateway implements OnGatewayInit {
 
   //following function are purely dev functions
   @SubscribeMessage('clear')
-  clearRoom(@MessageBody() room: string) {
-    messages.get(room).splice(0, messages.get(room).length);
-    return messages.get(room);
+  clearRoom(@MessageBody() reciever: string) {
+    messages.get(reciever).splice(0, messages.get(reciever).length);
+    return messages.get(reciever);
   }
 
   @SubscribeMessage('remove')
-  removeRoom(@MessageBody() room: string) {
-    messages.delete(room);
-    rooms.splice(rooms.indexOf(room), 1);
-    this.server.emit('room update', rooms);
+  removeRoom(@MessageBody() reciever: string) {
+    messages.delete(reciever);
+    rooms.splice(rooms.indexOf(reciever), 1);
+    this.server.emit('reciever update', rooms);
     console.log(rooms);
   }
 }

@@ -40,6 +40,7 @@ const Home: React.FC = () => {
           id: Number(data.id),
           name: data.name,
           image: data.profilePictureUrl,
+          activeChats: data.activeChats,
         });
       }
       setValidity(data !== null);

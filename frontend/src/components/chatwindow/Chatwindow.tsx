@@ -93,18 +93,17 @@ const StyledUl = styled.ul`
 const Chatwindow: React.FC = () => {
   const [messages, setMessages] = useState<string[]>([]);
   const [input, setInput] = useState<string>("");
+  const user: IUser = useContext(AuthContext).user;
+  const [tabs, setTabs] = useState<string[]>(user.activeChats);
   const [room, setRoom] = useState<string>("general");
-  const [tabs, setTabs] = useState<string[]>(["general"]);
   const socket: Socket = useContext(ChatSocketContext);
   const navigate = useNavigate();
-  let user: IUser = useContext(AuthContext).user;
   let listKey = 0;
 
   const msgField: any = useRef<HTMLCanvasElement | null>(null);
   const roomRef: any = useRef<typeof Popup | null>(null);
 
   socket.on("message", (res: string) => setMessages([...messages, res]));
-  socket.on("room update", (res: string[]) => setTabs(res));
   socket.on("game", (body: IGameStart) => {
     navigate(`/play/${body.gameId}/${body.side}`);
   });
@@ -137,7 +136,13 @@ const Chatwindow: React.FC = () => {
 
   return (
     <>
-      <Popup onKey={setRoom} placeholder="type room name here" ref={roomRef}>
+      <Popup
+        onKey={setRoom}
+        placeholder="type room name here"
+        user={user}
+        ref={roomRef}
+        setTabs={setTabs}
+      >
         Create Room
       </Popup>
       <Moveablewindow>
@@ -181,7 +186,17 @@ const Chatwindow: React.FC = () => {
           >
             Clear
           </Button>
-          <Button onClick={() => socket.emit("remove", room)}>Remove</Button>
+          <Button
+            onClick={() => {
+              socket.emit("remove", room);
+              fetch(
+                `http://${window.location.hostname}:4000/chat?userId=${user.name}`,
+                { method: "DELETE" },
+              );
+            }}
+          >
+            Remove
+          </Button>
         </Msgfield>
       </Moveablewindow>
     </>

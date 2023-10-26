@@ -13,6 +13,7 @@ export class UsersService {
   findAll(): Promise<User[]> {
     return this.usersRepository.find();
   }
+
   async findOneByName(userId: string): Promise<User> {
     const res: User = await this.usersRepository.findOne({
       where: { name: userId },
@@ -21,6 +22,24 @@ export class UsersService {
       return res;
     } else {
       throw new Error('User not found');
+    }
+  }
+
+  async updateUserChat(user: User, chat: string): Promise<User> {
+    if (user) {
+      user.activeChats.push(chat);
+      return await this.usersRepository.save(user);
+    } else {
+      return undefined;
+    }
+  }
+
+  async clearActiveChats(user: User): Promise<User> {
+    if (user) {
+      user.activeChats.splice(0, user.activeChats.length);
+      return await this.usersRepository.save(user);
+    } else {
+      return undefined;
     }
   }
 }
