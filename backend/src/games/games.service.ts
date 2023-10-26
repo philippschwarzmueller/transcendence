@@ -205,5 +205,6 @@ export class GamesService {
     };
     Object.assign(databaseGame, updatedDatabaseGame);
     await this.gamesRepository.save(databaseGame);
+    this.gameStorage.delete(localGame.gameId);
   }
 }
