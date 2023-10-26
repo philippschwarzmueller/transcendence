@@ -6,7 +6,7 @@ import { User } from 'src/users/user.entity';
 export class ChatController {
   constructor(private chatService: ChatService) {}
 
-  @Post('?')
+  @Post()
   @HttpCode(201)
   async updateActiveChatsColumn(
     @Query('userId') userId: string,
