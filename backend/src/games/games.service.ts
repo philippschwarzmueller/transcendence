@@ -198,7 +198,7 @@ export class GamesService {
     const updatedDatabaseGame: CreateGameDto = {
       gameId: localGame.gameId,
       winner: winner != null && winner != undefined ? winner.name : 'null',
-      looser: looser != null && winner != undefined ? winner.name : 'null',
+      looser: looser != null && winner != undefined ? looser.name : 'null',
       winnerPoints: winnerPoints,
       looserPoints: looserPoints,
       isFinished: true,
