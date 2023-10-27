@@ -45,7 +45,7 @@ export class GamesGateway {
     return this.gamesService.isGameRunning(gameId);
   }
 
-  @SubscribeMessage('isGameinDatabase')
+  @SubscribeMessage('isGameInDatabase')
   public async isGameinDatabase(
     @MessageBody() gameId: string,
   ): Promise<boolean> {
