@@ -4,6 +4,7 @@ import properties, {
   gameSpawn,
   IGameSocketPayload,
   IKeyState,
+  IFinishedGame,
 } from "./properties";
 import Centerdiv from "../centerdiv";
 import Gamecanvas from "../gamecanvas/Gamecanvas";
@@ -14,7 +15,7 @@ import {
   drawText,
   drawEndScreen,
 } from "./drawFunctions";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { GAMESOCKET, GAMESOCKETADDRESS } from "../queue/Queue";
 import { io, Socket } from "socket.io-client";
 import { AuthContext, IUser } from "../../context/auth";
@@ -56,6 +57,30 @@ const GameWindow: React.FC = () => {
   let isGameFinished: React.MutableRefObject<boolean> = useRef<boolean>(false);
   if (socket === undefined || socket.connected === false)
     socket = io(GAMESOCKETADDRESS);
+
+  let isGameRunning: boolean = false;
+  let isGameinDatabase: boolean = false;
+  let gameFromDatabase: IFinishedGame = { gameExists: false };
+
+  const navigate = useNavigate();
+
+  socket.emit("isGameRunning", gameId, (res: boolean) => {
+    isGameRunning = res;
+  });
+  if (!isGameRunning)
+    socket.emit("isGameInDatabase", gameId, (res: boolean) => {
+      isGameinDatabase = res;
+    });
+  if (isGameinDatabase)
+    socket.emit(
+      "getGameFromDatabase",
+      gameId,
+      (res: IFinishedGame) => (gameFromDatabase = res)
+    );
+
+  // @SubscribeMessage('isGameRunning')
+  // @SubscribeMessage('isGameinDatabase')
+  // @SubscribeMessage('getGameFromDatabase')
 
   const GameLoop = (): void => {
     if (
@@ -99,8 +124,15 @@ const GameWindow: React.FC = () => {
       );
     }
   };
+  const handleNotRunningGame = (): void => {
+    navigate("/home");
+  };
 
   useEffect(() => {
+    if (!isGameRunning) {
+      handleNotRunningGame();
+      return;
+    }
     drawBackground(gameCanvas.background?.current?.getContext("2d"));
     socket.on("endgame", () => {
       isGameFinished.current = true;
