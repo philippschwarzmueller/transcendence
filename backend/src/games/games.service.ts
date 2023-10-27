@@ -3,6 +3,7 @@ import properties, {
   ballSpawn,
   gameSpawn,
   IBall,
+  IFinishedGame,
   IGame,
   IGameBackend,
   IGameUser,
@@ -93,6 +94,23 @@ export class GamesService {
 
   public isGameRunning(gameId: string): boolean {
     return this.gameStorage.has(gameId);
+  }
+
+  public async getGameFromDatabase(gameId: string): Promise<IFinishedGame> {
+    const databaseGame: Game = await this.gamesRepository.findOne({
+      where: { gameId: gameId },
+    });
+    const returnGame: IFinishedGame = { gameExists: true };
+    if (!databaseGame) {
+      returnGame.gameExists = false;
+      return returnGame;
+    }
+
+    returnGame.winner = databaseGame.winner;
+    returnGame.looser = databaseGame.looser;
+    returnGame.winnerPoints = databaseGame.winnerPoints;
+    returnGame.looserPoints = databaseGame.looserPoints;
+    return returnGame;
   }
 
   public alterGameData(
