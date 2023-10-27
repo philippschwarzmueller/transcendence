@@ -21,7 +21,7 @@ const Msgfield = styled.div`
 const Tabbar = styled.div`
   display: flex;
   padding: 0px;
-  margin: 0px;
+  margin-bottom: 5px;
   border: none;
 `;
 
@@ -62,25 +62,20 @@ const Textfield = styled.div`
 `;
 
 // not triggerable for actice state yet
-const StyledLi = styled.li`
+const StyledLi = styled.li<{active: boolean}>`
   list-style: none;
   display: list-item;
   padding: 5px;
   font-size: 14px;
-  background-color: rgb(190, 190, 190);
   border: solid 1px;
   border-top-color: white;
   border-left-color: white;
   border-top-left-radius: 5px 5px;
   border-top-right-radius: 5px 5px;
-  &:acive {
-    background-color: rgb(195, 199, 203);
-    border-bottom: none;
-  }
-  &:hover {
-    background-color: rgb(195, 199, 203);
-    border-bottom: none;
-  }
+  cursor: pointer;
+  background-color: ${(props) =>
+    props.active ? 'rgb(195, 199, 203)' : 'rgb(180, 180, 190)'};
+  border-bottom-color: ${(props) => props.active ? 'rgb(195, 199, 203)' : 'black'};
 `;
 
 // has to be switched to links for individual chats
@@ -95,6 +90,7 @@ const Chatwindow: React.FC = () => {
   const [input, setInput] = useState<string>("");
   const user: IUser = useContext(AuthContext).user;
   const [tabs, setTabs] = useState<string[]>(user.activeChats);
+  const [activeTab, setActiveTab] = useState<string>("");
   const [room, setRoom] = useState<string>("general");
   const socket: Socket = useContext(ChatSocketContext);
   const navigate = useNavigate();
@@ -134,6 +130,11 @@ const Chatwindow: React.FC = () => {
     setInput("");
   }
 
+  const setActive = (tab: string) => {
+    setActiveTab(tab);
+    setRoom(tab);
+  }
+
   return (
     <>
       <Popup
@@ -149,13 +150,14 @@ const Chatwindow: React.FC = () => {
         <Tabbar>
           {tabs.map((tab) => {
             return (
-              <StyledLi onClick={() => setRoom(tab)} key={tab}>
+              <StyledLi onClick={() => setActive(tab)} key={tab} active={tab === activeTab}>
                 {tab}
               </StyledLi>
             );
           })}
           <StyledLi
             key="+"
+            active={false}
             onClick={(e: React.MouseEvent) => roomRef.current.openRoom(e)}
           >
             +
