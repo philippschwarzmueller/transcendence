@@ -146,7 +146,7 @@ const Chatwindow: React.FC = () => {
         ref={roomRef}
         setTabs={setTabs}
       >
-        Create Room
+        Create
       </Popup>
       <Moveablewindow>
         <Tabbar>
