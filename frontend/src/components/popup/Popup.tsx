@@ -67,8 +67,9 @@ function Popup(
       <InputField $display={display} $posX={positionX} $posY={positionY}>
         {children}
         <Input
+          id='room'
           value={input}
-          label="Type here"
+          label="room"
           placeholder={placeholder}
           onChange={(e) => setInput(e.target.value)}
           onKeyUp={(e: React.KeyboardEvent) => {
