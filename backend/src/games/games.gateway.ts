@@ -39,4 +39,16 @@ export class GamesGateway {
   public getGameData(@MessageBody() gameId: string): IGame {
     return this.gamesService.getGameData(gameId);
   }
+
+  @SubscribeMessage('isGameRunning')
+  public isGameRunning(@MessageBody() gameId: string): boolean {
+    return this.gamesService.isGameRunning(gameId);
+  }
+
+  @SubscribeMessage('isGameinDatabase')
+  public async isGameinDatabase(
+    @MessageBody() gameId: string,
+  ): Promise<boolean> {
+    return await this.gamesService.isGameInDatabase(gameId);
+  }
 }

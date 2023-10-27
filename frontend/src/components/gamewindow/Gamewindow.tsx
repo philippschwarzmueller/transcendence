@@ -108,6 +108,7 @@ const GameWindow: React.FC = () => {
       socket.emit("getGameData", gameId, (res: IGame) => {
         gameStateRef.current = res;
         isGameFinished.current = res.isFinished;
+        console.log(isGameFinished.current);
       });
     });
     window.addEventListener(
