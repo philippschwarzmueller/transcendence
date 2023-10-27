@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useContext } from "react";
+import React, { useRef, useEffect, useContext, useState } from "react";
 import properties, {
   IGame,
   gameSpawn,
@@ -58,25 +58,10 @@ const GameWindow: React.FC = () => {
   if (socket === undefined || socket.connected === false)
     socket = io(GAMESOCKETADDRESS);
 
-  let isGameRunning: boolean = false;
-  let isGameinDatabase: boolean = false;
-  let gameFromDatabase: IFinishedGame = { gameExists: false };
-
   const navigate = useNavigate();
 
-  socket.emit("isGameRunning", gameId, (res: boolean) => {
-    isGameRunning = res;
-  });
-  if (!isGameRunning)
-    socket.emit("isGameInDatabase", gameId, (res: boolean) => {
-      isGameinDatabase = res;
-    });
-  if (isGameinDatabase)
-    socket.emit(
-      "getGameFromDatabase",
-      gameId,
-      (res: IFinishedGame) => (gameFromDatabase = res)
-    );
+  const [navigateToEndScreen, setNavigateToEndScreen] = useState(false);
+  const [navigateToErrorScreen, setNavigateToErrorScreen] = useState(false);
 
   // @SubscribeMessage('isGameRunning')
   // @SubscribeMessage('isGameinDatabase')
@@ -129,10 +114,26 @@ const GameWindow: React.FC = () => {
   };
 
   useEffect(() => {
-    if (!isGameRunning) {
-      handleNotRunningGame();
-      return;
-    }
+    if (navigateToEndScreen) console.log("navigateToEndScreen");
+  }, [navigateToEndScreen]);
+
+  useEffect(() => {
+    if (navigateToErrorScreen) console.log("navigateto error screen");
+  }, [navigateToErrorScreen]);
+
+  useEffect(() => {
+    socket.emit("isGameRunning", gameId, (isGameRunning: boolean) => {
+      if (!isGameRunning) {
+        socket.emit("isGameInDatabase", gameId, (isGameInDatabase: boolean) => {
+          if (isGameInDatabase) {
+            setNavigateToEndScreen(true);
+          } else {
+            setNavigateToErrorScreen(true);
+          }
+        });
+      }
+    });
+
     drawBackground(gameCanvas.background?.current?.getContext("2d"));
     socket.on("endgame", () => {
       isGameFinished.current = true;
@@ -140,7 +141,6 @@ const GameWindow: React.FC = () => {
       socket.emit("getGameData", gameId, (res: IGame) => {
         gameStateRef.current = res;
         isGameFinished.current = res.isFinished;
-        console.log(isGameFinished.current);
       });
     });
     window.addEventListener(
