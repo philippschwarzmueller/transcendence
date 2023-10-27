@@ -61,7 +61,6 @@ const Textfield = styled.div`
   }
 `;
 
-// not triggerable for actice state yet
 const StyledLi = styled.li<{active: boolean}>`
   list-style: none;
   display: list-item;
@@ -78,7 +77,6 @@ const StyledLi = styled.li<{active: boolean}>`
   border-bottom-color: ${(props) => props.active ? 'rgb(195, 199, 203)' : 'black'};
 `;
 
-// has to be switched to links for individual chats
 const StyledUl = styled.ul`
   padding: 5px;
   margin: 5px;
@@ -109,7 +107,7 @@ const Chatwindow: React.FC = () => {
     socket.emit("join", { user, input, room }, (res: string[]) =>
       setMessages(res),
     );
-  }, [room]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [room]);
 
   useEffect(
     () =>
