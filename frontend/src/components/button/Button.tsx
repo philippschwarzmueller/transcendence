@@ -1,9 +1,12 @@
 import styled from "styled-components";
 
-const Button = styled.button`
+const Button = styled.button<{$position?: string, $top?: string, $right?: string}>`
   background-color: material;
   padding: 7 20 5;
   border: none;
+  position: ${(props) => props.$position ? props.$position : ""};
+  top: ${(props) => props.$top ? props.$top : ""};
+  right: ${(props) => props.$right ? props.$right : ""};
   color: materialText;
   cursor: pointer;
 

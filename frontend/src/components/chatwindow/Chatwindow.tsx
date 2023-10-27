@@ -61,7 +61,7 @@ const Textfield = styled.div`
   }
 `;
 
-const StyledLi = styled.li<{active: boolean}>`
+const StyledLi = styled.li<{$active: string}>`
   list-style: none;
   display: list-item;
   padding: 5px;
@@ -73,8 +73,8 @@ const StyledLi = styled.li<{active: boolean}>`
   border-top-right-radius: 5px 5px;
   cursor: pointer;
   background-color: ${(props) =>
-    props.active ? 'rgb(195, 199, 203)' : 'rgb(180, 180, 190)'};
-  border-bottom-color: ${(props) => props.active ? 'rgb(195, 199, 203)' : 'black'};
+    props.$active === 'true' ? 'rgb(195, 199, 203)' : 'rgb(180, 180, 190)'};
+  border-bottom-color: ${(props) => props.$active === 'true' ? 'rgb(195, 199, 203)' : 'black'};
 `;
 
 const StyledUl = styled.ul`
@@ -87,7 +87,7 @@ const Chatwindow: React.FC = () => {
   const [messages, setMessages] = useState<string[]>([]);
   const [input, setInput] = useState<string>("");
   const user: IUser = useContext(AuthContext).user;
-  const [tabs, setTabs] = useState<string[]>(user.activeChats);
+  let [tabs, setTabs] = useState<string[]>(user.activeChats);
   const [activeTab, setActiveTab] = useState<string>("");
   const [room, setRoom] = useState<string>("general");
   const socket: Socket = useContext(ChatSocketContext);
@@ -133,6 +133,10 @@ const Chatwindow: React.FC = () => {
     setRoom(tab);
   }
 
+  function closeTab(tab: string) {
+    console.log(`closing ${tab}`);
+  }
+
   return (
     <>
       <Popup
@@ -148,18 +152,19 @@ const Chatwindow: React.FC = () => {
         <Tabbar>
           {tabs.map((tab) => {
             return (
-              <StyledLi onClick={() => setActive(tab)} key={tab} active={tab === activeTab}>
+              <StyledLi onClick={() => setActive(tab)} key={tab} $active={(tab == activeTab) ? 'true' : 'false'}>
                 {tab}
               </StyledLi>
             );
           })}
           <StyledLi
             key="+"
-            active={false}
+            $active={'false'}
             onClick={(e: React.MouseEvent) => roomRef.current.openRoom(e)}
           >
             +
           </StyledLi>
+          <Button onClick={() => closeTab(activeTab)} $position="absolute" $top="35px" $right="20px">Close</Button>
         </Tabbar>
         <Textfield>
           <StyledUl ref={msgField} id="msgField">
