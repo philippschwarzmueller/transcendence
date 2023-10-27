@@ -84,6 +84,14 @@ export interface IGameBackend {
   interval?: NodeJS.Timeout;
 }
 
+export interface IFinishedGame {
+  gameExists: boolean;
+  winner?: string;
+  looser?: string;
+  winnerPoints?: number;
+  looserPoints?: number;
+}
+
 const properties: IProperties = {
   window: { width: 960, height: 640, color: "black" },
   paddle: { width: 2, height: 15, speed: 200, color: "white" },
