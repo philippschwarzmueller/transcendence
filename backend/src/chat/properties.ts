@@ -7,7 +7,7 @@ export interface IUser {
   token: string | undefined;
 }
 
-export interface message {
+export interface IMessage {
   user: IUser;
   input: string;
   room: string;

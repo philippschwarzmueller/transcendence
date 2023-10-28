@@ -7,7 +7,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 
-import { message } from './properties';
+import { IMessage } from './properties';
 import { manageUsers, gameInvite, gameAccept } from './chat.gameinvite';
 import { Socket, Server } from 'socket.io';
 import { Injectable, Inject } from '@nestjs/common';
@@ -37,7 +37,7 @@ export class ChatGateway implements OnGatewayInit {
 
   @SubscribeMessage('message')
   async handleEvent(
-    @MessageBody() data: message,
+    @MessageBody() data: IMessage,
     @ConnectedSocket() client: Socket,
   ) {
     manageUsers(data, client);
@@ -54,7 +54,7 @@ export class ChatGateway implements OnGatewayInit {
   }
 
   @SubscribeMessage('join')
-  joinRoom(@MessageBody() data: message, @ConnectedSocket() client: Socket) {
+  joinRoom(@MessageBody() data: IMessage, @ConnectedSocket() client: Socket) {
     const mess = `${data.user.name} joined ${data.room}`;
     manageUsers(data, client);
     client.join(data.room);

@@ -7,6 +7,7 @@ import {
   PrimaryColumn,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+
 import { User } from '../users/user.entity';
 
 @Entity('channels')
@@ -17,8 +18,8 @@ export class Channels {
   @Column({ name: 'title' })
   title: string;
 
-  @Column({ name: 'content' })
-  content: string;
+  @Column({ name: 'password' })
+  password: string;
 }
 
 @Entity('messages')
