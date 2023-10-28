@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { GamesModule } from './games/games.module';
 import { ChatModule } from './chat/chat.module';
 import { Game } from './games/game.entity';
+import { Channels, Messages } from './chat/chat.entity';
 
 @Module({
   imports: [
@@ -18,7 +19,7 @@ import { Game } from './games/game.entity';
       username: 'root',
       password: 'testpwd',
       database: 'transcendence',
-      entities: [User, Game],
+      entities: [User, Game, Messages, Channels],
       synchronize: true,
     }),
     UsersModule,

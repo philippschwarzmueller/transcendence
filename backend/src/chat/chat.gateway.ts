@@ -10,24 +10,44 @@ import {
 import { message } from './properties';
 import { manageUsers, gameInvite, gameAccept } from './chat.gameinvite';
 import { Socket, Server } from 'socket.io';
+import { Injectable, Inject } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Messages } from './chat.entity';
+import { Repository } from 'typeorm';
+import { UsersService } from 'src/users/users.service';
 
 const rooms: string[] = [];
 const messages: Map<string, string[]> = new Map<string, string[]>();
 
+@Injectable()
 @WebSocketGateway(8080, {
   cors: {
     credentials: true,
   },
 })
 export class ChatGateway implements OnGatewayInit {
+  constructor(
+    @Inject(UsersService)
+    private userService: UsersService,
+    @InjectRepository(Messages)
+    private messageRepo: Repository<Messages>,
+  ) {}
   @WebSocketServer()
   server: Server;
 
   @SubscribeMessage('message')
-  handleEvent(@MessageBody() data: message, @ConnectedSocket() client: Socket) {
+  async handleEvent(
+    @MessageBody() data: message,
+    @ConnectedSocket() client: Socket,
+  ) {
     manageUsers(data, client);
     const mess = `${data.user.name}: ${data.input}`;
     if (!gameInvite(data, this.server) && !gameAccept(data, this.server)) {
+      const newMessage = this.messageRepo.create({
+        sender: await this.userService.findOneByName(data.user.name),
+        content: mess,
+      });
+      this.messageRepo.save(newMessage);
       this.server.to(data.room).emit('message', mess);
       messages.get(data.room).push(mess);
     }

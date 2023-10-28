@@ -17,7 +17,7 @@ export function manageUsers(data: message, client: Socket) {
 }
 
 export function gameInvite(data: message, server: Server): boolean {
-  let name: string = data.input.substring(6);
+  const name: string = data.input.substring(6);
   if (
     data.input.substring(0, 5) !== '/pong' ||
     users.get(name).opponent !== null
@@ -38,8 +38,8 @@ async function startGame(user: IGameUser, opponent: IGameUser, server: Server) {
 }
 
 export function gameAccept(data: message, server: Server): boolean {
-  let user: IGameUser = users.get(data.user.name).user;
-  let opponent: IGameUser = users.get(data.user.name).opponent;
+  const user: IGameUser = users.get(data.user.name).user;
+  const opponent: IGameUser = users.get(data.user.name).opponent;
   if (opponent === null) return false;
   if (data.input !== 'y') {
     server.to(opponent.socket.id).emit('message', `${data.user.name} declined`);
