@@ -1,11 +1,11 @@
 import { Socket, Server } from 'socket.io';
-import { message, userInfo } from './properties';
+import { IMessage, userInfo } from './properties';
 import { IGameUser } from '../games/properties';
 import { GamesService } from '../games/games.service';
 
 const users: Map<string, userInfo> = new Map<string, userInfo>();
 
-export function manageUsers(data: message, client: Socket) {
+export function manageUsers(data: IMessage, client: Socket) {
   if (users.has(data.user.name)) {
     users.get(data.user.name).user.socket = client;
   } else {
@@ -16,7 +16,7 @@ export function manageUsers(data: message, client: Socket) {
   }
 }
 
-export function gameInvite(data: message, server: Server): boolean {
+export function gameInvite(data: IMessage, server: Server): boolean {
   const name: string = data.input.substring(6);
   if (
     data.input.substring(0, 5) !== '/pong' ||
@@ -37,7 +37,7 @@ async function startGame(user: IGameUser, opponent: IGameUser, server: Server) {
   server.to(opponent.socket.id).emit('game', { gameId: gameid, side: 'left' });
 }
 
-export function gameAccept(data: message, server: Server): boolean {
+export function gameAccept(data: IMessage, server: Server): boolean {
   const user: IGameUser = users.get(data.user.name).user;
   const opponent: IGameUser = users.get(data.user.name).opponent;
   if (opponent === null) return false;

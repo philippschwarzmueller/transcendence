@@ -3,8 +3,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  OneToMany,
-  PrimaryColumn,
+  ManyToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -15,11 +14,11 @@ export class Channels {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @ManyToMany(() => User, (user) => user.channels)
+  users: User[];
+
   @Column({ name: 'title' })
   title: string;
-
-  @Column({ name: 'password' })
-  password: string;
 }
 
 @Entity('messages')
@@ -38,4 +37,3 @@ export class Messages {
   @Column({ name: 'content' })
   content: string;
 }
-
