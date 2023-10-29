@@ -61,7 +61,7 @@ const Textfield = styled.div`
   }
 `;
 
-const StyledLi = styled.li<{$active: string}>`
+const StyledLi = styled.li<{ $active: string }>`
   list-style: none;
   display: list-item;
   padding: 5px;
@@ -73,8 +73,9 @@ const StyledLi = styled.li<{$active: string}>`
   border-top-right-radius: 5px 5px;
   cursor: pointer;
   background-color: ${(props) =>
-    props.$active === 'true' ? 'rgb(195, 199, 203)' : 'rgb(180, 180, 190)'};
-  border-bottom-color: ${(props) => props.$active === 'true' ? 'rgb(195, 199, 203)' : 'black'};
+    props.$active === "true" ? "rgb(195, 199, 203)" : "rgb(180, 180, 190)"};
+  border-bottom-color: ${(props) =>
+    props.$active === "true" ? "rgb(195, 199, 203)" : "black"};
 `;
 
 const StyledUl = styled.ul`
@@ -131,11 +132,7 @@ const Chatwindow: React.FC = () => {
   const setActive = (tab: string) => {
     setActiveTab(tab);
     setRoom(tab);
-  }
-
-  function closeTab(tab: string) {
-    console.log(`closing ${tab}`);
-  }
+  };
 
   return (
     <>
@@ -152,19 +149,35 @@ const Chatwindow: React.FC = () => {
         <Tabbar>
           {tabs.map((tab) => {
             return (
-              <StyledLi onClick={() => setActive(tab)} key={tab} $active={(tab == activeTab) ? 'true' : 'false'}>
+              <StyledLi
+                onClick={() => setActive(tab)}
+                key={tab}
+                $active={tab == activeTab ? "true" : "false"}
+              >
                 {tab}
               </StyledLi>
             );
           })}
           <StyledLi
             key="+"
-            $active={'false'}
+            $active={"false"}
             onClick={(e: React.MouseEvent) => roomRef.current.openRoom(e)}
           >
             +
           </StyledLi>
-          <Button onClick={() => closeTab(activeTab)} $position="absolute" $top="35px" $right="20px">Close</Button>
+          <Button
+            onClick={() => {
+              fetch(
+                `http://${window.location.hostname}:4000/chat/rooms?userId=${user.name}&chat=${activeTab}`,
+                { method: "DELETE" },
+              );
+            }}
+            $position="absolute"
+            $top="35px"
+            $right="20px"
+          >
+            Close
+          </Button>
         </Tabbar>
         <Textfield>
           <StyledUl ref={msgField} id="msgField">
@@ -195,7 +208,7 @@ const Chatwindow: React.FC = () => {
             onClick={() => {
               socket.emit("remove", room);
               fetch(
-                `http://${window.location.hostname}:4000/chat?userId=${user.name}`,
+                `http://${window.location.hostname}:4000/chat/all?userId=${user.name}`,
                 { method: "DELETE" },
               );
             }}
