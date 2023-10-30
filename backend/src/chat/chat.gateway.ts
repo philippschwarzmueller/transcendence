@@ -10,28 +10,16 @@ import {
 import { IMessage } from './properties';
 import { manageUsers, gameInvite, gameAccept } from './chat.gameinvite';
 import { Socket, Server } from 'socket.io';
-import { Injectable, Inject } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Messages } from './chat.entity';
-import { Repository } from 'typeorm';
-import { UsersService } from 'src/users/users.service';
 
 const rooms: string[] = [];
 const messages: Map<string, string[]> = new Map<string, string[]>();
 
-@Injectable()
 @WebSocketGateway(8080, {
   cors: {
     credentials: true,
   },
 })
 export class ChatGateway implements OnGatewayInit {
-  constructor(
-    @Inject(UsersService)
-    private userService: UsersService,
-    @InjectRepository(Messages)
-    private messageRepo: Repository<Messages>,
-  ) {}
   @WebSocketServer()
   server: Server;
 
