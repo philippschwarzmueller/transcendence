@@ -221,14 +221,27 @@ export class GamesService {
     if (!databaseGame) return;
     const updatedDatabaseGame: CreateGameDto = {
       gameId: localGame.gameId,
-      winner: winner != null && winner != undefined ? winner.name : 'null',
-      looser: looser != null && winner != undefined ? looser.name : 'null',
+      winner:
+        winner != null &&
+        winner != undefined &&
+        winner.name != '' &&
+        winner.name != undefined &&
+        winner.name != null
+          ? winner.name
+          : 'null',
+      looser:
+        looser != null &&
+        looser != undefined &&
+        looser.name != '' &&
+        looser.name != undefined &&
+        looser.name != null
+          ? looser.name
+          : 'null',
       winnerPoints: winnerPoints,
       looserPoints: looserPoints,
       isFinished: true,
     };
-    Object.assign(databaseGame, updatedDatabaseGame);
-    await this.gamesRepository.save(databaseGame);
+    await this.gamesRepository.update(localGame.gameId, updatedDatabaseGame);
     this.gameStorage.delete(localGame.gameId);
   }
 }
