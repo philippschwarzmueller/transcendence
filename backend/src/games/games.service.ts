@@ -61,33 +61,6 @@ export class GamesService {
       clearInterval(this.gameStorage.get(gameId).interval);
   }
 
-  // private async getGameFromDatabase(gameId: string): Promise<IGame> {
-  //   const databaseGame: Game = await this.gamesRepository.findOne({
-  //     where: { gameId: gameId },
-  //   });
-  //   if (databaseGame === null) {
-  //     console.log('no game found in getter');
-  //     return newGameCopy();
-  //   } else {
-  //     const returnGame = newGameCopy();
-  //     returnGame.isFinished = databaseGame.isFinished;
-  //     returnGame.winner = {
-  //       id: undefined,
-  //       name: 'winner',
-  //       image: undefined,
-  //       token: undefined,
-  //     };
-  //     returnGame.looser = {
-  //       id: undefined,
-  //       name: 'looser',
-  //       image: undefined,
-  //       token: undefined,
-  //     };
-  //     console.log('should return');
-  //     return returnGame;
-  //   }
-  // }
-
   public async isGameInDatabase(gameId: string): Promise<boolean> {
     return await this.gamesRepository.exist({ where: { gameId: gameId } });
   }

@@ -16,7 +16,7 @@ import {
   drawWinScreen,
   drawErrorScreen,
 } from "./drawFunctions";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { GAMESOCKET, GAMESOCKETADDRESS } from "../queue/Queue";
 import { io, Socket } from "socket.io-client";
 import { AuthContext, IUser } from "../../context/auth";
@@ -58,8 +58,6 @@ const GameWindow: React.FC = () => {
   let isGameFinished: React.MutableRefObject<boolean> = useRef<boolean>(false);
   if (socket === undefined || socket.connected === false)
     socket = io(GAMESOCKETADDRESS);
-
-  const navigate = useNavigate();
 
   const [navigateToEndScreen, setNavigateToEndScreen] = useState(false);
   const [navigateToErrorScreen, setNavigateToErrorScreen] = useState(false);
@@ -129,12 +127,12 @@ const GameWindow: React.FC = () => {
           );
       }
     );
-  }, [navigateToEndScreen]);
+  }, [navigateToEndScreen]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (navigateToErrorScreen)
       drawErrorScreen(gameCanvas.endScreen.current?.getContext("2d"));
-  }, [navigateToErrorScreen]);
+  }, [navigateToErrorScreen]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     socket.emit("isGameRunning", gameId, (isGameRunning: boolean) => {
