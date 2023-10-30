@@ -76,8 +76,10 @@ export const drawBackground = (
   }
 };
 
-export const drawEndScreen = (
-  gameState: IGame,
+export const drawWinScreen = (
+  winner: string | undefined | null,
+  winnerPoints: number | undefined,
+  looserPoints: number | undefined,
   context: CanvasRenderingContext2D | undefined | null
 ): void => {
   if (context === undefined || context === null) return;
@@ -88,14 +90,31 @@ export const drawEndScreen = (
   context.font = `${fontSize}px Arial`;
   context.fillStyle = "white";
   context.fillText(
-    `${gameState.winner?.name} won`,
+    `${winner} won`,
     properties.window.width / 2,
     properties.window.height / 6
   );
   context.fillText(
-    `${gameState.pointsLeft} - ${gameState.pointsRight}`,
+    `${winnerPoints} - ${looserPoints}`,
     properties.window.width / 2,
     properties.window.height / 3
+  );
+};
+
+export const drawErrorScreen = (
+  context: CanvasRenderingContext2D | undefined | null
+): void => {
+  if (context === undefined || context === null) return;
+  context.textAlign = "center";
+  context.fillStyle = "black";
+  context.fillRect(0, 0, properties.window.width, properties.window.height);
+  const fontSize: number = properties.window.height / 6;
+  context.font = `${fontSize}px Arial`;
+  context.fillStyle = "white";
+  context.fillText(
+    `Game not found`,
+    properties.window.width / 2,
+    properties.window.height / 2
   );
 };
 
