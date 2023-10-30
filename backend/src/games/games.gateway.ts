@@ -6,7 +6,7 @@ import {
 } from '@nestjs/websockets';
 
 import { GamesService } from './games.service';
-import { IGame, IGameSocketPayload, IUser } from './properties';
+import { IFinishedGame, IGame, IGameSocketPayload, IUser } from './properties';
 import { Socket } from 'socket.io';
 
 @WebSocketGateway(6969, {
@@ -38,5 +38,24 @@ export class GamesGateway {
   @SubscribeMessage('getGameData')
   public getGameData(@MessageBody() gameId: string): IGame {
     return this.gamesService.getGameData(gameId);
+  }
+
+  @SubscribeMessage('isGameRunning')
+  public isGameRunning(@MessageBody() gameId: string): boolean {
+    return this.gamesService.isGameRunning(gameId);
+  }
+
+  @SubscribeMessage('isGameInDatabase')
+  public async isGameinDatabase(
+    @MessageBody() gameId: string,
+  ): Promise<boolean> {
+    return await this.gamesService.isGameInDatabase(gameId);
+  }
+
+  @SubscribeMessage('getGameFromDatabase')
+  public async getGameFromDatabase(
+    @MessageBody() gameId: string,
+  ): Promise<IFinishedGame> {
+    return await this.gamesService.getGameFromDatabase(gameId);
   }
 }

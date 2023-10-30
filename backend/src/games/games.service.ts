@@ -3,6 +3,7 @@ import properties, {
   ballSpawn,
   gameSpawn,
   IBall,
+  IFinishedGame,
   IGame,
   IGameBackend,
   IGameUser,
@@ -41,8 +42,15 @@ export class GamesService {
   public gameStorage: Map<string, IGameBackend>;
   public clients: IGameUser[];
 
-  private async generateGameId(): Promise<string> {
-    const newGame = this.gamesRepository.create({ isFinished: false });
+  private async generateGameId(
+    leftPlayerName: string,
+    rightPlayerName: string,
+  ): Promise<string> {
+    const newGame = this.gamesRepository.create({
+      isFinished: false,
+      leftPlayer: leftPlayerName,
+      rightPlayer: rightPlayerName,
+    });
     await this.gamesRepository.save(newGame); // This inserts the new game and assigns an ID
 
     return `${newGame.gameId}`;
@@ -53,14 +61,38 @@ export class GamesService {
       clearInterval(this.gameStorage.get(gameId).interval);
   }
 
+  public async isGameInDatabase(gameId: string): Promise<boolean> {
+    return await this.gamesRepository.exist({ where: { gameId: gameId } });
+  }
+
+  public isGameRunning(gameId: string): boolean {
+    return this.gameStorage.has(gameId);
+  }
+
+  public async getGameFromDatabase(gameId: string): Promise<IFinishedGame> {
+    const databaseGame: Game = await this.gamesRepository.findOne({
+      where: { gameId: gameId },
+    });
+    const returnGame: IFinishedGame = { gameExists: true };
+    if (!databaseGame) {
+      returnGame.gameExists = false;
+      return returnGame;
+    }
+
+    returnGame.winner = databaseGame.winner;
+    returnGame.looser = databaseGame.looser;
+    returnGame.winnerPoints = databaseGame.winnerPoints;
+    returnGame.looserPoints = databaseGame.looserPoints;
+    return returnGame;
+  }
+
   public alterGameData(
     side: string,
     keystate: IKeyState,
     gameId: string,
     user: IUser,
   ): IGame {
-    if (this.amountOfGammes <= 0) return newGameCopy();
-    if (!this.gameStorage.has(gameId)) return newGameCopy();
+    if (!this.isGameRunning(gameId)) return newGameCopy();
     // reimplement the next line if you want to force users to be logged in
     // right now as comment for testing
     // if (userId === null) return this.games.get(gameId).game;
@@ -119,7 +151,10 @@ export class GamesService {
     rightPlayer: IGameUser,
   ): Promise<string> {
     const newGame: IGame = newGameCopy();
-    const gameId: string = await this.generateGameId();
+    const gameId: string = await this.generateGameId(
+      leftPlayer.user.name,
+      rightPlayer.user.name,
+    );
     newGame.gameId = gameId;
     this.gameStorage.set(gameId, {
       gameId: gameId,
@@ -158,8 +193,7 @@ export class GamesService {
   }
 
   public getGameData(gameId: string): IGame {
-    if (this.amountOfGammes <= 0) return newGameCopy();
-    if (!this.gameStorage.has(gameId)) return newGameCopy();
+    if (!this.isGameRunning) return newGameCopy();
     return this.gameStorage.get(gameId).gameState;
   }
 
@@ -188,12 +222,13 @@ export class GamesService {
     const updatedDatabaseGame: CreateGameDto = {
       gameId: localGame.gameId,
       winner: winner != null && winner != undefined ? winner.name : 'null',
-      looser: looser != null && winner != undefined ? winner.name : 'null',
+      looser: looser != null && winner != undefined ? looser.name : 'null',
       winnerPoints: winnerPoints,
       looserPoints: looserPoints,
       isFinished: true,
     };
     Object.assign(databaseGame, updatedDatabaseGame);
     await this.gamesRepository.save(databaseGame);
+    this.gameStorage.delete(localGame.gameId);
   }
 }

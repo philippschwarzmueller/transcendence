@@ -7,6 +7,12 @@ export class Game {
   gameId: string;
 
   @Column({ nullable: true })
+  leftPlayer?: string;
+
+  @Column({ nullable: true })
+  rightPlayer?: string;
+
+  @Column({ nullable: true })
   winner?: string;
 
   @Column({ nullable: true })
