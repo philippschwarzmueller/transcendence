@@ -7,7 +7,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 
-import { message } from './properties';
+import { IMessage } from './properties';
 import { manageUsers, gameInvite, gameAccept } from './chat.gameinvite';
 import { Socket, Server } from 'socket.io';
 
@@ -24,7 +24,10 @@ export class ChatGateway implements OnGatewayInit {
   server: Server;
 
   @SubscribeMessage('message')
-  handleEvent(@MessageBody() data: message, @ConnectedSocket() client: Socket) {
+  async handleEvent(
+    @MessageBody() data: IMessage,
+    @ConnectedSocket() client: Socket,
+  ) {
     manageUsers(data, client);
     const mess = `${data.user.name}: ${data.input}`;
     if (!gameInvite(data, this.server) && !gameAccept(data, this.server)) {
@@ -34,7 +37,7 @@ export class ChatGateway implements OnGatewayInit {
   }
 
   @SubscribeMessage('join')
-  joinRoom(@MessageBody() data: message, @ConnectedSocket() client: Socket) {
+  joinRoom(@MessageBody() data: IMessage, @ConnectedSocket() client: Socket) {
     const mess = `${data.user.name} joined ${data.room}`;
     manageUsers(data, client);
     client.join(data.room);

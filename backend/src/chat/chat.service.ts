@@ -1,12 +1,15 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { User } from 'src/users/user.entity';
 import { UsersService } from 'src/users/users.service';
+import { ChatDAO } from './chat.dao';
 
 @Injectable()
 export class ChatService {
   constructor(
     @Inject(UsersService)
     private userService: UsersService,
+    @Inject(ChatDAO)
+    private chatDao: ChatDAO,
   ) {}
 
   async getChats(userId: string): Promise<string[]> {
