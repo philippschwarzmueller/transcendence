@@ -227,8 +227,7 @@ export class GamesService {
       looserPoints: looserPoints,
       isFinished: true,
     };
-    Object.assign(databaseGame, updatedDatabaseGame);
-    await this.gamesRepository.save(databaseGame);
+    await this.gamesRepository.update(localGame.gameId, updatedDatabaseGame);
     this.gameStorage.delete(localGame.gameId);
   }
 }
