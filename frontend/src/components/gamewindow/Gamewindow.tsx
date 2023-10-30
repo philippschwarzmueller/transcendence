@@ -13,7 +13,8 @@ import {
   drawBall,
   drawBothPaddles,
   drawText,
-  drawEndScreen,
+  drawWinScreen,
+  drawErrorScreen,
 } from "./drawFunctions";
 import { useNavigate, useParams } from "react-router-dom";
 import { GAMESOCKET, GAMESOCKETADDRESS } from "../queue/Queue";
@@ -63,10 +64,6 @@ const GameWindow: React.FC = () => {
   const [navigateToEndScreen, setNavigateToEndScreen] = useState(false);
   const [navigateToErrorScreen, setNavigateToErrorScreen] = useState(false);
 
-  // @SubscribeMessage('isGameRunning')
-  // @SubscribeMessage('isGameinDatabase')
-  // @SubscribeMessage('getGameFromDatabase')
-
   const GameLoop = (): void => {
     if (
       gameCanvas.background === undefined ||
@@ -89,8 +86,16 @@ const GameWindow: React.FC = () => {
       });
     else gameStateRef.current = gameSpawn;
     if (isGameFinished.current === true)
-      drawEndScreen(
-        gameStateRef.current,
+      drawWinScreen(
+        gameStateRef.current.winner?.name,
+        Math.max(
+          gameStateRef.current.pointsLeft,
+          gameStateRef.current.pointsRight
+        ),
+        Math.min(
+          gameStateRef.current.pointsLeft,
+          gameStateRef.current.pointsRight
+        ),
         gameCanvas.endScreen?.current?.getContext("2d")
       );
     else {
@@ -109,16 +114,26 @@ const GameWindow: React.FC = () => {
       );
     }
   };
-  const handleNotRunningGame = (): void => {
-    navigate("/home");
-  };
 
   useEffect(() => {
-    if (navigateToEndScreen) console.log("navigateToEndScreen");
+    socket.emit(
+      "getGameFromDatabase",
+      gameId,
+      (finishedGame: IFinishedGame) => {
+        if (navigateToEndScreen)
+          drawWinScreen(
+            finishedGame.winner,
+            finishedGame.winnerPoints,
+            finishedGame.looserPoints,
+            gameCanvas.endScreen.current?.getContext("2d")
+          );
+      }
+    );
   }, [navigateToEndScreen]);
 
   useEffect(() => {
-    if (navigateToErrorScreen) console.log("navigateto error screen");
+    if (navigateToErrorScreen)
+      drawErrorScreen(gameCanvas.endScreen.current?.getContext("2d"));
   }, [navigateToErrorScreen]);
 
   useEffect(() => {
