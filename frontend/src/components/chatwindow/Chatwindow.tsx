@@ -35,10 +35,8 @@ const Textfield = styled.div`
   border-width: 1px 0px 0px 1px;
   border-top-color: rgb(134, 138, 142);
   border-left-color: rgb(134, 138, 142);
-  box-shadow:
-    rgb(195, 199, 203) -1px -1px 0px 0px inset,
-    rgb(0, 0, 0) 1px 1px 0px 0px inset,
-    rgb(255, 255, 255) 0.5px 0.5px 0px 0.5px;
+  box-shadow: rgb(195, 199, 203) -1px -1px 0px 0px inset,
+    rgb(0, 0, 0) 1px 1px 0px 0px inset, rgb(255, 255, 255) 0.5px 0.5px 0px 0.5px;
   overflow: auto;
   &::-webkit-scrollbar {
     width: 17x;
@@ -53,8 +51,7 @@ const Textfield = styled.div`
     background: rgb(195, 199, 203);
     color: rgb(0, 0, 0);
     border: 0px;
-    box-shadow:
-      rgb(0, 0, 0) -1px -1px 0px 0px inset,
+    box-shadow: rgb(0, 0, 0) -1px -1px 0px 0px inset,
       rgb(210, 210, 210) 1px 1px 0px 0px inset,
       rgb(134, 138, 142) -2px -2px 0px 0px inset,
       rgb(255, 255, 255) 2px 2px 0px 0px inset;
@@ -88,7 +85,7 @@ const Chatwindow: React.FC = () => {
   const [messages, setMessages] = useState<string[]>([]);
   const [input, setInput] = useState<string>("");
   const user: IUser = useContext(AuthContext).user;
-  let [tabs, setTabs] = useState<string[]>(user.activeChats);
+  const [tabs, setTabs] = useState<string[]>(user.activeChats);
   const [activeTab, setActiveTab] = useState<string>("");
   const [room, setRoom] = useState<string>("general");
   const socket: Socket = useContext(ChatSocketContext);
@@ -106,7 +103,7 @@ const Chatwindow: React.FC = () => {
   useEffect(() => {
     if (user === undefined) return;
     socket.emit("join", { user, input, room }, (res: string[]) =>
-      setMessages(res),
+      setMessages(res)
     );
   }, [room]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -117,13 +114,13 @@ const Chatwindow: React.FC = () => {
         block: "end",
         inline: "nearest",
       }),
-    [messages],
+    [messages]
   );
 
   useEffect(() => {
     setTabs(tabs);
-    setActive(tabs[tabs.length -1]);
-  }, [tabs]) ; // eslint-disable-line react-hooks/exhaustive-deps 
+    setActive(tabs[tabs.length - 1]);
+  }, [tabs]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function send(event: React.MouseEvent | React.KeyboardEvent) {
     event.preventDefault();
@@ -135,8 +132,7 @@ const Chatwindow: React.FC = () => {
   }
 
   const setActive = (tab: string) => {
-    if (tab === undefined)
-      tab = "general";
+    if (tab === undefined) tab = "general";
     setActiveTab(tab);
     setRoom(tab);
   };
@@ -176,12 +172,12 @@ const Chatwindow: React.FC = () => {
             onClick={() => {
               fetch(
                 `http://${window.location.hostname}:4000/chat/rooms?userId=${user.name}&chat=${activeTab}`,
-                { method: "DELETE" },
+                { method: "DELETE" }
               );
               setTabs(
                 tabs.filter(function (e) {
                   return e !== activeTab;
-                }),
+                })
               );
               setActive(tabs[tabs.length - 1]);
             }}
@@ -222,7 +218,7 @@ const Chatwindow: React.FC = () => {
               socket.emit("remove", room);
               fetch(
                 `http://${window.location.hostname}:4000/chat/all?userId=${user.name}`,
-                { method: "DELETE" },
+                { method: "DELETE" }
               );
             }}
           >
