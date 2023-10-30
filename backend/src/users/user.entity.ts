@@ -1,5 +1,5 @@
 import { Channels, Messages } from 'src/chat/chat.entity';
-import { Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn, Unique } from 'typeorm';
+import { Column, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn, Unique } from 'typeorm';
 
 @Entity('users')
 @Unique(['name'])

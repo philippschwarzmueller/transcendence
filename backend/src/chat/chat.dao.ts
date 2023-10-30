@@ -1,6 +1,6 @@
 import { Channels, Messages } from './chat.entity';
 import { User } from 'src/users/user.entity';
-import { Repository, QueryBuilder } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Injectable, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IMessage } from './properties';
@@ -10,8 +10,6 @@ import { UsersService } from 'src/users/users.service';
 @Injectable()
 export class ChatDAO {
   constructor(
-    @InjectRepository(User)
-    private userRepo: Repository<User>,
     @InjectRepository(Channels)
     private channelRepo: Repository<Channels>,
     @InjectRepository(Messages)
@@ -22,11 +20,10 @@ export class ChatDAO {
 
   public async saveMessageToChannel(
     message: IMessage,
-    user: IUser,
   ): Promise<void> {
     this.messsageRepo.save(
       this.messsageRepo.create({
-        sender: await this.userService.findOneByName(user.name),
+        sender: await this.userService.findOneByName(message.user.name),
         channel: await this.getChannelByTitle(message.room),
         content: message.input,
       }),
@@ -44,7 +41,7 @@ export class ChatDAO {
         users: [await this.userService.findOneByName(user.name)],
       }),
     );
-    this.saveMessageToChannel(firstMessage, user);
+    if(firstMessage) this.saveMessageToChannel(firstMessage);
   }
 
   public async addUserToChannel(title: string, user: IUser): Promise<void> {
@@ -65,26 +62,30 @@ export class ChatDAO {
   }
 
   public async getChannelByTitle(title: string): Promise<Channels> {
-    return await this.channelRepo.findOne({ where: { title } });
+    return await this.channelRepo
+      .createQueryBuilder('channel')
+      .loadAllRelationIds()
+      .where("channel.title = :title", { title })
+      .getOne();
   }
 
   public async getChannelMessages(channelId: number): Promise<Messages[]> {
     return await this.messsageRepo
-      .createQueryBuilder()
-      .select('content')
-      .where('channel = :id', { id: channelId })
-      .getMany();
+    .createQueryBuilder('message')
+    .innerJoinAndSelect('message.sender', 'sender') // Inner join with User entity
+    .where('message.channel = :id', { id: channelId })
+    .getMany();
   }
 
   public async getRawChannelMessages(channelId: number): Promise<string[]> {
     return (await this.getChannelMessages(channelId)).map((item) => {
-      return item.content;
+      return `${item.sender.name}: ${item.content}`;
     });
   }
 
   public async getUserChannels(userId: number): Promise<Channels[]> {
     return await this.channelRepo
-      .createQueryBuilder()
+      .createQueryBuilder('channel')
       .innerJoin('channel.users', 'user')
       .where('user.id = :userId', { userId })
       .getMany();

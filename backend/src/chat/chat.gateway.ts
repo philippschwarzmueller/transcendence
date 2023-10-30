@@ -43,11 +43,6 @@ export class ChatGateway implements OnGatewayInit {
     manageUsers(data, client);
     const mess = `${data.user.name}: ${data.input}`;
     if (!gameInvite(data, this.server) && !gameAccept(data, this.server)) {
-      const newMessage = this.messageRepo.create({
-        sender: await this.userService.findOneByName(data.user.name),
-        content: mess,
-      });
-      this.messageRepo.save(newMessage);
       this.server.to(data.room).emit('message', mess);
       messages.get(data.room).push(mess);
     }

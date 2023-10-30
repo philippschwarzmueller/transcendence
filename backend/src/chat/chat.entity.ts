@@ -2,6 +2,7 @@ import {
   Column,
   Entity,
   JoinColumn,
+  JoinTable,
   ManyToOne,
   ManyToMany,
   PrimaryGeneratedColumn,
@@ -15,6 +16,17 @@ export class Channels {
   id: number;
 
   @ManyToMany(() => User, (user) => user.channels)
+  @JoinTable({
+    name: "channel_subscription",
+    joinColumn: {
+        name: "channel",
+        referencedColumnName: "id"
+    },
+    inverseJoinColumn: {
+        name: "user",
+        referencedColumnName: "id"
+    }
+  })
   users: User[];
 
   @Column({ name: 'title' })
