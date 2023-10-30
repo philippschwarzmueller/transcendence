@@ -17,6 +17,7 @@ interface IBallProperties {
   radius: number; //radius of the painted ball
   color: string; // color of the painted ball
   acceleration: number;
+  maxBounceAngle: number;
 }
 
 interface IProperties {
@@ -101,14 +102,19 @@ export interface IFinishedGame {
 const properties: IProperties = {
   window: { width: 960, height: 640, color: 'black' },
   paddle: { width: 2, height: 15, speed: 200, color: 'white' },
-  ballProperties: { radius: 10, color: 'white', acceleration: 1.1 },
+  ballProperties: {
+    radius: 10,
+    color: 'white',
+    acceleration: 1.1,
+    maxBounceAngle: 30,
+  },
   framerate: 25,
 };
 
 export const ballSpawn: IBall = {
   x: properties.window.width / 2,
   y: properties.window.height / 2,
-  speed_x: 5,
+  speed_x: 8,
   speed_y: 0,
 };
 

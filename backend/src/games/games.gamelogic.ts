@@ -38,9 +38,8 @@ export const bounceOnPaddle = (ball: IBall, paddle: IPaddle): IBall => {
     (properties.window.height * properties.paddle.height) / 100 / 2,
   );
   const deltaPaddle: number = ((paddle.height - ball.y) * 2) / paddleHalf;
-  const maxAngle = 30;
-  const bounceAngle: number = (deltaPaddle / paddleHalf) * maxAngle;
-  console.log(bounceAngle);
+  const bounceAngle: number =
+    (deltaPaddle / paddleHalf) * properties.ballProperties.maxBounceAngle;
   const incomingSpeed: number = Math.sqrt(
     ball.speed_x * ball.speed_x + ball.speed_y * ball.speed_y,
   );
