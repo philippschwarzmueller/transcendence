@@ -92,7 +92,6 @@ export class GamesService {
     gameId: string,
     user: IUser,
   ): IGame {
-    if (this.amountOfGammes <= 0) return newGameCopy();
     if (!this.isGameRunning(gameId)) return newGameCopy();
     // reimplement the next line if you want to force users to be logged in
     // right now as comment for testing
@@ -194,8 +193,7 @@ export class GamesService {
   }
 
   public getGameData(gameId: string): IGame {
-    if (this.amountOfGammes <= 0) return newGameCopy();
-    if (!this.gameStorage.has(gameId)) return newGameCopy();
+    if (!this.isGameRunning) return newGameCopy();
     return this.gameStorage.get(gameId).gameState;
   }
 
