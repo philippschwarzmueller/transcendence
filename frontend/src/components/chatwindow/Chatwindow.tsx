@@ -21,7 +21,7 @@ const Msgfield = styled.div`
 const Tabbar = styled.div`
   display: flex;
   padding: 0px;
-  margin: 0px;
+  margin-bottom: 5px;
   border: none;
 `;
 
@@ -35,10 +35,8 @@ const Textfield = styled.div`
   border-width: 1px 0px 0px 1px;
   border-top-color: rgb(134, 138, 142);
   border-left-color: rgb(134, 138, 142);
-  box-shadow:
-    rgb(195, 199, 203) -1px -1px 0px 0px inset,
-    rgb(0, 0, 0) 1px 1px 0px 0px inset,
-    rgb(255, 255, 255) 0.5px 0.5px 0px 0.5px;
+  box-shadow: rgb(195, 199, 203) -1px -1px 0px 0px inset,
+    rgb(0, 0, 0) 1px 1px 0px 0px inset, rgb(255, 255, 255) 0.5px 0.5px 0px 0.5px;
   overflow: auto;
   &::-webkit-scrollbar {
     width: 17x;
@@ -53,37 +51,30 @@ const Textfield = styled.div`
     background: rgb(195, 199, 203);
     color: rgb(0, 0, 0);
     border: 0px;
-    box-shadow:
-      rgb(0, 0, 0) -1px -1px 0px 0px inset,
+    box-shadow: rgb(0, 0, 0) -1px -1px 0px 0px inset,
       rgb(210, 210, 210) 1px 1px 0px 0px inset,
       rgb(134, 138, 142) -2px -2px 0px 0px inset,
       rgb(255, 255, 255) 2px 2px 0px 0px inset;
   }
 `;
 
-// not triggerable for actice state yet
-const StyledLi = styled.li`
+const StyledLi = styled.li<{ $active: string }>`
   list-style: none;
   display: list-item;
   padding: 5px;
   font-size: 14px;
-  background-color: rgb(190, 190, 190);
   border: solid 1px;
   border-top-color: white;
   border-left-color: white;
   border-top-left-radius: 5px 5px;
   border-top-right-radius: 5px 5px;
-  &:acive {
-    background-color: rgb(195, 199, 203);
-    border-bottom: none;
-  }
-  &:hover {
-    background-color: rgb(195, 199, 203);
-    border-bottom: none;
-  }
+  cursor: pointer;
+  background-color: ${(props) =>
+    props.$active === "true" ? "rgb(195, 199, 203)" : "rgb(180, 180, 190)"};
+  border-bottom-color: ${(props) =>
+    props.$active === "true" ? "rgb(195, 199, 203)" : "black"};
 `;
 
-// has to be switched to links for individual chats
 const StyledUl = styled.ul`
   padding: 5px;
   margin: 5px;
@@ -95,6 +86,7 @@ const Chatwindow: React.FC = () => {
   const [input, setInput] = useState<string>("");
   const user: IUser = useContext(AuthContext).user;
   const [tabs, setTabs] = useState<string[]>(user.activeChats);
+  const [activeTab, setActiveTab] = useState<string>("");
   const [room, setRoom] = useState<string>("general");
   const socket: Socket = useContext(ChatSocketContext);
   const navigate = useNavigate();
@@ -111,7 +103,7 @@ const Chatwindow: React.FC = () => {
   useEffect(() => {
     if (user === undefined) return;
     socket.emit("join", { user, input, room }, (res: string[]) =>
-      setMessages(res),
+      setMessages(res)
     );
   }, [room]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -122,8 +114,13 @@ const Chatwindow: React.FC = () => {
         block: "end",
         inline: "nearest",
       }),
-    [messages],
+    [messages]
   );
+
+  useEffect(() => {
+    setTabs(tabs);
+    setActive(tabs[tabs.length - 1]);
+  }, [tabs]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function send(event: React.MouseEvent | React.KeyboardEvent) {
     event.preventDefault();
@@ -134,6 +131,12 @@ const Chatwindow: React.FC = () => {
     setInput("");
   }
 
+  const setActive = (tab: string) => {
+    if (tab === undefined) tab = "general";
+    setActiveTab(tab);
+    setRoom(tab);
+  };
+
   return (
     <>
       <Popup
@@ -143,23 +146,47 @@ const Chatwindow: React.FC = () => {
         ref={roomRef}
         setTabs={setTabs}
       >
-        Create Room
+        Create
       </Popup>
       <Moveablewindow>
         <Tabbar>
           {tabs.map((tab) => {
             return (
-              <StyledLi onClick={() => setRoom(tab)} key={tab}>
+              <StyledLi
+                onClick={() => setActive(tab)}
+                key={tab}
+                $active={tab === activeTab ? "true" : "false"}
+              >
                 {tab}
               </StyledLi>
             );
           })}
           <StyledLi
             key="+"
+            $active={"false"}
             onClick={(e: React.MouseEvent) => roomRef.current.openRoom(e)}
           >
             +
           </StyledLi>
+          <Button
+            onClick={() => {
+              fetch(
+                `http://${window.location.hostname}:4000/chat/rooms?userId=${user.name}&chat=${activeTab}`,
+                { method: "DELETE" }
+              );
+              setTabs(
+                tabs.filter(function (e) {
+                  return e !== activeTab;
+                })
+              );
+              setActive(tabs[tabs.length - 1]);
+            }}
+            $position="absolute"
+            $top="35px"
+            $right="20px"
+          >
+            Close
+          </Button>
         </Tabbar>
         <Textfield>
           <StyledUl ref={msgField} id="msgField">
@@ -190,8 +217,8 @@ const Chatwindow: React.FC = () => {
             onClick={() => {
               socket.emit("remove", room);
               fetch(
-                `http://${window.location.hostname}:4000/chat?userId=${user.name}`,
-                { method: "DELETE" },
+                `http://${window.location.hostname}:4000/chat/all?userId=${user.name}`,
+                { method: "DELETE" }
               );
             }}
           >

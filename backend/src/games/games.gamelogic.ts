@@ -37,10 +37,22 @@ export const bounceOnPaddle = (ball: IBall, paddle: IPaddle): IBall => {
   const paddleHalf: number = Math.floor(
     (properties.window.height * properties.paddle.height) / 100 / 2,
   );
-  ball.speed_x *= -1; // turn around
   const deltaPaddle: number = ((paddle.height - ball.y) * 2) / paddleHalf;
-  ball.speed_y = -Math.abs(ball.speed_x) * deltaPaddle; // y-direction change
-  ball.speed_x *= properties.ballProperties.acceleration; // acceleration
+  const bounceAngle: number =
+    (deltaPaddle / paddleHalf) * properties.ballProperties.maxBounceAngle;
+  const incomingSpeed: number = Math.sqrt(
+    ball.speed_x * ball.speed_x + ball.speed_y * ball.speed_y,
+  );
+  ball.speed_x =
+    properties.ballProperties.acceleration *
+    incomingSpeed *
+    Math.cos(bounceAngle) *
+    Math.sign(-ball.speed_x);
+  ball.speed_y =
+    properties.ballProperties.acceleration *
+    incomingSpeed *
+    Math.sin(bounceAngle) *
+    -1;
   return ball;
 };
 
