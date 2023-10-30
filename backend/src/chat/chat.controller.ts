@@ -1,4 +1,12 @@
-import { Controller, Delete, HttpCode, Post, Get, Query, Body } from '@nestjs/common';
+import {
+  Controller,
+  Delete,
+  HttpCode,
+  Post,
+  Get,
+  Query,
+  Body,
+} from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { User } from 'src/users/user.entity';
 

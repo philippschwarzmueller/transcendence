@@ -18,9 +18,7 @@ export class ChatDAO {
     private userService: UsersService,
   ) {}
 
-  public async saveMessageToChannel(
-    message: IMessage,
-  ): Promise<void> {
+  public async saveMessageToChannel(message: IMessage): Promise<void> {
     this.messsageRepo.save(
       this.messsageRepo.create({
         sender: await this.userService.findOneByName(message.user.name),
@@ -41,7 +39,7 @@ export class ChatDAO {
         users: [await this.userService.findOneByName(user.name)],
       }),
     );
-    if(firstMessage) this.saveMessageToChannel(firstMessage);
+    if (firstMessage) this.saveMessageToChannel(firstMessage);
   }
 
   public async addUserToChannel(title: string, user: IUser): Promise<void> {
@@ -56,7 +54,6 @@ export class ChatDAO {
     user: IUser,
   ): Promise<void> {
     const channel: Channels = await this.getChannelByTitle(title);
-    const newUser: User = await this.userService.findOneByName(user.name);
     channel.users = channel.users.filter((u) => u.id !== user.id);
     this.channelRepo.save(channel);
   }
@@ -65,16 +62,16 @@ export class ChatDAO {
     return await this.channelRepo
       .createQueryBuilder('channel')
       .loadAllRelationIds()
-      .where("channel.title = :title", { title })
+      .where('channel.title = :title', { title })
       .getOne();
   }
 
   public async getChannelMessages(channelId: number): Promise<Messages[]> {
     return await this.messsageRepo
-    .createQueryBuilder('message')
-    .innerJoinAndSelect('message.sender', 'sender') // Inner join with User entity
-    .where('message.channel = :id', { id: channelId })
-    .getMany();
+      .createQueryBuilder('message')
+      .innerJoinAndSelect('message.sender', 'sender') // Inner join with User entity
+      .where('message.channel = :id', { id: channelId })
+      .getMany();
   }
 
   public async getRawChannelMessages(channelId: number): Promise<string[]> {

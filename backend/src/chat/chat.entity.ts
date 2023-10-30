@@ -17,15 +17,15 @@ export class Channels {
 
   @ManyToMany(() => User, (user) => user.channels)
   @JoinTable({
-    name: "channel_subscription",
+    name: 'channel_subscription',
     joinColumn: {
-        name: "channel",
-        referencedColumnName: "id"
+      name: 'channel',
+      referencedColumnName: 'id',
     },
     inverseJoinColumn: {
-        name: "user",
-        referencedColumnName: "id"
-    }
+      name: 'user',
+      referencedColumnName: 'id',
+    },
   })
   users: User[];
 
