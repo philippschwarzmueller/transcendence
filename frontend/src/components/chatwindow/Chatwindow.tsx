@@ -108,7 +108,7 @@ const Chatwindow: React.FC = () => {
     socket.emit("join", { user, input, room }, (res: string[]) =>
       setMessages(res),
     );
-  }, [room]);
+  }, [room]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(
     () =>
@@ -120,6 +120,11 @@ const Chatwindow: React.FC = () => {
     [messages],
   );
 
+  useEffect(() => {
+    setTabs(tabs);
+    setActive(tabs[tabs.length -1]);
+  }, [tabs]) ; // eslint-disable-line react-hooks/exhaustive-deps 
+
   function send(event: React.MouseEvent | React.KeyboardEvent) {
     event.preventDefault();
     if (user === undefined)
@@ -130,6 +135,8 @@ const Chatwindow: React.FC = () => {
   }
 
   const setActive = (tab: string) => {
+    if (tab === undefined)
+      tab = "general";
     setActiveTab(tab);
     setRoom(tab);
   };
@@ -152,7 +159,7 @@ const Chatwindow: React.FC = () => {
               <StyledLi
                 onClick={() => setActive(tab)}
                 key={tab}
-                $active={tab == activeTab ? "true" : "false"}
+                $active={tab === activeTab ? "true" : "false"}
               >
                 {tab}
               </StyledLi>
@@ -171,6 +178,12 @@ const Chatwindow: React.FC = () => {
                 `http://${window.location.hostname}:4000/chat/rooms?userId=${user.name}&chat=${activeTab}`,
                 { method: "DELETE" },
               );
+              setTabs(
+                tabs.filter(function (e) {
+                  return e !== activeTab;
+                }),
+              );
+              setActive(tabs[tabs.length - 1]);
             }}
             $position="absolute"
             $top="35px"
