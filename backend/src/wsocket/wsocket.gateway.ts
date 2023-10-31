@@ -1,21 +1,41 @@
 import {
   ConnectedSocket,
   MessageBody,
+  OnGatewayInit,
   SubscribeMessage,
   WebSocketGateway,
+  WebSocketServer,
 } from '@nestjs/websockets';
 
-import { GamesService } from './games.service';
-import { IFinishedGame, IGame, IGameSocketPayload, IUser } from './properties';
-import { Socket } from 'socket.io';
+import { IMessage } from '../chat/properties';
+import { Socket, Server } from 'socket.io';
+import { GamesService } from '../games/games.service';
+import { IFinishedGame, IGame, IGameSocketPayload, IUser } from '../games/properties';
+import { ChatService } from 'src/chat/chat.service';
 
-@WebSocketGateway(6969, {
+@WebSocketGateway(9000, {
   cors: {
     credentials: true,
   },
 })
-export class GamesGateway {
-  constructor(private gamesService: GamesService) {}
+export class WSocketGateway implements OnGatewayInit {
+  constructor(
+    private gamesService: GamesService,
+    private chatService: ChatService,
+  ) {}
+
+  @WebSocketServer()
+  server: Server;
+
+  @SubscribeMessage('message')
+  message( @MessageBody() data: IMessage, @ConnectedSocket() client: Socket) {
+    this.chatService.handleMessage(data, client, this.server);
+  }
+
+  @SubscribeMessage('join')
+  join(@MessageBody() data: IMessage, @ConnectedSocket() client: Socket) {
+    return this.chatService.joinRoom(data, client);
+  }
 
   @SubscribeMessage('alterGameData')
   public alterGameData(@MessageBody() payload: IGameSocketPayload): IGame {
@@ -58,4 +78,6 @@ export class GamesGateway {
   ): Promise<IFinishedGame> {
     return await this.gamesService.getGameFromDatabase(gameId);
   }
+
+  afterInit(server: any): any {}
 }
