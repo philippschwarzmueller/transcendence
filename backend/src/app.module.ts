@@ -9,6 +9,7 @@ import { GamesModule } from './games/games.module';
 import { ChatModule } from './chat/chat.module';
 import { Game } from './games/game.entity';
 import { Channels, Messages } from './chat/chat.entity';
+import { WSocketModule } from './wsocket/wsocket.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { Channels, Messages } from './chat/chat.entity';
       entities: [User, Game, Messages, Channels],
       synchronize: true,
     }),
+    WSocketModule,
     UsersModule,
     AuthModule,
     GamesModule,
