@@ -41,8 +41,6 @@ export class User {
   @Column('text', { array: true, default: [] })
   activeChats: string[];
 
-  @Column({
-    default: 0,
-  })
+  @Column({default: 0, })
   tokenExpiry: number;
 }
