@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
 import Input from "../input/Input";
 import Button from "../button/Button";
-import { ChatSocketContext } from "../../routes/root";
+import { SocketContext } from "../../context/socket"
 import { Socket } from "socket.io-client";
 import styled from "styled-components";
 import Moveablewindow from "../moveablewindow/Moveablewindow";
@@ -88,7 +88,7 @@ const Chatwindow: React.FC = () => {
   const [tabs, setTabs] = useState<string[]>(user.activeChats);
   const [activeTab, setActiveTab] = useState<string>("");
   const [room, setRoom] = useState<string>("general");
-  const socket: Socket = useContext(ChatSocketContext);
+  const socket: Socket = useContext(SocketContext);
   const navigate = useNavigate();
   let listKey = 0;
 

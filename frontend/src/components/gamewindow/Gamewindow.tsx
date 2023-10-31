@@ -17,8 +17,8 @@ import {
   drawErrorScreen,
 } from "./drawFunctions";
 import { useParams } from "react-router-dom";
-import { GAMESOCKET, GAMESOCKETADDRESS } from "../queue/Queue";
-import { io, Socket } from "socket.io-client";
+import { SocketContext } from "../../context/socket"
+import { Socket } from "socket.io-client";
 import { AuthContext, IUser } from "../../context/auth";
 
 interface IGameCanvas {
@@ -54,10 +54,8 @@ const GameWindow: React.FC = () => {
     ReturnType<typeof setInterval> | undefined
   > = useRef<ReturnType<typeof setInterval>>();
   const localUser: IUser = useContext(AuthContext).user;
-  let socket: Socket = GAMESOCKET;
+  const socket: Socket = useContext(SocketContext);
   let isGameFinished: React.MutableRefObject<boolean> = useRef<boolean>(false);
-  if (socket === undefined || socket.connected === false)
-    socket = io(GAMESOCKETADDRESS);
 
   const [navigateToEndScreen, setNavigateToEndScreen] = useState(false);
   const [navigateToErrorScreen, setNavigateToErrorScreen] = useState(false);
