@@ -7,10 +7,12 @@ import { User } from '../users/user.entity';
 import { UsersService } from 'src/users/users.service';
 import { Channels, Messages } from './chat.entity';
 import { ChatDAO } from './chat.dao';
+import { GamesService } from 'src/games/games.service';
+import { Game } from 'src/games/game.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Messages, Channels])],
-  providers: [WSocketGateway, ChatService, UsersService, ChatDAO],
+  imports: [TypeOrmModule.forFeature([User, Messages, Channels, Game])],
+  providers: [WSocketGateway, ChatService, UsersService, ChatDAO, GamesService],
   controllers: [ChatController],
 })
 export class ChatModule {}

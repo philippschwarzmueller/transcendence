@@ -28,6 +28,7 @@ import { WSocketModule } from './wsocket/wsocket.module';
     AuthModule,
     GamesModule,
     ChatModule,
+
   ],
   controllers: [AppController],
   providers: [GreetingService],
