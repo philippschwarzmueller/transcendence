@@ -5,12 +5,8 @@ export const drawPaddle = (
   paddle: IPaddle
 ): void => {
   if (context === undefined || context === null) return;
-  const paddleHeight: number = Math.floor(
-    (properties.window.height * properties.paddle.height) / 100
-  );
-  const paddleWidth: number = Math.floor(
-    (properties.window.width * properties.paddle.width) / 100
-  );
+  const paddleHeight: number = Math.floor(properties.paddle.height);
+  const paddleWidth: number = Math.floor(properties.paddle.width);
   if (paddle.side === "left") {
     context.fillStyle = properties.window.color;
     context.clearRect(

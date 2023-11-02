@@ -1,4 +1,4 @@
-import properties, { IBall, IKeyState, IPaddle } from './properties';
+import properties, { IBall, IKeyState, IPaddle, gameSpawn } from './properties';
 
 export const movePaddle1D = (
   keyState: IKeyState,
@@ -25,7 +25,7 @@ export const movePaddle1D = (
 
 export const movePaddle2D = (
   keyState: IKeyState,
-  oldPaddlePos: IPaddle,
+  paddlePos: IPaddle,
 ): IPaddle => {
   const step: number = Math.floor(
     properties.paddle.speed / properties.framerate,
@@ -33,35 +33,49 @@ export const movePaddle2D = (
   if (
     keyState.down === true &&
     keyState.up === false &&
-    oldPaddlePos.height + step < properties.window.height
+    paddlePos.height + step < properties.window.height
   ) {
-    oldPaddlePos.height += step;
+    paddlePos.height += step;
   } else if (
     keyState.up === true &&
     keyState.down === false &&
-    oldPaddlePos.height - step > 0
+    paddlePos.height - step > 0
   ) {
-    oldPaddlePos.height -= step;
+    paddlePos.height -= step;
   }
-  if (
-    keyState.left === true &&
-    keyState.right === false &&
-    ((oldPaddlePos.lateral + step > 0 && oldPaddlePos.side == 'left') ||
-      (oldPaddlePos.lateral + step > properties.window.width / 2 &&
-        oldPaddlePos.side == 'right'))
-  ) {
-    oldPaddlePos.lateral -= step;
-  } else if (
-    keyState.left === false &&
-    keyState.right === true &&
-    ((oldPaddlePos.lateral + step < properties.window.width / 2 &&
-      oldPaddlePos.side == 'left') ||
-      (oldPaddlePos.lateral + step < properties.window.width &&
-        oldPaddlePos.side == 'right'))
-  ) {
-    oldPaddlePos.lateral += step;
+  const safeSpace: number = properties.window.width / 10;
+  if (keyState.left === true && keyState.right === false) {
+    if (paddlePos.side == 'left') {
+      if (paddlePos.lateral + step > properties.paddle.width)
+        paddlePos.lateral -= step;
+      else paddlePos.lateral = gameSpawn.leftPaddle.lateral;
+    }
+    if (paddlePos.side == 'right') {
+      if (
+        paddlePos.lateral + step >
+        properties.window.width / 2 + properties.paddle.width + safeSpace
+      )
+        paddlePos.lateral -= step;
+      else
+        paddlePos.lateral =
+          properties.window.width / 2 + properties.paddle.width / 2 + safeSpace;
+    }
+  } else if (keyState.left === false && keyState.right === true) {
+    if (paddlePos.side == 'left') {
+      if (paddlePos.lateral + step < properties.window.width / 2 - safeSpace)
+        paddlePos.lateral += step;
+      else paddlePos.lateral = properties.window.width / 2 - safeSpace;
+    }
+    if (paddlePos.side == 'right') {
+      if (
+        paddlePos.lateral + step <
+        properties.window.width - properties.paddle.width
+      )
+        paddlePos.lateral += step;
+      else paddlePos.lateral = gameSpawn.rightPaddle.lateral;
+    }
   }
-  return oldPaddlePos;
+  return paddlePos;
 };
 
 export const advanceBall = (oldBall: IBall): IBall => {
@@ -75,9 +89,7 @@ export const advanceBall = (oldBall: IBall): IBall => {
 };
 
 export const bounceOnPaddle = (ball: IBall, paddle: IPaddle): IBall => {
-  const paddleHalf: number = Math.floor(
-    (properties.window.height * properties.paddle.height) / 100 / 2,
-  );
+  const paddleHalf: number = Math.floor(properties.paddle.height / 2);
   const deltaPaddle: number = ((paddle.height - ball.y) * 2) / paddleHalf;
   const bounceAngle: number =
     (deltaPaddle / paddleHalf) * properties.ballProperties.maxBounceAngle;
@@ -98,9 +110,7 @@ export const bounceOnPaddle = (ball: IBall, paddle: IPaddle): IBall => {
 };
 
 export const ballHitPaddle = (ball: IBall, paddle: IPaddle): boolean => {
-  const paddleHalf: number = Math.floor(
-    (properties.window.height * properties.paddle.height) / 100 / 2,
-  );
+  const paddleHalf: number = Math.floor(properties.paddle.height / 2);
   if (paddle.side === 'right')
     return (
       ball.x + ball.speed_x > paddle.lateral &&

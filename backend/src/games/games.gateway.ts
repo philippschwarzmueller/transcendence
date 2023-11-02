@@ -26,7 +26,6 @@ export class GamesGateway {
 
   @SubscribeMessage('alterGameData')
   public alterGameData(@MessageBody() payload: IGameSocketPayload): IGame {
-    console.log(payload.keystate);
     return this.gamesService.alterGameData(
       payload.side,
       payload.keystate,

@@ -96,8 +96,17 @@ export interface IFinishedGame {
 
 const properties: IProperties = {
   window: { width: 960, height: 640, color: "black" },
-  paddle: { width: 2, height: 15, speed: 200, color: "white" },
-  ballProperties: { radius: 10, color: "white", acceleration: 1.1 },
+  paddle: {
+    width: (960 * 2) / 100,
+    height: (640 * 15) / 100,
+    speed: 200,
+    color: "white",
+  },
+  ballProperties: {
+    radius: 10,
+    color: "white",
+    acceleration: 1.1,
+  },
   framerate: 25,
 };
 
@@ -114,14 +123,14 @@ export const gameSpawn: IGame = {
   gameId: "0",
   ball: ballSpawn,
   leftPaddle: {
-    height: 320,
+    height: properties.window.height / 2,
     side: "left",
-    lateral: 0,
+    lateral: properties.paddle.width / 2,
   },
   rightPaddle: {
-    height: 320,
+    height: properties.window.height / 2,
     side: "right",
-    lateral: properties.window.width,
+    lateral: properties.window.width - properties.paddle.width / 2,
   },
   pointsLeft: 0,
   pointsRight: 0,
@@ -129,4 +138,5 @@ export const gameSpawn: IGame = {
   keyStateRight: { up: false, down: false, left: false, right: false },
   isFinished: false,
 };
+
 export default properties;

@@ -157,7 +157,6 @@ export class GamesService {
   }
 
   private async GameLoop2D(localGame: IGameBackend): Promise<void> {
-    console.log('left: ', localGame.gameState.keyStateLeft.left);
     movePaddle2D(
       localGame.gameState.keyStateLeft,
       localGame.gameState.leftPaddle,
