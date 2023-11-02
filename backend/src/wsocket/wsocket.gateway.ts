@@ -15,7 +15,7 @@ import { ChatService } from 'src/chat/chat.service';
 import { Inject, Injectable } from '@nestjs/common';
 
 @Injectable()
-@WebSocketGateway(8080, {
+@WebSocketGateway(9000, {
   cors: {
     credentials: true,
   },
@@ -33,7 +33,6 @@ export class WSocketGateway implements OnGatewayInit {
 
   @SubscribeMessage('message')
   message( @MessageBody() data: IMessage, @ConnectedSocket() client: Socket) {
-    console.log(data);
     this.chatService.handleMessage(data, client, this.server);
   }
 
