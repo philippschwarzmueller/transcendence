@@ -1,6 +1,6 @@
 import { Socket, Server } from 'socket.io';
 import { IMessage, userInfo } from './properties';
-import { IGameUser } from '../games/properties';
+import { EGamemode, IGameUser } from '../games/properties';
 import { GamesService } from '../games/games.service';
 
 const users: Map<string, userInfo> = new Map<string, userInfo>();
@@ -32,7 +32,11 @@ export function gameInvite(data: IMessage, server: Server): boolean {
 
 async function startGame(user: IGameUser, opponent: IGameUser, server: Server) {
   const gs: GamesService = new GamesService(null); // null is not correct but placeholder
-  const gameid: string = await gs.startGameLoop(opponent, user);
+  const gameid: string = await gs.startGameLoop(
+    opponent,
+    user,
+    EGamemode.standard,
+  );
   server.to(user.socket.id).emit('game', { gameId: gameid, side: 'right' });
   server.to(opponent.socket.id).emit('game', { gameId: gameid, side: 'left' });
 }

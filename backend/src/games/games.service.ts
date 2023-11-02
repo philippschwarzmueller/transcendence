@@ -49,11 +49,13 @@ export class GamesService {
   private async generateGameId(
     leftPlayerName: string,
     rightPlayerName: string,
+    gamemode: EGamemode,
   ): Promise<string> {
     const newGame = this.gamesRepository.create({
       isFinished: false,
       leftPlayer: leftPlayerName,
       rightPlayer: rightPlayerName,
+      gamemode: gamemode,
     });
     await this.gamesRepository.save(newGame); // This inserts the new game and assigns an ID
 
@@ -153,11 +155,13 @@ export class GamesService {
   public async startGameLoop(
     leftPlayer: IGameUser,
     rightPlayer: IGameUser,
+    gamemode: EGamemode,
   ): Promise<string> {
     const newGame: IGame = newGameCopy();
     const gameId: string = await this.generateGameId(
       leftPlayer.user.name,
       rightPlayer.user.name,
+      gamemode,
     );
     newGame.gameId = gameId;
     this.gameStorage.set(gameId, {
@@ -187,6 +191,7 @@ export class GamesService {
       const newGameId: string = await this.startGameLoop(
         this.clients.get(gamemode)[0],
         this.clients.get(gamemode)[1],
+        gamemode,
       );
       this.clients.get(gamemode)[0].socket.emit('queue found', {
         gameId: newGameId,
@@ -196,6 +201,7 @@ export class GamesService {
         gameId: newGameId,
         side: 'right',
       });
+      //remember to later delete user form other queues
       this.clients.get(gamemode).splice(0, 2);
     }
   }
