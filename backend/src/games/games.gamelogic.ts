@@ -1,6 +1,6 @@
 import properties, { IBall, IKeyState, IPaddle } from './properties';
 
-export const movePaddle = (
+export const movePaddle1D = (
   keyState: IKeyState,
   oldPaddlePos: IPaddle,
 ): IPaddle => {
@@ -17,6 +17,47 @@ export const movePaddle = (
     keyState.up === true &&
     keyState.down === false &&
     oldPaddlePos.height - step > 0
+  ) {
+    oldPaddlePos.height -= step;
+  }
+  return oldPaddlePos;
+};
+
+export const movePaddle2D = (
+  keyState: IKeyState,
+  oldPaddlePos: IPaddle,
+): IPaddle => {
+  const step: number = Math.floor(
+    properties.paddle.speed / properties.framerate,
+  );
+  if (
+    keyState.down === true &&
+    keyState.up === false &&
+    oldPaddlePos.height + step < properties.window.height
+  ) {
+    oldPaddlePos.height += step;
+  } else if (
+    keyState.up === true &&
+    keyState.down === false &&
+    oldPaddlePos.height - step > 0
+  ) {
+    oldPaddlePos.height -= step;
+  }
+  if (
+    keyState.left === true &&
+    keyState.right === false &&
+    ((oldPaddlePos.lateral + step > 0 && oldPaddlePos.side == 'left') ||
+      (oldPaddlePos.lateral + step > properties.window.width / 2 &&
+        oldPaddlePos.side == 'right'))
+  ) {
+    oldPaddlePos.lateral -= step;
+  } else if (
+    keyState.left === false &&
+    keyState.right === true &&
+    ((oldPaddlePos.lateral + step < properties.window.width / 2 &&
+      oldPaddlePos.side == 'left') ||
+      (oldPaddlePos.lateral + step < properties.window.width &&
+        oldPaddlePos.side == 'right'))
   ) {
     oldPaddlePos.height -= step;
   }

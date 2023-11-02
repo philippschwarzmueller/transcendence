@@ -30,6 +30,7 @@ interface IProperties {
 export interface IPaddle {
   height: number;
   side: string;
+  lateral: number;
 }
 
 export interface IGame {
@@ -63,6 +64,8 @@ export interface IBall {
 export interface IKeyState {
   up: boolean;
   down: boolean;
+  left: boolean;
+  right: boolean;
 }
 
 export interface IGameSocketPayload {
@@ -136,15 +139,17 @@ export const gameSpawn: IGame = {
   leftPaddle: {
     height: 320,
     side: 'left',
+    lateral: 0,
   },
   rightPaddle: {
     height: 320,
     side: 'right',
+    lateral: properties.window.width / 2,
   },
   pointsLeft: 0,
   pointsRight: 0,
-  keyStateLeft: { up: false, down: false },
-  keyStateRight: { up: false, down: false },
+  keyStateLeft: { up: false, down: false, left: false, right: false },
+  keyStateRight: { up: false, down: false, left: false, right: false },
   isFinished: false,
 };
 

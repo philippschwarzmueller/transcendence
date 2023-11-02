@@ -15,7 +15,8 @@ import {
   advanceBall,
   ballHitPaddle,
   bounceOnPaddle,
-  movePaddle,
+  movePaddle1D,
+  movePaddle2D,
 } from './games.gamelogic';
 import { Socket } from 'socket.io';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -115,12 +116,49 @@ export class GamesService {
     return this.gameStorage.get(gameId).gameState;
   }
 
-  private async GameLoop(localGame: IGameBackend): Promise<void> {
-    movePaddle(
+  private async GameLoop1D(localGame: IGameBackend): Promise<void> {
+    movePaddle1D(
       localGame.gameState.keyStateLeft,
       localGame.gameState.leftPaddle,
     );
-    movePaddle(
+    movePaddle1D(
+      localGame.gameState.keyStateRight,
+      localGame.gameState.rightPaddle,
+    );
+
+    const newBall: IBall = advanceBall(localGame.gameState.ball);
+    if (ballHitPaddle(newBall, localGame.gameState.rightPaddle)) {
+      // hit right paddle
+      bounceOnPaddle(localGame.gameState.ball, localGame.gameState.rightPaddle);
+    } else if (newBall.x > properties.window.width) {
+      // missed right paddle
+      localGame.gameState.ball = ballSpawn;
+      localGame.gameState.pointsLeft++;
+    } else if (ballHitPaddle(newBall, localGame.gameState.leftPaddle)) {
+      // hit left paddle
+      bounceOnPaddle(localGame.gameState.ball, localGame.gameState.leftPaddle);
+    } else if (newBall.x < 0) {
+      // missed left paddle
+      localGame.gameState.ball = ballSpawn;
+      localGame.gameState.pointsRight++;
+    } else if (newBall.y > properties.window.height || newBall.y < 0) {
+      //collision on top/botton
+      localGame.gameState.ball.speed_y *= -1;
+    }
+
+    // actually moving ball
+    localGame.gameState.ball = advanceBall(localGame.gameState.ball);
+
+    // check if game is done, and finish it
+    if (isGameFinished(localGame)) await this.cleanUpFinishedGame(localGame);
+  }
+
+  private async GameLoop2D(localGame: IGameBackend): Promise<void> {
+    movePaddle2D(
+      localGame.gameState.keyStateLeft,
+      localGame.gameState.leftPaddle,
+    );
+    movePaddle2D(
       localGame.gameState.keyStateRight,
       localGame.gameState.rightPaddle,
     );
@@ -172,12 +210,21 @@ export class GamesService {
       rightPlayer: rightPlayer,
     });
     this.amountOfGammes++;
-    const interval = setInterval(
-      this.GameLoop.bind(this),
-      properties.framerate,
-      this.gameStorage.get(gameId),
-    );
-    this.gameStorage.get(gameId).interval = interval;
+    if (gamemode === EGamemode.standard) {
+      const interval = setInterval(
+        this.GameLoop1D.bind(this),
+        properties.framerate,
+        this.gameStorage.get(gameId),
+      );
+      this.gameStorage.get(gameId).interval = interval;
+    } else if (gamemode === EGamemode.roomMovement) {
+      const interval = setInterval(
+        this.GameLoop2D.bind(this),
+        properties.framerate,
+        this.gameStorage.get(gameId),
+      );
+      this.gameStorage.get(gameId).interval = interval;
+    }
     return gameId;
   }
 
