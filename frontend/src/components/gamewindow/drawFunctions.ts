@@ -1,9 +1,8 @@
-import properties, { IBall, IGame } from "./properties";
+import properties, { IBall, IGame, IPaddle } from "./properties";
 
 export const drawPaddle = (
   context: CanvasRenderingContext2D | undefined | null,
-  side: string,
-  height: number
+  paddle: IPaddle
 ): void => {
   if (context === undefined || context === null) return;
   const paddleHeight: number = Math.floor(
@@ -12,23 +11,33 @@ export const drawPaddle = (
   const paddleWidth: number = Math.floor(
     (properties.window.width * properties.paddle.width) / 100
   );
-  if (side === "left") {
-    context.fillStyle = properties.window.color;
-    context.clearRect(0, 0, paddleWidth, properties.window.height);
-    context.fillStyle = properties.paddle.color;
-    context.fillRect(0, height - paddleHeight / 2, paddleWidth, paddleHeight);
-  } else if (side === "right") {
+  if (paddle.side === "left") {
     context.fillStyle = properties.window.color;
     context.clearRect(
-      properties.window.width - paddleWidth,
       0,
-      paddleWidth,
+      0,
+      properties.window.width / 2,
       properties.window.height
     );
     context.fillStyle = properties.paddle.color;
     context.fillRect(
-      properties.window.width - paddleWidth,
-      height - paddleHeight / 2,
+      paddle.lateral - paddleWidth / 2,
+      paddle.height - paddleHeight / 2,
+      paddleWidth,
+      paddleHeight
+    );
+  } else if (paddle.side === "right") {
+    context.fillStyle = properties.window.color;
+    context.clearRect(
+      properties.window.width / 2,
+      0,
+      properties.window.width,
+      properties.window.height
+    );
+    context.fillStyle = properties.paddle.color;
+    context.fillRect(
+      paddle.lateral - paddleWidth / 2,
+      paddle.height - paddleHeight / 2,
       paddleWidth,
       paddleHeight
     );
@@ -40,8 +49,8 @@ export const drawBothPaddles = (
   gameState: IGame
 ): void => {
   if (context === undefined || context === null) return;
-  drawPaddle(context, "left", gameState.leftPaddle.height);
-  drawPaddle(context, "right", gameState.rightPaddle.height);
+  drawPaddle(context, gameState.leftPaddle);
+  drawPaddle(context, gameState.rightPaddle);
 };
 
 export const drawBall = (

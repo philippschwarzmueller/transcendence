@@ -41,6 +41,9 @@ export class GamesService {
       [EGamemode.standard, []],
       [EGamemode.roomMovement, []],
     ]);
+    setInterval(() => {
+      console.log(this.gameStorage.size, ' games running');
+    }, 1000);
   }
 
   public amountOfGammes: number;
@@ -154,6 +157,7 @@ export class GamesService {
   }
 
   private async GameLoop2D(localGame: IGameBackend): Promise<void> {
+    console.log('left: ', localGame.gameState.keyStateLeft.left);
     movePaddle2D(
       localGame.gameState.keyStateLeft,
       localGame.gameState.leftPaddle,

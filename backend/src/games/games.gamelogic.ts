@@ -59,7 +59,7 @@ export const movePaddle2D = (
       (oldPaddlePos.lateral + step < properties.window.width &&
         oldPaddlePos.side == 'right'))
   ) {
-    oldPaddlePos.height -= step;
+    oldPaddlePos.lateral += step;
   }
   return oldPaddlePos;
 };

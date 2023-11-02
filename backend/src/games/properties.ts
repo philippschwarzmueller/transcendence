@@ -144,7 +144,7 @@ export const gameSpawn: IGame = {
   rightPaddle: {
     height: 320,
     side: 'right',
-    lateral: properties.window.width / 2,
+    lateral: properties.window.width,
   },
   pointsLeft: 0,
   pointsRight: 0,

@@ -47,6 +47,8 @@ const GameWindow: React.FC = () => {
   const keystateRef: React.MutableRefObject<IKeyState> = useRef<IKeyState>({
     down: false,
     up: false,
+    left: false,
+    right: false,
   });
   const gameStateRef: React.MutableRefObject<IGame> = useRef<IGame>(gameSpawn);
   const gameId: string = params.gameId !== undefined ? params.gameId : "-1";
@@ -77,12 +79,13 @@ const GameWindow: React.FC = () => {
       gameId: gameId,
       user: localUser,
     };
-    if (socket.connected)
+    if (socket.connected) {
+      console.log(gameSocketPayload.keystate);
       socket.emit("alterGameData", gameSocketPayload, (res: IGame) => {
         gameStateRef.current = res;
         isGameFinished.current = res.isFinished;
       });
-    else gameStateRef.current = gameSpawn;
+    } else gameStateRef.current = gameSpawn;
     if (isGameFinished.current === true)
       drawWinScreen(
         gameStateRef.current.winner?.name,
@@ -161,6 +164,8 @@ const GameWindow: React.FC = () => {
       (e) => {
         if (e.key === "ArrowUp") keystateRef.current.up = true;
         if (e.key === "ArrowDown") keystateRef.current.down = true;
+        if (e.key === "ArrowLeft") keystateRef.current.left = true;
+        if (e.key === "ArrowRight") keystateRef.current.right = true;
       },
       true
     );
@@ -170,6 +175,8 @@ const GameWindow: React.FC = () => {
       (e) => {
         if (e.key === "ArrowUp") keystateRef.current.up = false;
         if (e.key === "ArrowDown") keystateRef.current.down = false;
+        if (e.key === "ArrowLeft") keystateRef.current.left = false;
+        if (e.key === "ArrowRight") keystateRef.current.right = false;
       },
       true
     );
