@@ -36,12 +36,15 @@ export class GamesService {
   ) {
     this.gameStorage = new Map<string, IGameBackend>();
     this.amountOfGammes = 0;
-    this.clients = [];
+    this.clients = new Map([
+      [EGamemode.standard, []],
+      [EGamemode.roomMovement, []],
+    ]);
   }
 
   public amountOfGammes: number;
   public gameStorage: Map<string, IGameBackend>;
-  public clients: IGameUser[];
+  public clients: Map<EGamemode, IGameUser[]>;
 
   private async generateGameId(
     leftPlayerName: string,
@@ -179,22 +182,21 @@ export class GamesService {
     gamemode: EGamemode,
     client: Socket,
   ): Promise<void> {
-    this.clients.push({ user: user, socket: client });
-    console.log(this.clients);
-    if (this.clients.length >= 2) {
+    this.clients.get(gamemode).push({ user: user, socket: client });
+    if (this.clients.get(gamemode).length >= 2) {
       const newGameId: string = await this.startGameLoop(
-        this.clients[0],
-        this.clients[1],
+        this.clients.get(gamemode)[0],
+        this.clients.get(gamemode)[1],
       );
-      this.clients[0].socket.emit('queue found', {
+      this.clients.get(gamemode)[0].socket.emit('queue found', {
         gameId: newGameId,
         side: 'left',
       });
-      this.clients[1].socket.emit('queue found', {
+      this.clients.get(gamemode)[1].socket.emit('queue found', {
         gameId: newGameId,
         side: 'right',
       });
-      this.clients.splice(0, 2);
+      this.clients.get(gamemode).splice(0, 2);
     }
   }
 

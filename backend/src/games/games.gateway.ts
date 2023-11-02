@@ -39,7 +39,6 @@ export class GamesGateway {
     @MessageBody() payload: IQueuePayload,
     @ConnectedSocket() client: Socket,
   ): void {
-    console.log(payload);
     this.gamesService.queue(payload.user, payload.gamemode, client);
   }
 
