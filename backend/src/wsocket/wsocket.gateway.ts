@@ -12,15 +12,19 @@ import { Socket, Server } from 'socket.io';
 import { GamesService } from '../games/games.service';
 import { IFinishedGame, IGame, IGameSocketPayload, IUser } from '../games/properties';
 import { ChatService } from 'src/chat/chat.service';
+import { Inject, Injectable } from '@nestjs/common';
 
-@WebSocketGateway(9000, {
+@Injectable()
+@WebSocketGateway(8080, {
   cors: {
     credentials: true,
   },
 })
 export class WSocketGateway implements OnGatewayInit {
   constructor(
+    @Inject(GamesService)
     private gamesService: GamesService,
+    @Inject(ChatService)
     private chatService: ChatService,
   ) {}
 
@@ -29,6 +33,7 @@ export class WSocketGateway implements OnGatewayInit {
 
   @SubscribeMessage('message')
   message( @MessageBody() data: IMessage, @ConnectedSocket() client: Socket) {
+    console.log(data);
     this.chatService.handleMessage(data, client, this.server);
   }
 

@@ -1,15 +1,15 @@
 import { Module } from '@nestjs/common';
 import { ChatService } from '../chat/chat.service';
-import { GamesService } from '../games/games.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from '../users/user.entity';
 import { UsersService } from 'src/users/users.service';
-import { ChatDAO } from 'src/chat/chat.dao';
+import { Channels, Messages } from '../chat/chat.entity';
+import { ChatDAO } from '../chat/chat.dao';
+import { GamesService } from 'src/games/games.service';
 import { Game } from 'src/games/game.entity';
-import { User } from 'src/users/user.entity';
-import { Channels, Messages } from 'src/chat/chat.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Game, User, Channels, Messages])],
-  providers: [ChatService, GamesService, UsersService, ChatDAO],
+  imports: [TypeOrmModule.forFeature([Game, User, Messages, Channels])],
+  providers: [GamesService, ChatService, UsersService, ChatDAO, Map, Array],
 })
 export class WSocketModule {}

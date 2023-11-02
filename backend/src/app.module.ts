@@ -10,6 +10,11 @@ import { ChatModule } from './chat/chat.module';
 import { Game } from './games/game.entity';
 import { Channels, Messages } from './chat/chat.entity';
 import { WSocketModule } from './wsocket/wsocket.module';
+import { WSocketGateway } from './wsocket/wsocket.gateway';
+import { ChatService } from './chat/chat.service';
+import { GamesService } from './games/games.service';
+import { ChatDAO } from './chat/chat.dao';
+import { UsersService } from './users/users.service';
 
 @Module({
   imports: [
@@ -23,14 +28,15 @@ import { WSocketModule } from './wsocket/wsocket.module';
       entities: [User, Game, Messages, Channels],
       synchronize: true,
     }),
-    WSocketModule,
+
     UsersModule,
     AuthModule,
     GamesModule,
     ChatModule,
-
+    WSocketModule,
+    TypeOrmModule.forFeature([User, Messages, Channels, Game]),
   ],
   controllers: [AppController],
-  providers: [GreetingService],
+  providers: [GreetingService, WSocketGateway, ChatService, GamesService, UsersService, ChatDAO, Map, Array],
 })
 export class AppModule {}

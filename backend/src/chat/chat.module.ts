@@ -11,8 +11,8 @@ import { GamesService } from 'src/games/games.service';
 import { Game } from 'src/games/game.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Messages, Channels, Game])],
-  providers: [WSocketGateway, ChatService, UsersService, ChatDAO, GamesService],
+  imports: [TypeOrmModule.forFeature([User, Messages, Channels])],
+  providers: [ChatService, UsersService, ChatDAO, Map, Array],
   controllers: [ChatController],
 })
 export class ChatModule {}

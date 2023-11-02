@@ -6,8 +6,6 @@ import { ChatDAO } from './chat.dao';
 import { manageUsers, gameInvite, gameAccept } from './chat.gameinvite';
 import { Socket, Server } from 'socket.io';
 
-const rooms: string[] = [];
-const messages: Map<string, string[]> = new Map<string, string[]>();
 
 @Injectable()
 export class ChatService {
@@ -16,6 +14,8 @@ export class ChatService {
     private userService: UsersService,
     @Inject(ChatDAO)
     private chatDao: ChatDAO,
+    private messages: Map<string, string[]> = new Map<string, string[]>(),
+    private rooms: string[] = [],
   ) {}
 
   async getChats(userId: string): Promise<string[]> {
@@ -52,13 +52,13 @@ export class ChatService {
     const mess = `${data.user.name} joined ${data.room}`;
     manageUsers(data, client);
     client.join(data.room);
-    if (!messages.has(data.room)) {
-      messages.set(data.room, []);
-      rooms.push(data.room);
+    if (!this.messages.has(data.room)) {
+      this.messages.set(data.room, []);
+      this.rooms.push(data.room);
     }
     client.to(data.room).emit('message', mess);
-    messages.get(data.room).push(mess);
-    return messages.get(data.room);
+    this.messages.get(data.room).push(mess);
+    return this.messages.get(data.room);
 
   }
 
@@ -67,7 +67,7 @@ export class ChatService {
     const mess = `${data.user.name}: ${data.input}`;
     if (!gameInvite(data, server) && !gameAccept(data, server)) {
       server.to(data.room).emit('message', mess);
-      messages.get(data.room).push(mess);
+      this.messages.get(data.room).push(mess);
     }
   }
 }
