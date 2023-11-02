@@ -6,7 +6,14 @@ import {
 } from '@nestjs/websockets';
 
 import { GamesService } from './games.service';
-import { IFinishedGame, IGame, IGameSocketPayload, IUser } from './properties';
+import {
+  EGamemode,
+  IFinishedGame,
+  IGame,
+  IGameSocketPayload,
+  IQueuePayload,
+  IUser,
+} from './properties';
 import { Socket } from 'socket.io';
 
 @WebSocketGateway(6969, {
@@ -29,10 +36,11 @@ export class GamesGateway {
 
   @SubscribeMessage('queue')
   public queue(
-    @MessageBody() user: IUser,
+    @MessageBody() payload: IQueuePayload,
     @ConnectedSocket() client: Socket,
   ): void {
-    this.gamesService.queue(user, client);
+    console.log(payload);
+    this.gamesService.queue(payload.user, payload.gamemode, client);
   }
 
   @SubscribeMessage('getGameData')

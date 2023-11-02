@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import properties, {
   ballSpawn,
+  EGamemode,
   gameSpawn,
   IBall,
   IFinishedGame,
@@ -173,8 +174,13 @@ export class GamesService {
     return gameId;
   }
 
-  public async queue(user: IUser, client: Socket): Promise<void> {
+  public async queue(
+    user: IUser,
+    gamemode: EGamemode,
+    client: Socket,
+  ): Promise<void> {
     this.clients.push({ user: user, socket: client });
+    console.log(this.clients);
     if (this.clients.length >= 2) {
       const newGameId: string = await this.startGameLoop(
         this.clients[0],

@@ -120,6 +120,16 @@ export const ballSpawn: IBall = {
 
 export const maxScore: number = 2;
 
+export enum EGamemode {
+  standard = 1,
+  roomMovement = 2,
+}
+
+export interface IQueuePayload {
+  user: IUser;
+  gamemode: EGamemode;
+}
+
 export const gameSpawn: IGame = {
   gameId: '0',
   ball: ballSpawn,
