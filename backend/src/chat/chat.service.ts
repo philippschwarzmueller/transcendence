@@ -14,13 +14,11 @@ export class ChatService {
     private userService: UsersService,
     @Inject(ChatDAO)
     private chatDao: ChatDAO,
-    private messages: Map<string, string[]> = new Map<string, string[]>(),
-    private rooms: string[] = [],
   ) {}
 
   async getChats(userId: string): Promise<string[]> {
     const user = await this.userService.findOneByName(userId);
-    if (user) return user.activeChats;
+    if (user) return await this.chatDao.getRawUserChannels(user.id);
   }
 
   async addChat(userId: string, chatName: string): Promise<User | undefined> {
@@ -48,18 +46,17 @@ export class ChatService {
     }
   }
 
-  joinRoom(data: IMessage, client: Socket) {
+  async joinRoom(data: IMessage, client: Socket) {
     const mess = `${data.user.name} joined ${data.room}`;
+    let channel = await this.chatDao.getChannelByTitle(data.room);
     manageUsers(data, client);
     client.join(data.room);
-    if (!this.messages.has(data.room)) {
-      this.messages.set(data.room, []);
-      this.rooms.push(data.room);
-    }
+    if (channel === undefined)
+      channel = await this.chatDao.saveChannel(data.room, data.user);
+    this.chatDao.addUserToChannel(data.room, data.user);
+    this.chatDao.saveMessageToChannel(data);
     client.to(data.room).emit('message', mess);
-    this.messages.get(data.room).push(mess);
-    return this.messages.get(data.room);
-
+    return this.chatDao.getChannelMessages(channel.id);
   }
 
   handleMessage( data: IMessage, client: Socket, server: Server) {
@@ -67,7 +64,7 @@ export class ChatService {
     const mess = `${data.user.name}: ${data.input}`;
     if (!gameInvite(data, server) && !gameAccept(data, server)) {
       server.to(data.room).emit('message', mess);
-      this.messages.get(data.room).push(mess);
+      this.chatDao.saveMessageToChannel(data);
     }
   }
 }

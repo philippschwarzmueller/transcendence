@@ -37,8 +37,8 @@ export class WSocketGateway implements OnGatewayInit {
   }
 
   @SubscribeMessage('join')
-  join(@MessageBody() data: IMessage, @ConnectedSocket() client: Socket) {
-    return this.chatService.joinRoom(data, client);
+  async join(@MessageBody() data: IMessage, @ConnectedSocket() client: Socket) {
+    return await this.chatService.joinRoom(data, client);
   }
 
   @SubscribeMessage('alterGameData')

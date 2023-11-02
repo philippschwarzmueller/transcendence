@@ -9,7 +9,7 @@ import { ChatDAO } from './chat.dao';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User, Messages, Channels])],
-  providers: [ChatService, UsersService, ChatDAO, Map, Array],
+  providers: [ChatService, UsersService, ChatDAO],
   controllers: [ChatController],
 })
 export class ChatModule {}

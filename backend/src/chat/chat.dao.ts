@@ -28,13 +28,14 @@ export class ChatDAO {
     );
   }
 
-  public async saveChannel(title: string, user: IUser): Promise<void> {
+  public async saveChannel(title: string, user: IUser): Promise<Channels> {
     this.channelRepo.save(
       this.channelRepo.create({
         title: title,
         users: [await this.userService.findOneByName(user.name)],
       }),
     );
+    return await this.getChannelByTitle(title);
   }
 
   public async addUserToChannel(title: string, user: IUser): Promise<void> {

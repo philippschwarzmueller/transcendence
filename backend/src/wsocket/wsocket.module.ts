@@ -10,7 +10,7 @@ import { Game } from 'src/games/game.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Game, User, Messages, Channels])],
-  providers: [GamesService, ChatService, UsersService, ChatDAO, Map, Array],
-  exports: [GamesService, ChatService, UsersService, ChatDAO, Map, Array],
+  providers: [GamesService, ChatService, UsersService, ChatDAO],
+  exports: [GamesService, ChatService, UsersService, ChatDAO],
 })
 export class WSocketModule {}
