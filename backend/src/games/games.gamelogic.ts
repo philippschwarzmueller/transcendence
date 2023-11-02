@@ -103,16 +103,13 @@ export const ballHitPaddle = (ball: IBall, paddle: IPaddle): boolean => {
   );
   if (paddle.side === 'right')
     return (
-      ball.x >
-        properties.window.width -
-          properties.paddle.width -
-          properties.ballProperties.radius &&
+      ball.x + ball.speed_x > paddle.lateral &&
       ball.y < paddle.height + paddleHalf &&
       ball.y > paddle.height - paddleHalf
     );
   else
     return (
-      ball.x < properties.paddle.width + properties.ballProperties.radius &&
+      ball.x + ball.speed_x < paddle.lateral &&
       ball.y < paddle.height + paddleHalf &&
       ball.y > paddle.height - paddleHalf
     );
