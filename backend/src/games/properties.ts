@@ -158,4 +158,5 @@ export const gameSpawn: IGame = {
   isFinished: false,
 };
 
+export const goalSizePercent: number = 30;
 export default properties;

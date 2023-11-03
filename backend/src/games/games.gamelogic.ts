@@ -1,4 +1,10 @@
-import properties, { IBall, IKeyState, IPaddle, gameSpawn } from './properties';
+import properties, {
+  IBall,
+  IKeyState,
+  IPaddle,
+  gameSpawn,
+  goalSizePercent,
+} from './properties';
 
 export const movePaddle1D = (
   keyState: IKeyState,
@@ -118,4 +124,45 @@ export const ballHitPaddle = (ball: IBall, paddle: IPaddle): boolean => {
         Math.sign(ball.speed_x);
     return true;
   } else return false;
+};
+
+export const ballhitSide1D = (ball: IBall): boolean => {
+  return ball.x > properties.window.width || ball.x < 0;
+};
+
+export const ballhitSide2D = (ball: IBall): boolean => {
+  const goalHalf: number =
+    (goalSizePercent * properties.window.height) / 100 / 2;
+
+  return (
+    ballhitSide1D(ball) &&
+    (ball.y < properties.window.height / 2 - goalHalf ||
+      ball.y > properties.window.height / 2 + goalHalf)
+  );
+};
+
+export const ballHitGoal = (ball: IBall): string | null => {
+  const goalHalf: number =
+    (goalSizePercent * properties.window.height) / 100 / 2;
+  if (
+    ball.x < 0 &&
+    ball.y > properties.window.height / 2 - goalHalf &&
+    ball.y < properties.window.height / 2 + goalHalf
+  ) {
+    return 'left';
+  } else if (
+    ball.x > properties.window.width &&
+    ball.y > properties.window.height / 2 - goalHalf &&
+    ball.y < properties.window.height / 2 + goalHalf
+  ) {
+    return 'right';
+  }
+};
+
+export const bounceOnSide = (ball: IBall): void => {
+  ball.speed_x *= -1;
+};
+
+export const bounceOnTop = (ball: IBall): void => {
+  ball.speed_y *= -1;
 };

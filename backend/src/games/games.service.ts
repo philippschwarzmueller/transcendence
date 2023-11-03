@@ -13,8 +13,12 @@ import properties, {
 } from './properties';
 import {
   advanceBall,
+  ballHitGoal,
   ballHitPaddle,
+  ballhitSide2D,
   bounceOnPaddle,
+  bounceOnSide,
+  bounceOnTop,
   movePaddle1D,
   movePaddle2D,
 } from './games.gamelogic';
@@ -180,17 +184,19 @@ export class GamesService {
     ) {
       // hit left paddle
       bounceOnPaddle(localGame.gameState.ball, localGame.gameState.leftPaddle);
-    } else if (newBall.x > properties.window.width) {
+    } else if (ballHitGoal(newBall) === 'right') {
       // missed right paddle
       localGame.gameState.ball = ballSpawn;
       localGame.gameState.pointsLeft++;
-    } else if (newBall.x < 0) {
+    } else if (ballHitGoal(newBall) === 'left') {
       // missed left paddle
       localGame.gameState.ball = ballSpawn;
       localGame.gameState.pointsRight++;
+    } else if (ballhitSide2D(newBall)) {
+      bounceOnSide(localGame.gameState.ball);
     } else if (newBall.y > properties.window.height || newBall.y < 0) {
       //collision on top/botton
-      localGame.gameState.ball.speed_y *= -1;
+      bounceOnTop(localGame.gameState.ball);
     }
 
     // actually moving ball
