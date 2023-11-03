@@ -99,16 +99,10 @@ export const bounceOnPaddle = (ball: IBall, paddle: IPaddle): IBall => {
 
 export const ballHitPaddle = (ball: IBall, paddle: IPaddle): boolean => {
   const paddleHalf: number = Math.floor(properties.paddle.height / 2);
-  if (paddle.side === 'right')
-    return (
-      ball.x + ball.speed_x > paddle.lateral &&
-      ball.y < paddle.height + paddleHalf &&
-      ball.y > paddle.height - paddleHalf
-    );
-  else
-    return (
-      ball.x + ball.speed_x < paddle.lateral &&
-      ball.y < paddle.height + paddleHalf &&
-      ball.y > paddle.height - paddleHalf
-    );
+  return (
+    ball.y < paddle.height + paddleHalf &&
+    ball.y > paddle.height - paddleHalf &&
+    ((ball.x < paddle.lateral && ball.x + ball.speed_x > paddle.lateral) ||
+      (ball.x > paddle.lateral && ball.x + ball.speed_x < paddle.lateral))
+  );
 };
