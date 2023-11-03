@@ -27,23 +27,11 @@ export const movePaddle2D = (
   keyState: IKeyState,
   paddlePos: IPaddle,
 ): IPaddle => {
+  paddlePos = movePaddle1D(keyState, paddlePos);
+  const safeSpace: number = properties.window.width / 10;
   const step: number = Math.floor(
     properties.paddle.speed / properties.framerate,
   );
-  if (
-    keyState.down === true &&
-    keyState.up === false &&
-    paddlePos.height + step < properties.window.height
-  ) {
-    paddlePos.height += step;
-  } else if (
-    keyState.up === true &&
-    keyState.down === false &&
-    paddlePos.height - step > 0
-  ) {
-    paddlePos.height -= step;
-  }
-  const safeSpace: number = properties.window.width / 10;
   if (keyState.left === true && keyState.right === false) {
     if (paddlePos.side == 'left') {
       if (paddlePos.lateral + step > properties.paddle.width)
