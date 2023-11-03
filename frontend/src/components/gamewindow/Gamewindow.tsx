@@ -17,7 +17,7 @@ import {
   drawErrorScreen,
 } from "./drawFunctions";
 import { useParams } from "react-router-dom";
-import { GAMESOCKET, GAMESOCKETADDRESS } from "../queue/Queue";
+import { EGamemode, GAMESOCKET, GAMESOCKETADDRESS } from "../queue/Queue";
 import { io, Socket } from "socket.io-client";
 import { AuthContext, IUser } from "../../context/auth";
 
@@ -150,7 +150,10 @@ const GameWindow: React.FC = () => {
       }
     });
 
-    drawBackground(gameCanvas.background?.current?.getContext("2d"));
+    drawBackground(
+      EGamemode.roomMovement,
+      gameCanvas.background?.current?.getContext("2d")
+    );
     socket.on("endgame", () => {
       isGameFinished.current = true;
       finishGame(gameInterval.current);

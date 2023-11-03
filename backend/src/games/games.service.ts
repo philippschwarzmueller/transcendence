@@ -9,6 +9,7 @@ import properties, {
   IGameBackend,
   IGameUser,
   IKeyState,
+  IPaddle,
   IUser,
 } from './properties';
 import {
@@ -165,7 +166,8 @@ export class GamesService {
   }
 
   private async GameLoop2D(localGame: IGameBackend): Promise<void> {
-    const newBall: IBall = advanceBall(localGame.gameState.ball);
+    const oldPaddleLeft: IPaddle = { ...localGame.gameState.leftPaddle };
+    const oldPaddleRight: IPaddle = { ...localGame.gameState.rightPaddle };
     movePaddle2D(
       localGame.gameState.keyStateLeft,
       localGame.gameState.leftPaddle,
@@ -174,7 +176,23 @@ export class GamesService {
       localGame.gameState.keyStateRight,
       localGame.gameState.rightPaddle,
     );
+    const newBall: IBall = advanceBall(localGame.gameState.ball);
     if (
+      (oldPaddleLeft.lateral <= localGame.gameState.ball.x &&
+        localGame.gameState.leftPaddle.lateral >= localGame.gameState.ball.x) ||
+      (oldPaddleLeft.lateral >= localGame.gameState.ball.x &&
+        localGame.gameState.leftPaddle.lateral <= localGame.gameState.ball.x)
+    )
+      bounceOnPaddle(localGame.gameState.ball, localGame.gameState.leftPaddle);
+    else if (
+      (oldPaddleRight.lateral >= localGame.gameState.ball.x &&
+        localGame.gameState.rightPaddle.lateral <=
+          localGame.gameState.ball.x) ||
+      (oldPaddleRight.lateral <= localGame.gameState.ball.x &&
+        localGame.gameState.rightPaddle.lateral >= localGame.gameState.ball.x)
+    )
+      bounceOnPaddle(localGame.gameState.ball, localGame.gameState.rightPaddle);
+    else if (
       ballHitPaddle(localGame.gameState.ball, localGame.gameState.rightPaddle)
     ) {
       // hit right paddle

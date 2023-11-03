@@ -108,22 +108,34 @@ export const ballHitPaddle = (ball: IBall, paddle: IPaddle): boolean => {
   const bounceProtection: number = 2;
 
   if (
-    ((ball.y <= paddle.height + paddleHalf &&
-      ball.y >= paddle.height - paddleHalf) ||
-      (ball.y + ball.speed_y * bounceProtection <= paddle.height + paddleHalf &&
-        ball.y + ball.speed_y * bounceProtection >=
-          paddle.height - paddleHalf)) &&
-    ((ball.x <= paddle.lateral &&
-      ball.x + ball.speed_x * bounceProtection >= paddle.lateral) ||
-      (ball.x >= paddle.lateral &&
-        ball.x + ball.speed_x * bounceProtection <= paddle.lateral))
+    (ball.x <= paddle.lateral && ball.x + ball.speed_x >= paddle.lateral) ||
+    (ball.x >= paddle.lateral && ball.x + ball.speed_x <= paddle.lateral)
   ) {
-    ball.x =
-      paddle.lateral -
-      (properties.paddle.width / 2 + properties.ballProperties.radius) *
-        Math.sign(ball.speed_x);
-    return true;
+    const ballLateral: number =
+      ((ball.x - paddle.lateral) / ball.speed_x) * ball.speed_y + ball.y;
+    if (
+      ballLateral < paddle.height + paddleHalf &&
+      ballLateral > paddle.height - paddleHalf
+    )
+      return true;
   } else return false;
+  // if (
+  //   ((ball.y <= paddle.height + paddleHalf &&
+  //     ball.y >= paddle.height - paddleHalf) ||
+  //     (ball.y + ball.speed_y * bounceProtection <= paddle.height + paddleHalf &&
+  //       ball.y + ball.speed_y * bounceProtection >=
+  //         paddle.height - paddleHalf)) &&
+  //   ((ball.x <= paddle.lateral &&
+  //     ball.x + ball.speed_x * bounceProtection >= paddle.lateral) ||
+  //     (ball.x >= paddle.lateral &&
+  //       ball.x + ball.speed_x * bounceProtection <= paddle.lateral))
+  // ) {
+  //   ball.x =
+  //     paddle.lateral -
+  //     (properties.paddle.width / 2 + properties.ballProperties.radius) *
+  //       Math.sign(ball.speed_x);
+  //   return true;
+  // } else return false;
 };
 
 export const ballhitSide1D = (ball: IBall): boolean => {

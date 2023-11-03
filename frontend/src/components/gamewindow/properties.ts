@@ -138,5 +138,6 @@ export const gameSpawn: IGame = {
   keyStateRight: { up: false, down: false, left: false, right: false },
   isFinished: false,
 };
+export const goalSizePercent: number = 30;
 
 export default properties;

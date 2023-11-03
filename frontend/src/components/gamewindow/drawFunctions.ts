@@ -1,4 +1,10 @@
-import properties, { IBall, IGame, IPaddle } from "./properties";
+import { EGamemode } from "../queue/Queue";
+import properties, {
+  IBall,
+  IGame,
+  IPaddle,
+  goalSizePercent,
+} from "./properties";
 
 export const drawPaddle = (
   context: CanvasRenderingContext2D | undefined | null,
@@ -62,6 +68,7 @@ export const drawBall = (
 };
 
 export const drawBackground = (
+  gamemode: EGamemode,
   context: CanvasRenderingContext2D | undefined | null
 ): void => {
   if (context === undefined || context === null) return;
@@ -78,6 +85,41 @@ export const drawBackground = (
       squareSize
     );
     currentSquarePos += 2 * squareSize;
+  }
+  context.fillRect(0, 0, properties.window.width, properties.paddle.width / 2);
+  context.fillRect(
+    0,
+    properties.window.height - properties.paddle.width / 2,
+    properties.window.width,
+    properties.window.height
+  );
+  if (gamemode === EGamemode.roomMovement) {
+    const goalHalf: number =
+      (goalSizePercent * properties.window.height) / 2 / 100;
+    context.fillRect(
+      0,
+      0,
+      properties.paddle.width / 2,
+      properties.window.height / 2 - goalHalf
+    );
+    context.fillRect(
+      0,
+      properties.window.height / 2 + goalHalf,
+      properties.paddle.width / 2,
+      properties.window.height
+    );
+    context.fillRect(
+      properties.window.width - properties.paddle.width / 2,
+      0,
+      properties.window.width,
+      properties.window.height / 2 - goalHalf
+    );
+    context.fillRect(
+      properties.window.width - properties.paddle.width / 2,
+      properties.window.height / 2 + goalHalf,
+      properties.window.width,
+      properties.window.height
+    );
   }
 };
 
