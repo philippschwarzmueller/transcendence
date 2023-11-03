@@ -32,13 +32,18 @@ export class WSocketGateway implements OnGatewayInit {
   server: Server;
 
   @SubscribeMessage('message')
-  message( @MessageBody() data: IMessage, @ConnectedSocket() client: Socket) {
+  async message( @MessageBody() data: IMessage, @ConnectedSocket() client: Socket): Promise<void> {
     this.chatService.handleMessage(data, client, this.server);
   }
 
   @SubscribeMessage('join')
-  async join(@MessageBody() data: IMessage, @ConnectedSocket() client: Socket) {
+  async join(@MessageBody() data: IMessage, @ConnectedSocket() client: Socket): Promise<string[]> {
     return await this.chatService.joinRoom(data, client);
+  }
+
+  @SubscribeMessage('create')
+  async addChat(@MessageBody() data: IMessage, @ConnectedSocket() client: Socket): Promise<string[]> {
+    return await this.chatService.addChat(data.user.name, data.room, client);
   }
 
   @SubscribeMessage('alterGameData')

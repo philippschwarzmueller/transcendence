@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
 import Input from "../input/Input";
 import Button from "../button/Button";
-import { SocketContext } from "../../context/socket"
+import { SocketContext } from "../../context/socket";
 import { Socket } from "socket.io-client";
 import styled from "styled-components";
 import Moveablewindow from "../moveablewindow/Moveablewindow";
@@ -35,8 +35,10 @@ const Textfield = styled.div`
   border-width: 1px 0px 0px 1px;
   border-top-color: rgb(134, 138, 142);
   border-left-color: rgb(134, 138, 142);
-  box-shadow: rgb(195, 199, 203) -1px -1px 0px 0px inset,
-    rgb(0, 0, 0) 1px 1px 0px 0px inset, rgb(255, 255, 255) 0.5px 0.5px 0px 0.5px;
+  box-shadow:
+    rgb(195, 199, 203) -1px -1px 0px 0px inset,
+    rgb(0, 0, 0) 1px 1px 0px 0px inset,
+    rgb(255, 255, 255) 0.5px 0.5px 0px 0.5px;
   overflow: auto;
   &::-webkit-scrollbar {
     width: 17x;
@@ -51,7 +53,8 @@ const Textfield = styled.div`
     background: rgb(195, 199, 203);
     color: rgb(0, 0, 0);
     border: 0px;
-    box-shadow: rgb(0, 0, 0) -1px -1px 0px 0px inset,
+    box-shadow:
+      rgb(0, 0, 0) -1px -1px 0px 0px inset,
       rgb(210, 210, 210) 1px 1px 0px 0px inset,
       rgb(134, 138, 142) -2px -2px 0px 0px inset,
       rgb(255, 255, 255) 2px 2px 0px 0px inset;
@@ -81,11 +84,12 @@ const StyledUl = styled.ul`
   list-style: none;
 `;
 
+
 const Chatwindow: React.FC = () => {
   const [messages, setMessages] = useState<string[]>([]);
   const [input, setInput] = useState<string>("");
   const user: IUser = useContext(AuthContext).user;
-  const [tabs, setTabs] = useState<string[]>(user.activeChats);
+  const [tabs, setTabs] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<string>("");
   const [room, setRoom] = useState<string>("general");
   const socket: Socket = useContext(SocketContext);
@@ -101,9 +105,22 @@ const Chatwindow: React.FC = () => {
   });
 
   useEffect(() => {
-    if (user === undefined) return;
+    fetch(`http://${window.location.hostname}:4000/chat?userId=${user.name}`, {
+      method: "GET",
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((res: string[]) => setTabs(res));
+  }, []);
+
+  useEffect(() => {
+    console.log("unehre");
     socket.emit("join", { user, input, room }, (res: string[]) =>
-      setMessages(res)
+      setMessages(res),
     );
   }, [room]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -114,7 +131,7 @@ const Chatwindow: React.FC = () => {
         block: "end",
         inline: "nearest",
       }),
-    [messages]
+    [messages],
   );
 
   useEffect(() => {
@@ -124,8 +141,6 @@ const Chatwindow: React.FC = () => {
 
   function send(event: React.MouseEvent | React.KeyboardEvent) {
     event.preventDefault();
-    if (user === undefined)
-      setMessages([...messages, "you have to be logged in to chat!"]);
     if (input.trim() !== "" && user !== undefined)
       socket.emit("message", { user, input, room });
     setInput("");
@@ -172,12 +187,12 @@ const Chatwindow: React.FC = () => {
             onClick={() => {
               fetch(
                 `http://${window.location.hostname}:4000/chat/rooms?userId=${user.name}&chat=${activeTab}`,
-                { method: "DELETE" }
+                { method: "DELETE" },
               );
               setTabs(
                 tabs.filter(function (e) {
                   return e !== activeTab;
-                })
+                }),
               );
               setActive(tabs[tabs.length - 1]);
             }}
@@ -212,17 +227,6 @@ const Chatwindow: React.FC = () => {
             }
           >
             Clear
-          </Button>
-          <Button
-            onClick={() => {
-              socket.emit("remove", room);
-              fetch(
-                `http://${window.location.hostname}:4000/chat/all?userId=${user.name}`,
-                { method: "DELETE" }
-              );
-            }}
-          >
-            Remove
           </Button>
         </Msgfield>
       </Moveablewindow>

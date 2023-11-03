@@ -19,7 +19,7 @@ export class ChatDAO {
   ) {}
 
   public async saveMessageToChannel(message: IMessage): Promise<void> {
-    this.messsageRepo.save(
+    await this.messsageRepo.save(
       this.messsageRepo.create({
         sender: await this.userService.findOneByName(message.user.name),
         channel: await this.getChannelByTitle(message.room),
@@ -28,26 +28,30 @@ export class ChatDAO {
     );
   }
 
-  public async saveChannel(title: string, user: IUser): Promise<Channels> {
-    this.channelRepo.save(
+  public async saveChannel(title: string, user: string): Promise<void> {
+    const check = await this.getChannelByTitle(title);
+    if (check !== null) {
+      await this.addUserToChannel(title, user);
+      return ;
+    }
+    await this.channelRepo.save(
       this.channelRepo.create({
         title: title,
-        users: [await this.userService.findOneByName(user.name)],
+        users: [await this.userService.findOneByName(user)],
       }),
     );
-    return await this.getChannelByTitle(title);
   }
 
-  public async addUserToChannel(title: string, user: IUser): Promise<void> {
+  public async addUserToChannel(title: string, user: string): Promise<void> {
     const channel: Channels = await this.getChannelByTitle(title);
-    const newUser: User = await this.userService.findOneByName(user.name);
+    const newUser: User = await this.userService.findOneByName(user);
     channel.users.push(newUser);
     this.channelRepo.save(channel);
   }
 
   public async removeUserFromChannel(
     title: string,
-    user: IUser,
+    user: User,
   ): Promise<void> {
     const channel: Channels = await this.getChannelByTitle(title);
     channel.users = channel.users.filter((u) => u.id !== user.id);
@@ -67,6 +71,7 @@ export class ChatDAO {
       .createQueryBuilder('message')
       .innerJoinAndSelect('message.sender', 'sender') // Inner join with User entity
       .where('message.channel = :id', { id: channelId })
+      .orderBy('message.id', 'ASC')
       .getMany();
   }
 
