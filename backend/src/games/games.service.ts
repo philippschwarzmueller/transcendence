@@ -130,16 +130,20 @@ export class GamesService {
     );
 
     const newBall: IBall = advanceBall(localGame.gameState.ball);
-    if (ballHitPaddle(newBall, localGame.gameState.rightPaddle)) {
+    if (
+      ballHitPaddle(localGame.gameState.ball, localGame.gameState.rightPaddle)
+    ) {
       // hit right paddle
       bounceOnPaddle(localGame.gameState.ball, localGame.gameState.rightPaddle);
+    } else if (
+      ballHitPaddle(localGame.gameState.ball, localGame.gameState.leftPaddle)
+    ) {
+      // hit left paddle
+      bounceOnPaddle(localGame.gameState.ball, localGame.gameState.leftPaddle);
     } else if (newBall.x > properties.window.width) {
       // missed right paddle
       localGame.gameState.ball = ballSpawn;
       localGame.gameState.pointsLeft++;
-    } else if (ballHitPaddle(newBall, localGame.gameState.leftPaddle)) {
-      // hit left paddle
-      bounceOnPaddle(localGame.gameState.ball, localGame.gameState.leftPaddle);
     } else if (newBall.x < 0) {
       // missed left paddle
       localGame.gameState.ball = ballSpawn;
@@ -157,6 +161,7 @@ export class GamesService {
   }
 
   private async GameLoop2D(localGame: IGameBackend): Promise<void> {
+    const newBall: IBall = advanceBall(localGame.gameState.ball);
     movePaddle2D(
       localGame.gameState.keyStateLeft,
       localGame.gameState.leftPaddle,
@@ -165,18 +170,20 @@ export class GamesService {
       localGame.gameState.keyStateRight,
       localGame.gameState.rightPaddle,
     );
-
-    const newBall: IBall = advanceBall(localGame.gameState.ball);
-    if (ballHitPaddle(newBall, localGame.gameState.rightPaddle)) {
+    if (
+      ballHitPaddle(localGame.gameState.ball, localGame.gameState.rightPaddle)
+    ) {
       // hit right paddle
       bounceOnPaddle(localGame.gameState.ball, localGame.gameState.rightPaddle);
+    } else if (
+      ballHitPaddle(localGame.gameState.ball, localGame.gameState.leftPaddle)
+    ) {
+      // hit left paddle
+      bounceOnPaddle(localGame.gameState.ball, localGame.gameState.leftPaddle);
     } else if (newBall.x > properties.window.width) {
       // missed right paddle
       localGame.gameState.ball = ballSpawn;
       localGame.gameState.pointsLeft++;
-    } else if (ballHitPaddle(newBall, localGame.gameState.leftPaddle)) {
-      // hit left paddle
-      bounceOnPaddle(localGame.gameState.ball, localGame.gameState.leftPaddle);
     } else if (newBall.x < 0) {
       // missed left paddle
       localGame.gameState.ball = ballSpawn;
