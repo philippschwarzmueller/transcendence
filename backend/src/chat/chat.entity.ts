@@ -6,11 +6,13 @@ import {
   ManyToOne,
   ManyToMany,
   PrimaryGeneratedColumn,
+  Unique,
 } from 'typeorm';
 
 import { User } from '../users/user.entity';
 
 @Entity('channels')
+@Unique(['title'])
 export class Channels {
   @PrimaryGeneratedColumn()
   id: number;

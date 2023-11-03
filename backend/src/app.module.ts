@@ -9,6 +9,8 @@ import { GamesModule } from './games/games.module';
 import { ChatModule } from './chat/chat.module';
 import { Game } from './games/game.entity';
 import { Channels, Messages } from './chat/chat.entity';
+import { WSocketModule } from './wsocket/wsocket.module';
+import { WSocketGateway } from './wsocket/wsocket.gateway';
 
 @Module({
   imports: [
@@ -26,8 +28,9 @@ import { Channels, Messages } from './chat/chat.entity';
     AuthModule,
     GamesModule,
     ChatModule,
+    WSocketModule,
   ],
   controllers: [AppController],
-  providers: [GreetingService],
+  providers: [GreetingService, WSocketGateway],
 })
 export class AppModule {}

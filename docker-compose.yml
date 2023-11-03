@@ -17,8 +17,7 @@ services:
       - server-side
     ports:
       - 4000:4000
-      - 8080:8080
-      - 6969:6969
+      - 9000:9000
     volumes:
       - .:/code
   db:
