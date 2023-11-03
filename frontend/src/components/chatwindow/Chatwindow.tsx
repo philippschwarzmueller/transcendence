@@ -84,7 +84,6 @@ const StyledUl = styled.ul`
   list-style: none;
 `;
 
-
 const Chatwindow: React.FC = () => {
   const [messages, setMessages] = useState<string[]>([]);
   const [input, setInput] = useState<string>("");

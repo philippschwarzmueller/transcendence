@@ -15,7 +15,6 @@ export class ChatService {
     private chatDao: ChatDAO,
   ) {}
 
-
   async getChats(userId: string): Promise<string[]> {
     let res: string[] = [];
     try {
@@ -27,14 +26,18 @@ export class ChatService {
     return res;
   }
 
-  async addChat(userId: string, chatName: string, client: Socket): Promise<string[]> {
-    let res:string[] = [];
+  async addChat(
+    userId: string,
+    chatName: string,
+    client: Socket,
+  ): Promise<string[]> {
+    let res: string[] = [];
     try {
       const user = await this.userService.findOneByName(userId);
       await this.chatDao.saveChannel(chatName, userId);
       client.join(chatName);
       return await this.chatDao.getRawUserChannels(user.id);
-    } catch(error) {
+    } catch (error) {
       console.log(error);
     }
     return res;
@@ -44,12 +47,10 @@ export class ChatService {
     try {
       const user = await this.userService.findOneByName(userId);
       await this.chatDao.removeUserFromChannel(chat, user);
-    }
-    catch(error) {
+    } catch (error) {
       console.log(error);
     }
   }
-
 
   async joinRoom(data: IMessage, client: Socket): Promise<string[]> {
     let res: string[] = [];
@@ -57,7 +58,11 @@ export class ChatService {
       const channel = await this.chatDao.getChannelByTitle(data.room);
       client.join(data.room);
       await this.chatDao.addUserToChannel(data.room, data.user.name);
-      await this.chatDao.saveMessageToChannel({user: data.user, input: "joined room", room: data.room});
+      await this.chatDao.saveMessageToChannel({
+        user: data.user,
+        input: 'joined room',
+        room: data.room,
+      });
       client.to(data.room).emit('message', 'oheinzel: joined room');
       res = await this.chatDao.getRawChannelMessages(channel.id);
     } catch (error) {
@@ -66,7 +71,7 @@ export class ChatService {
     return res;
   }
 
-  async handleMessage( data: IMessage, client: Socket, server: Server) {
+  async handleMessage(data: IMessage, client: Socket, server: Server) {
     try {
       manageUsers(data, client);
       const mess = `${data.user.name}: ${data.input}`;
