@@ -4,8 +4,8 @@ import { Repository } from 'typeorm';
 import { Injectable, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IMessage } from './properties';
-import { IUser } from './properties';
 import { UsersService } from 'src/users/users.service';
+import { error } from 'console';
 
 @Injectable()
 export class ChatDAO {
@@ -29,30 +29,32 @@ export class ChatDAO {
   }
 
   public async saveChannel(title: string, user: string): Promise<void> {
-    const check = await this.getChannelByTitle(title);
-    if (check !== null) {
-      await this.addUserToChannel(title, user);
-      return ;
+    const existingChannel = await this.channelRepo.findOne({
+      where: { title },
+    });
+    if (existingChannel) {
+      this.addUserToChannel(title, user);
+    } else {
+      console.log('else');
+      await this.channelRepo.save(
+        this.channelRepo.create({
+          title: title,
+          users: [await this.userService.findOneByName(user)],
+        }),
+      );
     }
-    await this.channelRepo.save(
-      this.channelRepo.create({
-        title: title,
-        users: [await this.userService.findOneByName(user)],
-      }),
-    );
   }
 
   public async addUserToChannel(title: string, user: string): Promise<void> {
     const channel: Channels = await this.getChannelByTitle(title);
     const newUser: User = await this.userService.findOneByName(user);
-    channel.users.push(newUser);
-    this.channelRepo.save(channel);
+    if (channel.users.includes(newUser) === false) {
+      channel.users.push(newUser);
+      this.channelRepo.save(channel);
+    }
   }
 
-  public async removeUserFromChannel(
-    title: string,
-    user: User,
-  ): Promise<void> {
+  public async removeUserFromChannel(title: string, user: User): Promise<void> {
     const channel: Channels = await this.getChannelByTitle(title);
     channel.users = channel.users.filter((u) => u.id !== user.id);
     this.channelRepo.save(channel);
@@ -87,6 +89,13 @@ export class ChatDAO {
       .innerJoin('channel.users', 'user')
       .where('user.id = :userId', { userId })
       .getMany();
+  }
+
+  public async getAllChannels(): Promise<string[]> {
+    const res: Channels[] = await this.channelRepo.find();
+    return res.map((item) => {
+      return item.title;
+    });
   }
 
   public async getRawUserChannels(userId: number): Promise<string[]> {
