@@ -175,6 +175,7 @@ export const drawText = (
   context.clearRect(0, 0, properties.window.width, properties.window.height);
   context.font = `${fontSize}px Arial`;
   context.fillStyle = "white";
+  context.textAlign = "center";
   context.fillText(
     `${pointsLeft}`,
     properties.window.width / 3,

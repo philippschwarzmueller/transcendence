@@ -46,9 +46,6 @@ export class GamesService {
       [EGamemode.standard, []],
       [EGamemode.roomMovement, []],
     ]);
-    setInterval(() => {
-      console.log(this.runningGames.size, ' games running');
-    }, 1000);
   }
 
   public runningGames: Map<string, IGameBackend>;
