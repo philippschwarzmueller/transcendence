@@ -115,7 +115,7 @@ const properties: IProperties = {
     radius: 10,
     color: 'white',
     acceleration: 1.1,
-    maxBounceAngle: 30,
+    maxBounceAngle: 20,
   },
   framerate: 25,
 };
@@ -159,5 +159,5 @@ export const gameSpawn: IGame = {
   isFinished: false,
 };
 
-export const goalSizePercent: number = 30;
+export const goalSizePercent: number = 50;
 export default properties;
