@@ -18,6 +18,7 @@ interface IBallProperties {
   color: string; // color of the painted ball
   acceleration: number;
   maxBounceAngle: number;
+  maxSpeed: number;
 }
 
 interface IProperties {
@@ -116,6 +117,7 @@ const properties: IProperties = {
     color: 'white',
     acceleration: 1.1,
     maxBounceAngle: 20,
+    maxSpeed: 30,
   },
   framerate: 25,
 };

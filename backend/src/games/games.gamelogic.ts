@@ -82,6 +82,15 @@ export const advanceBall = (oldBall: IBall): IBall => {
   return newBall;
 };
 
+export const accelerateBall = (ball: IBall): IBall => {
+  const ballSpeed = Math.sqrt(ball.speed_x ** 2 + ball.speed_y ** 2);
+  if (ballSpeed <= properties.ballProperties.maxSpeed) {
+    ball.speed_x *= properties.ballProperties.acceleration;
+    ball.speed_y *= properties.ballProperties.acceleration;
+  }
+  return ball;
+};
+
 export const bounceOnPaddle = (ball: IBall, paddle: IPaddle): IBall => {
   const paddleHalf: number = Math.floor(properties.paddle.height / 2);
   const deltaPaddle: number = ((paddle.height - ball.y) * 2) / paddleHalf;
@@ -91,19 +100,13 @@ export const bounceOnPaddle = (ball: IBall, paddle: IPaddle): IBall => {
     ball.speed_x * ball.speed_x + ball.speed_y * ball.speed_y,
   );
   ball.speed_x =
-    properties.ballProperties.acceleration *
-    incomingSpeed *
-    Math.cos(bounceAngle) *
-    Math.sign(-ball.speed_x);
-  ball.speed_y =
-    properties.ballProperties.acceleration *
-    incomingSpeed *
-    Math.sin(bounceAngle) *
-    -1;
+    incomingSpeed * Math.cos(bounceAngle) * Math.sign(-ball.speed_x);
+  ball.speed_y = incomingSpeed * Math.sin(bounceAngle) * -1;
   ball.x =
     paddle.lateral +
     (properties.paddle.width / 2 + properties.ballProperties.radius) *
       Math.sign(ball.speed_x);
+  ball = accelerateBall(ball);
   return ball;
 };
 
@@ -179,8 +182,10 @@ export const ballHitGoal = (ball: IBall): string | null => {
 
 export const bounceOnSide = (ball: IBall): void => {
   ball.speed_x *= -1;
+  ball = accelerateBall(ball);
 };
 
 export const bounceOnTop = (ball: IBall): void => {
   ball.speed_y *= -1;
+  ball = accelerateBall(ball);
 };
