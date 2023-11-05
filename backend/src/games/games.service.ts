@@ -262,13 +262,12 @@ export class GamesService {
     client: Socket,
   ): void {
     this.queuedClients.forEach((queue) => {
-      if (queue.delete(user.name)) console.log(`deleted ${user.name}`);
+      queue.delete(user.name);
     });
     this.queuedClients.get(gamemode).set(user.name, {
       user: user,
       socket: client,
     });
-    console.log(`added ${this.queuedClients.get(gamemode).get(user.name)}`);
   }
 
   public async queue(
@@ -277,10 +276,6 @@ export class GamesService {
     client: Socket,
   ): Promise<void> {
     this.addClientToQueue(user, gamemode, client);
-    console.log(`queue: ${this.queuedClients.get(gamemode)}`);
-    this.queuedClients.get(gamemode).forEach((pair) => {
-      console.log(pair.user.name);
-    });
     if (this.queuedClients.get(gamemode).size >= 2) {
       const [firstClientKey, firstClientValue] = this.queuedClients
         .get(gamemode)
