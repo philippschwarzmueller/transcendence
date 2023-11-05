@@ -169,6 +169,8 @@ export class GamesService {
   private async GameLoop2D(localGame: IGameBackend): Promise<void> {
     const oldPaddleLeft: IPaddle = { ...localGame.gameState.leftPaddle };
     const oldPaddleRight: IPaddle = { ...localGame.gameState.rightPaddle };
+    const newBall: IBall = advanceBall(localGame.gameState.ball);
+
     movePaddle2D(
       localGame.gameState.keyStateLeft,
       localGame.gameState.leftPaddle,
@@ -177,7 +179,7 @@ export class GamesService {
       localGame.gameState.keyStateRight,
       localGame.gameState.rightPaddle,
     );
-    const newBall: IBall = advanceBall(localGame.gameState.ball);
+
     if (
       movingPaddleHitsBall(
         localGame.gameState.ball,
@@ -197,25 +199,20 @@ export class GamesService {
     else if (
       ballHitPaddle(localGame.gameState.ball, localGame.gameState.rightPaddle)
     ) {
-      // hit right paddle
       bounceOnPaddle(localGame.gameState.ball, localGame.gameState.rightPaddle);
     } else if (
       ballHitPaddle(localGame.gameState.ball, localGame.gameState.leftPaddle)
     ) {
-      // hit left paddle
       bounceOnPaddle(localGame.gameState.ball, localGame.gameState.leftPaddle);
     } else if (ballHitGoal(newBall) === 'right') {
-      // missed right paddle
       localGame.gameState.ball = ballSpawn;
       localGame.gameState.pointsLeft++;
     } else if (ballHitGoal(newBall) === 'left') {
-      // missed left paddle
       localGame.gameState.ball = ballSpawn;
       localGame.gameState.pointsRight++;
     } else if (ballhitSide2D(newBall)) {
       bounceOnSide(localGame.gameState.ball);
     } else if (newBall.y > properties.window.height || newBall.y < 0) {
-      //collision on top/botton
       bounceOnTop(localGame.gameState.ball);
     }
 
