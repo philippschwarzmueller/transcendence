@@ -262,12 +262,13 @@ export class GamesService {
     client: Socket,
   ): void {
     this.queuedClients.forEach((queue) => {
-      queue.delete(user.name);
+      if (queue.delete(user.name)) console.log(`deleted ${user.name}`);
     });
-    this.queuedClients.get(gamemode)[user.name] = {
+    this.queuedClients.get(gamemode).set(user.name, {
       user: user,
       socket: client,
-    };
+    });
+    console.log(`added ${this.queuedClients.get(gamemode).get(user.name)}`);
   }
 
   public async queue(
@@ -276,29 +277,33 @@ export class GamesService {
     client: Socket,
   ): Promise<void> {
     this.addClientToQueue(user, gamemode, client);
+    console.log(`queue: ${this.queuedClients.get(gamemode)}`);
+    this.queuedClients.get(gamemode).forEach((pair) => {
+      console.log(pair.user.name);
+    });
     if (this.queuedClients.get(gamemode).size >= 2) {
-      const firstClient: IGameUser = this.queuedClients
+      const [firstClientKey, firstClientValue] = this.queuedClients
         .get(gamemode)
         .entries()
         .next().value;
-      this.queuedClients.get(gamemode).delete(firstClient.user.name);
-      const secondClient: IGameUser = this.queuedClients
+      this.queuedClients.get(gamemode).delete(firstClientKey);
+      const [secondClientKey, secondClientValue] = this.queuedClients
         .get(gamemode)
         .entries()
         .next().value;
-      this.queuedClients.get(gamemode).delete(secondClient.user.name);
+      this.queuedClients.get(gamemode).delete(secondClientKey);
 
       const newGameId: string = await this.startGameLoop(
-        firstClient,
-        secondClient,
+        firstClientValue,
+        secondClientValue,
         gamemode,
       );
 
-      firstClient.socket.emit('queue found', {
+      firstClientValue.socket.emit('queue found', {
         gameId: newGameId,
         side: 'left',
       });
-      secondClient.socket.emit('queue found', {
+      secondClientValue.socket.emit('queue found', {
         gameId: newGameId,
         side: 'right',
       });
