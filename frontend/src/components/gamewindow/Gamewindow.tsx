@@ -149,11 +149,14 @@ const GameWindow: React.FC = () => {
         });
       }
     });
+    socket.emit("getGamemode", gameId, (gamemode: EGamemode) => {
+      if (gamemode !== undefined && gamemode !== null)
+        drawBackground(
+          gamemode,
+          gameCanvas.background?.current?.getContext("2d")
+        );
+    });
 
-    drawBackground(
-      EGamemode.roomMovement,
-      gameCanvas.background?.current?.getContext("2d")
-    );
     socket.on("endgame", () => {
       isGameFinished.current = true;
       finishGame(gameInterval.current);

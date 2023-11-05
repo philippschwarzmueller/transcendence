@@ -92,6 +92,7 @@ export interface IGameBackend {
   gameState: IGame;
   spectatorSockets: Socket[];
   interval?: NodeJS.Timeout;
+  gamemode: EGamemode;
 }
 
 export interface IFinishedGame {

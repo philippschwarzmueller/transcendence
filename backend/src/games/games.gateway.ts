@@ -65,4 +65,11 @@ export class GamesGateway {
   ): Promise<IFinishedGame> {
     return await this.gamesService.getGameFromDatabase(gameId);
   }
+
+  @SubscribeMessage('getGamemode')
+  public getGamemode(
+    @MessageBody() gameId: string,
+  ): EGamemode | undefined | null {
+    return this.gamesService.getGamemode(gameId);
+  }
 }

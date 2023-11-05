@@ -241,6 +241,7 @@ export class GamesService {
       gameState: newGame,
       leftPlayer: leftPlayer,
       rightPlayer: rightPlayer,
+      gamemode: gamemode,
     });
     this.amountOfGammes++;
     if (gamemode === EGamemode.standard) {
@@ -337,5 +338,9 @@ export class GamesService {
     };
     await this.gamesRepository.update(localGame.gameId, updatedDatabaseGame);
     this.gameStorage.delete(localGame.gameId);
+  }
+
+  public getGamemode(gameId: string): EGamemode | undefined | null {
+    return this.gameStorage.get(gameId)?.gamemode;
   }
 }
