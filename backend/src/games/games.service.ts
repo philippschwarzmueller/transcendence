@@ -43,13 +43,13 @@ export class GamesService {
   ) {
     this.runningGames = new Map<string, IGameBackend>();
     this.queuedClients = new Map([
-      [EGamemode.standard, []],
-      [EGamemode.roomMovement, []],
+      [EGamemode.standard, new Map()],
+      [EGamemode.roomMovement, new Map()],
     ]);
   }
 
   public runningGames: Map<string, IGameBackend>;
-  public queuedClients: Map<EGamemode, IGameUser[]>;
+  public queuedClients: Map<EGamemode, Map<string, IGameUser>>;
 
   private async generateGameId(
     leftPlayerName: string,
@@ -256,28 +256,52 @@ export class GamesService {
     return gameId;
   }
 
+  private addClientToQueue(
+    user: IUser,
+    gamemode: EGamemode,
+    client: Socket,
+  ): void {
+    this.queuedClients.forEach((queue) => {
+      queue.delete(user.name);
+    });
+    this.queuedClients.get(gamemode)[user.name] = {
+      user: user,
+      socket: client,
+    };
+  }
+
   public async queue(
     user: IUser,
     gamemode: EGamemode,
     client: Socket,
   ): Promise<void> {
-    this.queuedClients.get(gamemode).push({ user: user, socket: client });
-    if (this.queuedClients.get(gamemode).length >= 2) {
+    this.addClientToQueue(user, gamemode, client);
+    if (this.queuedClients.get(gamemode).size >= 2) {
+      const firstClient: IGameUser = this.queuedClients
+        .get(gamemode)
+        .entries()
+        .next().value;
+      this.queuedClients.get(gamemode).delete(firstClient.user.name);
+      const secondClient: IGameUser = this.queuedClients
+        .get(gamemode)
+        .entries()
+        .next().value;
+      this.queuedClients.get(gamemode).delete(secondClient.user.name);
+
       const newGameId: string = await this.startGameLoop(
-        this.queuedClients.get(gamemode)[0],
-        this.queuedClients.get(gamemode)[1],
+        firstClient,
+        secondClient,
         gamemode,
       );
-      this.queuedClients.get(gamemode)[0].socket.emit('queue found', {
+
+      firstClient.socket.emit('queue found', {
         gameId: newGameId,
         side: 'left',
       });
-      this.queuedClients.get(gamemode)[1].socket.emit('queue found', {
+      secondClient.socket.emit('queue found', {
         gameId: newGameId,
         side: 'right',
       });
-      //remember to later delete user form other queues
-      this.queuedClients.get(gamemode).splice(0, 2);
     }
   }
 
