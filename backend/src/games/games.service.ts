@@ -41,20 +41,18 @@ export class GamesService {
     @InjectRepository(Game)
     private gamesRepository: Repository<Game>, // private configService: ConfigService,
   ) {
-    this.gameStorage = new Map<string, IGameBackend>();
-    this.amountOfGammes = 0;
-    this.clients = new Map([
+    this.runningGames = new Map<string, IGameBackend>();
+    this.queuedClients = new Map([
       [EGamemode.standard, []],
       [EGamemode.roomMovement, []],
     ]);
     setInterval(() => {
-      console.log(this.gameStorage.size, ' games running');
+      console.log(this.runningGames.size, ' games running');
     }, 1000);
   }
 
-  public amountOfGammes: number;
-  public gameStorage: Map<string, IGameBackend>;
-  public clients: Map<EGamemode, IGameUser[]>;
+  public runningGames: Map<string, IGameBackend>;
+  public queuedClients: Map<EGamemode, IGameUser[]>;
 
   private async generateGameId(
     leftPlayerName: string,
@@ -73,8 +71,8 @@ export class GamesService {
   }
 
   private stop(gameId: string): void {
-    if (this.gameStorage.get(gameId).interval !== undefined)
-      clearInterval(this.gameStorage.get(gameId).interval);
+    if (this.runningGames.get(gameId).interval !== undefined)
+      clearInterval(this.runningGames.get(gameId).interval);
   }
 
   public async isGameInDatabase(gameId: string): Promise<boolean> {
@@ -82,7 +80,7 @@ export class GamesService {
   }
 
   public isGameRunning(gameId: string): boolean {
-    return this.gameStorage.has(gameId);
+    return this.runningGames.has(gameId);
   }
 
   public async getGameFromDatabase(gameId: string): Promise<IFinishedGame> {
@@ -114,15 +112,15 @@ export class GamesService {
     // if (userId === null) return this.games.get(gameId).game;
     if (
       side === 'left' &&
-      user.id === this.gameStorage.get(gameId).leftPlayer.user.id
+      user.id === this.runningGames.get(gameId).leftPlayer.user.id
     )
-      this.gameStorage.get(gameId).gameState.keyStateLeft = keystate;
+      this.runningGames.get(gameId).gameState.keyStateLeft = keystate;
     else if (
       side === 'right' &&
-      user.id === this.gameStorage.get(gameId).rightPlayer.user.id
+      user.id === this.runningGames.get(gameId).rightPlayer.user.id
     )
-      this.gameStorage.get(gameId).gameState.keyStateRight = keystate;
-    return this.gameStorage.get(gameId).gameState;
+      this.runningGames.get(gameId).gameState.keyStateRight = keystate;
+    return this.runningGames.get(gameId).gameState;
   }
 
   private async GameLoop1D(localGame: IGameBackend): Promise<void> {
@@ -235,7 +233,7 @@ export class GamesService {
       gamemode,
     );
     newGame.gameId = gameId;
-    this.gameStorage.set(gameId, {
+    this.runningGames.set(gameId, {
       gameId: gameId,
       spectatorSockets: [],
       gameState: newGame,
@@ -243,21 +241,20 @@ export class GamesService {
       rightPlayer: rightPlayer,
       gamemode: gamemode,
     });
-    this.amountOfGammes++;
     if (gamemode === EGamemode.standard) {
       const interval = setInterval(
         this.GameLoop1D.bind(this),
         properties.framerate,
-        this.gameStorage.get(gameId),
+        this.runningGames.get(gameId),
       );
-      this.gameStorage.get(gameId).interval = interval;
+      this.runningGames.get(gameId).interval = interval;
     } else if (gamemode === EGamemode.roomMovement) {
       const interval = setInterval(
         this.GameLoop2D.bind(this),
         properties.framerate,
-        this.gameStorage.get(gameId),
+        this.runningGames.get(gameId),
       );
-      this.gameStorage.get(gameId).interval = interval;
+      this.runningGames.get(gameId).interval = interval;
     }
     return gameId;
   }
@@ -267,29 +264,29 @@ export class GamesService {
     gamemode: EGamemode,
     client: Socket,
   ): Promise<void> {
-    this.clients.get(gamemode).push({ user: user, socket: client });
-    if (this.clients.get(gamemode).length >= 2) {
+    this.queuedClients.get(gamemode).push({ user: user, socket: client });
+    if (this.queuedClients.get(gamemode).length >= 2) {
       const newGameId: string = await this.startGameLoop(
-        this.clients.get(gamemode)[0],
-        this.clients.get(gamemode)[1],
+        this.queuedClients.get(gamemode)[0],
+        this.queuedClients.get(gamemode)[1],
         gamemode,
       );
-      this.clients.get(gamemode)[0].socket.emit('queue found', {
+      this.queuedClients.get(gamemode)[0].socket.emit('queue found', {
         gameId: newGameId,
         side: 'left',
       });
-      this.clients.get(gamemode)[1].socket.emit('queue found', {
+      this.queuedClients.get(gamemode)[1].socket.emit('queue found', {
         gameId: newGameId,
         side: 'right',
       });
       //remember to later delete user form other queues
-      this.clients.get(gamemode).splice(0, 2);
+      this.queuedClients.get(gamemode).splice(0, 2);
     }
   }
 
   public getGameData(gameId: string): IGame {
     if (!this.isGameRunning) return newGameCopy();
-    return this.gameStorage.get(gameId).gameState;
+    return this.runningGames.get(gameId).gameState;
   }
 
   private async cleanUpFinishedGame(localGame: IGameBackend): Promise<void> {
@@ -337,10 +334,10 @@ export class GamesService {
       isFinished: true,
     };
     await this.gamesRepository.update(localGame.gameId, updatedDatabaseGame);
-    this.gameStorage.delete(localGame.gameId);
+    this.runningGames.delete(localGame.gameId);
   }
 
   public getGamemode(gameId: string): EGamemode | undefined | null {
-    return this.gameStorage.get(gameId)?.gamemode;
+    return this.runningGames.get(gameId)?.gamemode;
   }
 }
