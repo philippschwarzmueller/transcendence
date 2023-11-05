@@ -1,16 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import Button from "../button";
 import Centerdiv from "../centerdiv";
-import { io, Socket } from "socket.io-client";
+import { Socket } from "socket.io-client";
 import { IGameStart } from "../gamewindow/properties";
 import { AuthContext, IUser } from "../../context/auth";
 import { useContext } from "react";
-
-export const GAMESOCKETADDRESS: string = `ws://${
-  window.location.hostname
-}:${6969}`;
-
-export let GAMESOCKET: Socket;
+import { SocketContext } from "../../context/socket";
 
 const queueUp = (socket: Socket, user: IUser, gamemode: EGamemode): void => {
   socket.emit("queue", { user: user, gamemode: gamemode });
@@ -37,10 +32,10 @@ export interface IQueuePayload {
 const Queue: React.FC<IQueueProps> = (
   props: IQueueProps = { gamemode: EGamemode.standard }
 ) => {
+  const socket: Socket = useContext(SocketContext);
   const user: IUser = useContext(AuthContext).user;
-  GAMESOCKET = io(GAMESOCKETADDRESS);
   const navigate = useNavigate();
-  GAMESOCKET.on("queue found", (body: IGameStart) => {
+  socket.on("queue found", (body: IGameStart) => {
     navigate(`/play/${body.gameId}/${body.side}`);
   });
   return (
@@ -48,7 +43,7 @@ const Queue: React.FC<IQueueProps> = (
       <Centerdiv>
         <Button
           onClick={() => {
-            queueUp(GAMESOCKET, user, props.gamemode);
+            queueUp(socket, user, props.gamemode);
           }}
         >
           {gameModeNames.get(props.gamemode)}
