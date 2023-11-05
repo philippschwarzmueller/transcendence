@@ -100,7 +100,32 @@ export const bounceOnPaddle = (ball: IBall, paddle: IPaddle): IBall => {
     incomingSpeed *
     Math.sin(bounceAngle) *
     -1;
+  ball.x =
+    paddle.lateral +
+    (properties.paddle.width / 2 + properties.ballProperties.radius) *
+      Math.sign(ball.speed_x);
   return ball;
+};
+
+export const movingPaddleHitsBall = (
+  ball: IBall,
+  newPaddle: IPaddle,
+  oldPaddle: IPaddle,
+): boolean => {
+  const paddleHalf: number = Math.floor(properties.paddle.height / 2);
+
+  if (
+    ball.y > newPaddle.height + paddleHalf ||
+    ball.y < newPaddle.height - paddleHalf
+  )
+    return false;
+
+  if (
+    (oldPaddle.lateral <= ball.x && newPaddle.lateral >= ball.x) ||
+    (oldPaddle.lateral >= ball.x && newPaddle.lateral <= ball.x)
+  )
+    return true;
+  else return false;
 };
 
 export const ballHitPaddle = (ball: IBall, paddle: IPaddle): boolean => {

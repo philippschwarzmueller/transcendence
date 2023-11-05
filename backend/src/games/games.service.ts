@@ -22,6 +22,7 @@ import {
   bounceOnTop,
   movePaddle1D,
   movePaddle2D,
+  movingPaddleHitsBall,
 } from './games.gamelogic';
 import { Socket } from 'socket.io';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -178,18 +179,19 @@ export class GamesService {
     );
     const newBall: IBall = advanceBall(localGame.gameState.ball);
     if (
-      (oldPaddleLeft.lateral <= localGame.gameState.ball.x &&
-        localGame.gameState.leftPaddle.lateral >= localGame.gameState.ball.x) ||
-      (oldPaddleLeft.lateral >= localGame.gameState.ball.x &&
-        localGame.gameState.leftPaddle.lateral <= localGame.gameState.ball.x)
+      movingPaddleHitsBall(
+        localGame.gameState.ball,
+        localGame.gameState.leftPaddle,
+        oldPaddleLeft,
+      )
     )
       bounceOnPaddle(localGame.gameState.ball, localGame.gameState.leftPaddle);
     else if (
-      (oldPaddleRight.lateral >= localGame.gameState.ball.x &&
-        localGame.gameState.rightPaddle.lateral <=
-          localGame.gameState.ball.x) ||
-      (oldPaddleRight.lateral <= localGame.gameState.ball.x &&
-        localGame.gameState.rightPaddle.lateral >= localGame.gameState.ball.x)
+      movingPaddleHitsBall(
+        localGame.gameState.ball,
+        localGame.gameState.rightPaddle,
+        oldPaddleRight,
+      )
     )
       bounceOnPaddle(localGame.gameState.ball, localGame.gameState.rightPaddle);
     else if (
