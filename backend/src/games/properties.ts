@@ -1,4 +1,5 @@
-import { Socket } from 'socket.io';
+import { Gamesocket } from './socket';
+// import { IUser } from "../../context/auth";
 
 interface IWindow {
   width: number; // gamewindow width in px
@@ -83,7 +84,7 @@ export interface IGameStart {
 
 export interface IGameUser {
   user: IUser;
-  socket: Socket;
+  socket: Gamesocket;
 }
 
 export interface IGameBackend {
@@ -91,7 +92,7 @@ export interface IGameBackend {
   leftPlayer: IGameUser;
   rightPlayer: IGameUser;
   gameState: IGame;
-  spectatorSockets: Socket[];
+  spectatorSockets: Gamesocket[];
   interval?: NodeJS.Timeout;
   gamemode: EGamemode;
 }
@@ -162,4 +163,5 @@ export const gameSpawn: IGame = {
 };
 
 export const goalSizePercent: number = 50;
+
 export default properties;

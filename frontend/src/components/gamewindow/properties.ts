@@ -1,4 +1,4 @@
-import { Socket } from "socket.io-client";
+import { Gamesocket } from "./socket";
 import { IUser } from "../../context/auth";
 
 interface IWindow {
@@ -18,6 +18,8 @@ interface IBallProperties {
   radius: number; //radius of the painted ball
   color: string; // color of the painted ball
   acceleration: number;
+  maxBounceAngle: number;
+  maxSpeed: number;
 }
 
 interface IProperties {
@@ -47,6 +49,13 @@ export interface IGame {
   isFinished: boolean;
 }
 
+// export interface IUser {
+//   id: number | undefined;
+//   name: string | undefined;
+//   image: string | undefined;
+//   token: string | undefined;
+// }
+
 export interface IBall {
   x: number;
   y: number;
@@ -60,6 +69,7 @@ export interface IKeyState {
   left: boolean;
   right: boolean;
 }
+
 export interface IGameSocketPayload {
   side: string;
   gameId: string;
@@ -74,16 +84,17 @@ export interface IGameStart {
 
 export interface IGameUser {
   user: IUser;
-  socket: Socket;
+  socket: Gamesocket;
 }
 
 export interface IGameBackend {
   gameId: string;
   leftPlayer: IGameUser;
   rightPlayer: IGameUser;
-  game: IGame;
-  spectatorSockets: Socket[];
+  gameState: IGame;
+  spectatorSockets: Gamesocket[];
   interval?: NodeJS.Timeout;
+  gamemode: EGamemode;
 }
 
 export interface IFinishedGame {
@@ -106,6 +117,8 @@ const properties: IProperties = {
     radius: 10,
     color: "white",
     acceleration: 1.1,
+    maxBounceAngle: 20,
+    maxSpeed: 30,
   },
   framerate: 25,
 };
@@ -118,6 +131,16 @@ export const ballSpawn: IBall = {
 };
 
 export const maxScore: number = 2;
+
+export enum EGamemode {
+  standard = 1,
+  roomMovement = 2,
+}
+
+export interface IQueuePayload {
+  user: IUser;
+  gamemode: EGamemode;
+}
 
 export const gameSpawn: IGame = {
   gameId: "0",
@@ -138,6 +161,7 @@ export const gameSpawn: IGame = {
   keyStateRight: { up: false, down: false, left: false, right: false },
   isFinished: false,
 };
+
 export const goalSizePercent: number = 50;
 
 export default properties;
