@@ -282,7 +282,7 @@ export class GamesService {
   }
 
   public getGameData(gameId: string): IGame {
-    if (!this.isGameRunning) return newGameCopy();
+    if (!this.isGameRunning(gameId)) return newGameCopy();
     return this.runningGames.get(gameId).gameState;
   }
 
