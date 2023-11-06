@@ -11,9 +11,11 @@ import { IMessage } from '../chat/properties';
 import { Socket, Server } from 'socket.io';
 import { GamesService } from '../games/games.service';
 import {
+  EGamemode,
   IFinishedGame,
   IGame,
   IGameSocketPayload,
+  IQueuePayload,
   IUser,
 } from '../games/properties';
 import { ChatService } from 'src/chat/chat.service';
@@ -75,10 +77,10 @@ export class WSocketGateway implements OnGatewayInit {
 
   @SubscribeMessage('queue')
   public queue(
-    @MessageBody() user: IUser,
+    @MessageBody() payload: IQueuePayload,
     @ConnectedSocket() client: Socket,
   ): void {
-    this.gamesService.queue(user, client);
+    this.gamesService.queue(payload.user, payload.gamemode, client);
   }
 
   @SubscribeMessage('getGameData')
@@ -103,6 +105,13 @@ export class WSocketGateway implements OnGatewayInit {
     @MessageBody() gameId: string,
   ): Promise<IFinishedGame> {
     return await this.gamesService.getGameFromDatabase(gameId);
+  }
+
+  @SubscribeMessage('getGamemode')
+  public getGamemode(
+    @MessageBody() gameId: string,
+  ): EGamemode | undefined | null {
+    return this.gamesService.getGamemode(gameId);
   }
 
   afterInit(server: any): any {}

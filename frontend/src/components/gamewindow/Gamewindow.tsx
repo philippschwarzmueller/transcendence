@@ -17,7 +17,8 @@ import {
   drawErrorScreen,
 } from "./drawFunctions";
 import { useParams } from "react-router-dom";
-import { SocketContext } from "../../context/socket"
+import { EGamemode } from "../queue/Queue";
+import { SocketContext } from "../../context/socket";
 import { Socket } from "socket.io-client";
 import { AuthContext, IUser } from "../../context/auth";
 
@@ -47,6 +48,8 @@ const GameWindow: React.FC = () => {
   const keystateRef: React.MutableRefObject<IKeyState> = useRef<IKeyState>({
     down: false,
     up: false,
+    left: false,
+    right: false,
   });
   const gameStateRef: React.MutableRefObject<IGame> = useRef<IGame>(gameSpawn);
   const gameId: string = params.gameId !== undefined ? params.gameId : "-1";
@@ -55,7 +58,8 @@ const GameWindow: React.FC = () => {
   > = useRef<ReturnType<typeof setInterval>>();
   const localUser: IUser = useContext(AuthContext).user;
   const socket: Socket = useContext(SocketContext);
-  let isGameFinished: React.MutableRefObject<boolean> = useRef<boolean>(false);
+  const isGameFinished: React.MutableRefObject<boolean> =
+    useRef<boolean>(false);
 
   const [navigateToEndScreen, setNavigateToEndScreen] = useState(false);
   const [navigateToErrorScreen, setNavigateToErrorScreen] = useState(false);
@@ -75,12 +79,12 @@ const GameWindow: React.FC = () => {
       gameId: gameId,
       user: localUser,
     };
-    if (socket.connected)
+    if (socket.connected) {
       socket.emit("alterGameData", gameSocketPayload, (res: IGame) => {
         gameStateRef.current = res;
         isGameFinished.current = res.isFinished;
       });
-    else gameStateRef.current = gameSpawn;
+    } else gameStateRef.current = gameSpawn;
     if (isGameFinished.current === true)
       drawWinScreen(
         gameStateRef.current.winner?.name,
@@ -144,8 +148,14 @@ const GameWindow: React.FC = () => {
         });
       }
     });
+    socket.emit("getGamemode", gameId, (gamemode: EGamemode) => {
+      if (gamemode !== undefined && gamemode !== null)
+        drawBackground(
+          gamemode,
+          gameCanvas.background?.current?.getContext("2d")
+        );
+    });
 
-    drawBackground(gameCanvas.background?.current?.getContext("2d"));
     socket.on("endgame", () => {
       isGameFinished.current = true;
       finishGame(gameInterval.current);
@@ -159,6 +169,8 @@ const GameWindow: React.FC = () => {
       (e) => {
         if (e.key === "ArrowUp") keystateRef.current.up = true;
         if (e.key === "ArrowDown") keystateRef.current.down = true;
+        if (e.key === "ArrowLeft") keystateRef.current.left = true;
+        if (e.key === "ArrowRight") keystateRef.current.right = true;
       },
       true
     );
@@ -168,6 +180,8 @@ const GameWindow: React.FC = () => {
       (e) => {
         if (e.key === "ArrowUp") keystateRef.current.up = false;
         if (e.key === "ArrowDown") keystateRef.current.down = false;
+        if (e.key === "ArrowLeft") keystateRef.current.left = false;
+        if (e.key === "ArrowRight") keystateRef.current.right = false;
       },
       true
     );

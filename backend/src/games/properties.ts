@@ -1,4 +1,5 @@
-import { Socket } from 'socket.io';
+import { Gamesocket } from './socket';
+// import { IUser } from "../../context/auth";
 
 interface IWindow {
   width: number; // gamewindow width in px
@@ -18,6 +19,7 @@ interface IBallProperties {
   color: string; // color of the painted ball
   acceleration: number;
   maxBounceAngle: number;
+  maxSpeed: number;
 }
 
 interface IProperties {
@@ -30,6 +32,7 @@ interface IProperties {
 export interface IPaddle {
   height: number;
   side: string;
+  lateral: number;
 }
 
 export interface IGame {
@@ -63,6 +66,8 @@ export interface IBall {
 export interface IKeyState {
   up: boolean;
   down: boolean;
+  left: boolean;
+  right: boolean;
 }
 
 export interface IGameSocketPayload {
@@ -79,7 +84,7 @@ export interface IGameStart {
 
 export interface IGameUser {
   user: IUser;
-  socket: Socket;
+  socket: Gamesocket;
 }
 
 export interface IGameBackend {
@@ -87,8 +92,9 @@ export interface IGameBackend {
   leftPlayer: IGameUser;
   rightPlayer: IGameUser;
   gameState: IGame;
-  spectatorSockets: Socket[];
+  spectatorSockets: Gamesocket[];
   interval?: NodeJS.Timeout;
+  gamemode: EGamemode;
 }
 
 export interface IFinishedGame {
@@ -101,12 +107,18 @@ export interface IFinishedGame {
 
 const properties: IProperties = {
   window: { width: 960, height: 640, color: 'black' },
-  paddle: { width: 2, height: 15, speed: 200, color: 'white' },
+  paddle: {
+    width: (960 * 2) / 100,
+    height: (640 * 15) / 100,
+    speed: 200,
+    color: 'white',
+  },
   ballProperties: {
     radius: 10,
     color: 'white',
     acceleration: 1.1,
-    maxBounceAngle: 30,
+    maxBounceAngle: 20,
+    maxSpeed: 30,
   },
   framerate: 25,
 };
@@ -120,22 +132,36 @@ export const ballSpawn: IBall = {
 
 export const maxScore: number = 2;
 
+export enum EGamemode {
+  standard = 1,
+  roomMovement = 2,
+}
+
+export interface IQueuePayload {
+  user: IUser;
+  gamemode: EGamemode;
+}
+
 export const gameSpawn: IGame = {
   gameId: '0',
   ball: ballSpawn,
   leftPaddle: {
-    height: 320,
+    height: properties.window.height / 2,
     side: 'left',
+    lateral: properties.paddle.width / 2,
   },
   rightPaddle: {
-    height: 320,
+    height: properties.window.height / 2,
     side: 'right',
+    lateral: properties.window.width - properties.paddle.width / 2,
   },
   pointsLeft: 0,
   pointsRight: 0,
-  keyStateLeft: { up: false, down: false },
-  keyStateRight: { up: false, down: false },
+  keyStateLeft: { up: false, down: false, left: false, right: false },
+  keyStateRight: { up: false, down: false, left: false, right: false },
   isFinished: false,
 };
+
+export const goalSizePercent: number = 50;
 
 export default properties;
