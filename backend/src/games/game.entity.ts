@@ -1,4 +1,5 @@
 import { Column, Entity, PrimaryGeneratedColumn, Unique } from 'typeorm';
+import { EGamemode } from './properties';
 
 @Entity('games')
 @Unique(['gameId'])
@@ -26,4 +27,7 @@ export class Game {
 
   @Column({ nullable: true })
   isFinished: boolean;
+
+  @Column()
+  gamemode: EGamemode;
 }

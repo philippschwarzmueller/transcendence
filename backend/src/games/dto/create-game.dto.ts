@@ -1,3 +1,5 @@
+import { EGamemode } from '../properties';
+
 export class CreateGameDto {
   gameId: string;
   leftPlayer?: string;
@@ -7,4 +9,5 @@ export class CreateGameDto {
   winnerPoints?: number;
   looserPoints?: number;
   isFinished: boolean;
+  gamemode?: EGamemode;
 }
