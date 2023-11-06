@@ -64,6 +64,38 @@ const GameWindow: React.FC = () => {
   const [navigateToEndScreen, setNavigateToEndScreen] = useState(false);
   const [navigateToErrorScreen, setNavigateToErrorScreen] = useState(false);
 
+  const getWindowDimensions = (): [number, number] => {
+    const { innerWidth: width, innerHeight: height } = window;
+    return [width, height];
+  };
+
+  const [windowDimensions, setWindowDimensions] = useState(
+    getWindowDimensions()
+  );
+
+  const handleWindowResize = (): void => {
+    setWindowDimensions(getWindowDimensions());
+  };
+
+  useEffect(() => {
+    const sizeInPercent: number = 80;
+    const widthByWidth: number = windowDimensions[0];
+    const widthByHeight: number = (windowDimensions[1] * 3) / 2;
+    const heightByWidth: number = windowDimensions[0] / 1.5;
+    const heightByHeight: number = windowDimensions[1];
+    properties.window.width =
+      (Math.min(widthByWidth, widthByHeight) * sizeInPercent) / 100;
+    properties.window.height =
+      (Math.min(heightByWidth, heightByHeight) * sizeInPercent) / 100;
+    socket.emit("getGamemode", gameId, (gamemode: EGamemode) => {
+      if (gamemode !== undefined && gamemode !== null)
+        drawBackground(
+          gamemode,
+          gameCanvas.background?.current?.getContext("2d")
+        );
+    });
+  }, [windowDimensions]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const GameLoop = (): void => {
     if (
       gameCanvas.background === undefined ||
@@ -129,12 +161,12 @@ const GameWindow: React.FC = () => {
           );
       }
     );
-  }, [navigateToEndScreen]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [navigateToEndScreen, windowDimensions]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (navigateToErrorScreen)
       drawErrorScreen(gameCanvas.endScreen.current?.getContext("2d"));
-  }, [navigateToErrorScreen]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [navigateToErrorScreen, windowDimensions]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     socket.emit("isGameRunning", gameId, (isGameRunning: boolean) => {
@@ -187,6 +219,9 @@ const GameWindow: React.FC = () => {
     );
 
     gameInterval.current = setInterval(GameLoop, 1000 / properties.framerate);
+
+    window.addEventListener("resize", handleWindowResize);
+    return () => window.removeEventListener("resize", handleWindowResize);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
