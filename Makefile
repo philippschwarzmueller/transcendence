@@ -2,10 +2,10 @@
 COMPOSE = docker-compose.yml
 
 #build and run
-all: run
+all:  docker run
 
 #build and run
-up:
+up: $(REDIRECT) docker
 	docker-compose -f $(COMPOSE) up  --build
 
 #take down, build and run
@@ -34,5 +34,25 @@ fclean: clean
 #kill running container
 kill_all:
 	docker kill $(shell docker ps -q)
+
+#location to save container
+REDIRECT = $(HOME)/goinfre/docker
+
+#script to redirect container
+$(REDIRECT):
+	@if test -d ~/goinfre; then bash ./docker/redirect.sh; else echo "not on a school machine, so no redirection"; fi
+
+#forefully redirects docker location
+redirect:
+	bash ./docker/redirect.sh
+
+#rule to start docker
+docker:
+	@if ! docker info > /dev/null 2>&1; then \
+		echo "Starting Docker"; \
+		open -a Docker > /dev/null 2>&1; \
+		sleep 20; \
+	fi
+	@echo "Docker is up and running"
 
 .PHONY: docker redirect kill_all fclean clean dow run re up all
