@@ -105,11 +105,14 @@ export interface IFinishedGame {
   looserPoints?: number;
 }
 
+export const WINDOW_WIDTH: number = 960;
+export const WINDOW_HEIGHT: number = 640;
+
 const properties: IProperties = {
-  window: { width: 960, height: 640, color: "black" },
+  window: { width: WINDOW_WIDTH, height: WINDOW_HEIGHT, color: "black" },
   paddle: {
-    width: (960 * 2) / 100,
-    height: (640 * 15) / 100,
+    width: (WINDOW_WIDTH * 2) / 100,
+    height: (WINDOW_HEIGHT * 15) / 100,
     speed: 200,
     color: "white",
   },
