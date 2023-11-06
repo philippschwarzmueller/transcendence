@@ -58,7 +58,8 @@ const GameWindow: React.FC = () => {
   > = useRef<ReturnType<typeof setInterval>>();
   const localUser: IUser = useContext(AuthContext).user;
   const socket: Socket = useContext(SocketContext);
-  let isGameFinished: React.MutableRefObject<boolean> = useRef<boolean>(false);
+  const isGameFinished: React.MutableRefObject<boolean> =
+    useRef<boolean>(false);
 
   const [navigateToEndScreen, setNavigateToEndScreen] = useState(false);
   const [navigateToErrorScreen, setNavigateToErrorScreen] = useState(false);
@@ -79,7 +80,6 @@ const GameWindow: React.FC = () => {
       user: localUser,
     };
     if (socket.connected) {
-      console.log(gameSocketPayload.keystate);
       socket.emit("alterGameData", gameSocketPayload, (res: IGame) => {
         gameStateRef.current = res;
         isGameFinished.current = res.isFinished;

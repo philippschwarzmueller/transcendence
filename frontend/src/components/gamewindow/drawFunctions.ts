@@ -60,7 +60,7 @@ export const drawBall = (
   ball: IBall
 ): void => {
   if (context === undefined || context === null) return;
-  context.clearRect(0, 0, properties.window.width, properties.window.width);
+  context.clearRect(0, 0, properties.window.width, properties.window.height);
   context.fillStyle = properties.ballProperties.color;
   context.beginPath();
   context.arc(ball.x, ball.y, properties.ballProperties.radius, 0, 2 * Math.PI);

@@ -104,9 +104,6 @@ export class GamesService {
     user: IUser,
   ): IGame {
     if (!this.isGameRunning(gameId)) return newGameCopy();
-    // reimplement the next line if you want to force users to be logged in
-    // right now as comment for testing
-    // if (userId === null) return this.games.get(gameId).game;
     if (
       side === 'left' &&
       user.id === this.runningGames.get(gameId).leftPlayer.user.id
@@ -151,7 +148,7 @@ export class GamesService {
       localGame.gameState.pointsRight++;
     } else if (newBall.y > properties.window.height || newBall.y < 0) {
       //collision on top/botton
-      localGame.gameState.ball.speed_y *= -1;
+      bounceOnTop(localGame.gameState.ball);
     }
 
     // actually moving ball
@@ -277,28 +274,28 @@ export class GamesService {
   ): Promise<void> {
     this.addClientToQueue(user, gamemode, client);
     if (this.queuedClients.get(gamemode).size >= 2) {
-      const [firstClientKey, firstClientValue] = this.queuedClients
+      const [firstClient, firstClientName] = this.queuedClients
         .get(gamemode)
         .entries()
         .next().value;
-      this.queuedClients.get(gamemode).delete(firstClientKey);
-      const [secondClientKey, secondClientValue] = this.queuedClients
+      this.queuedClients.get(gamemode).delete(firstClient);
+      const [secondClient, secondClientName] = this.queuedClients
         .get(gamemode)
         .entries()
         .next().value;
-      this.queuedClients.get(gamemode).delete(secondClientKey);
+      this.queuedClients.get(gamemode).delete(secondClient);
 
       const newGameId: string = await this.startGameLoop(
-        firstClientValue,
-        secondClientValue,
+        firstClientName,
+        secondClientName,
         gamemode,
       );
 
-      firstClientValue.socket.emit('queue found', {
+      firstClientName.socket.emit('queue found', {
         gameId: newGameId,
         side: 'left',
       });
-      secondClientValue.socket.emit('queue found', {
+      secondClientName.socket.emit('queue found', {
         gameId: newGameId,
         side: 'right',
       });
