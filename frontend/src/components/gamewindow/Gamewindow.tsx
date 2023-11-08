@@ -21,6 +21,11 @@ import { EGamemode } from "../queue/Queue";
 import { SocketContext } from "../../context/socket";
 import { Socket } from "socket.io-client";
 import { AuthContext, IUser } from "../../context/auth";
+import { setKeyEventListener } from "./keyboardinput";
+import {
+  calculateWindowproperties,
+  getWindowDimensions,
+} from "./windowresizing";
 
 interface IGameCanvas {
   background: React.MutableRefObject<HTMLCanvasElement | null>;
@@ -62,11 +67,6 @@ const GameWindow: React.FC = () => {
   const [navigateToEndScreen, setNavigateToEndScreen] = useState(false);
   const [navigateToErrorScreen, setNavigateToErrorScreen] = useState(false);
 
-  const getWindowDimensions = (): [number, number] => {
-    const { innerWidth: width, innerHeight: height } = window;
-    return [width, height];
-  };
-
   const [windowDimensions, setWindowDimensions] = useState(
     getWindowDimensions()
   );
@@ -76,15 +76,7 @@ const GameWindow: React.FC = () => {
   };
 
   useEffect(() => {
-    const sizeInPercent: number = 80;
-    const widthByWidth: number = windowDimensions[0];
-    const widthByHeight: number = (windowDimensions[1] * 3) / 2;
-    const heightByWidth: number = windowDimensions[0] / 1.5;
-    const heightByHeight: number = windowDimensions[1];
-    properties.window.width =
-      (Math.min(widthByWidth, widthByHeight) * sizeInPercent) / 100;
-    properties.window.height =
-      (Math.min(heightByWidth, heightByHeight) * sizeInPercent) / 100;
+    calculateWindowproperties(windowDimensions);
     socket.emit("getGamemode", gameId, (gamemode: EGamemode) => {
       if (gamemode !== undefined && gamemode !== null)
         drawBackground(
@@ -164,6 +156,7 @@ const GameWindow: React.FC = () => {
         });
       }
     });
+
     socket.emit("getGamemode", gameId, (gamemode: EGamemode) => {
       if (gamemode !== undefined && gamemode !== null)
         drawBackground(
@@ -179,27 +172,8 @@ const GameWindow: React.FC = () => {
         setNavigateToEndScreen(true);
       });
     });
-    window.addEventListener(
-      "keydown",
-      (e) => {
-        if (e.key === "ArrowUp") keystateRef.current.up = true;
-        if (e.key === "ArrowDown") keystateRef.current.down = true;
-        if (e.key === "ArrowLeft") keystateRef.current.left = true;
-        if (e.key === "ArrowRight") keystateRef.current.right = true;
-      },
-      true
-    );
 
-    window.addEventListener(
-      "keyup",
-      (e) => {
-        if (e.key === "ArrowUp") keystateRef.current.up = false;
-        if (e.key === "ArrowDown") keystateRef.current.down = false;
-        if (e.key === "ArrowLeft") keystateRef.current.left = false;
-        if (e.key === "ArrowRight") keystateRef.current.right = false;
-      },
-      true
-    );
+    setKeyEventListener(keystateRef);
 
     gameInterval.current = setInterval(GameLoop, 1000 / properties.framerate);
 
