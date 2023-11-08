@@ -57,8 +57,6 @@ export class ChatDAO {
         VALUES (${channel.id}, ${newUser.id})
         ON CONFLICT (channel, "user") DO NOTHING;`,
       )
-      .catch((error) => console.log('existing connection'));
-    console.log(`added ${newUser.name} to ${channel.title}`);
     queryRunner.release();
   }
 
@@ -79,7 +77,7 @@ export class ChatDAO {
   public async getChannelMessages(channelId: number): Promise<Messages[]> {
     return await this.messsageRepo
       .createQueryBuilder('message')
-      .innerJoinAndSelect('message.sender', 'sender') // Inner join with User entity
+      .innerJoinAndSelect('message.sender', 'sender')
       .where('message.channel = :id', { id: channelId })
       .orderBy('message.id', 'ASC')
       .getMany();
