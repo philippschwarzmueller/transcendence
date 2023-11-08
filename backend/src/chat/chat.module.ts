@@ -12,5 +12,6 @@ import { DatabaseModule } from 'src/database.module';
   imports: [DatabaseModule, TypeOrmModule.forFeature([User, Messages, Channels])],
   providers: [ChatService, UsersService, ChatDAO],
   controllers: [ChatController],
+  exports: [ChatService, UsersService, ChatDAO],
 })
 export class ChatModule {}
