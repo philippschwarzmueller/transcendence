@@ -7,9 +7,10 @@ import { Channels, Messages } from '../chat/chat.entity';
 import { ChatDAO } from '../chat/chat.dao';
 import { GamesService } from 'src/games/games.service';
 import { Game } from 'src/games/game.entity';
+import { DatabaseModule } from 'src/database.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Game, User, Messages, Channels])],
+  imports: [DatabaseModule, TypeOrmModule.forFeature([Game, User, Messages, Channels])],
   providers: [GamesService, ChatService, UsersService, ChatDAO],
   exports: [GamesService, ChatService, UsersService, ChatDAO],
 })

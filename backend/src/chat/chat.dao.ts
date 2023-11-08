@@ -1,11 +1,11 @@
 import { Channels, Messages } from './chat.entity';
 import { User } from 'src/users/user.entity';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Injectable, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IMessage } from './properties';
 import { UsersService } from 'src/users/users.service';
-import { error } from 'console';
+import { databaseProviders } from 'src/database.providers';
 
 @Injectable()
 export class ChatDAO {
@@ -16,6 +16,8 @@ export class ChatDAO {
     private messsageRepo: Repository<Messages>,
     @Inject(UsersService)
     private userService: UsersService,
+    @Inject('DATA_SOURCE')
+    private dataSource: DataSource,
   ) {}
 
   public async saveMessageToChannel(message: IMessage): Promise<void> {
@@ -48,9 +50,16 @@ export class ChatDAO {
   public async addUserToChannel(title: string, user: string): Promise<void> {
     const channel: Channels = await this.getChannelByTitle(title);
     const newUser: User = await this.userService.findOneByName(user);
+    console.log(channel.users);
     if (channel.users.includes(newUser) === false) {
-      channel.users.push(newUser);
-      this.channelRepo.save(channel);
+      const queryRunner = this.dataSource.createQueryRunner();
+      queryRunner.connect();
+      await queryRunner.manager
+        .query(
+          `INSERT INTO channel_subscription (channel, "user") VALUES (${channel.id}, ${newUser.id});`,
+        )
+        .catch((error) => console.log(error));
+      queryRunner.release();
     }
   }
 
@@ -63,7 +72,7 @@ export class ChatDAO {
   public async getChannelByTitle(title: string): Promise<Channels> {
     return await this.channelRepo
       .createQueryBuilder('channel')
-      .loadAllRelationIds()
+      .leftJoinAndSelect('channel.users', 'users')
       .where('channel.title = :title', { title })
       .getOne();
   }
