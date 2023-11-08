@@ -2,9 +2,9 @@ import { Inject, Injectable } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import { IMessage, IUser } from './properties';
 import { ChatDAO } from './chat.dao';
-import { gameInvite, gameAccept, printVanillaMessage } from './chat.cmdlogic';
 import { Socket, Server } from 'socket.io';
 import { IGameUser } from 'src/games/properties';
+import { GamesService } from 'src/games/games.service';
 
 @Injectable()
 export class ChatService {
@@ -18,6 +18,7 @@ export class ChatService {
   }
 
   activeClients: Map<string, IGameUser[]> = new Map<string, IGameUser[]>();
+  opponents: Map<string, string> = new Map<string, string>();
 
   async initializeMap(): Promise<void> {
     const list = await this.chatDao.getAllChannels();
@@ -28,12 +29,16 @@ export class ChatService {
 
   private updateActiveClients(data: IMessage, client: Socket) {
     for (const [key, value] of this.activeClients) {
-      let tmp = value.filter((c) => c.user.name !== data.user.name);
+      const tmp = value.filter((c) => c.user.name !== data.user.name);
       this.activeClients.set(key, tmp);
     }
     if (!this.activeClients.has(data.room))
       this.activeClients.set(data.room, []);
     this.activeClients.get(data.room).push({ user: data.user, socket: client });
+  }
+
+  private getUser(name: string, room: string): IGameUser {
+    return this.activeClients.get(room).find((user) => user.user.name === name);
   }
 
   async getChats(userId: string): Promise<string[]> {
@@ -52,7 +57,7 @@ export class ChatService {
     chatName: string,
     client: Socket,
   ): Promise<string[]> {
-    let res: string[] = [];
+    const res: string[] = [];
     try {
       const user = await this.userService.findOneByName(userId);
       await this.chatDao.saveChannel(chatName, userId);
@@ -93,8 +98,11 @@ export class ChatService {
     return res;
   }
 
-  async handleMessage(data: IMessage, client: Socket, server: Server) {
-    switch (data.input.substring(0, data.input.indexOf(' '))) {
+  async handleMessage(data: IMessage, server: Server, gameServ: GamesService) {
+    let check = data.input;
+    if (data.input.indexOf(' ') != -1)
+      check = data.input.substring(0, data.input.indexOf(' '));
+    switch (check) {
       case '/invite':
         break;
       case '/kick':
@@ -106,15 +114,67 @@ export class ChatService {
       case '/mute':
         break;
       case '/challenge': {
-        gameInvite(data, server, this.activeClients);
-        break;
-      }
-      case 'yes': {
-        gameAccept(data, this.activeClients);
+        this.gameInvite(data, server);
         break;
       }
       default:
-        printVanillaMessage(data, server, this.chatDao);
+        this.printVanillaMessage(data, server, gameServ);
     }
+  }
+
+  private async printVanillaMessage(
+    data: IMessage,
+    server: Server,
+    gameServ: GamesService,
+  ) {
+    if (this.getUser(data.user.name, data.room)) {
+      await this.gameAccept(data, server, gameServ);
+      return;
+    }
+    try {
+      const mess = `${data.user.name}: ${data.input}`;
+      server.to(data.room).emit('message', mess);
+      await this.chatDao.saveMessageToChannel(data);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  private gameInvite(data: IMessage, server: Server) {
+    const name = data.input.substring(data.input.indexOf(' ') + 1);
+    const opponent = this.getUser(name, data.room);
+    if (opponent) {
+      server
+        .to(opponent.socket.id)
+        .emit(
+          'message',
+          `${data.user.name} wants to play with you [type \'yes\' to accept]`,
+        );
+      this.opponents.set(name, data.user.name);
+    }
+  }
+
+  private async gameAccept(
+    data: IMessage,
+    server: Server,
+    gameServ: GamesService,
+  ) {
+    const user: IGameUser = this.getUser(data.user.name, data.room);
+    const opponent: IGameUser = this.getUser(
+      this.opponents.get(data.user.name),
+      data.room,
+    );
+    if (opponent && data.input === 'yes') {
+      const gameid = await gameServ.startGameLoop(opponent, user, 1);
+      server.to(user.socket.id).emit('game', { gameId: gameid, side: 'right' });
+      server
+        .to(opponent.socket.id)
+        .emit('game', { gameId: gameid, side: 'left' });
+    } else if (opponent) {
+      user.socket
+        .to(opponent.socket.id)
+        .emit('message', `${user.user.name} declined`);
+    }
+    this.opponents.delete(data.user.name);
   }
 }

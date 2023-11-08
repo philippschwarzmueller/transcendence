@@ -7,17 +7,17 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 
-import { IMessage } from '../chat/properties';
-import { Socket, Server } from 'socket.io';
-import { GamesService } from '../games/games.service';
 import {
   EGamemode,
   IFinishedGame,
   IGame,
   IGameSocketPayload,
   IQueuePayload,
-  IUser,
 } from '../games/properties';
+
+import { IMessage } from '../chat/properties';
+import { Socket, Server } from 'socket.io';
+import { GamesService } from '../games/games.service';
 import { ChatService } from 'src/chat/chat.service';
 import { Inject, Injectable } from '@nestjs/common';
 
@@ -33,19 +33,14 @@ export class WSocketGateway implements OnGatewayInit {
     private gamesService: GamesService,
     @Inject(ChatService)
     private chatService: ChatService,
-  ) {
-  }
-
+  ) {}
 
   @WebSocketServer()
   server: Server;
 
   @SubscribeMessage('message')
-  async message(
-    @MessageBody() data: IMessage,
-    @ConnectedSocket() client: Socket,
-  ): Promise<void> {
-    this.chatService.handleMessage(data, client, this.server);
+  async message(@MessageBody() data: IMessage): Promise<void> {
+    this.chatService.handleMessage(data, this.server, this.gamesService);
   }
 
   @SubscribeMessage('join')
@@ -61,7 +56,11 @@ export class WSocketGateway implements OnGatewayInit {
     @MessageBody() data: IMessage,
     @ConnectedSocket() client: Socket,
   ): Promise<string[]> {
-    const ehre = await this.chatService.addChat(data.user.name, data.room, client);
+    const ehre = await this.chatService.addChat(
+      data.user.name,
+      data.room,
+      client,
+    );
     return ehre;
   }
 
