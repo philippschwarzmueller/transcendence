@@ -35,9 +35,8 @@ export class ChatDAO {
       where: { title },
     });
     if (existingChannel) {
-      this.addUserToChannel(title, user);
+      await this.addUserToChannel(title, user);
     } else {
-      console.log('else');
       await this.channelRepo.save(
         this.channelRepo.create({
           title: title,
@@ -50,17 +49,17 @@ export class ChatDAO {
   public async addUserToChannel(title: string, user: string): Promise<void> {
     const channel: Channels = await this.getChannelByTitle(title);
     const newUser: User = await this.userService.findOneByName(user);
-    console.log(channel.users);
-    if (channel.users.includes(newUser) === false) {
-      const queryRunner = this.dataSource.createQueryRunner();
-      queryRunner.connect();
-      await queryRunner.manager
-        .query(
-          `INSERT INTO channel_subscription (channel, "user") VALUES (${channel.id}, ${newUser.id});`,
-        )
-        .catch((error) => console.log(error));
-      queryRunner.release();
-    }
+    const queryRunner = this.dataSource.createQueryRunner();
+    queryRunner.connect();
+    await queryRunner.manager
+      .query(
+        `INSERT INTO channel_subscription (channel, "user")
+        VALUES (${channel.id}, ${newUser.id})
+        ON CONFLICT (channel, "user") DO NOTHING;`,
+      )
+      .catch((error) => console.log('existing connection'));
+    console.log(`added ${newUser.name} to ${channel.title}`);
+    queryRunner.release();
   }
 
   public async removeUserFromChannel(title: string, user: User): Promise<void> {

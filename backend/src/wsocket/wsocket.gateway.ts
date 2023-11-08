@@ -59,7 +59,8 @@ export class WSocketGateway implements OnGatewayInit {
     @MessageBody() data: IMessage,
     @ConnectedSocket() client: Socket,
   ): Promise<string[]> {
-    return await this.chatService.addChat(data.user.name, data.room, client);
+    const ehre = await this.chatService.addChat(data.user.name, data.room, client);
+    return ehre;
   }
 
   @SubscribeMessage('alterGameData')
