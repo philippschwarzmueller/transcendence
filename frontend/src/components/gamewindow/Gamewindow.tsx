@@ -58,8 +58,6 @@ const GameWindow: React.FC = () => {
   > = useRef<ReturnType<typeof setInterval>>();
   const localUser: IUser = useContext(AuthContext).user;
   const socket: Socket = useContext(SocketContext);
-  const isGameFinished: React.MutableRefObject<boolean> =
-    useRef<boolean>(false);
 
   const [navigateToEndScreen, setNavigateToEndScreen] = useState(false);
   const [navigateToErrorScreen, setNavigateToErrorScreen] = useState(false);
@@ -114,37 +112,22 @@ const GameWindow: React.FC = () => {
     if (socket.connected) {
       socket.emit("alterGameData", gameSocketPayload, (res: IGame) => {
         gameStateRef.current = res;
-        isGameFinished.current = res.isFinished;
       });
     } else gameStateRef.current = gameSpawn;
-    if (isGameFinished.current === true)
-      drawWinScreen(
-        gameStateRef.current.winner?.name,
-        Math.max(
-          gameStateRef.current.pointsLeft,
-          gameStateRef.current.pointsRight
-        ),
-        Math.min(
-          gameStateRef.current.pointsLeft,
-          gameStateRef.current.pointsRight
-        ),
-        gameCanvas.endScreen?.current?.getContext("2d")
-      );
-    else {
-      drawBall(
-        gameCanvas.ball?.current?.getContext("2d"),
-        gameStateRef.current.ball
-      );
-      drawBothPaddles(
-        gameCanvas.paddle?.current?.getContext("2d"),
-        gameStateRef.current
-      );
-      drawText(
-        gameCanvas.score?.current?.getContext("2d"),
-        gameStateRef.current.pointsLeft,
-        gameStateRef.current.pointsRight
-      );
-    }
+
+    drawBall(
+      gameCanvas.ball?.current?.getContext("2d"),
+      gameStateRef.current.ball
+    );
+    drawBothPaddles(
+      gameCanvas.paddle?.current?.getContext("2d"),
+      gameStateRef.current
+    );
+    drawText(
+      gameCanvas.score?.current?.getContext("2d"),
+      gameStateRef.current.pointsLeft,
+      gameStateRef.current.pointsRight
+    );
   };
 
   useEffect(() => {
@@ -169,6 +152,7 @@ const GameWindow: React.FC = () => {
   }, [navigateToErrorScreen, windowDimensions]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
+    handleWindowResize();
     socket.emit("isGameRunning", gameId, (isGameRunning: boolean) => {
       if (!isGameRunning) {
         socket.emit("isGameInDatabase", gameId, (isGameInDatabase: boolean) => {
@@ -189,11 +173,10 @@ const GameWindow: React.FC = () => {
     });
 
     socket.on("endgame", () => {
-      isGameFinished.current = true;
       finishGame(gameInterval.current);
       socket.emit("getGameData", gameId, (res: IGame) => {
         gameStateRef.current = res;
-        isGameFinished.current = res.isFinished;
+        setNavigateToEndScreen(true);
       });
     });
     window.addEventListener(
