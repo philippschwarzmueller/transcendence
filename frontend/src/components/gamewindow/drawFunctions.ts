@@ -8,6 +8,13 @@ import properties, {
   goalSizePercent,
 } from "./properties";
 
+const getScale = (): number => {
+  return Math.min(
+    properties.window.width / WINDOW_WIDTH,
+    properties.window.height / WINDOW_HEIGHT
+  );
+};
+
 export const drawPaddle = (
   context: CanvasRenderingContext2D | undefined | null,
   paddle: IPaddle
@@ -15,10 +22,7 @@ export const drawPaddle = (
   if (context === undefined || context === null) return;
   const paddleHeight: number = Math.floor(properties.paddle.height);
   const paddleWidth: number = Math.floor(properties.paddle.width);
-  const scale: number = Math.min(
-    properties.window.width / WINDOW_WIDTH,
-    properties.window.height / WINDOW_HEIGHT
-  );
+  const scale: number = getScale();
   if (paddle.side === "left") {
     context.fillStyle = properties.window.color;
     context.clearRect(
@@ -66,10 +70,7 @@ export const drawBall = (
   ball: IBall
 ): void => {
   if (context === undefined || context === null) return;
-  const scale: number = Math.min(
-    properties.window.width / WINDOW_WIDTH,
-    properties.window.height / WINDOW_HEIGHT
-  );
+  const scale: number = getScale();
   context.clearRect(0, 0, properties.window.width, properties.window.height);
   context.fillStyle = properties.ballProperties.color;
   context.beginPath();
@@ -88,6 +89,7 @@ export const drawBackground = (
   context: CanvasRenderingContext2D | undefined | null
 ): void => {
   if (context === undefined || context === null) return;
+  const scale: number = getScale();
   context.fillStyle = properties.window.color;
   context.fillRect(0, 0, properties.window.width, properties.window.height);
   context.fillStyle = properties.paddle.color;
@@ -102,10 +104,15 @@ export const drawBackground = (
     );
     currentSquarePos += 2 * squareSize;
   }
-  context.fillRect(0, 0, properties.window.width, properties.paddle.width / 2);
   context.fillRect(
     0,
-    properties.window.height - properties.paddle.width / 2,
+    0,
+    properties.window.width,
+    (properties.paddle.width / 2) * scale
+  );
+  context.fillRect(
+    0,
+    properties.window.height - (properties.paddle.width / 2) * scale,
     properties.window.width,
     properties.window.height
   );
@@ -115,23 +122,23 @@ export const drawBackground = (
     context.fillRect(
       0,
       0,
-      properties.paddle.width / 2,
+      (properties.paddle.width / 2) * scale,
       properties.window.height / 2 - goalHalf
     );
     context.fillRect(
       0,
       properties.window.height / 2 + goalHalf,
-      properties.paddle.width / 2,
+      (properties.paddle.width / 2) * scale,
       properties.window.height
     );
     context.fillRect(
-      properties.window.width - properties.paddle.width / 2,
+      properties.window.width - (properties.paddle.width / 2) * scale,
       0,
       properties.window.width,
       properties.window.height / 2 - goalHalf
     );
     context.fillRect(
-      properties.window.width - properties.paddle.width / 2,
+      properties.window.width - (properties.paddle.width / 2) * scale,
       properties.window.height / 2 + goalHalf,
       properties.window.width,
       properties.window.height
