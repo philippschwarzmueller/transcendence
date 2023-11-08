@@ -77,7 +77,7 @@ function Popup(
           onChange={(e) => setInput(e.target.value)}
           onKeyUp={(e: React.KeyboardEvent) => {
             if (e.key === "Enter") {
-              socket.emit("create", { user, input, room: input }, (res: string[]) =>
+              socket.emit("create", { user: user, input: input, room: input }, (res: string[]) =>
                 setTabs(res)
               );
               onKey(input);

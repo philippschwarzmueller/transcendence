@@ -1,11 +1,11 @@
 import { Channels, Messages } from './chat.entity';
 import { User } from 'src/users/user.entity';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Injectable, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IMessage } from './properties';
-import { IUser } from './properties';
 import { UsersService } from 'src/users/users.service';
+import { databaseProviders } from 'src/database.providers';
 
 @Injectable()
 export class ChatDAO {
@@ -16,6 +16,8 @@ export class ChatDAO {
     private messsageRepo: Repository<Messages>,
     @Inject(UsersService)
     private userService: UsersService,
+    @Inject('DATA_SOURCE')
+    private dataSource: DataSource,
   ) {}
 
   public async saveMessageToChannel(message: IMessage): Promise<void> {
@@ -29,30 +31,36 @@ export class ChatDAO {
   }
 
   public async saveChannel(title: string, user: string): Promise<void> {
-    const check = await this.getChannelByTitle(title);
-    if (check !== null) {
+    const existingChannel = await this.channelRepo.findOne({
+      where: { title },
+    });
+    if (existingChannel) {
       await this.addUserToChannel(title, user);
-      return ;
+    } else {
+      await this.channelRepo.save(
+        this.channelRepo.create({
+          title: title,
+          users: [await this.userService.findOneByName(user)],
+        }),
+      );
     }
-    await this.channelRepo.save(
-      this.channelRepo.create({
-        title: title,
-        users: [await this.userService.findOneByName(user)],
-      }),
-    );
   }
 
   public async addUserToChannel(title: string, user: string): Promise<void> {
     const channel: Channels = await this.getChannelByTitle(title);
     const newUser: User = await this.userService.findOneByName(user);
-    channel.users.push(newUser);
-    this.channelRepo.save(channel);
+    const queryRunner = this.dataSource.createQueryRunner();
+    queryRunner.connect();
+    await queryRunner.manager
+      .query(
+        `INSERT INTO channel_subscription (channel, "user")
+        VALUES (${channel.id}, ${newUser.id})
+        ON CONFLICT (channel, "user") DO NOTHING;`,
+      )
+    queryRunner.release();
   }
 
-  public async removeUserFromChannel(
-    title: string,
-    user: User,
-  ): Promise<void> {
+  public async removeUserFromChannel(title: string, user: User): Promise<void> {
     const channel: Channels = await this.getChannelByTitle(title);
     channel.users = channel.users.filter((u) => u.id !== user.id);
     this.channelRepo.save(channel);
@@ -61,7 +69,7 @@ export class ChatDAO {
   public async getChannelByTitle(title: string): Promise<Channels> {
     return await this.channelRepo
       .createQueryBuilder('channel')
-      .loadAllRelationIds()
+      .leftJoinAndSelect('channel.users', 'users')
       .where('channel.title = :title', { title })
       .getOne();
   }
@@ -69,7 +77,7 @@ export class ChatDAO {
   public async getChannelMessages(channelId: number): Promise<Messages[]> {
     return await this.messsageRepo
       .createQueryBuilder('message')
-      .innerJoinAndSelect('message.sender', 'sender') // Inner join with User entity
+      .innerJoinAndSelect('message.sender', 'sender')
       .where('message.channel = :id', { id: channelId })
       .orderBy('message.id', 'ASC')
       .getMany();
@@ -87,6 +95,13 @@ export class ChatDAO {
       .innerJoin('channel.users', 'user')
       .where('user.id = :userId', { userId })
       .getMany();
+  }
+
+  public async getAllChannels(): Promise<string[]> {
+    const res: Channels[] = await this.channelRepo.find();
+    return res.map((item) => {
+      return item.title;
+    });
   }
 
   public async getRawUserChannels(userId: number): Promise<string[]> {

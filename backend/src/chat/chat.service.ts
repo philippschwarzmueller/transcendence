@@ -1,10 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { User } from 'src/users/user.entity';
 import { UsersService } from 'src/users/users.service';
-import { IMessage } from './properties';
+import { IMessage, IUser } from './properties';
 import { ChatDAO } from './chat.dao';
-import { manageUsers, gameInvite, gameAccept } from './chat.gameinvite';
+import { gameInvite, gameAccept, printVanillaMessage } from './chat.cmdlogic';
 import { Socket, Server } from 'socket.io';
+import { IGameUser } from 'src/games/properties';
 
 @Injectable()
 export class ChatService {
@@ -13,7 +13,28 @@ export class ChatService {
     private userService: UsersService,
     @Inject(ChatDAO)
     private chatDao: ChatDAO,
-  ) {}
+  ) {
+    this.initializeMap();
+  }
+
+  activeClients: Map<string, IGameUser[]> = new Map<string, IGameUser[]>();
+
+  async initializeMap(): Promise<void> {
+    const list = await this.chatDao.getAllChannels();
+    list.forEach((item) => {
+      this.activeClients.set(item, []);
+    });
+  }
+
+  private updateActiveClients(data: IMessage, client: Socket) {
+    for (const [key, value] of this.activeClients) {
+      let tmp = value.filter((c) => c.user.name !== data.user.name);
+      this.activeClients.set(key, tmp);
+    }
+    if (!this.activeClients.has(data.room))
+      this.activeClients.set(data.room, []);
+    this.activeClients.get(data.room).push({ user: data.user, socket: client });
+  }
 
   async getChats(userId: string): Promise<string[]> {
     let res: string[] = [];
@@ -57,6 +78,7 @@ export class ChatService {
     try {
       const channel = await this.chatDao.getChannelByTitle(data.room);
       client.join(data.room);
+      this.updateActiveClients(data, client);
       await this.chatDao.addUserToChannel(data.room, data.user.name);
       await this.chatDao.saveMessageToChannel({
         user: data.user,
@@ -72,15 +94,27 @@ export class ChatService {
   }
 
   async handleMessage(data: IMessage, client: Socket, server: Server) {
-    try {
-      manageUsers(data, client);
-      const mess = `${data.user.name}: ${data.input}`;
-      if (!gameInvite(data, server) && !gameAccept(data, server)) {
-        server.to(data.room).emit('message', mess);
-        await this.chatDao.saveMessageToChannel(data);
+    switch (data.input.substring(0, data.input.indexOf(' '))) {
+      case '/invite':
+        break;
+      case '/kick':
+        break;
+      case '/promote':
+        break;
+      case '/demote':
+        break;
+      case '/mute':
+        break;
+      case '/challenge': {
+        gameInvite(data, server, this.activeClients);
+        break;
       }
-    } catch (error) {
-      console.log(error);
+      case 'yes': {
+        gameAccept(data, this.activeClients);
+        break;
+      }
+      default:
+        printVanillaMessage(data, server, this.chatDao);
     }
   }
 }

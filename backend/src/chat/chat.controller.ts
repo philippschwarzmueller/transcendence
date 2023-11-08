@@ -9,7 +9,6 @@ export class ChatController {
   @Get()
   @HttpCode(200)
   async getChats(@Query('userId') userId: string): Promise<string[]> {
-    console.log(await this.chatService.getChats(userId));
     return await this.chatService.getChats(userId);
   }
 

@@ -33,7 +33,9 @@ export class WSocketGateway implements OnGatewayInit {
     private gamesService: GamesService,
     @Inject(ChatService)
     private chatService: ChatService,
-  ) {}
+  ) {
+  }
+
 
   @WebSocketServer()
   server: Server;
