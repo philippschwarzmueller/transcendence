@@ -3,6 +3,8 @@ import properties, {
   IBall,
   IGame,
   IPaddle,
+  WINDOW_HEIGHT,
+  WINDOW_WIDTH,
   goalSizePercent,
 } from "./properties";
 
@@ -13,6 +15,10 @@ export const drawPaddle = (
   if (context === undefined || context === null) return;
   const paddleHeight: number = Math.floor(properties.paddle.height);
   const paddleWidth: number = Math.floor(properties.paddle.width);
+  const scale: number = Math.min(
+    properties.window.width / WINDOW_WIDTH,
+    properties.window.height / WINDOW_HEIGHT
+  );
   if (paddle.side === "left") {
     context.fillStyle = properties.window.color;
     context.clearRect(
@@ -23,10 +29,10 @@ export const drawPaddle = (
     );
     context.fillStyle = properties.paddle.color;
     context.fillRect(
-      paddle.lateral - paddleWidth / 2,
-      paddle.height - paddleHeight / 2,
-      paddleWidth,
-      paddleHeight
+      (paddle.lateral - paddleWidth / 2) * scale,
+      (paddle.height - paddleHeight / 2) * scale,
+      paddleWidth * scale,
+      paddleHeight * scale
     );
   } else if (paddle.side === "right") {
     context.fillStyle = properties.window.color;
@@ -38,10 +44,10 @@ export const drawPaddle = (
     );
     context.fillStyle = properties.paddle.color;
     context.fillRect(
-      paddle.lateral - paddleWidth / 2,
-      paddle.height - paddleHeight / 2,
-      paddleWidth,
-      paddleHeight
+      (paddle.lateral - paddleWidth / 2) * scale,
+      (paddle.height - paddleHeight / 2) * scale,
+      paddleWidth * scale,
+      paddleHeight * scale
     );
   }
 };
@@ -60,10 +66,20 @@ export const drawBall = (
   ball: IBall
 ): void => {
   if (context === undefined || context === null) return;
+  const scale: number = Math.min(
+    properties.window.width / WINDOW_WIDTH,
+    properties.window.height / WINDOW_HEIGHT
+  );
   context.clearRect(0, 0, properties.window.width, properties.window.height);
   context.fillStyle = properties.ballProperties.color;
   context.beginPath();
-  context.arc(ball.x, ball.y, properties.ballProperties.radius, 0, 2 * Math.PI);
+  context.arc(
+    ball.x * scale,
+    ball.y * scale,
+    properties.ballProperties.radius * scale,
+    0,
+    2 * Math.PI
+  );
   context.fill();
 };
 
