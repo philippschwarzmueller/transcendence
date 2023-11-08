@@ -117,7 +117,6 @@ const Chatwindow: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    console.log("unehre");
     socket.emit("join", { user, input, room }, (res: string[]) =>
       setMessages(res),
     );

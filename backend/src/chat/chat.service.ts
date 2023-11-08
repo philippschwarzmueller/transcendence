@@ -24,7 +24,6 @@ export class ChatService {
     list.forEach((item) => {
       this.activeClients.set(item, []);
     });
-    console.log(this.activeClients);
   }
 
   private updateActiveClients(data: IMessage, client: Socket) {
@@ -43,7 +42,7 @@ export class ChatService {
       const user = await this.userService.findOneByName(userId);
       res = await this.chatDao.getRawUserChannels(user.id);
     } catch (error) {
-      // console.log(error);
+      console.log(error);
     }
     return res;
   }
@@ -60,7 +59,7 @@ export class ChatService {
       client.join(chatName);
       return await this.chatDao.getRawUserChannels(user.id);
     } catch (error) {
-      // console.log(error);
+      console.log(error);
     }
     return res;
   }
@@ -70,7 +69,7 @@ export class ChatService {
       const user = await this.userService.findOneByName(userId);
       await this.chatDao.removeUserFromChannel(chat, user);
     } catch (error) {
-      // console.log(error);
+      console.log(error);
     }
   }
 
@@ -89,7 +88,7 @@ export class ChatService {
       client.to(data.room).emit('message', 'oheinzel: joined room');
       res = await this.chatDao.getRawChannelMessages(channel.id);
     } catch (error) {
-      // console.log(error);
+      console.log(error);
     }
     return res;
   }
