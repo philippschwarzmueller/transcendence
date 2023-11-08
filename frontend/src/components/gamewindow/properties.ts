@@ -1,4 +1,4 @@
-import { Socket } from "socket.io-client";
+import { Gamesocket } from "./socket";
 import { IUser } from "../../context/auth";
 
 interface IWindow {
@@ -18,6 +18,8 @@ interface IBallProperties {
   radius: number; //radius of the painted ball
   color: string; // color of the painted ball
   acceleration: number;
+  maxBounceAngle: number;
+  maxSpeed: number;
 }
 
 interface IProperties {
@@ -30,6 +32,7 @@ interface IProperties {
 export interface IPaddle {
   height: number;
   side: string;
+  lateral: number;
 }
 
 export interface IGame {
@@ -46,6 +49,13 @@ export interface IGame {
   isFinished: boolean;
 }
 
+// export interface IUser {
+//   id: number | undefined;
+//   name: string | undefined;
+//   image: string | undefined;
+//   token: string | undefined;
+// }
+
 export interface IBall {
   x: number;
   y: number;
@@ -56,6 +66,8 @@ export interface IBall {
 export interface IKeyState {
   up: boolean;
   down: boolean;
+  left: boolean;
+  right: boolean;
 }
 
 export interface IGameSocketPayload {
@@ -72,16 +84,17 @@ export interface IGameStart {
 
 export interface IGameUser {
   user: IUser;
-  socket: Socket;
+  socket: Gamesocket;
 }
 
 export interface IGameBackend {
   gameId: string;
   leftPlayer: IGameUser;
   rightPlayer: IGameUser;
-  game: IGame;
-  spectatorSockets: Socket[];
+  gameState: IGame;
+  spectatorSockets: Gamesocket[];
   interval?: NodeJS.Timeout;
+  gamemode: EGamemode;
 }
 
 export interface IFinishedGame {
@@ -92,10 +105,24 @@ export interface IFinishedGame {
   looserPoints?: number;
 }
 
+export const WINDOW_WIDTH: number = 960;
+export const WINDOW_HEIGHT: number = 640;
+
 const properties: IProperties = {
-  window: { width: 960, height: 640, color: "black" },
-  paddle: { width: 2, height: 15, speed: 200, color: "white" },
-  ballProperties: { radius: 10, color: "white", acceleration: 1.1 },
+  window: { width: WINDOW_WIDTH, height: WINDOW_HEIGHT, color: "black" },
+  paddle: {
+    width: (WINDOW_WIDTH * 2) / 100,
+    height: (WINDOW_HEIGHT * 15) / 100,
+    speed: 200,
+    color: "white",
+  },
+  ballProperties: {
+    radius: 10,
+    color: "white",
+    acceleration: 1.1,
+    maxBounceAngle: 20,
+    maxSpeed: 30,
+  },
   framerate: 25,
 };
 
@@ -108,22 +135,36 @@ export const ballSpawn: IBall = {
 
 export const maxScore: number = 2;
 
+export enum EGamemode {
+  standard = 1,
+  roomMovement = 2,
+}
+
+export interface IQueuePayload {
+  user: IUser;
+  gamemode: EGamemode;
+}
+
 export const gameSpawn: IGame = {
   gameId: "0",
   ball: ballSpawn,
   leftPaddle: {
-    height: 320,
+    height: properties.window.height / 2,
     side: "left",
+    lateral: properties.paddle.width / 2,
   },
   rightPaddle: {
-    height: 320,
+    height: properties.window.height / 2,
     side: "right",
+    lateral: properties.window.width - properties.paddle.width / 2,
   },
   pointsLeft: 0,
   pointsRight: 0,
-  keyStateLeft: { up: false, down: false },
-  keyStateRight: { up: false, down: false },
+  keyStateLeft: { up: false, down: false, left: false, right: false },
+  keyStateRight: { up: false, down: false, left: false, right: false },
   isFinished: false,
 };
+
+export const goalSizePercent: number = 50;
 
 export default properties;

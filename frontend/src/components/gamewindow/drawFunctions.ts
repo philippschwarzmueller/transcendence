@@ -1,36 +1,57 @@
-import properties, { IBall, IGame } from "./properties";
+import { EGamemode } from "../queue/Queue";
+import properties, {
+  IBall,
+  IGame,
+  IPaddle,
+  WINDOW_HEIGHT,
+  WINDOW_WIDTH,
+  goalSizePercent,
+} from "./properties";
+
+const getScale = (): number => {
+  return Math.min(
+    properties.window.width / WINDOW_WIDTH,
+    properties.window.height / WINDOW_HEIGHT
+  );
+};
 
 export const drawPaddle = (
   context: CanvasRenderingContext2D | undefined | null,
-  side: string,
-  height: number
+  paddle: IPaddle
 ): void => {
   if (context === undefined || context === null) return;
-  const paddleHeight: number = Math.floor(
-    (properties.window.height * properties.paddle.height) / 100
-  );
-  const paddleWidth: number = Math.floor(
-    (properties.window.width * properties.paddle.width) / 100
-  );
-  if (side === "left") {
-    context.fillStyle = properties.window.color;
-    context.clearRect(0, 0, paddleWidth, properties.window.height);
-    context.fillStyle = properties.paddle.color;
-    context.fillRect(0, height - paddleHeight / 2, paddleWidth, paddleHeight);
-  } else if (side === "right") {
+  const paddleHeight: number = Math.floor(properties.paddle.height);
+  const paddleWidth: number = Math.floor(properties.paddle.width);
+  const scale: number = getScale();
+  if (paddle.side === "left") {
     context.fillStyle = properties.window.color;
     context.clearRect(
-      properties.window.width - paddleWidth,
       0,
-      paddleWidth,
+      0,
+      properties.window.width / 2,
       properties.window.height
     );
     context.fillStyle = properties.paddle.color;
     context.fillRect(
-      properties.window.width - paddleWidth,
-      height - paddleHeight / 2,
-      paddleWidth,
-      paddleHeight
+      (paddle.lateral - paddleWidth / 2) * scale,
+      (paddle.height - paddleHeight / 2) * scale,
+      paddleWidth * scale,
+      paddleHeight * scale
+    );
+  } else if (paddle.side === "right") {
+    context.fillStyle = properties.window.color;
+    context.clearRect(
+      properties.window.width / 2,
+      0,
+      properties.window.width,
+      properties.window.height
+    );
+    context.fillStyle = properties.paddle.color;
+    context.fillRect(
+      (paddle.lateral - paddleWidth / 2) * scale,
+      (paddle.height - paddleHeight / 2) * scale,
+      paddleWidth * scale,
+      paddleHeight * scale
     );
   }
 };
@@ -40,8 +61,8 @@ export const drawBothPaddles = (
   gameState: IGame
 ): void => {
   if (context === undefined || context === null) return;
-  drawPaddle(context, "left", gameState.leftPaddle.height);
-  drawPaddle(context, "right", gameState.rightPaddle.height);
+  drawPaddle(context, gameState.leftPaddle);
+  drawPaddle(context, gameState.rightPaddle);
 };
 
 export const drawBall = (
@@ -49,17 +70,26 @@ export const drawBall = (
   ball: IBall
 ): void => {
   if (context === undefined || context === null) return;
-  context.clearRect(0, 0, properties.window.width, properties.window.width);
+  const scale: number = getScale();
+  context.clearRect(0, 0, properties.window.width, properties.window.height);
   context.fillStyle = properties.ballProperties.color;
   context.beginPath();
-  context.arc(ball.x, ball.y, properties.ballProperties.radius, 0, 2 * Math.PI);
+  context.arc(
+    ball.x * scale,
+    ball.y * scale,
+    properties.ballProperties.radius * scale,
+    0,
+    2 * Math.PI
+  );
   context.fill();
 };
 
 export const drawBackground = (
+  gamemode: EGamemode,
   context: CanvasRenderingContext2D | undefined | null
 ): void => {
   if (context === undefined || context === null) return;
+  const scale: number = getScale();
   context.fillStyle = properties.window.color;
   context.fillRect(0, 0, properties.window.width, properties.window.height);
   context.fillStyle = properties.paddle.color;
@@ -73,6 +103,46 @@ export const drawBackground = (
       squareSize
     );
     currentSquarePos += 2 * squareSize;
+  }
+  context.fillRect(
+    0,
+    0,
+    properties.window.width,
+    (properties.paddle.width / 2) * scale
+  );
+  context.fillRect(
+    0,
+    properties.window.height - (properties.paddle.width / 2) * scale,
+    properties.window.width,
+    properties.window.height
+  );
+  if (gamemode === EGamemode.roomMovement) {
+    const goalHalf: number =
+      (goalSizePercent * properties.window.height) / 2 / 100;
+    context.fillRect(
+      0,
+      0,
+      (properties.paddle.width / 2) * scale,
+      properties.window.height / 2 - goalHalf
+    );
+    context.fillRect(
+      0,
+      properties.window.height / 2 + goalHalf,
+      (properties.paddle.width / 2) * scale,
+      properties.window.height
+    );
+    context.fillRect(
+      properties.window.width - (properties.paddle.width / 2) * scale,
+      0,
+      properties.window.width,
+      properties.window.height / 2 - goalHalf
+    );
+    context.fillRect(
+      properties.window.width - (properties.paddle.width / 2) * scale,
+      properties.window.height / 2 + goalHalf,
+      properties.window.width,
+      properties.window.height
+    );
   }
 };
 
@@ -128,6 +198,7 @@ export const drawText = (
   context.clearRect(0, 0, properties.window.width, properties.window.height);
   context.font = `${fontSize}px Arial`;
   context.fillStyle = "white";
+  context.textAlign = "center";
   context.fillText(
     `${pointsLeft}`,
     properties.window.width / 3,
