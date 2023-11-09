@@ -67,24 +67,46 @@ const GameWindow: React.FC = () => {
   const [navigateToEndScreen, setNavigateToEndScreen] = useState(false);
   const [navigateToErrorScreen, setNavigateToErrorScreen] = useState(false);
 
-  const [windowDimensions, setWindowDimensions] = useState(
-    getWindowDimensions()
-  );
-
   const handleWindowResize = (): void => {
-    setWindowDimensions(getWindowDimensions());
+    // alert("fullscreen");
+    calculateWindowproperties(getWindowDimensions());
+    const canvas1 = gameCanvas?.background?.current?.getContext("2d")?.canvas;
+    if (canvas1) {
+      canvas1.height = properties.window.height;
+      canvas1.width = properties.window.width;
+    }
+    const canvas2 = gameCanvas?.background?.current?.getContext("2d")?.canvas;
+    if (canvas2) {
+      canvas2.height = properties.window.height;
+      canvas2.width = properties.window.width;
+    }
+    const canvas3 = gameCanvas?.background?.current?.getContext("2d")?.canvas;
+    if (canvas3) {
+      canvas3.height = properties.window.height;
+      canvas3.width = properties.window.width;
+    }
+    const canvas4 = gameCanvas?.background?.current?.getContext("2d")?.canvas;
+    if (canvas4) {
+      canvas4.height = properties.window.height;
+      canvas4.width = properties.window.width;
+    }
+    const canvas5 = gameCanvas?.background?.current?.getContext("2d")?.canvas;
+    if (canvas5) {
+      canvas5.height = properties.window.height;
+      canvas5.width = properties.window.width;
+    }
   };
 
-  useEffect(() => {
-    calculateWindowproperties(windowDimensions);
-    socket.emit("getGamemode", gameId, (gamemode: EGamemode) => {
-      if (gamemode !== undefined && gamemode !== null)
-        drawBackground(
-          gamemode,
-          gameCanvas.background?.current?.getContext("2d")
-        );
-    });
-  }, [windowDimensions]); // eslint-disable-line react-hooks/exhaustive-deps
+  // useEffect(() => {
+  //   calculateWindowproperties(windowDimensions);
+  //   socket.emit("getGamemode", gameId, (gamemode: EGamemode) => {
+  //     if (gamemode !== undefined && gamemode !== null)
+  //       drawBackground(
+  //         gamemode,
+  //         gameCanvas.background?.current?.getContext("2d")
+  //       );
+  //   });
+  // }, [windowDimensions]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const GameLoop = (): void => {
     if (
@@ -136,12 +158,12 @@ const GameWindow: React.FC = () => {
           );
       }
     );
-  }, [navigateToEndScreen, windowDimensions]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [navigateToEndScreen]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (navigateToErrorScreen)
       drawErrorScreen(gameCanvas.endScreen.current?.getContext("2d"));
-  }, [navigateToErrorScreen, windowDimensions]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [navigateToErrorScreen]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     handleWindowResize();
@@ -178,7 +200,16 @@ const GameWindow: React.FC = () => {
     gameInterval.current = setInterval(GameLoop, 1000 / properties.framerate);
 
     window.addEventListener("resize", handleWindowResize);
-    return () => window.removeEventListener("resize", handleWindowResize);
+    // window.addEventListener("fullscreenchange", handleFullScreenChange);
+    // window.addEventListener("webkitfullscreenchange", handleFullScreenChange);
+    return () => {
+      window.removeEventListener("resize", handleWindowResize);
+      // window.removeEventListener("fullscreenchange", handleFullScreenChange);
+      // window.removeEventListener(
+      //   "webkitfullscreenchange",
+      //   handleFullScreenChange
+      // );
+    };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
