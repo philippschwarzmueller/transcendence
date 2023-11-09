@@ -11,6 +11,7 @@ import Login from './routes/Login';
 import Profile from './routes/Profile';
 import ProfileSettings from './routes/ProfileSettings';
 import SetUser from './routes/SetUser';
+import PrivateRoute from './routes/ProtectedRoute';
 
 function App() {
   return (
@@ -18,7 +19,10 @@ function App() {
       <Route path="/" element={<Root />} errorElement={<ErrorPage />}>
         <Route index element={<Home />} />
         <Route path="home" element={<Home />} />
-        <Route path="play" element={<Game />}>
+        <Route path="play" element={
+				<PrivateRoute>
+				<Game />
+				</PrivateRoute>}>
           <Route path=":gameId" element={<Game />}>
             <Route path=":side" element={<Game />} />
           </Route>
