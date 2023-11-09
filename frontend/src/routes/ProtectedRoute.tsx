@@ -37,7 +37,6 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
           setValidity(false);
         }
       } catch (error) {
-        console.error("There has been a problem with your fetch operation:", error);
         setValidity(false);
       }
     };
