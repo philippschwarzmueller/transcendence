@@ -1,5 +1,3 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
 import { Route, Routes } from 'react-router-dom';
 import './index.css';
 import Root from './routes/root';
