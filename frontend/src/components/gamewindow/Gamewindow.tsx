@@ -66,7 +66,7 @@ const GameWindow: React.FC = () => {
 
   const [navigateToEndScreen, setNavigateToEndScreen] = useState(false);
   const [navigateToErrorScreen, setNavigateToErrorScreen] = useState(false);
-
+  let resize = 0;
   const handleWindowResize = (): void => {
     // alert("fullscreen");
     calculateWindowproperties(getWindowDimensions());
@@ -75,30 +75,40 @@ const GameWindow: React.FC = () => {
       canvas1.height = properties.window.height;
       canvas1.width = properties.window.width;
     }
-    const canvas2 = gameCanvas?.background?.current?.getContext("2d")?.canvas;
+    const canvas2 = gameCanvas?.ball?.current?.getContext("2d")?.canvas;
     if (canvas2) {
       canvas2.height = properties.window.height;
       canvas2.width = properties.window.width;
     }
-    const canvas3 = gameCanvas?.background?.current?.getContext("2d")?.canvas;
+    const canvas3 = gameCanvas?.endScreen?.current?.getContext("2d")?.canvas;
     if (canvas3) {
       canvas3.height = properties.window.height;
       canvas3.width = properties.window.width;
     }
-    const canvas4 = gameCanvas?.background?.current?.getContext("2d")?.canvas;
+    const canvas4 = gameCanvas?.paddle?.current?.getContext("2d")?.canvas;
     if (canvas4) {
       canvas4.height = properties.window.height;
       canvas4.width = properties.window.width;
     }
-    const canvas5 = gameCanvas?.background?.current?.getContext("2d")?.canvas;
+    const canvas5 = gameCanvas?.score?.current?.getContext("2d")?.canvas;
     if (canvas5) {
       canvas5.height = properties.window.height;
       canvas5.width = properties.window.width;
     }
+    resize++;
+    console.log(resize);
+    socket.emit("getGamemode", gameId, (gamemode: EGamemode) => {
+      if (gamemode !== undefined && gamemode !== null)
+        console.log("draw background");
+      drawBackground(
+        gamemode,
+        gameCanvas.background?.current?.getContext("2d")
+      );
+    });
   };
 
   // useEffect(() => {
-  //   calculateWindowproperties(windowDimensions);
+  //   // calculateWindowproperties(windowDimensions);
   //   socket.emit("getGamemode", gameId, (gamemode: EGamemode) => {
   //     if (gamemode !== undefined && gamemode !== null)
   //       drawBackground(
@@ -106,7 +116,7 @@ const GameWindow: React.FC = () => {
   //         gameCanvas.background?.current?.getContext("2d")
   //       );
   //   });
-  // }, [windowDimensions]); // eslint-disable-line react-hooks/exhaustive-deps
+  // }, [resize]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const GameLoop = (): void => {
     if (
