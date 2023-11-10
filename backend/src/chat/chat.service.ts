@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
-import { IMessage, IUser } from './properties';
+import { IMessage } from './properties';
 import { ChatDAO } from './chat.dao';
 import { Socket, Server } from 'socket.io';
 import { IGameUser } from 'src/games/properties';
@@ -60,7 +60,10 @@ export class ChatService {
     const res: string[] = [];
     try {
       const user = await this.userService.findOneByName(userId);
+      const rec = await this.userService.findOneByName(chatName).catch(error => console.log(error));
       await this.chatDao.saveChannel(chatName, userId);
+      if (rec != undefined)
+        await this.chatDao.addUserToChannel(chatName, chatName);
       client.join(chatName);
       return await this.chatDao.getRawUserChannels(user.id);
     } catch (error) {
@@ -90,7 +93,7 @@ export class ChatService {
         input: 'joined room',
         room: data.room,
       });
-      client.to(data.room).emit('message', 'oheinzel: joined room');
+      client.to(data.room).emit('message', `${data.user.name}: joined room`);
       res = await this.chatDao.getRawChannelMessages(channel.id);
     } catch (error) {
       console.log(error);

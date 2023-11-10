@@ -5,7 +5,6 @@ import { Injectable, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IMessage } from './properties';
 import { UsersService } from 'src/users/users.service';
-import { databaseProviders } from 'src/database.providers';
 
 @Injectable()
 export class ChatDAO {
