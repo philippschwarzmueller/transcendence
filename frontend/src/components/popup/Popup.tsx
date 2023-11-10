@@ -4,10 +4,12 @@ import React, {
   useImperativeHandle,
   Ref,
   ReactNode,
+  useContext,
 } from "react";
 import Input from "../input/Input";
 import styled from "styled-components";
 import { IUser } from "../../context/auth";
+import { SocketContext } from "../../context/socket";
 
 const InputField = styled.div<{
   $display: boolean;
@@ -47,6 +49,7 @@ function Popup(
   ref: Ref<refs>,
 ) {
   const [input, setInput] = useState<string>("");
+  const socket = useContext(SocketContext);
   let [display, setDisplay] = useState<boolean>(false);
   let [positionX, setPositionX] = useState<number>(0);
   let [positionY, setPositionY] = useState<number>(0);
@@ -67,23 +70,16 @@ function Popup(
       <InputField $display={display} $posX={positionX} $posY={positionY}>
         {children}
         <Input
+          id='room'
           value={input}
-          label="Type here"
+          label="room"
           placeholder={placeholder}
           onChange={(e) => setInput(e.target.value)}
           onKeyUp={(e: React.KeyboardEvent) => {
             if (e.key === "Enter") {
-              fetch(
-                `http://${window.location.hostname}:4000/chat?userId=${user.name}&newChat=${input}`,
-                { method: "POST" },
-              )
-                .then((response) => {
-                  if (!response.ok) {
-                    throw new Error("Network response was not ok");
-                  }
-                  return response.json();
-                })
-                .then((res: string[]) => setTabs(res));
+              socket.emit("create", { user: user, input: input, room: input }, (res: string[]) =>
+                setTabs(res)
+              );
               onKey(input);
               setDisplay(false);
               setInput("");

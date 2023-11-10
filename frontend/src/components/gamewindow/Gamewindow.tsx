@@ -1,9 +1,10 @@
-import React, { useRef, useEffect, useContext } from "react";
+import React, { useRef, useEffect, useContext, useState } from "react";
 import properties, {
   IGame,
   gameSpawn,
   IGameSocketPayload,
   IKeyState,
+  IFinishedGame,
 } from "./properties";
 import Centerdiv from "../centerdiv";
 import Gamecanvas from "../gamecanvas/Gamecanvas";
@@ -12,12 +13,19 @@ import {
   drawBall,
   drawBothPaddles,
   drawText,
-  drawEndScreen,
+  drawWinScreen,
+  drawErrorScreen,
 } from "./drawFunctions";
 import { useParams } from "react-router-dom";
-import { GAMESOCKET, GAMESOCKETADDRESS } from "../queue/Queue";
-import { io, Socket } from "socket.io-client";
+import { EGamemode } from "../queue/Queue";
+import { SocketContext } from "../../context/socket";
+import { Socket } from "socket.io-client";
 import { AuthContext, IUser } from "../../context/auth";
+import { setKeyEventListener } from "./keyboardinput";
+import {
+  calculateWindowproperties,
+  getWindowDimensions,
+} from "./windowresizing";
 
 interface IGameCanvas {
   background: React.MutableRefObject<HTMLCanvasElement | null>;
@@ -45,6 +53,8 @@ const GameWindow: React.FC = () => {
   const keystateRef: React.MutableRefObject<IKeyState> = useRef<IKeyState>({
     down: false,
     up: false,
+    left: false,
+    right: false,
   });
   const gameStateRef: React.MutableRefObject<IGame> = useRef<IGame>(gameSpawn);
   const gameId: string = params.gameId !== undefined ? params.gameId : "-1";
@@ -52,10 +62,29 @@ const GameWindow: React.FC = () => {
     ReturnType<typeof setInterval> | undefined
   > = useRef<ReturnType<typeof setInterval>>();
   const localUser: IUser = useContext(AuthContext).user;
-  let socket: Socket = GAMESOCKET;
-  let isGameFinished: React.MutableRefObject<boolean> = useRef<boolean>(false);
-  if (socket === undefined || socket.connected === false)
-    socket = io(GAMESOCKETADDRESS);
+  const socket: Socket = useContext(SocketContext);
+
+  const [navigateToEndScreen, setNavigateToEndScreen] = useState(false);
+  const [navigateToErrorScreen, setNavigateToErrorScreen] = useState(false);
+
+  const [windowDimensions, setWindowDimensions] = useState(
+    getWindowDimensions()
+  );
+
+  const handleWindowResize = (): void => {
+    setWindowDimensions(getWindowDimensions());
+  };
+
+  useEffect(() => {
+    calculateWindowproperties(windowDimensions);
+    socket.emit("getGamemode", gameId, (gamemode: EGamemode) => {
+      if (gamemode !== undefined && gamemode !== null)
+        drawBackground(
+          gamemode,
+          gameCanvas.background?.current?.getContext("2d")
+        );
+    });
+  }, [windowDimensions]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const GameLoop = (): void => {
     if (
@@ -72,63 +101,84 @@ const GameWindow: React.FC = () => {
       gameId: gameId,
       user: localUser,
     };
-    if (socket.connected)
+    if (socket.connected) {
       socket.emit("alterGameData", gameSocketPayload, (res: IGame) => {
         gameStateRef.current = res;
-        isGameFinished.current = res.isFinished;
       });
-    else gameStateRef.current = gameSpawn;
-    if (isGameFinished.current === true)
-      drawEndScreen(
-        gameStateRef.current,
-        gameCanvas.endScreen?.current?.getContext("2d")
-      );
-    else {
-      drawBall(
-        gameCanvas.ball?.current?.getContext("2d"),
-        gameStateRef.current.ball
-      );
-      drawBothPaddles(
-        gameCanvas.paddle?.current?.getContext("2d"),
-        gameStateRef.current
-      );
-      drawText(
-        gameCanvas.score?.current?.getContext("2d"),
-        gameStateRef.current.pointsLeft,
-        gameStateRef.current.pointsRight
-      );
-    }
+    } else gameStateRef.current = gameSpawn;
+
+    drawBall(
+      gameCanvas.ball?.current?.getContext("2d"),
+      gameStateRef.current.ball
+    );
+    drawBothPaddles(
+      gameCanvas.paddle?.current?.getContext("2d"),
+      gameStateRef.current
+    );
+    drawText(
+      gameCanvas.score?.current?.getContext("2d"),
+      gameStateRef.current.pointsLeft,
+      gameStateRef.current.pointsRight
+    );
   };
 
   useEffect(() => {
-    drawBackground(gameCanvas.background?.current?.getContext("2d"));
+    socket.emit(
+      "getGameFromDatabase",
+      gameId,
+      (finishedGame: IFinishedGame) => {
+        if (navigateToEndScreen)
+          drawWinScreen(
+            finishedGame.winner,
+            finishedGame.winnerPoints,
+            finishedGame.looserPoints,
+            gameCanvas.endScreen.current?.getContext("2d")
+          );
+      }
+    );
+  }, [navigateToEndScreen, windowDimensions]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (navigateToErrorScreen)
+      drawErrorScreen(gameCanvas.endScreen.current?.getContext("2d"));
+  }, [navigateToErrorScreen, windowDimensions]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    handleWindowResize();
+    socket.emit("isGameRunning", gameId, (isGameRunning: boolean) => {
+      if (!isGameRunning) {
+        socket.emit("isGameInDatabase", gameId, (isGameInDatabase: boolean) => {
+          if (isGameInDatabase) {
+            setNavigateToEndScreen(true);
+          } else {
+            setNavigateToErrorScreen(true);
+          }
+        });
+      }
+    });
+
+    socket.emit("getGamemode", gameId, (gamemode: EGamemode) => {
+      if (gamemode !== undefined && gamemode !== null)
+        drawBackground(
+          gamemode,
+          gameCanvas.background?.current?.getContext("2d")
+        );
+    });
+
     socket.on("endgame", () => {
-      isGameFinished.current = true;
       finishGame(gameInterval.current);
       socket.emit("getGameData", gameId, (res: IGame) => {
         gameStateRef.current = res;
-        isGameFinished.current = res.isFinished;
+        setNavigateToEndScreen(true);
       });
     });
-    window.addEventListener(
-      "keydown",
-      (e) => {
-        if (e.key === "ArrowUp") keystateRef.current.up = true;
-        if (e.key === "ArrowDown") keystateRef.current.down = true;
-      },
-      true
-    );
 
-    window.addEventListener(
-      "keyup",
-      (e) => {
-        if (e.key === "ArrowUp") keystateRef.current.up = false;
-        if (e.key === "ArrowDown") keystateRef.current.down = false;
-      },
-      true
-    );
+    setKeyEventListener(keystateRef);
 
     gameInterval.current = setInterval(GameLoop, 1000 / properties.framerate);
+
+    window.addEventListener("resize", handleWindowResize);
+    return () => window.removeEventListener("resize", handleWindowResize);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (

@@ -1,4 +1,4 @@
-import { IGame, IGameUser } from 'src/games/properties';
+import { IGameUser } from 'src/games/properties';
 
 export interface IUser {
   id: number | undefined;
@@ -7,7 +7,7 @@ export interface IUser {
   token: string | undefined;
 }
 
-export interface message {
+export interface IMessage {
   user: IUser;
   input: string;
   room: string;

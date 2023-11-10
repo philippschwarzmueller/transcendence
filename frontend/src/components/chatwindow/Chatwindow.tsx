@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
 import Input from "../input/Input";
 import Button from "../button/Button";
-import { ChatSocketContext } from "../../routes/root";
+import { SocketContext } from "../../context/socket";
 import { Socket } from "socket.io-client";
 import styled from "styled-components";
 import Moveablewindow from "../moveablewindow/Moveablewindow";
@@ -21,7 +21,7 @@ const Msgfield = styled.div`
 const Tabbar = styled.div`
   display: flex;
   padding: 0px;
-  margin: 0px;
+  margin-bottom: 5px;
   border: none;
 `;
 
@@ -61,29 +61,23 @@ const Textfield = styled.div`
   }
 `;
 
-// not triggerable for actice state yet
-const StyledLi = styled.li`
+const StyledLi = styled.li<{ $active: string }>`
   list-style: none;
   display: list-item;
   padding: 5px;
   font-size: 14px;
-  background-color: rgb(190, 190, 190);
   border: solid 1px;
   border-top-color: white;
   border-left-color: white;
   border-top-left-radius: 5px 5px;
   border-top-right-radius: 5px 5px;
-  &:acive {
-    background-color: rgb(195, 199, 203);
-    border-bottom: none;
-  }
-  &:hover {
-    background-color: rgb(195, 199, 203);
-    border-bottom: none;
-  }
+  cursor: pointer;
+  background-color: ${(props) =>
+    props.$active === "true" ? "rgb(195, 199, 203)" : "rgb(180, 180, 190)"};
+  border-bottom-color: ${(props) =>
+    props.$active === "true" ? "rgb(195, 199, 203)" : "black"};
 `;
 
-// has to be switched to links for individual chats
 const StyledUl = styled.ul`
   padding: 5px;
   margin: 5px;
@@ -94,9 +88,10 @@ const Chatwindow: React.FC = () => {
   const [messages, setMessages] = useState<string[]>([]);
   const [input, setInput] = useState<string>("");
   const user: IUser = useContext(AuthContext).user;
-  const [tabs, setTabs] = useState<string[]>(user.activeChats);
+  const [tabs, setTabs] = useState<string[]>([]);
+  const [activeTab, setActiveTab] = useState<string>("");
   const [room, setRoom] = useState<string>("general");
-  const socket: Socket = useContext(ChatSocketContext);
+  const socket: Socket = useContext(SocketContext);
   const navigate = useNavigate();
   let listKey = 0;
 
@@ -109,7 +104,19 @@ const Chatwindow: React.FC = () => {
   });
 
   useEffect(() => {
-    if (user === undefined) return;
+    fetch(`http://${window.location.hostname}:4000/chat?userId=${user.name}`, {
+      method: "GET",
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((res: string[]) => setTabs(res));
+  }, []);
+
+  useEffect(() => {
     socket.emit("join", { user, input, room }, (res: string[]) =>
       setMessages(res),
     );
@@ -125,14 +132,23 @@ const Chatwindow: React.FC = () => {
     [messages],
   );
 
+  useEffect(() => {
+    setTabs(tabs);
+    setActive(tabs[tabs.length - 1]);
+  }, [tabs]); // eslint-disable-line react-hooks/exhaustive-deps
+
   function send(event: React.MouseEvent | React.KeyboardEvent) {
     event.preventDefault();
-    if (user === undefined)
-      setMessages([...messages, "you have to be logged in to chat!"]);
     if (input.trim() !== "" && user !== undefined)
       socket.emit("message", { user, input, room });
     setInput("");
   }
+
+  const setActive = (tab: string) => {
+    if (tab === undefined) tab = "general";
+    setActiveTab(tab);
+    setRoom(tab);
+  };
 
   return (
     <>
@@ -143,23 +159,47 @@ const Chatwindow: React.FC = () => {
         ref={roomRef}
         setTabs={setTabs}
       >
-        Create Room
+        Create
       </Popup>
       <Moveablewindow>
         <Tabbar>
           {tabs.map((tab) => {
             return (
-              <StyledLi onClick={() => setRoom(tab)} key={tab}>
+              <StyledLi
+                onClick={() => setActive(tab)}
+                key={tab}
+                $active={tab === activeTab ? "true" : "false"}
+              >
                 {tab}
               </StyledLi>
             );
           })}
           <StyledLi
             key="+"
+            $active={"false"}
             onClick={(e: React.MouseEvent) => roomRef.current.openRoom(e)}
           >
             +
           </StyledLi>
+          <Button
+            onClick={() => {
+              fetch(
+                `http://${window.location.hostname}:4000/chat/rooms?userId=${user.name}&chat=${activeTab}`,
+                { method: "DELETE" },
+              );
+              setTabs(
+                tabs.filter(function (e) {
+                  return e !== activeTab;
+                }),
+              );
+              setActive(tabs[tabs.length - 1]);
+            }}
+            $position="absolute"
+            $top="35px"
+            $right="20px"
+          >
+            Close
+          </Button>
         </Tabbar>
         <Textfield>
           <StyledUl ref={msgField} id="msgField">
@@ -185,17 +225,6 @@ const Chatwindow: React.FC = () => {
             }
           >
             Clear
-          </Button>
-          <Button
-            onClick={() => {
-              socket.emit("remove", room);
-              fetch(
-                `http://${window.location.hostname}:4000/chat?userId=${user.name}`,
-                { method: "DELETE" },
-              );
-            }}
-          >
-            Remove
           </Button>
         </Msgfield>
       </Moveablewindow>

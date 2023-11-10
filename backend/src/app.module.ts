@@ -8,6 +8,9 @@ import { AuthModule } from './auth/auth.module';
 import { GamesModule } from './games/games.module';
 import { ChatModule } from './chat/chat.module';
 import { Game } from './games/game.entity';
+import { Channels, Messages } from './chat/chat.entity';
+import { WSocketModule } from './wsocket/wsocket.module';
+import { WSocketGateway } from './wsocket/wsocket.gateway';
 
 @Module({
   imports: [
@@ -18,15 +21,16 @@ import { Game } from './games/game.entity';
       username: 'root',
       password: 'testpwd',
       database: 'transcendence',
-      entities: [User, Game],
+      entities: [User, Game, Messages, Channels],
       synchronize: true,
     }),
     UsersModule,
     AuthModule,
     GamesModule,
     ChatModule,
+    WSocketModule,
   ],
   controllers: [AppController],
-  providers: [GreetingService],
+  providers: [GreetingService, WSocketGateway],
 })
 export class AppModule {}

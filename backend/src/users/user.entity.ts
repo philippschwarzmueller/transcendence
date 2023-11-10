@@ -1,10 +1,25 @@
-import { Column, Entity, PrimaryGeneratedColumn, Unique } from 'typeorm';
+import { Channels, Messages } from 'src/chat/chat.entity';
+import { Column, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn, Unique } from 'typeorm';
 
 @Entity('users')
 @Unique(['name'])
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
+
+  @ManyToMany(type => Channels)
+  @JoinTable({
+      name: "channel_subscription",
+      joinColumn: {
+          name: "user",
+          referencedColumnName: "id"
+      },
+      inverseJoinColumn: {
+          name: "channel",
+          referencedColumnName: "id"
+      }
+  })
+  channels: Channels[];
 
   @Column({ name: 'name' })
   name: string;
@@ -26,8 +41,6 @@ export class User {
   @Column('text', { array: true, default: [] })
   activeChats: string[];
 
-  @Column({
-    default: 0,
-  })
+  @Column({default: 0, })
   tokenExpiry: number;
 }

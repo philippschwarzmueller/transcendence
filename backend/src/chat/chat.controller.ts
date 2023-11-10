@@ -1,4 +1,4 @@
-import { Controller, Delete, HttpCode, Post, Query } from '@nestjs/common';
+import { Controller, Delete, HttpCode, Post, Get, Query } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { User } from 'src/users/user.entity';
 
@@ -6,22 +6,18 @@ import { User } from 'src/users/user.entity';
 export class ChatController {
   constructor(private chatService: ChatService) {}
 
-  @Post()
-  @HttpCode(201)
-  async updateActiveChatsColumn(
-    @Query('userId') userId: string,
-    @Query('newChat') newChat: string,
-  ): Promise<string[] | undefined> {
-    console.log(userId)
-    console.log(newChat)
-    return (await (this.chatService.addChat(userId, newChat))).activeChats;
+  @Get()
+  @HttpCode(200)
+  async getChats(@Query('userId') userId: string): Promise<string[]> {
+    return await this.chatService.getChats(userId);
   }
-  
-  @Delete()
+
+  @Delete('rooms')
   @HttpCode(201)
-  async deleteAllChats(
+  async deleteChat(
     @Query('userId') userId: string,
-  ): Promise<User | undefined> {
-    return this.chatService.clearActiveChats(userId);
+    @Query('chat') chat: string,
+  ): Promise<void> {
+    await this.chatService.removeChat(userId, chat);
   }
 }
