@@ -127,7 +127,7 @@ export class ChatService {
     server: Server,
     gameServ: GamesService,
   ) {
-    if (this.getUser(data.user.name, data.room)) {
+    if (this.opponents.get(data.user.name)) {
       await this.gameAccept(data, server, gameServ);
       return;
     }
