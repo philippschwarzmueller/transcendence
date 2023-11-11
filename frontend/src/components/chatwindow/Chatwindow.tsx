@@ -9,6 +9,7 @@ import { AuthContext, IUser } from "../../context/auth";
 import Popup from "../popup/Popup";
 import { IGameStart } from "../gamewindow/properties";
 import { useNavigate } from "react-router-dom";
+import { EChannelType } from "./properties";
 
 const Msgfield = styled.div`
   width: 320px;
@@ -117,7 +118,7 @@ const Chatwindow: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    socket.emit("join", { user, input, room }, (res: string[]) =>
+    socket.emit("join", { user: user, type: EChannelType.PUBLIC, room }, (res: string[]) =>
       setMessages(res),
     );
   }, [room]); // eslint-disable-line react-hooks/exhaustive-deps

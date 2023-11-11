@@ -10,6 +10,7 @@ import Input from "../input/Input";
 import styled from "styled-components";
 import { IUser } from "../../context/auth";
 import { SocketContext } from "../../context/socket";
+import { EChannelType } from "../chatwindow/properties";
 
 const InputField = styled.div<{
   $display: boolean;
@@ -50,6 +51,7 @@ function Popup(
 ) {
   const [input, setInput] = useState<string>("");
   const socket = useContext(SocketContext);
+  const channelType = useState<EChannelType>(EChannelType.PUBLIC);
   let [display, setDisplay] = useState<boolean>(false);
   let [positionX, setPositionX] = useState<number>(0);
   let [positionY, setPositionY] = useState<number>(0);
@@ -77,7 +79,7 @@ function Popup(
           onChange={(e) => setInput(e.target.value)}
           onKeyUp={(e: React.KeyboardEvent) => {
             if (e.key === "Enter") {
-              socket.emit("create", { user: user, input: input, room: input }, (res: string[]) =>
+              socket.emit("create", { user: user, type: channelType, title: input }, (res: string[]) =>
                 setTabs(res)
               );
               onKey(input);
