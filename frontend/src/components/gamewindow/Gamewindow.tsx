@@ -121,10 +121,13 @@ const GameWindow: React.FC = () => {
     console.log("navigateToEndScreen: ", navigateToEndScreen.current);
     console.log("navigateToErrorScreen: ", navigateToErrorScreen.current);
 
-    if (navigateToEndScreen.current)
-      fetchAndDrawFinishedGame(socket, gameId, gameCanvas.endScreen);
-    if (navigateToErrorScreen.current)
+    if (navigateToErrorScreen.current) {
+      console.log("rerender error");
       drawErrorScreen(gameCanvas.endScreen.current?.getContext("2d"));
+    } else if (navigateToEndScreen.current) {
+      console.log("rerender end");
+      fetchAndDrawFinishedGame(socket, gameId, gameCanvas.endScreen);
+    }
   };
 
   const GameLoop = (): void => {
@@ -166,11 +169,11 @@ const GameWindow: React.FC = () => {
     );
   };
 
-  useEffect(() => {
-    console.log("navigateToEndScreenEffect: ", navigateToEndScreen.current);
-    if (navigateToEndScreen.current)
-      fetchAndDrawFinishedGame(socket, gameId, gameCanvas.endScreen);
-  }, [navigateToEndScreen.current]); // eslint-disable-line react-hooks/exhaustive-deps
+  // useEffect(() => {
+  //   console.log("navigateToEndScreenEffect: ", navigateToEndScreen.current);
+  //   if (navigateToEndScreen.current)
+  //     fetchAndDrawFinishedGame(socket, gameId, gameCanvas.endScreen);
+  // }, [navigateToEndScreen.current]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // useEffect(() => {
   //   console.log("navigateToErrorScreenEffect: ", navigateToErrorScreen.current);
@@ -195,7 +198,7 @@ const GameWindow: React.FC = () => {
             );
           } else {
             drawErrorScreen(gameCanvas.endScreen.current?.getContext("2d"));
-            navigateToEndScreen.current = true;
+            navigateToErrorScreen.current = true;
           }
         });
       }
@@ -211,6 +214,7 @@ const GameWindow: React.FC = () => {
         gameStateRef.current = res;
         navigateToEndScreen.current = true;
       });
+      fetchAndDrawFinishedGame(socket, gameId, gameCanvas.endScreen);
     });
 
     setKeyEventListener(keystateRef);
