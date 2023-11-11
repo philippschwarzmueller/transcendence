@@ -23,7 +23,8 @@ export class ChatService extends ChatServiceBase {
     if (data.input.indexOf(' ') != -1)
       check = data.input.substring(0, data.input.indexOf(' '));
     switch (check) {
-      case '/invite':
+      case '/add':
+        this.addUser(data, server);
         break;
       case '/kick':
         break;
@@ -60,9 +61,22 @@ export class ChatService extends ChatServiceBase {
     }
   }
 
+  private async addUser(data: IMessage, server: Server) {
+    try {
+      const name = data.input.substring(data.input.indexOf(' ') + 1);
+      const owner = await this.chatDao.getChannelOwner(data.room);
+      if (owner.name !== data.user.name)
+        return ;
+      this.chatDao.addUserToChannel(data.room, data.user.name);
+      server.to(this.getUser(name).socket.id).emit('invite', await this.chatDao.getUserChannels);
+    } catch (error) {
+      console.log(`SYSTEM: ${error.message.split('\n')[0]}`);
+    }
+  }
+
   private gameInvite(data: IMessage, server: Server) {
     const name = data.input.substring(data.input.indexOf(' ') + 1);
-    const opponent = this.getUser(name, data.room);
+    const opponent = this.getUserInChannel(name, data.room);
     if (opponent) {
       server
         .to(opponent.socket.id)
@@ -79,8 +93,8 @@ export class ChatService extends ChatServiceBase {
     server: Server,
     gameServ: GamesService,
   ) {
-    const user: IGameUser = this.getUser(data.user.name, data.room);
-    const opponent: IGameUser = this.getUser(
+    const user: IGameUser = this.getUserInChannel(data.user.name, data.room);
+    const opponent: IGameUser = this.getUserInChannel(
       this.opponents.get(data.user.name),
       data.room,
     );

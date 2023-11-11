@@ -100,6 +100,7 @@ const Chatwindow: React.FC = () => {
   const roomRef: any = useRef<typeof Popup | null>(null);
 
   socket.on("message", (res: string) => setMessages([...messages, res]));
+  socket.on("invite", (res: string[]) => setTabs(res));
   socket.on("game", (body: IGameStart) => {
     navigate(`/play/${body.gameId}/${body.side}`);
   });
