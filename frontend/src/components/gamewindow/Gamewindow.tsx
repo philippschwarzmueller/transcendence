@@ -26,6 +26,7 @@ import {
   calculateWindowproperties,
   getWindowDimensions,
 } from "./windowresizing";
+import { Gamesocket } from "./socket";
 
 interface IGameCanvas {
   background: React.MutableRefObject<HTMLCanvasElement | null>;
@@ -39,6 +40,48 @@ const finishGame = (
   gameInterval: ReturnType<typeof setInterval> | undefined
 ): void => {
   clearInterval(gameInterval);
+};
+
+const resizeCanvas = (
+  gameCanvasRef: React.MutableRefObject<HTMLCanvasElement | null>
+): void => {
+  const canvas = gameCanvasRef.current?.getContext("2d")?.canvas;
+  if (canvas) {
+    canvas.height = properties.window.height;
+    canvas.width = properties.window.width;
+  }
+};
+
+const getCanvases = (
+  gameCanvas: IGameCanvas
+): React.MutableRefObject<HTMLCanvasElement | null>[] => {
+  return [
+    gameCanvas.background,
+    gameCanvas.ball,
+    gameCanvas.endScreen,
+    gameCanvas.paddle,
+    gameCanvas.paddle,
+    gameCanvas.score,
+  ];
+};
+
+const fetchAndDrawFinishedGame = (
+  socket: Gamesocket,
+  gameId: string,
+  gameCanvas: React.MutableRefObject<HTMLCanvasElement | null>
+): void => {
+  socket.emit(
+    "getGameFromDatabase",
+    gameId,
+    (finishedGameRemote: IFinishedGame) => {
+      drawWinScreen(
+        finishedGameRemote.winner,
+        finishedGameRemote.winnerPoints,
+        finishedGameRemote.looserPoints,
+        gameCanvas?.current?.getContext("2d")
+      );
+    }
+  );
 };
 
 const GameWindow: React.FC = () => {
@@ -63,60 +106,26 @@ const GameWindow: React.FC = () => {
   > = useRef<ReturnType<typeof setInterval>>();
   const localUser: IUser = useContext(AuthContext).user;
   const socket: Socket = useContext(SocketContext);
+  const gamemode = useRef(EGamemode.standard);
+  const navigateToEndScreen = useRef(false);
+  const navigateToErrorScreen = useRef(false);
 
-  const [navigateToEndScreen, setNavigateToEndScreen] = useState(false);
-  const [navigateToErrorScreen, setNavigateToErrorScreen] = useState(false);
-  let resize = 0;
+  const finishedGame: React.MutableRefObject<IFinishedGame | null> =
+    useRef(null);
   const handleWindowResize = (): void => {
-    // alert("fullscreen");
+    console.log("resize");
     calculateWindowproperties(getWindowDimensions());
-    const canvas1 = gameCanvas?.background?.current?.getContext("2d")?.canvas;
-    if (canvas1) {
-      canvas1.height = properties.window.height;
-      canvas1.width = properties.window.width;
-    }
-    const canvas2 = gameCanvas?.ball?.current?.getContext("2d")?.canvas;
-    if (canvas2) {
-      canvas2.height = properties.window.height;
-      canvas2.width = properties.window.width;
-    }
-    const canvas3 = gameCanvas?.endScreen?.current?.getContext("2d")?.canvas;
-    if (canvas3) {
-      canvas3.height = properties.window.height;
-      canvas3.width = properties.window.width;
-    }
-    const canvas4 = gameCanvas?.paddle?.current?.getContext("2d")?.canvas;
-    if (canvas4) {
-      canvas4.height = properties.window.height;
-      canvas4.width = properties.window.width;
-    }
-    const canvas5 = gameCanvas?.score?.current?.getContext("2d")?.canvas;
-    if (canvas5) {
-      canvas5.height = properties.window.height;
-      canvas5.width = properties.window.width;
-    }
-    resize++;
-    console.log(resize);
-    socket.emit("getGamemode", gameId, (gamemode: EGamemode) => {
-      if (gamemode !== undefined && gamemode !== null)
-        console.log("draw background");
-      drawBackground(
-        gamemode,
-        gameCanvas.background?.current?.getContext("2d")
-      );
+    getCanvases(gameCanvas).forEach((canvas) => {
+      resizeCanvas(canvas);
     });
-  };
+    console.log("navigateToEndScreen: ", navigateToEndScreen.current);
+    console.log("navigateToErrorScreen: ", navigateToErrorScreen.current);
 
-  // useEffect(() => {
-  //   // calculateWindowproperties(windowDimensions);
-  //   socket.emit("getGamemode", gameId, (gamemode: EGamemode) => {
-  //     if (gamemode !== undefined && gamemode !== null)
-  //       drawBackground(
-  //         gamemode,
-  //         gameCanvas.background?.current?.getContext("2d")
-  //       );
-  //   });
-  // }, [resize]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (navigateToEndScreen.current)
+      fetchAndDrawFinishedGame(socket, gameId, gameCanvas.endScreen);
+    if (navigateToErrorScreen.current)
+      drawErrorScreen(gameCanvas.endScreen.current?.getContext("2d"));
+  };
 
   const GameLoop = (): void => {
     if (
@@ -138,7 +147,10 @@ const GameWindow: React.FC = () => {
         gameStateRef.current = res;
       });
     } else gameStateRef.current = gameSpawn;
-
+    drawBackground(
+      gamemode.current,
+      gameCanvas.background.current?.getContext("2d")
+    );
     drawBall(
       gameCanvas.ball?.current?.getContext("2d"),
       gameStateRef.current.ball
@@ -155,53 +167,49 @@ const GameWindow: React.FC = () => {
   };
 
   useEffect(() => {
-    socket.emit(
-      "getGameFromDatabase",
-      gameId,
-      (finishedGame: IFinishedGame) => {
-        if (navigateToEndScreen)
-          drawWinScreen(
-            finishedGame.winner,
-            finishedGame.winnerPoints,
-            finishedGame.looserPoints,
-            gameCanvas.endScreen.current?.getContext("2d")
-          );
-      }
-    );
-  }, [navigateToEndScreen]); // eslint-disable-line react-hooks/exhaustive-deps
+    console.log("navigateToEndScreenEffect: ", navigateToEndScreen.current);
+    if (navigateToEndScreen.current)
+      fetchAndDrawFinishedGame(socket, gameId, gameCanvas.endScreen);
+  }, [navigateToEndScreen.current]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // useEffect(() => {
+  //   console.log("navigateToErrorScreenEffect: ", navigateToErrorScreen.current);
+  //   if (navigateToErrorScreen.current)
+  //     drawErrorScreen(gameCanvas.endScreen.current?.getContext("2d"));
+  // }, [navigateToErrorScreen.current]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (navigateToErrorScreen)
-      drawErrorScreen(gameCanvas.endScreen.current?.getContext("2d"));
-  }, [navigateToErrorScreen]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => {
+    console.log("Initial render");
     handleWindowResize();
     socket.emit("isGameRunning", gameId, (isGameRunning: boolean) => {
       if (!isGameRunning) {
         socket.emit("isGameInDatabase", gameId, (isGameInDatabase: boolean) => {
           if (isGameInDatabase) {
-            setNavigateToEndScreen(true);
+            navigateToEndScreen.current = true;
+            fetchAndDrawFinishedGame(socket, gameId, gameCanvas.endScreen);
+            drawWinScreen(
+              finishedGame?.current?.winner,
+              finishedGame?.current?.winnerPoints,
+              finishedGame?.current?.looserPoints,
+              gameCanvas.endScreen.current?.getContext("2d")
+            );
           } else {
-            setNavigateToErrorScreen(true);
+            drawErrorScreen(gameCanvas.endScreen.current?.getContext("2d"));
+            navigateToEndScreen.current = true;
           }
         });
       }
     });
 
-    socket.emit("getGamemode", gameId, (gamemode: EGamemode) => {
-      if (gamemode !== undefined && gamemode !== null)
-        drawBackground(
-          gamemode,
-          gameCanvas.background?.current?.getContext("2d")
-        );
+    socket.emit("getGamemode", gameId, (gamemodeRemote: EGamemode) => {
+      gamemode.current = gamemodeRemote;
     });
 
     socket.on("endgame", () => {
       finishGame(gameInterval.current);
       socket.emit("getGameData", gameId, (res: IGame) => {
         gameStateRef.current = res;
-        setNavigateToEndScreen(true);
+        navigateToEndScreen.current = true;
       });
     });
 
@@ -210,15 +218,8 @@ const GameWindow: React.FC = () => {
     gameInterval.current = setInterval(GameLoop, 1000 / properties.framerate);
 
     window.addEventListener("resize", handleWindowResize);
-    // window.addEventListener("fullscreenchange", handleFullScreenChange);
-    // window.addEventListener("webkitfullscreenchange", handleFullScreenChange);
     return () => {
       window.removeEventListener("resize", handleWindowResize);
-      // window.removeEventListener("fullscreenchange", handleFullScreenChange);
-      // window.removeEventListener(
-      //   "webkitfullscreenchange",
-      //   handleFullScreenChange
-      // );
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
