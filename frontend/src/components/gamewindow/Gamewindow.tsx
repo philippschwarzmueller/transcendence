@@ -38,7 +38,8 @@ const finishGame = (
 const resizeCanvas = (
   gameCanvasRef: React.MutableRefObject<HTMLCanvasElement>
 ): void => {
-  const canvas = gameCanvasRef.current.getContext("2d")?.canvas;
+  const canvas: HTMLCanvasElement | undefined =
+    gameCanvasRef.current.getContext("2d")?.canvas;
   if (canvas) {
     canvas.height = properties.window.height;
     canvas.width = properties.window.width;
@@ -86,9 +87,11 @@ const GameWindow: React.FC = () => {
   > = useRef<ReturnType<typeof setInterval>>();
   const localUser: IUser = useContext(AuthContext).user;
   const socket: Socket = useContext(SocketContext);
-  const gamemode = useRef(EGamemode.standard);
-  const navigateToEndScreen = useRef(false);
-  const navigateToErrorScreen = useRef(false);
+  const gamemode: React.MutableRefObject<EGamemode> = useRef(
+    EGamemode.standard
+  );
+  const navigateToEndScreen: React.MutableRefObject<boolean> = useRef(false);
+  const navigateToErrorScreen: React.MutableRefObject<boolean> = useRef(false);
 
   const handleWindowResize = (): void => {
     calculateWindowproperties(getWindowDimensions());
