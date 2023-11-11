@@ -128,6 +128,23 @@ const GameWindow: React.FC = () => {
       console.log("rerender end");
       fetchAndDrawFinishedGame(socket, gameId, gameCanvas.endScreen);
     }
+    drawBackground(
+      gamemode.current,
+      gameCanvas.background.current?.getContext("2d")
+    );
+    drawBall(
+      gameCanvas.ball?.current?.getContext("2d"),
+      gameStateRef.current.ball
+    );
+    drawBothPaddles(
+      gameCanvas.paddle?.current?.getContext("2d"),
+      gameStateRef.current
+    );
+    drawText(
+      gameCanvas.score?.current?.getContext("2d"),
+      gameStateRef.current.pointsLeft,
+      gameStateRef.current.pointsRight
+    );
   };
 
   const GameLoop = (): void => {
