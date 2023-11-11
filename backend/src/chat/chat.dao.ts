@@ -3,9 +3,8 @@ import { User } from 'src/users/user.entity';
 import { DataSource, Repository } from 'typeorm';
 import { Injectable, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IMessage } from './properties';
+import { IChannel, IMessage } from './properties';
 import { UsersService } from 'src/users/users.service';
-import { databaseProviders } from 'src/database.providers';
 
 @Injectable()
 export class ChatDAO {
@@ -30,17 +29,19 @@ export class ChatDAO {
     );
   }
 
-  public async saveChannel(title: string, user: string): Promise<void> {
+  public async saveChannel(channel: IChannel, user: string): Promise<void> {
     const existingChannel = await this.channelRepo.findOne({
-      where: { title },
+      where: { title: channel.title },
     });
     if (existingChannel) {
-      await this.addUserToChannel(title, user);
+      await this.addUserToChannel(channel.title, user);
     } else {
       await this.channelRepo.save(
         this.channelRepo.create({
-          title: title,
+          title: channel.title,
+          owner: await this.userService.findOneByName(user),
           users: [await this.userService.findOneByName(user)],
+          type: channel.type,
         }),
       );
     }
