@@ -60,7 +60,7 @@ export class WSocketGateway implements OnGatewayInit {
   ): Promise<string[]> {
      return await this.chatService.addChat(
       data.user.name,
-      data.title,
+      data,
       client,
     );
   }

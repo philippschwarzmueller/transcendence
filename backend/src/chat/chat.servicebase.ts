@@ -53,14 +53,14 @@ export class ChatServiceBase {
 
   public async addChat(
     userId: string,
-    chatName: string,
+    chat: IChannel,
     client: Socket,
   ): Promise<string[]> {
     const res: string[] = [];
     try {
       const user = await this.userService.findOneByName(userId);
-      await this.chatDao.saveChannel(chatName, userId);
-      client.join(chatName);
+      await this.chatDao.saveChannel(chat, userId);
+      client.join(chat.title);
       return await this.chatDao.getRawUserChannels(user.id);
     } catch (error) {
       console.log(`SYSTEM: ${error.message.split('\n')[0]}`);
