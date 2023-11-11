@@ -22,11 +22,11 @@ import {
 import { Gamesocket } from "./socket";
 
 export interface IGameCanvas {
-  background: React.MutableRefObject<HTMLCanvasElement | null>;
-  score: React.MutableRefObject<HTMLCanvasElement | null>;
-  paddle: React.MutableRefObject<HTMLCanvasElement | null>;
-  ball: React.MutableRefObject<HTMLCanvasElement | null>;
-  endScreen: React.MutableRefObject<HTMLCanvasElement | null>;
+  background: React.MutableRefObject<HTMLCanvasElement>;
+  score: React.MutableRefObject<HTMLCanvasElement>;
+  paddle: React.MutableRefObject<HTMLCanvasElement>;
+  ball: React.MutableRefObject<HTMLCanvasElement>;
+  endScreen: React.MutableRefObject<HTMLCanvasElement>;
 }
 
 const finishGame = (
@@ -36,9 +36,9 @@ const finishGame = (
 };
 
 const resizeCanvas = (
-  gameCanvasRef: React.MutableRefObject<HTMLCanvasElement | null>
+  gameCanvasRef: React.MutableRefObject<HTMLCanvasElement>
 ): void => {
-  const canvas = gameCanvasRef.current?.getContext("2d")?.canvas;
+  const canvas = gameCanvasRef.current.getContext("2d")?.canvas;
   if (canvas) {
     canvas.height = properties.window.height;
     canvas.width = properties.window.width;
@@ -47,7 +47,7 @@ const resizeCanvas = (
 
 const getCanvasList = (
   gameCanvas: IGameCanvas
-): React.MutableRefObject<HTMLCanvasElement | null>[] => {
+): React.MutableRefObject<HTMLCanvasElement>[] => {
   return [
     gameCanvas.background,
     gameCanvas.ball,
@@ -61,7 +61,7 @@ const getCanvasList = (
 const fetchAndDrawFinishedGame = (
   socket: Gamesocket,
   gameId: string,
-  gameCanvas: React.MutableRefObject<HTMLCanvasElement | null>
+  gameCanvas: React.MutableRefObject<HTMLCanvasElement>
 ): void => {
   socket.emit(
     "getGameFromDatabase",
@@ -71,7 +71,7 @@ const fetchAndDrawFinishedGame = (
         finishedGameRemote.winner,
         finishedGameRemote.winnerPoints,
         finishedGameRemote.looserPoints,
-        gameCanvas?.current?.getContext("2d")
+        gameCanvas.current.getContext("2d")
       );
     }
   );
@@ -80,11 +80,11 @@ const fetchAndDrawFinishedGame = (
 const GameWindow: React.FC = () => {
   const params = useParams();
   const gameCanvas: IGameCanvas = {
-    background: useRef<HTMLCanvasElement | null>(null),
-    score: useRef<HTMLCanvasElement | null>(null),
-    paddle: useRef<HTMLCanvasElement | null>(null),
-    ball: useRef<HTMLCanvasElement | null>(null),
-    endScreen: useRef<HTMLCanvasElement | null>(null),
+    background: useRef<HTMLCanvasElement>(document.createElement("canvas")),
+    score: useRef<HTMLCanvasElement>(document.createElement("canvas")),
+    paddle: useRef<HTMLCanvasElement>(document.createElement("canvas")),
+    ball: useRef<HTMLCanvasElement>(document.createElement("canvas")),
+    endScreen: useRef<HTMLCanvasElement>(document.createElement("canvas")),
   };
   const keystateRef: React.MutableRefObject<IKeyState> = useRef<IKeyState>({
     down: false,
@@ -110,7 +110,7 @@ const GameWindow: React.FC = () => {
     });
 
     if (navigateToErrorScreen.current) {
-      drawErrorScreen(gameCanvas.endScreen.current?.getContext("2d"));
+      drawErrorScreen(gameCanvas.endScreen.current.getContext("2d"));
     } else if (navigateToEndScreen.current) {
       fetchAndDrawFinishedGame(socket, gameId, gameCanvas.endScreen);
     } else {
@@ -119,14 +119,6 @@ const GameWindow: React.FC = () => {
   };
 
   const GameLoop = (): void => {
-    if (
-      gameCanvas.background === undefined ||
-      gameCanvas.score === undefined ||
-      gameCanvas.paddle === undefined ||
-      gameCanvas.ball === undefined
-    ) {
-      finishGame(gameInterval.current);
-    }
     const gameSocketPayload: IGameSocketPayload = {
       side: params.side !== undefined ? params.side : "viewer",
       keystate: keystateRef.current,
@@ -156,7 +148,7 @@ const GameWindow: React.FC = () => {
             fetchAndDrawFinishedGame(socket, gameId, gameCanvas.endScreen);
           } else {
             navigateToErrorScreen.current = true;
-            drawErrorScreen(gameCanvas.endScreen.current?.getContext("2d"));
+            drawErrorScreen(gameCanvas.endScreen.current.getContext("2d"));
           }
         });
       }
