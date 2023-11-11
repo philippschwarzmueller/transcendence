@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
-import { IMessage } from './properties';
+import { IChannel, IMessage } from './properties';
 import { ChatDAO } from './chat.dao';
 import { Socket } from 'socket.io';
 import { IGameUser } from 'src/games/properties';
@@ -26,14 +26,14 @@ export class ChatServiceBase {
     });
   }
 
-  protected updateActiveClients(data: IMessage, client: Socket) {
+  protected updateActiveClients(data: IChannel, client: Socket) {
     for (const [key, value] of this.activeClients) {
       const tmp = value.filter((c) => c.user.name !== data.user.name);
       this.activeClients.set(key, tmp);
     }
-    if (!this.activeClients.has(data.room))
-      this.activeClients.set(data.room, []);
-    this.activeClients.get(data.room).push({ user: data.user, socket: client });
+    if (!this.activeClients.has(data.title))
+      this.activeClients.set(data.title, []);
+    this.activeClients.get(data.title).push({ user: data.user, socket: client });
   }
 
   protected getUser(name: string, room: string): IGameUser {
@@ -46,7 +46,7 @@ export class ChatServiceBase {
       const user = await this.userService.findOneByName(userId);
       res = await this.chatDao.getRawUserChannels(user.id);
     } catch (error) {
-      console.log(error);
+      console.log(`SYSTEM: ${error.message.split('\n')[0]}`);
     }
     return res;
   }
@@ -63,7 +63,7 @@ export class ChatServiceBase {
       client.join(chatName);
       return await this.chatDao.getRawUserChannels(user.id);
     } catch (error) {
-      console.log(error);
+      console.log(`SYSTEM: ${error.message.split('\n')[0]}`);
     }
     return res;
   }
@@ -73,26 +73,26 @@ export class ChatServiceBase {
       const user = await this.userService.findOneByName(userId);
       await this.chatDao.removeUserFromChannel(chat, user);
     } catch (error) {
-      console.log(error);
+      console.log(`SYSTEM: ${error.message.split('\n')[0]}`);
     }
   }
 
-  public async joinRoom(data: IMessage, client: Socket): Promise<string[]> {
+  public async joinRoom(data: IChannel, client: Socket): Promise<string[]> {
     let res: string[] = [];
     try {
-      const channel = await this.chatDao.getChannelByTitle(data.room);
-      client.join(data.room);
+      const channel = await this.chatDao.getChannelByTitle(data.title);
+      client.join(data.title);
       this.updateActiveClients(data, client);
-      await this.chatDao.addUserToChannel(data.room, data.user.name);
+      await this.chatDao.addUserToChannel(data.title, data.user.name);
       await this.chatDao.saveMessageToChannel({
         user: data.user,
         input: 'joined room',
-        room: data.room,
+        room: data.title,
       });
-      client.to(data.room).emit('message', 'oheinzel: joined room');
+      client.to(data.title).emit('message', `${data.user.name}: joined room`);
       res = await this.chatDao.getRawChannelMessages(channel.id);
     } catch (error) {
-      console.log(error);
+      console.log(`SYSTEM: ${error.message.split('\n')[0]}`);
     }
     return res;
   }
