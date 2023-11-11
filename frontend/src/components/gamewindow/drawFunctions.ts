@@ -16,18 +16,15 @@ export const drawGame = (
 ): void => {
   drawBackground(
     gamemode.current,
-    gameCanvas.background.current?.getContext("2d")
+    gameCanvas.background.current.getContext("2d")
   );
-  drawBall(
-    gameCanvas.ball?.current?.getContext("2d"),
-    gameStateRef.current.ball
-  );
+  drawBall(gameCanvas.ball.current.getContext("2d"), gameStateRef.current.ball);
   drawBothPaddles(
-    gameCanvas.paddle?.current?.getContext("2d"),
+    gameCanvas.paddle.current.getContext("2d"),
     gameStateRef.current
   );
   drawText(
-    gameCanvas.score?.current?.getContext("2d"),
+    gameCanvas.score.current.getContext("2d"),
     gameStateRef.current.pointsLeft,
     gameStateRef.current.pointsRight
   );
@@ -41,10 +38,10 @@ const getScale = (): number => {
 };
 
 export const drawPaddle = (
-  context: CanvasRenderingContext2D | undefined | null,
+  context: CanvasRenderingContext2D | null,
   paddle: IPaddle
 ): void => {
-  if (context === undefined || context === null) return;
+  if (context === null) return;
   const paddleHeight: number = Math.floor(properties.paddle.height);
   const paddleWidth: number = Math.floor(properties.paddle.width);
   const scale: number = getScale();
@@ -82,19 +79,18 @@ export const drawPaddle = (
 };
 
 export const drawBothPaddles = (
-  context: CanvasRenderingContext2D | undefined | null,
+  context: CanvasRenderingContext2D | null,
   gameState: IGame
 ): void => {
-  if (context === undefined || context === null) return;
   drawPaddle(context, gameState.leftPaddle);
   drawPaddle(context, gameState.rightPaddle);
 };
 
 export const drawBall = (
-  context: CanvasRenderingContext2D | undefined | null,
+  context: CanvasRenderingContext2D | null,
   ball: IBall
 ): void => {
-  if (context === undefined || context === null) return;
+  if (context === null) return;
   const scale: number = getScale();
   context.clearRect(0, 0, properties.window.width, properties.window.height);
   context.fillStyle = properties.ballProperties.color;
@@ -111,9 +107,9 @@ export const drawBall = (
 
 export const drawBackground = (
   gamemode: EGamemode,
-  context: CanvasRenderingContext2D | undefined | null
+  context: CanvasRenderingContext2D | null
 ): void => {
-  if (context === undefined || context === null) return;
+  if (context === null) return;
   const scale: number = getScale();
   context.fillStyle = properties.window.color;
   context.fillRect(0, 0, properties.window.width, properties.window.height);
@@ -175,9 +171,9 @@ export const drawWinScreen = (
   winner: string | undefined | null,
   winnerPoints: number | undefined,
   looserPoints: number | undefined,
-  context: CanvasRenderingContext2D | undefined | null
+  context: CanvasRenderingContext2D | null
 ): void => {
-  if (context === undefined || context === null) return;
+  if (context === null) return;
   context.textAlign = "center";
   context.fillStyle = "black";
   context.fillRect(0, 0, properties.window.width, properties.window.height);
@@ -197,9 +193,9 @@ export const drawWinScreen = (
 };
 
 export const drawErrorScreen = (
-  context: CanvasRenderingContext2D | undefined | null
+  context: CanvasRenderingContext2D | null
 ): void => {
-  if (context === undefined || context === null) return;
+  if (context === null) return;
   context.textAlign = "center";
   context.fillStyle = "black";
   context.fillRect(0, 0, properties.window.width, properties.window.height);
@@ -214,11 +210,11 @@ export const drawErrorScreen = (
 };
 
 export const drawText = (
-  context: CanvasRenderingContext2D | undefined | null,
+  context: CanvasRenderingContext2D | null,
   pointsLeft: number,
   pointsRight: number
 ): void => {
-  if (context === undefined || context === null) return;
+  if (context === null) return;
   const fontSize: number = properties.window.height / 6;
   context.clearRect(0, 0, properties.window.width, properties.window.height);
   context.font = `${fontSize}px Arial`;
