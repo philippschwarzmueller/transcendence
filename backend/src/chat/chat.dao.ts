@@ -3,8 +3,9 @@ import { User } from 'src/users/user.entity';
 import { DataSource, Repository } from 'typeorm';
 import { Injectable, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IChannel, IMessage } from './properties';
+import { EChannelType, IChannel, IMessage } from './properties';
 import { UsersService } from 'src/users/users.service';
+import { error } from 'console';
 
 @Injectable()
 export class ChatDAO {
@@ -13,6 +14,8 @@ export class ChatDAO {
     private channelRepo: Repository<Channels>,
     @InjectRepository(Messages)
     private messsageRepo: Repository<Messages>,
+    @InjectRepository(User)
+    private userRepo: Repository<User>,
     @Inject(UsersService)
     private userService: UsersService,
     @Inject('DATA_SOURCE')
@@ -60,6 +63,13 @@ export class ChatDAO {
       )
     queryRunner.release();
   }
+
+  public async userIsJoinable(title: string, user: string): Promise<void> {
+    const channel: Channels = await this.getChannelByTitle(title);
+    if (channel.type !== EChannelType.PUBLIC && !channel.users.find(u => u.name === user))
+      throw error;
+  }
+
 
   public async removeUserFromChannel(title: string, user: User): Promise<void> {
     const channel: Channels = await this.getChannelByTitle(title);
@@ -111,7 +121,13 @@ export class ChatDAO {
     });
   }
 
-  //getChannelOwner
+  public async getChannelOwner(title: string): Promise<User>{
+    return await this.userRepo
+      .createQueryBuilder('channel')
+      .leftJoinAndSelect('channel.owner', 'owner')
+      .where('channel.title = :title', { title })
+      .getOne();
+  }
   //updateUserRole
   //getMessagesFiltert
 }

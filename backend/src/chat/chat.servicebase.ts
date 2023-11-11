@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
-import { IChannel, IMessage } from './properties';
+import { EChannelType, IChannel, IMessage } from './properties';
 import { ChatDAO } from './chat.dao';
-import { Socket } from 'socket.io';
+import { Socket, Server } from 'socket.io';
 import { IGameUser } from 'src/games/properties';
 
 @Injectable()
@@ -36,8 +36,17 @@ export class ChatServiceBase {
     this.activeClients.get(data.title).push({ user: data.user, socket: client });
   }
 
-  protected getUser(name: string, room: string): IGameUser {
+  protected getUserInChannel(name: string, room: string): IGameUser {
     return this.activeClients.get(room).find((user) => user.user.name === name);
+  }
+
+  protected getUser(name: string): IGameUser | null {
+    for (const [key, value] of this.activeClients) {
+      const user = value.find(u => u.user.name === name);
+      if (user)
+        return user;
+    }
+    return null
   }
 
   public async getChats(userId: string): Promise<string[]> {
@@ -52,14 +61,14 @@ export class ChatServiceBase {
   }
 
   public async addChat(
-    userId: string,
     chat: IChannel,
     client: Socket,
+    server: Server,
   ): Promise<string[]> {
     const res: string[] = [];
     try {
-      const user = await this.userService.findOneByName(userId);
-      await this.chatDao.saveChannel(chat, userId);
+      const user = await this.userService.findOneByName(chat.user.name);
+      await this.chatDao.saveChannel(chat, chat.user.name);
       client.join(chat.title);
       return await this.chatDao.getRawUserChannels(user.id);
     } catch (error) {
@@ -80,6 +89,7 @@ export class ChatServiceBase {
   public async joinRoom(data: IChannel, client: Socket): Promise<string[]> {
     let res: string[] = [];
     try {
+      this.chatDao.userIsJoinable(data.title, data.user.name);
       const channel = await this.chatDao.getChannelByTitle(data.title);
       client.join(data.title);
       this.updateActiveClients(data, client);

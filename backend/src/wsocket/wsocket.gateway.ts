@@ -59,9 +59,9 @@ export class WSocketGateway implements OnGatewayInit {
     @ConnectedSocket() client: Socket,
   ): Promise<string[]> {
      return await this.chatService.addChat(
-      data.user.name,
       data,
       client,
+      this.server,
     );
   }
 
