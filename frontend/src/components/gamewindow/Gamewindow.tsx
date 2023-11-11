@@ -45,19 +45,6 @@ const resizeCanvas = (
   }
 };
 
-const getCanvasList = (
-  gameCanvas: IGameCanvas
-): React.MutableRefObject<HTMLCanvasElement>[] => {
-  return [
-    gameCanvas.background,
-    gameCanvas.ball,
-    gameCanvas.endScreen,
-    gameCanvas.paddle,
-    gameCanvas.paddle,
-    gameCanvas.score,
-  ];
-};
-
 const fetchAndDrawFinishedGame = (
   socket: Gamesocket,
   gameId: string,
@@ -105,7 +92,7 @@ const GameWindow: React.FC = () => {
 
   const handleWindowResize = (): void => {
     calculateWindowproperties(getWindowDimensions());
-    getCanvasList(gameCanvas).forEach((canvas) => {
+    Object.values(gameCanvas).forEach((canvas) => {
       resizeCanvas(canvas);
     });
 
