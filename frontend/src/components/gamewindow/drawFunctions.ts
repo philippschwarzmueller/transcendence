@@ -1,4 +1,5 @@
 import { EGamemode } from "../queue/Queue";
+import { IGameCanvas } from "./Gamewindow";
 import properties, {
   IBall,
   IGame,
@@ -7,6 +8,30 @@ import properties, {
   WINDOW_WIDTH,
   goalSizePercent,
 } from "./properties";
+
+export const drawGame = (
+  gamemode: React.MutableRefObject<EGamemode>,
+  gameCanvas: IGameCanvas,
+  gameStateRef: React.MutableRefObject<IGame>
+): void => {
+  drawBackground(
+    gamemode.current,
+    gameCanvas.background.current?.getContext("2d")
+  );
+  drawBall(
+    gameCanvas.ball?.current?.getContext("2d"),
+    gameStateRef.current.ball
+  );
+  drawBothPaddles(
+    gameCanvas.paddle?.current?.getContext("2d"),
+    gameStateRef.current
+  );
+  drawText(
+    gameCanvas.score?.current?.getContext("2d"),
+    gameStateRef.current.pointsLeft,
+    gameStateRef.current.pointsRight
+  );
+};
 
 const getScale = (): number => {
   return Math.min(
