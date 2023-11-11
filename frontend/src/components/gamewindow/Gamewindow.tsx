@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useContext, useState } from "react";
+import React, { useRef, useEffect, useContext } from "react";
 import properties, {
   IGame,
   gameSpawn,
@@ -8,14 +8,7 @@ import properties, {
 } from "./properties";
 import Centerdiv from "../centerdiv";
 import Gamecanvas from "../gamecanvas/Gamecanvas";
-import {
-  drawBackground,
-  drawBall,
-  drawBothPaddles,
-  drawText,
-  drawWinScreen,
-  drawErrorScreen,
-} from "./drawFunctions";
+import { drawWinScreen, drawErrorScreen, drawGame } from "./drawFunctions";
 import { useParams } from "react-router-dom";
 import { EGamemode } from "../queue/Queue";
 import { SocketContext } from "../../context/socket";
@@ -28,7 +21,7 @@ import {
 } from "./windowresizing";
 import { Gamesocket } from "./socket";
 
-interface IGameCanvas {
+export interface IGameCanvas {
   background: React.MutableRefObject<HTMLCanvasElement | null>;
   score: React.MutableRefObject<HTMLCanvasElement | null>;
   paddle: React.MutableRefObject<HTMLCanvasElement | null>;
@@ -52,7 +45,7 @@ const resizeCanvas = (
   }
 };
 
-const getCanvases = (
+const getCanvasList = (
   gameCanvas: IGameCanvas
 ): React.MutableRefObject<HTMLCanvasElement | null>[] => {
   return [
@@ -110,41 +103,19 @@ const GameWindow: React.FC = () => {
   const navigateToEndScreen = useRef(false);
   const navigateToErrorScreen = useRef(false);
 
-  const finishedGame: React.MutableRefObject<IFinishedGame | null> =
-    useRef(null);
   const handleWindowResize = (): void => {
-    console.log("resize");
     calculateWindowproperties(getWindowDimensions());
-    getCanvases(gameCanvas).forEach((canvas) => {
+    getCanvasList(gameCanvas).forEach((canvas) => {
       resizeCanvas(canvas);
     });
-    console.log("navigateToEndScreen: ", navigateToEndScreen.current);
-    console.log("navigateToErrorScreen: ", navigateToErrorScreen.current);
 
     if (navigateToErrorScreen.current) {
-      console.log("rerender error");
       drawErrorScreen(gameCanvas.endScreen.current?.getContext("2d"));
     } else if (navigateToEndScreen.current) {
-      console.log("rerender end");
       fetchAndDrawFinishedGame(socket, gameId, gameCanvas.endScreen);
+    } else {
+      drawGame(gamemode, gameCanvas, gameStateRef);
     }
-    drawBackground(
-      gamemode.current,
-      gameCanvas.background.current?.getContext("2d")
-    );
-    drawBall(
-      gameCanvas.ball?.current?.getContext("2d"),
-      gameStateRef.current.ball
-    );
-    drawBothPaddles(
-      gameCanvas.paddle?.current?.getContext("2d"),
-      gameStateRef.current
-    );
-    drawText(
-      gameCanvas.score?.current?.getContext("2d"),
-      gameStateRef.current.pointsLeft,
-      gameStateRef.current.pointsRight
-    );
   };
 
   const GameLoop = (): void => {
@@ -162,60 +133,30 @@ const GameWindow: React.FC = () => {
       gameId: gameId,
       user: localUser,
     };
+
     if (socket.connected) {
       socket.emit("alterGameData", gameSocketPayload, (res: IGame) => {
         gameStateRef.current = res;
       });
-    } else gameStateRef.current = gameSpawn;
-    drawBackground(
-      gamemode.current,
-      gameCanvas.background.current?.getContext("2d")
-    );
-    drawBall(
-      gameCanvas.ball?.current?.getContext("2d"),
-      gameStateRef.current.ball
-    );
-    drawBothPaddles(
-      gameCanvas.paddle?.current?.getContext("2d"),
-      gameStateRef.current
-    );
-    drawText(
-      gameCanvas.score?.current?.getContext("2d"),
-      gameStateRef.current.pointsLeft,
-      gameStateRef.current.pointsRight
-    );
+    } else {
+      gameStateRef.current = gameSpawn;
+    }
+
+    drawGame(gamemode, gameCanvas, gameStateRef);
   };
 
-  // useEffect(() => {
-  //   console.log("navigateToEndScreenEffect: ", navigateToEndScreen.current);
-  //   if (navigateToEndScreen.current)
-  //     fetchAndDrawFinishedGame(socket, gameId, gameCanvas.endScreen);
-  // }, [navigateToEndScreen.current]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // useEffect(() => {
-  //   console.log("navigateToErrorScreenEffect: ", navigateToErrorScreen.current);
-  //   if (navigateToErrorScreen.current)
-  //     drawErrorScreen(gameCanvas.endScreen.current?.getContext("2d"));
-  // }, [navigateToErrorScreen.current]); // eslint-disable-line react-hooks/exhaustive-deps
-
   useEffect(() => {
-    console.log("Initial render");
     handleWindowResize();
+
     socket.emit("isGameRunning", gameId, (isGameRunning: boolean) => {
       if (!isGameRunning) {
         socket.emit("isGameInDatabase", gameId, (isGameInDatabase: boolean) => {
           if (isGameInDatabase) {
             navigateToEndScreen.current = true;
             fetchAndDrawFinishedGame(socket, gameId, gameCanvas.endScreen);
-            drawWinScreen(
-              finishedGame?.current?.winner,
-              finishedGame?.current?.winnerPoints,
-              finishedGame?.current?.looserPoints,
-              gameCanvas.endScreen.current?.getContext("2d")
-            );
           } else {
-            drawErrorScreen(gameCanvas.endScreen.current?.getContext("2d"));
             navigateToErrorScreen.current = true;
+            drawErrorScreen(gameCanvas.endScreen.current?.getContext("2d"));
           }
         });
       }
@@ -241,6 +182,7 @@ const GameWindow: React.FC = () => {
     window.addEventListener("resize", handleWindowResize);
     return () => {
       window.removeEventListener("resize", handleWindowResize);
+      finishGame(gameInterval.current);
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
