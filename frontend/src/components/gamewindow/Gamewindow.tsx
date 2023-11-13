@@ -90,7 +90,6 @@ const GameWindow: React.FC = () => {
     };
 
     if (socket.connected) {
-			console.log(gameSocketPayload.keystate);
       socket.emit("alterGameData", gameSocketPayload, (res: IGame) => {
         gameStateRef.current = res;
       });

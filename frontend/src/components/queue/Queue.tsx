@@ -34,7 +34,6 @@ const Queue: React.FC<IQueueProps> = (
 ) => {
   const socket: Socket = useContext(SocketContext);
   const user: IUser = useContext(AuthContext).user;
-  console.log(user);
   const navigate = useNavigate();
   socket.on("queue found", (body: IGameStart) => {
     navigate(`/play/${body.gameId}/${body.side}`);
