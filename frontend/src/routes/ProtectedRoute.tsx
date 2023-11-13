@@ -1,5 +1,4 @@
 import React, { useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/auth";
 import { Navigate } from "react-router-dom";
 
@@ -9,7 +8,6 @@ interface PrivateRouteProps {
 
 const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
   const auth = useContext(AuthContext);
-  const navigate = useNavigate();
   const [isValid, setValidity] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -32,7 +30,6 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
 
         const data = await response.json();
 
-        console.log(data);
         if (data) {
           auth.logIn(data.name);
           setValidity(true);
