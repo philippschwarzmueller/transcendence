@@ -85,6 +85,7 @@ export const drawBothPaddles = (
   context: CanvasRenderingContext2D | undefined | null,
   gameState: IGame
 ): void => {
+  if (context === undefined || context === null) return;
   drawPaddle(context, gameState.leftPaddle);
   drawPaddle(context, gameState.rightPaddle);
 };
