@@ -115,8 +115,6 @@ export class AuthService {
   }
 
   async setUserData(data: TokenResponse, user: string, hashedToken: string) {
-    // logTime(data.created_at, 'Data created at');
-    // logTime(data.created_at + data.expires_in, 'Expiry Date in SetUser Data');
     const currentTime: number = Math.floor(Date.now() / 1000);
     await this.usersRepository.update(
       {
@@ -190,4 +188,15 @@ export class AuthService {
     // logTime(expirationTime, 'Expiration Time from DatabaseToken');
     return currentTime < expirationTime;
   }
+
+	async changeName(newName: string, currentUser: User): Promise<User | null> {
+		await this.usersRepository.update(
+      {
+        name: currentUser.name,
+      },
+      {
+				name: newName,
+      },)
+		return currentUser;
+	}
 }
