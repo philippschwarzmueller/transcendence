@@ -16,7 +16,7 @@ let default_user: IUser = {
   activeChats: [],
 };
 
-interface IAuthContext {
+export interface IAuthContext {
   user: IUser;
   logIn: (user: IUser) => void;
   logOut: () => void;

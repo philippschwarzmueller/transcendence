@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { AuthContext, IUser } from "../context/auth";
+import { AuthContext, IAuthContext, IUser } from "../context/auth";
 import { SocketContext, awSocket } from "../context/socket";
 import { Navigate } from "react-router-dom";
 
@@ -8,13 +8,13 @@ interface PrivateRouteProps {
 }
 
 const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
-  const auth = useContext(AuthContext);
+  const auth: IAuthContext = useContext(AuthContext);
   const [isValid, setValidity] = useState<boolean | null>(null);
 
   useEffect(() => {
-    const validateToken = async () => {
+    const validateToken = async (): Promise<void> => {
       try {
-        const response = await fetch(
+        const response: Response = await fetch(
           "http://localhost:4000/auth/validate-token",
           {
             method: "POST",
