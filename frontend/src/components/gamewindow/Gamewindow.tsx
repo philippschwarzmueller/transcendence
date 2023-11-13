@@ -4,11 +4,14 @@ import properties, {
   gameSpawn,
   IGameSocketPayload,
   IKeyState,
-  IFinishedGame,
 } from "./properties";
 import Centerdiv from "../centerdiv";
 import Gamecanvas from "../gamecanvas/Gamecanvas";
-import { drawWinScreen, drawErrorScreen, drawGame } from "./drawFunctions";
+import {
+  drawErrorScreen,
+  drawGame,
+  fetchAndDrawFinishedGame,
+} from "./drawFunctions";
 import { useParams } from "react-router-dom";
 import { EGamemode } from "../queue/Queue";
 import { SocketContext } from "../../context/socket";
@@ -18,8 +21,8 @@ import { setKeyEventListener } from "./keyboardinput";
 import {
   calculateWindowproperties,
   getWindowDimensions,
+  resizeCanvas,
 } from "./windowresizing";
-import { Gamesocket } from "./socket";
 
 export interface IGameCanvas {
   background: React.MutableRefObject<HTMLCanvasElement>;
@@ -33,36 +36,6 @@ const finishGame = (
   gameInterval: ReturnType<typeof setInterval> | undefined
 ): void => {
   clearInterval(gameInterval);
-};
-
-const resizeCanvas = (
-  gameCanvasRef: React.MutableRefObject<HTMLCanvasElement>
-): void => {
-  const canvas: HTMLCanvasElement | undefined =
-    gameCanvasRef.current?.getContext("2d")?.canvas;
-  if (canvas) {
-    canvas.height = properties.window.height;
-    canvas.width = properties.window.width;
-  }
-};
-
-const fetchAndDrawFinishedGame = (
-  socket: Gamesocket,
-  gameId: string,
-  gameCanvas: React.MutableRefObject<HTMLCanvasElement>
-): void => {
-  socket.emit(
-    "getGameFromDatabase",
-    gameId,
-    (finishedGameRemote: IFinishedGame) => {
-      drawWinScreen(
-        finishedGameRemote.winner,
-        finishedGameRemote.winnerPoints,
-        finishedGameRemote.looserPoints,
-        gameCanvas.current?.getContext("2d")
-      );
-    }
-  );
 };
 
 const GameWindow: React.FC = () => {
