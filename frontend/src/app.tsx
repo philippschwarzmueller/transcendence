@@ -11,7 +11,7 @@ import Login from "./routes/Login";
 import Profile from "./routes/Profile";
 import ProfileSettings from "./routes/ProfileSettings";
 import SetUser from "./routes/SetUser";
-import PrivateRoute from "./routes/ProtectedRoute";
+import PrivateRoute from "./routes/PrivateRoute";
 
 function App() {
   return (

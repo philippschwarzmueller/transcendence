@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
 import { AuthContext, IAuthContext, IUser } from "../context/auth";
-import { SocketContext, awSocket } from "../context/socket";
 import { Navigate } from "react-router-dom";
 
 interface PrivateRouteProps {
@@ -50,13 +49,7 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
   if (!isValid) {
     return <Navigate to="/login" />;
   }
-  return (
-    <AuthContext.Provider value={auth}>
-      <SocketContext.Provider value={awSocket}>
-        {children}
-      </SocketContext.Provider>
-    </AuthContext.Provider>
-  );
+  return children;
 };
 
 export default PrivateRoute;
