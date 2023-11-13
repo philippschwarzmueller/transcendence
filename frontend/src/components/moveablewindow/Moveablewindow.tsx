@@ -1,8 +1,9 @@
 import { ReactNode, useState } from "react";
 import styled from "styled-components";
 
-const StyledWindow = styled.div<{ $display: boolean }>`
+const StyledWindow = styled.div<{ $display: boolean , $posZ: number}>`
   position: absolute;
+  z-index: ${(props) => props.$posZ};
   display: ${(props) => (props.$display ? "" : "none")};
   padding: 5px;
   background-color: rgb(195, 199, 203);
@@ -28,6 +29,7 @@ interface IMoveableWindow {
     title: string;
     positionX: number;
     positionY: number;
+    positionZ: number;
     display: boolean;
     children: ReactNode;
   }
@@ -36,6 +38,7 @@ const Moveablewindow: React.FC<IMoveableWindow> = ({
   title,
   positionX,
   positionY,
+  positionZ,
   display,
   children,
 }) => {
@@ -89,7 +92,7 @@ const Moveablewindow: React.FC<IMoveableWindow> = ({
 
   return (
     <>
-      <StyledWindow $display={display} style={{ top: position.y, left: position.x }}>
+      <StyledWindow $posZ={positionZ} $display={display} style={{ top: position.y, left: position.x }}>
         <Windowbar
           draggable={true}
           onDragStart={startDrag}

@@ -169,6 +169,7 @@ const Chatwindow: React.FC = () => {
         title="Chat"
         positionX={200}
         positionY={200}
+        positionZ={0}
         display={true}
         >
         <Tabbar>
