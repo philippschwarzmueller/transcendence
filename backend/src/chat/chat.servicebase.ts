@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
-import { EChannelType, IChannel, IMessage } from './properties';
+import { EChannelType, IChannel } from './properties';
 import { ChatDAO } from './chat.dao';
 import { Socket, Server } from 'socket.io';
 import { IGameUser } from 'src/games/properties';
@@ -33,7 +33,9 @@ export class ChatServiceBase {
     }
     if (!this.activeClients.has(data.title))
       this.activeClients.set(data.title, []);
-    this.activeClients.get(data.title).push({ user: data.user, socket: client });
+    this.activeClients
+      .get(data.title)
+      .push({ user: data.user, socket: client });
   }
 
   protected getUserInChannel(name: string, room: string): IGameUser {
@@ -42,11 +44,10 @@ export class ChatServiceBase {
 
   protected getUser(name: string): IGameUser | null {
     for (const [key, value] of this.activeClients) {
-      const user = value.find(u => u.user.name === name);
-      if (user)
-        return user;
+      const user = value.find((u) => u.user.name === name);
+      if (user) return user;
     }
-    return null
+    return null;
   }
 
   public async getChats(userId: string): Promise<string[]> {
@@ -67,6 +68,7 @@ export class ChatServiceBase {
   ): Promise<string[]> {
     const res: string[] = [];
     try {
+      if (!this.chatDao.userIsJoinable(chat.title, chat.user.name)) throw Error;
       const user = await this.userService.findOneByName(chat.user.name);
       await this.chatDao.saveChannel(chat, chat.user.name);
       client.join(chat.title);
@@ -89,7 +91,6 @@ export class ChatServiceBase {
   public async joinRoom(data: IChannel, client: Socket): Promise<string[]> {
     let res: string[] = [];
     try {
-      this.chatDao.userIsJoinable(data.title, data.user.name);
       const channel = await this.chatDao.getChannelByTitle(data.title);
       client.join(data.title);
       this.updateActiveClients(data, client);

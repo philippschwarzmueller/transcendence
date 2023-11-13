@@ -5,6 +5,7 @@ import React, {
   Ref,
   ReactNode,
   useContext,
+  useEffect,
 } from "react";
 
 import Input from "../input/Input";
@@ -93,25 +94,28 @@ function Popup(
             }
           }}
         ></Input>
-        <label>
-          <input
-            type="radio"
-            name="type"
-            value="public"
-            onClick={() => setChanneltype(EChannelType.PUBLIC)}
-            checked
-          ></input>
-          Public
-        </label>
-        <label>
-          <input
-            type="radio"
-            name="type"
-            value="private"
-            onClick={() => setChanneltype(EChannelType.PRIVATE)}
-          ></input>
-          Private
-        </label>
+        <form>
+          <label>
+            <input
+              type="radio"
+              name="type"
+              value="public"
+              checked={channelType === EChannelType.PUBLIC}
+              onChange={() => setChanneltype(EChannelType.PUBLIC)}
+            ></input>
+            Public
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="type"
+              value="private"
+              checked={channelType === EChannelType.PRIVATE}
+              onChange={() => setChanneltype(EChannelType.PRIVATE)}
+            ></input>
+            Private
+          </label>
+        </form>
       </InputField>
     </>
   );
