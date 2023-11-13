@@ -1,7 +1,7 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { AuthContext } from '../context/auth';
-import { Navigate } from 'react-router-dom';
+import React, { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/auth";
+import { Navigate } from "react-router-dom";
 
 interface PrivateRouteProps {
   children: JSX.Element;
@@ -15,13 +15,16 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
   useEffect(() => {
     const validateToken = async () => {
       try {
-        const response = await fetch("http://localhost:4000/auth/validate-token", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-        });
+        const response = await fetch(
+          "http://localhost:4000/auth/validate-token",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            credentials: "include",
+          }
+        );
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -29,7 +32,7 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
 
         const data = await response.json();
 
-				console.log(data);
+        console.log(data);
         if (data) {
           auth.logIn(data.name);
           setValidity(true);

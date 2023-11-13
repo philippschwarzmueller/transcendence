@@ -1,17 +1,17 @@
-import { Route, Routes } from 'react-router-dom';
-import './index.css';
-import Root from './routes/root';
-import Home from './routes/Home';
-import Chat from './routes/Chat';
-import Game from './routes/Game';
-import Queue from './routes/Queue';
-import ErrorPage from './routes/error-page';
-import SignUp from './routes/SignUp';
-import Login from './routes/Login';
-import Profile from './routes/Profile';
-import ProfileSettings from './routes/ProfileSettings';
-import SetUser from './routes/SetUser';
-import PrivateRoute from './routes/ProtectedRoute';
+import { Route, Routes } from "react-router-dom";
+import "./index.css";
+import Root from "./routes/root";
+import Home from "./routes/Home";
+import Chat from "./routes/Chat";
+import Game from "./routes/Game";
+import Queue from "./routes/Queue";
+import ErrorPage from "./routes/error-page";
+import SignUp from "./routes/SignUp";
+import Login from "./routes/Login";
+import Profile from "./routes/Profile";
+import ProfileSettings from "./routes/ProfileSettings";
+import SetUser from "./routes/SetUser";
+import PrivateRoute from "./routes/ProtectedRoute";
 
 function App() {
   return (
@@ -19,10 +19,14 @@ function App() {
       <Route path="/" element={<Root />} errorElement={<ErrorPage />}>
         <Route index element={<Home />} />
         <Route path="home" element={<Home />} />
-        <Route path="play" element={
-				<PrivateRoute>
-				<Game />
-				</PrivateRoute>}>
+        <Route
+          path="play"
+          element={
+            <PrivateRoute>
+              <Game />
+            </PrivateRoute>
+          }
+        >
           <Route path=":gameId" element={<Game />}>
             <Route path=":side" element={<Game />} />
           </Route>
