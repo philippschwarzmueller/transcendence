@@ -16,8 +16,15 @@ let default_user: IUser = {
   activeChats: [],
 };
 
-export const AuthContext = createContext({
-  user: default_user,
-  logIn: (user: IUser) => {},
-  logOut: () => {},
-});
+interface IAuthContext {
+  user: IUser;
+  logIn: (user: IUser) => void;
+  logOut: () => void;
+}
+
+export const AuthContext: React.Context<IAuthContext> =
+  createContext<IAuthContext>({
+    user: default_user,
+    logIn: (user: IUser) => {},
+    logOut: () => {},
+  });
