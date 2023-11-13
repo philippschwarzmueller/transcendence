@@ -35,10 +35,8 @@ const Textfield = styled.div`
   border-width: 1px 0px 0px 1px;
   border-top-color: rgb(134, 138, 142);
   border-left-color: rgb(134, 138, 142);
-  box-shadow:
-    rgb(195, 199, 203) -1px -1px 0px 0px inset,
-    rgb(0, 0, 0) 1px 1px 0px 0px inset,
-    rgb(255, 255, 255) 0.5px 0.5px 0px 0.5px;
+  box-shadow: rgb(195, 199, 203) -1px -1px 0px 0px inset,
+    rgb(0, 0, 0) 1px 1px 0px 0px inset, rgb(255, 255, 255) 0.5px 0.5px 0px 0.5px;
   overflow: auto;
   &::-webkit-scrollbar {
     width: 17x;
@@ -53,8 +51,7 @@ const Textfield = styled.div`
     background: rgb(195, 199, 203);
     color: rgb(0, 0, 0);
     border: 0px;
-    box-shadow:
-      rgb(0, 0, 0) -1px -1px 0px 0px inset,
+    box-shadow: rgb(0, 0, 0) -1px -1px 0px 0px inset,
       rgb(210, 210, 210) 1px 1px 0px 0px inset,
       rgb(134, 138, 142) -2px -2px 0px 0px inset,
       rgb(255, 255, 255) 2px 2px 0px 0px inset;
@@ -87,6 +84,7 @@ const StyledUl = styled.ul`
 const Chatwindow: React.FC = () => {
   const [messages, setMessages] = useState<string[]>([]);
   const [input, setInput] = useState<string>("");
+  const auth = useContext(AuthContext);
   const user: IUser = useContext(AuthContext).user;
   const [tabs, setTabs] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<string>("");
@@ -118,7 +116,7 @@ const Chatwindow: React.FC = () => {
 
   useEffect(() => {
     socket.emit("join", { user, input, room }, (res: string[]) =>
-      setMessages(res),
+      setMessages(res)
     );
   }, [room]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -129,7 +127,7 @@ const Chatwindow: React.FC = () => {
         block: "end",
         inline: "nearest",
       }),
-    [messages],
+    [messages]
   );
 
   useEffect(() => {
@@ -185,12 +183,12 @@ const Chatwindow: React.FC = () => {
             onClick={() => {
               fetch(
                 `http://${window.location.hostname}:4000/chat/rooms?userId=${user.name}&chat=${activeTab}`,
-                { method: "DELETE" },
+                { method: "DELETE" }
               );
               setTabs(
                 tabs.filter(function (e) {
                   return e !== activeTab;
-                }),
+                })
               );
               setActive(tabs[tabs.length - 1]);
             }}

@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
-import { AuthContext } from "../context/auth";
+import { AuthContext, IUser } from "../context/auth";
+import { SocketContext, awSocket } from "../context/socket";
 import { Navigate } from "react-router-dom";
 
 interface PrivateRouteProps {
@@ -28,10 +29,10 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        const data = await response.json();
+        const data: IUser = await response.json();
 
         if (data) {
-          auth.logIn(data.name);
+          auth.logIn(data);
           setValidity(true);
         } else {
           setValidity(false);
@@ -47,9 +48,15 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
     return <div>Loading...</div>;
   }
   if (!isValid) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/login" />;
   }
-  return children;
+  return (
+    <AuthContext.Provider value={auth}>
+      <SocketContext.Provider value={awSocket}>
+        {children}
+      </SocketContext.Provider>
+    </AuthContext.Provider>
+  );
 };
 
 export default PrivateRoute;

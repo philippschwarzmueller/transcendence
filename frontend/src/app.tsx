@@ -31,7 +31,14 @@ function App() {
             <Route path=":side" element={<Game />} />
           </Route>
         </Route>
-        <Route path="chat" element={<Chat />} />
+        <Route
+          path="chat"
+          element={
+            <PrivateRoute>
+              <Chat />
+            </PrivateRoute>
+          }
+        />
         <Route path="signup" element={<SignUp />} />
         <Route path="login" element={<Login />} />
         <Route path="profile" element={<Profile />}>
