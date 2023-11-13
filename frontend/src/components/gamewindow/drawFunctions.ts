@@ -2,12 +2,14 @@ import { EGamemode } from "../queue/Queue";
 import { IGameCanvas } from "./Gamewindow";
 import properties, {
   IBall,
+  IFinishedGame,
   IGame,
   IPaddle,
   WINDOW_HEIGHT,
   WINDOW_WIDTH,
   goalSizePercent,
 } from "./properties";
+import { Gamesocket } from "./socket";
 
 export const drawGame = (
   gamemode: React.MutableRefObject<EGamemode>,
@@ -233,5 +235,24 @@ export const drawText = (
     `${pointsRight}`,
     (properties.window.width * 2) / 3,
     properties.window.height / 6
+  );
+};
+
+export const fetchAndDrawFinishedGame = (
+  socket: Gamesocket,
+  gameId: string,
+  gameCanvas: React.MutableRefObject<HTMLCanvasElement>
+): void => {
+  socket.emit(
+    "getGameFromDatabase",
+    gameId,
+    (finishedGameRemote: IFinishedGame) => {
+      drawWinScreen(
+        finishedGameRemote.winner,
+        finishedGameRemote.winnerPoints,
+        finishedGameRemote.looserPoints,
+        gameCanvas.current?.getContext("2d")
+      );
+    }
   );
 };
