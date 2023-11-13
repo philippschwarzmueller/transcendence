@@ -9,6 +9,7 @@ import { AuthContext, IUser } from "../../context/auth";
 import Popup from "../popup/Popup";
 import { IGameStart } from "../gamewindow/properties";
 import { useNavigate } from "react-router-dom";
+import Userbrowser from "../userbrowser/Userbrowser";
 
 const Msgfield = styled.div`
   width: 320px;
@@ -161,7 +162,15 @@ const Chatwindow: React.FC = () => {
       >
         Create
       </Popup>
-      <Moveablewindow>
+      <Userbrowser
+        display={true}
+        ></Userbrowser>
+      <Moveablewindow
+        title="Chat"
+        positionX={200}
+        positionY={200}
+        display={true}
+        >
         <Tabbar>
           {tabs.map((tab) => {
             return (

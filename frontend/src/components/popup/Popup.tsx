@@ -10,6 +10,7 @@ import Input from "../input/Input";
 import styled from "styled-components";
 import { IUser } from "../../context/auth";
 import { SocketContext } from "../../context/socket";
+import Button from "../button/Button";
 
 const InputField = styled.div<{
   $display: boolean;
@@ -86,6 +87,7 @@ function Popup(
             }
           }}
         ></Input>
+        <Button>User Chat</Button>
       </InputField>
     </>
   );

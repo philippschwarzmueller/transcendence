@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 import styled from "styled-components";
 
-const StyledWindow = styled.div`
+const StyledWindow = styled.div<{ $display: boolean }>`
   position: absolute;
+  display: ${(props) => (props.$display ? "" : "none")};
   padding: 5px;
   background-color: rgb(195, 199, 203);
   --x-shadow: inset 0.5px 0.5px 0px 0.5px #ffffff, inset 0 0 0 1px #868a8e,
@@ -10,15 +11,12 @@ const StyledWindow = styled.div`
   box-shadow: var(--x-ring-shadow, 0 0 #0000), var(--x-shadow);
 `;
 
-export interface WindowProps {
-  children: React.ReactNode;
-}
-
 const Windowbar = styled.div`
   height: 18px;
   margin-bottom: 2px;
   padding: 2px;
   display: flex;
+  gap: 10px;
   box-shadow: none;
   background: rgb(0, 14, 122);
   color: White;
@@ -26,8 +24,22 @@ const Windowbar = styled.div`
   cursor: pointer;
 `;
 
-const Moveablewindow: React.FC<WindowProps> = (props: WindowProps) => {
-  const [position, setPosition] = useState({ x: 100, y: 200 });
+interface IMoveableWindow {
+    title: string;
+    positionX: number;
+    positionY: number;
+    display: boolean;
+    children: ReactNode;
+  }
+
+const Moveablewindow: React.FC<IMoveableWindow> = ({
+  title,
+  positionX,
+  positionY,
+  display,
+  children,
+}) => {
+  const [position, setPosition] = useState({ x: positionX, y: positionY});
   const [offset, setOffset] = useState({ x: 0, y: 0 });
 
   const startDrag = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -77,7 +89,7 @@ const Moveablewindow: React.FC<WindowProps> = (props: WindowProps) => {
 
   return (
     <>
-      <StyledWindow style={{ top: position.y, left: position.x }}>
+      <StyledWindow $display={display} style={{ top: position.y, left: position.x }}>
         <Windowbar
           draggable={true}
           onDragStart={startDrag}
@@ -91,8 +103,9 @@ const Moveablewindow: React.FC<WindowProps> = (props: WindowProps) => {
             src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABQ0lEQVR4AcXBAW6DMBBFwedo78XezH9vtj6ZS5pURSgECoTOFN6Q1DmZpMKEsUBSd3fOMgwDEcGoA4WnGy9I6u7OWYZhICJ4xZiR1GutnCkiWGJMSOq1VlprXMVYkJkcVWultcY7xgJJHCNqZZXxVme/YIsbazofZWxWWNbZy1hT+CaJWitzpRSOMHYoJfglIHgQ0PkLYwcJaq3MlSL+ythIEpK4k8RZjM06v4KzGDtIQhJnMHbpnMVYJCD4NGNB75UrGAtaa5xNEpIYdUaSijETEXyCJCRx5+5kJqNuTEjiUyRx5+5kJj+MkaTOBdydzGTKJPVaK1eICOaMp9Ya/8E4IDPZwt1ZYsz44NxlS9ZIYovMZIkxFzw4qzKTVzITd2cLYyY9OcrdWSOJUbnxDyQxKoyMUURwFUmMCk+Fh851ChNfhxx7+xF1KZkAAAAASUVORK5CYII="
             alt="Monitor"
           ></img>
+          {title}
         </Windowbar>
-        {props.children}
+        {children}
       </StyledWindow>
     </>
   );
