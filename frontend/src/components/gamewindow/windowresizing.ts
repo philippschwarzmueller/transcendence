@@ -16,3 +16,14 @@ export const calculateWindowproperties = (windowDimensions: any): void => {
   properties.window.height =
     (Math.min(heightByWidth, heightByHeight) * sizeInPercent) / 100;
 };
+
+export const resizeCanvas = (
+  gameCanvasRef: React.MutableRefObject<HTMLCanvasElement>
+): void => {
+  const canvas: HTMLCanvasElement | undefined =
+    gameCanvasRef.current?.getContext("2d")?.canvas;
+  if (canvas) {
+    canvas.height = properties.window.height;
+    canvas.width = properties.window.width;
+  }
+};
