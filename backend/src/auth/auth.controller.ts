@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Headers,
   Post,
   Get,
   Query,
@@ -91,5 +92,17 @@ export class AuthController {
     if (token == undefined) return null;
     const User: User | null = await this.authService.checkToken(token);
     return User;
+  }
+
+  @Post('change-name')
+  async changeName(
+    @Body() body: { newName: string },
+    @Req() req: Request,
+  ): Promise<User | null> {
+		const token = req.cookies.token;
+		if (token == undefined) return null;
+    const User: User | null = await this.authService.checkToken(token);
+		const newUser: User | null = await this.authService.changeName(body.newName, User);
+    return newUser;
   }
 }
