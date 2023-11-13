@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { User } from '../users/user.entity';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { hash as bcrypt_hash, compare as bcrypt_compare } from 'bcrypt';
+import { IUser } from 'src/games/properties';
 
 export interface TokenResponse {
   access_token: string;
@@ -86,7 +87,7 @@ export class AuthService {
     const user: string = res.login;
 
     const userExists = await this.usersRepository.exist({
-      where: { name: user },
+      where: { intraname: user },
     });
 
     if (userExists) {
@@ -95,6 +96,7 @@ export class AuthService {
       const currentTime: number = Math.floor(Date.now() / 1000);
       await this.usersRepository.insert({
         name: user,
+        intraname: user,
         profilePictureUrl: imageLink,
         token: data.access_token,
         hashedToken: hashedToken,
@@ -102,23 +104,24 @@ export class AuthService {
       });
     }
 
-    const specificValue =
+    const specificValue: string =
       'https://i.ds.at/XWrfig/rs:fill:750:0/plain/2020/01/16/harold.jpg';
-    const userWithDefaultProfilePicture = await this.usersRepository.findOne({
-      where: { name: user, profilePictureUrl: specificValue },
-    });
+    const userWithDefaultProfilePicture: User =
+      await this.usersRepository.findOne({
+        where: { intraname: user, profilePictureUrl: specificValue },
+      });
 
     if (userWithDefaultProfilePicture) {
       await this.usersRepository.save({ profilePictureUrl: imageLink });
     }
-    return this.usersRepository.findOne({ where: { name: user } });
+    return this.usersRepository.findOne({ where: { intraname: user } });
   }
 
   async setUserData(data: TokenResponse, user: string, hashedToken: string) {
     const currentTime: number = Math.floor(Date.now() / 1000);
     await this.usersRepository.update(
       {
-        name: user,
+        intraname: user,
       },
       {
         token: data.access_token,
@@ -184,19 +187,23 @@ export class AuthService {
 
   isValidToken(expirationTime: number): boolean {
     const currentTime: number = Math.floor(Date.now() / 1000);
-    // logTime(currentTime, 'Current Time');
-    // logTime(expirationTime, 'Expiration Time from DatabaseToken');
     return currentTime < expirationTime;
   }
 
-	async changeName(newName: string, currentUser: User): Promise<User | null> {
-		await this.usersRepository.update(
+  async changeName(newName: string, currentUser: User): Promise<User | null> {
+    await this.usersRepository.update(
       {
-        name: currentUser.name,
+        intraname: currentUser.intraname,
       },
       {
-				name: newName,
-      },)
-		return currentUser;
-	}
+        name: newName,
+      },
+    );
+    const updatedUser = await this.usersRepository.findOne({
+      where: {
+        name: newName,
+      },
+    });
+    return updatedUser;
+  }
 }

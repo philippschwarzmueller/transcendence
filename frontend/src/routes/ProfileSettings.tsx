@@ -9,11 +9,23 @@ const ProfileSettings: React.FC = () => {
   const auth = useContext(AuthContext);
   const BACKEND: string = `http://${window.location.hostname}:${4000}`;
   const [newName, setNewName] = useState("");
+  const [profileLink, setProfileLink] = useState(`${auth.user.name}`);
 
   const handleNameChange = async (): Promise<void> => {
     try {
-      const res = await fetch(`${BACKEND}/auth/change-name`);
-      console.log(await res.json());
+      const res = await fetch(`${BACKEND}/auth/change-name`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ newName }),
+        credentials: "include",
+      });
+      const updatedUser: IUser = await res.json();
+      auth.logIn(updatedUser);
+      if (updatedUser.name !== undefined) {
+        setProfileLink(updatedUser.name);
+      }
     } catch {
       console.log("error");
     }
@@ -32,10 +44,10 @@ const ProfileSettings: React.FC = () => {
         value={newName}
         onChange={handleInputChange}
       />
-      <Button onSubmit={handleNameChange}>Change Name</Button>
+      <Button onClick={handleNameChange}>Change Name</Button>
       <h3>Change Avatar</h3>
       <h3>Enable 2FA</h3>
-      <Link to={`/profile/${auth.user.name}`}>
+      <Link to={`/profile/${profileLink}`}>
         <Button>Back to Profile</Button>
       </Link>
     </>

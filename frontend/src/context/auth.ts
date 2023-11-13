@@ -3,6 +3,7 @@ import { createContext } from "react";
 export interface IUser {
   id?: number | undefined;
   name: string | undefined;
+  intraname: string | undefined;
   image: string | undefined;
   token?: string | undefined;
   activeChats: string[];
@@ -11,6 +12,7 @@ export interface IUser {
 let default_user: IUser = {
   id: undefined,
   name: undefined,
+  intraname: undefined,
   image: undefined,
   token: undefined,
   activeChats: [],
