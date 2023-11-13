@@ -39,7 +39,7 @@ const resizeCanvas = (
   gameCanvasRef: React.MutableRefObject<HTMLCanvasElement>
 ): void => {
   const canvas: HTMLCanvasElement | undefined =
-    gameCanvasRef.current.getContext("2d")?.canvas;
+    gameCanvasRef.current?.getContext("2d")?.canvas;
   if (canvas) {
     canvas.height = properties.window.height;
     canvas.width = properties.window.width;
@@ -59,7 +59,7 @@ const fetchAndDrawFinishedGame = (
         finishedGameRemote.winner,
         finishedGameRemote.winnerPoints,
         finishedGameRemote.looserPoints,
-        gameCanvas.current.getContext("2d")
+        gameCanvas.current?.getContext("2d")
       );
     }
   );
@@ -100,7 +100,7 @@ const GameWindow: React.FC = () => {
     });
 
     if (navigateToErrorScreen.current) {
-      drawErrorScreen(gameCanvas.endScreen.current.getContext("2d"));
+      drawErrorScreen(gameCanvas.endScreen.current?.getContext("2d"));
     } else if (navigateToEndScreen.current) {
       fetchAndDrawFinishedGame(socket, gameId, gameCanvas.endScreen);
     } else {
@@ -138,7 +138,7 @@ const GameWindow: React.FC = () => {
             fetchAndDrawFinishedGame(socket, gameId, gameCanvas.endScreen);
           } else {
             navigateToErrorScreen.current = true;
-            drawErrorScreen(gameCanvas.endScreen.current.getContext("2d"));
+            drawErrorScreen(gameCanvas.endScreen.current?.getContext("2d"));
           }
         });
       }
