@@ -88,7 +88,7 @@ export class AuthController {
 
   @Post('validate-token')
   async validateToken(@Req() req: Request): Promise<User> | null {
-    const token = req.cookies.token;
+    const token: string = req.cookies.token;
     if (token == undefined) return null;
     const User: User | null = await this.authService.checkToken(token);
     return User;
@@ -99,13 +99,16 @@ export class AuthController {
     @Body() body: { newName: string },
     @Req() req: Request,
   ): Promise<User | null> {
-    const token = req.cookies.token;
+		const token: string = req.cookies.token;
     if (token == undefined) return null;
-    const User: User | null = await this.authService.checkToken(token);
-    const newUser: User | null = await this.authService.changeName(
-      body.newName,
-      User,
-    );
-    return newUser;
+    const user: User | null = await this.authService.checkToken(token);
+		if(user){
+			const newUser: User | null = await this.authService.changeName(
+				body.newName,
+				user,
+			);
+			return newUser;
+		}
+    return null;
   }
 }
