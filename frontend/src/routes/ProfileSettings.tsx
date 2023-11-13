@@ -31,9 +31,7 @@ const ProfileSettings: React.FC = () => {
         placeholder="new name goes here"
         value={newName}
         onChange={handleInputChange}
-      >
-        {newName}
-      </Input>
+      />
       <Button onSubmit={handleNameChange}>Change Name</Button>
       <h3>Change Avatar</h3>
       <h3>Enable 2FA</h3>
