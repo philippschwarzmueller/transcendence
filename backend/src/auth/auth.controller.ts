@@ -99,10 +99,13 @@ export class AuthController {
     @Body() body: { newName: string },
     @Req() req: Request,
   ): Promise<User | null> {
-		const token = req.cookies.token;
-		if (token == undefined) return null;
+    const token = req.cookies.token;
+    if (token == undefined) return null;
     const User: User | null = await this.authService.checkToken(token);
-		const newUser: User | null = await this.authService.changeName(body.newName, User);
+    const newUser: User | null = await this.authService.changeName(
+      body.newName,
+      User,
+    );
     return newUser;
   }
 }
