@@ -33,9 +33,7 @@ export class WSocketGateway implements OnGatewayInit {
     private gamesService: GamesService,
     @Inject(ChatService)
     private chatService: ChatService,
-  ) {
-  }
-
+  ) {}
 
   @WebSocketServer()
   server: Server;
@@ -58,11 +56,7 @@ export class WSocketGateway implements OnGatewayInit {
     @MessageBody() data: IChannel,
     @ConnectedSocket() client: Socket,
   ): Promise<string[]> {
-     return await this.chatService.addChat(
-      data,
-      client,
-      this.server,
-    );
+    return await this.chatService.addChat(data, client, this.server);
   }
 
   @SubscribeMessage('alterGameData')

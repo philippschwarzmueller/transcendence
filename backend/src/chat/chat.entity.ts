@@ -19,8 +19,8 @@ export class Channels {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => User)
-  @JoinColumn({ name:'owner' })
+  @ManyToOne(() => User, (user) => user.owned)
+  @JoinColumn({ name: 'owner' })
   owner: User;
 
   @ManyToMany(() => User, (user) => user.channels)

@@ -22,6 +22,7 @@ export class ChatService extends ChatServiceBase {
     let check = data.input;
     if (data.input.indexOf(' ') != -1)
       check = data.input.substring(0, data.input.indexOf(' '));
+    console.log(check);
     switch (check) {
       case '/add':
         this.addUser(data, server);
@@ -57,7 +58,7 @@ export class ChatService extends ChatServiceBase {
       server.to(data.room).emit('message', mess);
       await this.chatDao.saveMessageToChannel(data);
     } catch (error) {
-      console.log(error);
+      console.log(`SYSTEM: ${error.message.split('\n')[0]}`);
     }
   }
 
@@ -65,10 +66,11 @@ export class ChatService extends ChatServiceBase {
     try {
       const name = data.input.substring(data.input.indexOf(' ') + 1);
       const owner = await this.chatDao.getChannelOwner(data.room);
-      if (owner.name !== data.user.name)
-        return ;
-      this.chatDao.addUserToChannel(data.room, data.user.name);
-      server.to(this.getUser(name).socket.id).emit('invite', await this.chatDao.getUserChannels);
+      if (owner.name !== data.user.name) return;
+      this.chatDao.addUserToChannel(data.room, name);
+      server
+        .to(this.getUser(name).socket.id)
+        .emit('invite', await this.chatDao.getUserChannels);
     } catch (error) {
       console.log(`SYSTEM: ${error.message.split('\n')[0]}`);
     }

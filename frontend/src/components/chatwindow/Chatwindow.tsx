@@ -119,8 +119,10 @@ const Chatwindow: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    socket.emit("join", { user: user, type: EChannelType.PUBLIC, room }, (res: string[]) =>
-      setMessages(res),
+    socket.emit(
+      "join",
+      { user: user, type: EChannelType.PUBLIC, title: room },
+      (res: string[]) => setMessages(res),
     );
   }, [room]); // eslint-disable-line react-hooks/exhaustive-deps
 

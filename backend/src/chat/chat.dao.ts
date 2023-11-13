@@ -55,21 +55,24 @@ export class ChatDAO {
     const newUser: User = await this.userService.findOneByName(user);
     const queryRunner = this.dataSource.createQueryRunner();
     queryRunner.connect();
-    await queryRunner.manager
-      .query(
-        `INSERT INTO channel_subscription (channel, "user")
+    await queryRunner.manager.query(
+      `INSERT INTO channel_subscription (channel, "user")
         VALUES (${channel.id}, ${newUser.id})
         ON CONFLICT (channel, "user") DO NOTHING;`,
-      )
+    );
     queryRunner.release();
   }
 
-  public async userIsJoinable(title: string, user: string): Promise<void> {
+  public async userIsJoinable(title: string, user: string): Promise<boolean> {
     const channel: Channels = await this.getChannelByTitle(title);
-    if (channel.type !== EChannelType.PUBLIC && !channel.users.find(u => u.name === user))
-      throw error;
+    if (
+      channel &&
+      channel.type !== EChannelType.PUBLIC &&
+      !channel.users.find((u) => u.name === user)
+    )
+      return false;
+    return true;
   }
-
 
   public async removeUserFromChannel(title: string, user: User): Promise<void> {
     const channel: Channels = await this.getChannelByTitle(title);
@@ -121,12 +124,13 @@ export class ChatDAO {
     });
   }
 
-  public async getChannelOwner(title: string): Promise<User>{
-    return await this.userRepo
-      .createQueryBuilder('channel')
-      .leftJoinAndSelect('channel.owner', 'owner')
-      .where('channel.title = :title', { title })
-      .getOne();
+  public async getChannelOwner(title: string): Promise<User> {
+    return (
+      await this.channelRepo.findOne({
+        where: { title: title },
+        relations: ['owner'],
+      })
+    ).owner;
   }
   //updateUserRole
   //getMessagesFiltert
