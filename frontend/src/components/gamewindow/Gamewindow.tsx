@@ -1,20 +1,16 @@
-import React, { useRef, useEffect, useContext, useState } from "react";
+import React, { useRef, useEffect, useContext } from "react";
 import properties, {
   IGame,
   gameSpawn,
   IGameSocketPayload,
   IKeyState,
-  IFinishedGame,
 } from "./properties";
 import Centerdiv from "../centerdiv";
 import Gamecanvas from "../gamecanvas/Gamecanvas";
 import {
-  drawBackground,
-  drawBall,
-  drawBothPaddles,
-  drawText,
-  drawWinScreen,
   drawErrorScreen,
+  drawGame,
+  fetchAndDrawFinishedGame,
 } from "./drawFunctions";
 import { useParams } from "react-router-dom";
 import { EGamemode } from "../queue/Queue";
@@ -25,14 +21,15 @@ import { setKeyEventListener } from "./keyboardinput";
 import {
   calculateWindowproperties,
   getWindowDimensions,
+  resizeCanvas,
 } from "./windowresizing";
 
-interface IGameCanvas {
-  background: React.MutableRefObject<HTMLCanvasElement | null>;
-  score: React.MutableRefObject<HTMLCanvasElement | null>;
-  paddle: React.MutableRefObject<HTMLCanvasElement | null>;
-  ball: React.MutableRefObject<HTMLCanvasElement | null>;
-  endScreen: React.MutableRefObject<HTMLCanvasElement | null>;
+export interface IGameCanvas {
+  background: React.MutableRefObject<HTMLCanvasElement>;
+  score: React.MutableRefObject<HTMLCanvasElement>;
+  paddle: React.MutableRefObject<HTMLCanvasElement>;
+  ball: React.MutableRefObject<HTMLCanvasElement>;
+  endScreen: React.MutableRefObject<HTMLCanvasElement>;
 }
 
 const finishGame = (
@@ -44,11 +41,11 @@ const finishGame = (
 const GameWindow: React.FC = () => {
   const params = useParams();
   const gameCanvas: IGameCanvas = {
-    background: useRef<HTMLCanvasElement | null>(null),
-    score: useRef<HTMLCanvasElement | null>(null),
-    paddle: useRef<HTMLCanvasElement | null>(null),
-    ball: useRef<HTMLCanvasElement | null>(null),
-    endScreen: useRef<HTMLCanvasElement | null>(null),
+    background: useRef<HTMLCanvasElement>(document.createElement("canvas")),
+    score: useRef<HTMLCanvasElement>(document.createElement("canvas")),
+    paddle: useRef<HTMLCanvasElement>(document.createElement("canvas")),
+    ball: useRef<HTMLCanvasElement>(document.createElement("canvas")),
+    endScreen: useRef<HTMLCanvasElement>(document.createElement("canvas")),
   };
   const keystateRef: React.MutableRefObject<IKeyState> = useRef<IKeyState>({
     down: false,
@@ -63,114 +60,74 @@ const GameWindow: React.FC = () => {
   > = useRef<ReturnType<typeof setInterval>>();
   const localUser: IUser = useContext(AuthContext).user;
   const socket: Socket = useContext(SocketContext);
-
-  const [navigateToEndScreen, setNavigateToEndScreen] = useState(false);
-  const [navigateToErrorScreen, setNavigateToErrorScreen] = useState(false);
-
-  const [windowDimensions, setWindowDimensions] = useState(
-    getWindowDimensions()
+  const gamemode: React.MutableRefObject<EGamemode> = useRef(
+    EGamemode.standard
   );
+  const navigateToEndScreen: React.MutableRefObject<boolean> = useRef(false);
+  const navigateToErrorScreen: React.MutableRefObject<boolean> = useRef(false);
 
   const handleWindowResize = (): void => {
-    setWindowDimensions(getWindowDimensions());
+    calculateWindowproperties(getWindowDimensions());
+    Object.values(gameCanvas).forEach((canvas) => {
+      resizeCanvas(canvas);
+    });
+
+    if (navigateToErrorScreen.current) {
+      drawErrorScreen(gameCanvas.endScreen.current?.getContext("2d"));
+    } else if (navigateToEndScreen.current) {
+      fetchAndDrawFinishedGame(socket, gameId, gameCanvas.endScreen);
+    } else {
+      drawGame(gamemode, gameCanvas, gameStateRef);
+    }
   };
 
-  useEffect(() => {
-    calculateWindowproperties(windowDimensions);
-    socket.emit("getGamemode", gameId, (gamemode: EGamemode) => {
-      if (gamemode !== undefined && gamemode !== null)
-        drawBackground(
-          gamemode,
-          gameCanvas.background?.current?.getContext("2d")
-        );
-    });
-  }, [windowDimensions]); // eslint-disable-line react-hooks/exhaustive-deps
-
   const GameLoop = (): void => {
-    if (
-      gameCanvas.background === undefined ||
-      gameCanvas.score === undefined ||
-      gameCanvas.paddle === undefined ||
-      gameCanvas.ball === undefined
-    ) {
-      finishGame(gameInterval.current);
-    }
     const gameSocketPayload: IGameSocketPayload = {
       side: params.side !== undefined ? params.side : "viewer",
       keystate: keystateRef.current,
       gameId: gameId,
       user: localUser,
     };
+
     if (socket.connected) {
       socket.emit("alterGameData", gameSocketPayload, (res: IGame) => {
         gameStateRef.current = res;
       });
-    } else gameStateRef.current = gameSpawn;
+    } else {
+      gameStateRef.current = gameSpawn;
+    }
 
-    drawBall(
-      gameCanvas.ball?.current?.getContext("2d"),
-      gameStateRef.current.ball
-    );
-    drawBothPaddles(
-      gameCanvas.paddle?.current?.getContext("2d"),
-      gameStateRef.current
-    );
-    drawText(
-      gameCanvas.score?.current?.getContext("2d"),
-      gameStateRef.current.pointsLeft,
-      gameStateRef.current.pointsRight
-    );
+    drawGame(gamemode, gameCanvas, gameStateRef);
   };
 
   useEffect(() => {
-    socket.emit(
-      "getGameFromDatabase",
-      gameId,
-      (finishedGame: IFinishedGame) => {
-        if (navigateToEndScreen)
-          drawWinScreen(
-            finishedGame.winner,
-            finishedGame.winnerPoints,
-            finishedGame.looserPoints,
-            gameCanvas.endScreen.current?.getContext("2d")
-          );
-      }
-    );
-  }, [navigateToEndScreen, windowDimensions]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => {
-    if (navigateToErrorScreen)
-      drawErrorScreen(gameCanvas.endScreen.current?.getContext("2d"));
-  }, [navigateToErrorScreen, windowDimensions]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => {
     handleWindowResize();
+
     socket.emit("isGameRunning", gameId, (isGameRunning: boolean) => {
       if (!isGameRunning) {
         socket.emit("isGameInDatabase", gameId, (isGameInDatabase: boolean) => {
           if (isGameInDatabase) {
-            setNavigateToEndScreen(true);
+            navigateToEndScreen.current = true;
+            fetchAndDrawFinishedGame(socket, gameId, gameCanvas.endScreen);
           } else {
-            setNavigateToErrorScreen(true);
+            navigateToErrorScreen.current = true;
+            drawErrorScreen(gameCanvas.endScreen.current?.getContext("2d"));
           }
         });
       }
     });
 
-    socket.emit("getGamemode", gameId, (gamemode: EGamemode) => {
-      if (gamemode !== undefined && gamemode !== null)
-        drawBackground(
-          gamemode,
-          gameCanvas.background?.current?.getContext("2d")
-        );
+    socket.emit("getGamemode", gameId, (gamemodeRemote: EGamemode) => {
+      gamemode.current = gamemodeRemote;
     });
 
     socket.on("endgame", () => {
       finishGame(gameInterval.current);
       socket.emit("getGameData", gameId, (res: IGame) => {
         gameStateRef.current = res;
-        setNavigateToEndScreen(true);
+        navigateToEndScreen.current = true;
       });
+      fetchAndDrawFinishedGame(socket, gameId, gameCanvas.endScreen);
     });
 
     setKeyEventListener(keystateRef);
@@ -178,7 +135,10 @@ const GameWindow: React.FC = () => {
     gameInterval.current = setInterval(GameLoop, 1000 / properties.framerate);
 
     window.addEventListener("resize", handleWindowResize);
-    return () => window.removeEventListener("resize", handleWindowResize);
+    return () => {
+      window.removeEventListener("resize", handleWindowResize);
+      finishGame(gameInterval.current);
+    };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
