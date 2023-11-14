@@ -5,7 +5,6 @@ import { Repository } from 'typeorm';
 import { User } from '../users/user.entity';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { hash as bcrypt_hash, compare as bcrypt_compare } from 'bcrypt';
-import { IUser } from 'src/games/properties';
 
 export interface TokenResponse {
   access_token: string;
@@ -57,7 +56,7 @@ export class AuthService {
   }
 
   async signup(user: CreateUserDto): Promise<any> {
-    const userExists: boolean = await this.usersRepository.exist({
+    const userExists = await this.usersRepository.exist({
       where: { name: user.name },
     });
     if (!userExists) {
@@ -84,19 +83,17 @@ export class AuthService {
     );
     const res = await response.json();
     const imageLink: string = res.image.versions.large;
-    const user: string = res.login;
-
+    const intraname: string = res.login;
     const userExists = await this.usersRepository.exist({
-      where: { intraname: user },
+      where: { intraname: intraname },
     });
-
     if (userExists) {
-      await this.setUserData(data, user, hashedToken);
+      await this.setUserData(data, intraname, hashedToken);
     } else {
       const currentTime: number = Math.floor(Date.now() / 1000);
       await this.usersRepository.insert({
-        name: user,
-        intraname: user,
+        name: intraname,
+        intraname: intraname,
         profilePictureUrl: imageLink,
         token: data.access_token,
         hashedToken: hashedToken,
@@ -104,24 +101,28 @@ export class AuthService {
       });
     }
 
-    const specificValue: string =
+    const specificValue =
       'https://i.ds.at/XWrfig/rs:fill:750:0/plain/2020/01/16/harold.jpg';
     const userWithDefaultProfilePicture: User =
       await this.usersRepository.findOne({
-        where: { intraname: user, profilePictureUrl: specificValue },
+        where: { intraname: intraname, profilePictureUrl: specificValue },
       });
 
     if (userWithDefaultProfilePicture) {
       await this.usersRepository.save({ profilePictureUrl: imageLink });
     }
-    return this.usersRepository.findOne({ where: { intraname: user } });
+    return this.usersRepository.findOne({ where: { intraname: intraname } });
   }
 
-  async setUserData(data: TokenResponse, user: string, hashedToken: string) {
+  async setUserData(
+    data: TokenResponse,
+    intraname: string,
+    hashedToken: string,
+  ) {
     const currentTime: number = Math.floor(Date.now() / 1000);
     await this.usersRepository.update(
       {
-        intraname: user,
+        intraname: intraname,
       },
       {
         token: data.access_token,
@@ -170,7 +171,7 @@ export class AuthService {
   }
 
   async checkToken(frontendToken: string): Promise<User | null> {
-    const user = await this.usersRepository.findOne({
+    const user: User = await this.usersRepository.findOne({
       where: {
         hashedToken: frontendToken,
       },
@@ -194,23 +195,53 @@ export class AuthService {
     const userExists: boolean = await this.usersRepository.exist({
       where: { name: newName },
     });
+    return userExists;
+  }
+
+  async checkNameChange(
+    hashedtoken: string,
+    newName: string,
+  ): Promise<User | null> {
+    const user: User = await this.checkToken(hashedtoken);
+    const token: string = user.token;
+    let userExists: boolean = await this.nameExists(newName, user.name);
+    if (userExists) {
+      return user;
+    }
+    userExists = await this.intranameExists(newName, user.intraname, token);
+    if (userExists) {
+      return user;
+    }
+    const updatedUser: User = await this.changeName(newName, user);
+    return updatedUser;
+  }
+
+  async intranameExists(
+    newName: string,
+    intraname: string,
+    token: string,
+  ): Promise<boolean> {
     let intraExists: boolean = await this.usersRepository.exist({
       where: { intraname: newName },
     });
-    if (intraExists) {
-      const intraUser: User = await this.usersRepository.findOne({
-        where: {
-          intraname: newName,
+    const response: Response | void = await fetch(
+      `https://api.intra.42.fr/v2/users/${newName}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
         },
-      });
-      if (intraUser.intraname == intraName) {
+      },
+    );
+    const res = await response.json();
+    if (res.login == newName && res?.campus[0].name == 'Heilbronn') {
+      intraExists = true;
+    }
+    if (intraExists) {
+      if (res.login == intraname) {
         intraExists = false;
       }
     }
-    if (userExists || intraExists) {
-      return true;
-    }
-    return false;
+    return intraExists;
   }
 
   async changeName(newName: string, currentUser: User): Promise<User | null> {
