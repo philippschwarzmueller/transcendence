@@ -194,22 +194,22 @@ export class AuthService {
     const userExists: boolean = await this.usersRepository.exist({
       where: { name: newName },
     });
-		let intraExists: boolean = await this.usersRepository.exist({
+    let intraExists: boolean = await this.usersRepository.exist({
       where: { intraname: newName },
     });
-		if(intraExists){
-			const intraUser: User = await this.usersRepository.findOne({
-				where: {
-					intraname: newName,
-				},
-			});
-			if(intraUser.intraname == intraName){
-				intraExists = false;
-			}
-		}
-		if(userExists || intraExists){
-			return true;
-		}
+    if (intraExists) {
+      const intraUser: User = await this.usersRepository.findOne({
+        where: {
+          intraname: newName,
+        },
+      });
+      if (intraUser.intraname == intraName) {
+        intraExists = false;
+      }
+    }
+    if (userExists || intraExists) {
+      return true;
+    }
     return false;
   }
 

@@ -31,7 +31,7 @@ const ProfileSettings: React.FC = () => {
           auth.logIn(updatedUser);
           if (updatedUser.name !== undefined) {
             setProfileLink(updatedUser.name);
-						alert(`Name changed to '${newName}'`);
+            alert(`Name changed to '${newName}'`);
             setNewName("");
           }
         } else {
