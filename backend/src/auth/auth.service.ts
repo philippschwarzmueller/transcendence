@@ -57,7 +57,7 @@ export class AuthService {
   }
 
   async signup(user: CreateUserDto): Promise<any> {
-    const userExists = await this.usersRepository.exist({
+    const userExists: boolean = await this.usersRepository.exist({
       where: { name: user.name },
     });
     if (!userExists) {
@@ -190,6 +190,29 @@ export class AuthService {
     return currentTime < expirationTime;
   }
 
+  async nameExists(newName: string, intraName: string): Promise<boolean> {
+    const userExists: boolean = await this.usersRepository.exist({
+      where: { name: newName },
+    });
+		let intraExists: boolean = await this.usersRepository.exist({
+      where: { intraname: newName },
+    });
+		if(intraExists){
+			const intraUser: User = await this.usersRepository.findOne({
+				where: {
+					intraname: newName,
+				},
+			});
+			if(intraUser.intraname == intraName){
+				intraExists = false;
+			}
+		}
+		if(userExists || intraExists){
+			return true;
+		}
+    return false;
+  }
+
   async changeName(newName: string, currentUser: User): Promise<User | null> {
     await this.usersRepository.update(
       {
@@ -199,7 +222,7 @@ export class AuthService {
         name: newName,
       },
     );
-    const updatedUser = await this.usersRepository.findOne({
+    const updatedUser: User = await this.usersRepository.findOne({
       where: {
         name: newName,
       },

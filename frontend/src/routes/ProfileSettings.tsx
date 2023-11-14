@@ -11,23 +11,36 @@ const ProfileSettings: React.FC = () => {
   const [newName, setNewName] = useState("");
   const [profileLink, setProfileLink] = useState(`${auth.user.name}`);
 
+  function isWhitespaceOrEmpty(input: string) {
+    return /^\s*$/.test(input);
+  }
+
   const handleNameChange = async (): Promise<void> => {
-    try {
-      const res = await fetch(`${BACKEND}/auth/change-name`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ newName }),
-        credentials: "include",
-      });
-      const updatedUser: IUser = await res.json();
-      auth.logIn(updatedUser);
-      if (updatedUser.name !== undefined) {
-        setProfileLink(updatedUser.name);
+    if (!isWhitespaceOrEmpty(newName)) {
+      try {
+        const res = await fetch(`${BACKEND}/auth/change-name`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ newName }),
+          credentials: "include",
+        });
+        const updatedUser: IUser = await res.json();
+        if (updatedUser.name !== auth.user.name) {
+          auth.logIn(updatedUser);
+          if (updatedUser.name !== undefined) {
+            setProfileLink(updatedUser.name);
+						alert(`Name changed to '${newName}'`);
+            setNewName("");
+          }
+        } else {
+          alert("Name already exists, pick another one");
+          setNewName("");
+        }
+      } catch {
+        console.log("error");
       }
-    } catch {
-      console.log("error");
     }
   };
 

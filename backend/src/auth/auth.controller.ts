@@ -102,7 +102,11 @@ export class AuthController {
 		const token: string = req.cookies.token;
     if (token == undefined) return null;
     const user: User | null = await this.authService.checkToken(token);
-		if(user){
+		const nameExists: boolean = await this.authService.nameExists(body.newName, user.intraname);
+		if(nameExists){
+			return user;
+		}
+		if(user !== null){
 			const newUser: User | null = await this.authService.changeName(
 				body.newName,
 				user,
