@@ -4,7 +4,7 @@ import Centerdiv from "../centerdiv";
 import { Socket } from "socket.io-client";
 import { IGameStart } from "../gamewindow/properties";
 import { AuthContext, IUser } from "../../context/auth";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { SocketContext } from "../../context/socket";
 
 const queueUp = (socket: Socket, user: IUser, gamemode: EGamemode): void => {
@@ -35,9 +35,13 @@ const Queue: React.FC<IQueueProps> = (
   const socket: Socket = useContext(SocketContext);
   const user: IUser = useContext(AuthContext).user;
   const navigate = useNavigate();
-  socket.on("queue found", (body: IGameStart) => {
-    navigate(`/play/${body.gameId}/${body.side}`);
-  });
+
+  useEffect(() => {
+    socket.on("queue found", (body: IGameStart) => {
+      navigate(`/play/${body.gameId}/${body.side}`);
+    });
+  }, []);
+
   return (
     <>
       <Centerdiv>
