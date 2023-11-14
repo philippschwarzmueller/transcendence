@@ -56,6 +56,20 @@ export interface IUser {
   token: string | undefined;
 }
 
+export interface IGameUserAuth {
+  user: IUserAuth;
+  socket: Gamesocket;
+}
+
+export interface IUserAuth {
+  id?: number | undefined;
+  name: string | undefined;
+  intraname: string | undefined;
+  image: string | undefined;
+  token?: string | undefined;
+  activeChats: string[];
+}
+
 export interface IBall {
   x: number;
   y: number;

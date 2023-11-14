@@ -12,6 +12,8 @@ import {
   IFinishedGame,
   IGame,
   IGameSocketPayload,
+  IGameUser,
+  IGameUserAuth,
   IQueuePayload,
 } from '../games/properties';
 
@@ -33,9 +35,7 @@ export class WSocketGateway implements OnGatewayInit {
     private gamesService: GamesService,
     @Inject(ChatService)
     private chatService: ChatService,
-  ) {
-  }
-
+  ) {}
 
   @WebSocketServer()
   server: Server;
@@ -58,11 +58,7 @@ export class WSocketGateway implements OnGatewayInit {
     @MessageBody() data: IMessage,
     @ConnectedSocket() client: Socket,
   ): Promise<string[]> {
-     return await this.chatService.addChat(
-      data.user.name,
-      data.room,
-      client,
-    );
+    return await this.chatService.addChat(data.user.name, data.room, client);
   }
 
   @SubscribeMessage('alterGameData')
@@ -112,6 +108,13 @@ export class WSocketGateway implements OnGatewayInit {
     @MessageBody() gameId: string,
   ): EGamemode | undefined | null {
     return this.gamesService.getGamemode(gameId);
+  }
+
+  @SubscribeMessage('changesocket')
+  public changeSocket(@MessageBody() gameuser: string): string {
+    console.log(gameuser);
+    return 'hi';
+    // return this.gamesService.changeSocket(gameuser);
   }
 
   afterInit(server: any): any {}

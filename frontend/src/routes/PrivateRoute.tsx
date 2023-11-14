@@ -6,41 +6,44 @@ interface PrivateRouteProps {
   children: JSX.Element;
 }
 
+export const validateToken = async (auth: IAuthContext): Promise<boolean> => {
+  try {
+    const response: Response = await fetch(
+      "http://localhost:4000/auth/validate-token",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data: IUser = await response.json();
+
+    if (data) {
+      auth.logIn(data);
+      return true;
+    } else {
+      return false;
+    }
+  } catch (error) {
+    return false;
+  }
+};
+
 const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
   const auth: IAuthContext = useContext(AuthContext);
   const [isValid, setValidity] = useState<boolean | null>(null);
 
   useEffect(() => {
-    const validateToken = async (): Promise<void> => {
-      try {
-        const response: Response = await fetch(
-          "http://localhost:4000/auth/validate-token",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            credentials: "include",
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data: IUser = await response.json();
-
-        if (data) {
-          auth.logIn(data);
-          setValidity(true);
-        } else {
-          setValidity(false);
-        }
-      } catch (error) {
-        setValidity(false);
-      }
-    };
-    validateToken();
+    validateToken(auth).then((res) => {
+      setValidity(res);
+    });
   }, [auth]);
 
   if (isValid === null) {

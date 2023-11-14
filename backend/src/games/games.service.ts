@@ -8,6 +8,7 @@ import properties, {
   IGame,
   IGameBackend,
   IGameUser,
+  IGameUserAuth,
   IKeyState,
   IPaddle,
   IUser,
@@ -357,5 +358,10 @@ export class GamesService {
 
   public getGamemode(gameId: string): EGamemode | undefined | null {
     return this.runningGames.get(gameId)?.gamemode;
+  }
+
+  public changeSocket(gameuser: IGameUserAuth): string {
+    console.log('i am here');
+    return 'hi';
   }
 }

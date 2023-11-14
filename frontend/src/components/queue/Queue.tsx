@@ -36,6 +36,7 @@ const Queue: React.FC<IQueueProps> = (
   const [cookies, setCookie, removeCookie] = useCookies(["queue"]);
 
   useEffect(() => {
+    console.log("test");
     socket.on("queue found", (body: IGameStart) => {
       removeCookie("queue");
       navigate(`/play/${body.gameId}/${body.side}`);
@@ -43,8 +44,6 @@ const Queue: React.FC<IQueueProps> = (
   }, []);
 
   const queueUp = (socket: Socket, user: IUser, gamemode: EGamemode): void => {
-    // const cookies = new Cookies();
-    // cookies.set("queue", "true", { path: "/" });
     if (user.intraname !== undefined)
       setCookie("queue", user.intraname, { path: "/" });
     socket.emit("queue", { user: user, gamemode: gamemode });
