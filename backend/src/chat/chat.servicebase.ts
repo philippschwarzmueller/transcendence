@@ -68,7 +68,6 @@ export class ChatServiceBase {
   ): Promise<string[]> {
     const res: string[] = [];
     try {
-      if (!this.chatDao.userIsJoinable(chat.title, chat.user.name)) throw Error;
       const user = await this.userService.findOneByName(chat.user.name);
       await this.chatDao.saveChannel(chat, chat.user.name);
       client.join(chat.title);
@@ -94,7 +93,6 @@ export class ChatServiceBase {
       const channel = await this.chatDao.getChannelByTitle(data.title);
       client.join(data.title);
       this.updateActiveClients(data, client);
-      await this.chatDao.addUserToChannel(data.title, data.user.name);
       await this.chatDao.saveMessageToChannel({
         user: data.user,
         input: 'joined room',

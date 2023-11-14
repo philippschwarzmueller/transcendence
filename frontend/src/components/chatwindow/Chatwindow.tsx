@@ -115,7 +115,7 @@ const Chatwindow: React.FC = () => {
         }
         return response.json();
       })
-      .then((res: string[]) => setTabs(res));
+      .then((res: string[]) => setTabs(res)).catch(error => console.log(error));
   }, []);
 
   useEffect(() => {

@@ -5,7 +5,6 @@ import { Injectable, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EChannelType, IChannel, IMessage } from './properties';
 import { UsersService } from 'src/users/users.service';
-import { error } from 'console';
 
 @Injectable()
 export class ChatDAO {
@@ -14,8 +13,6 @@ export class ChatDAO {
     private channelRepo: Repository<Channels>,
     @InjectRepository(Messages)
     private messsageRepo: Repository<Messages>,
-    @InjectRepository(User)
-    private userRepo: Repository<User>,
     @Inject(UsersService)
     private userService: UsersService,
     @Inject('DATA_SOURCE')
@@ -36,9 +33,9 @@ export class ChatDAO {
     const existingChannel = await this.channelRepo.findOne({
       where: { title: channel.title },
     });
-    if (existingChannel) {
+    if (existingChannel && existingChannel.type !== EChannelType.PRIVATE) {
       await this.addUserToChannel(channel.title, user);
-    } else {
+    } else if (!existingChannel) {
       await this.channelRepo.save(
         this.channelRepo.create({
           title: channel.title,
@@ -61,17 +58,6 @@ export class ChatDAO {
         ON CONFLICT (channel, "user") DO NOTHING;`,
     );
     queryRunner.release();
-  }
-
-  public async userIsJoinable(title: string, user: string): Promise<boolean> {
-    const channel: Channels = await this.getChannelByTitle(title);
-    if (
-      channel &&
-      channel.type !== EChannelType.PUBLIC &&
-      !channel.users.find((u) => u.name === user)
-    )
-      return false;
-    return true;
   }
 
   public async removeUserFromChannel(title: string, user: User): Promise<void> {
