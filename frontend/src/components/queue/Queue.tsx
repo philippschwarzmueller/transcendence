@@ -6,10 +6,8 @@ import { IGameStart } from "../gamewindow/properties";
 import { AuthContext, IUser } from "../../context/auth";
 import { useContext, useEffect } from "react";
 import { SocketContext } from "../../context/socket";
-
-const queueUp = (socket: Socket, user: IUser, gamemode: EGamemode): void => {
-  socket.emit("queue", { user: user, gamemode: gamemode });
-};
+// import Cookies from "universal-cookie";
+import { CookiesProvider, useCookies } from "react-cookie";
 
 export enum EGamemode {
   standard = 1,
@@ -35,12 +33,22 @@ const Queue: React.FC<IQueueProps> = (
   const socket: Socket = useContext(SocketContext);
   const user: IUser = useContext(AuthContext).user;
   const navigate = useNavigate();
+  const [cookies, setCookie, removeCookie] = useCookies(["queue"]);
 
   useEffect(() => {
     socket.on("queue found", (body: IGameStart) => {
+      removeCookie("queue");
       navigate(`/play/${body.gameId}/${body.side}`);
     });
   }, []);
+
+  const queueUp = (socket: Socket, user: IUser, gamemode: EGamemode): void => {
+    // const cookies = new Cookies();
+    // cookies.set("queue", "true", { path: "/" });
+    if (user.intraname !== undefined)
+      setCookie("queue", user.intraname, { path: "/" });
+    socket.emit("queue", { user: user, gamemode: gamemode });
+  };
 
   return (
     <>
