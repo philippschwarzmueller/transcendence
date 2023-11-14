@@ -11,14 +11,14 @@ const ProfileSettings: React.FC = () => {
   const [newName, setNewName] = useState("");
   const [profileLink, setProfileLink] = useState(`${auth.user.name}`);
 
-  function isWhitespaceOrEmpty(input: string) {
+  const isWhitespaceOrEmpty = (input: string): boolean => {
     return /^\s*$/.test(input);
-  }
+  };
 
   const handleNameChange = async (): Promise<void> => {
     if (!isWhitespaceOrEmpty(newName)) {
       try {
-        const res = await fetch(`${BACKEND}/auth/change-name`, {
+        const res: Response = await fetch(`${BACKEND}/auth/change-name`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
