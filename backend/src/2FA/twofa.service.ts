@@ -82,7 +82,6 @@ export class TwoFAService {
   async verify2FA(code: string, hashedToken: string): Promise<boolean> {
     const user: User = await this.getUser(hashedToken);
     const verified: boolean = await authenticator.check(code, user.twoFAsecret);
-    console.log(verified);
     return verified;
   }
 }
