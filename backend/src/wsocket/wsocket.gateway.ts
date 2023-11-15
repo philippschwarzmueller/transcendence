@@ -23,6 +23,10 @@ import { GamesService } from '../games/games.service';
 import { ChatService } from 'src/chat/chat.service';
 import { Inject, Injectable } from '@nestjs/common';
 
+export interface IChangeSocketPayload {
+  intraname: string;
+}
+
 @Injectable()
 @WebSocketGateway(9000, {
   cors: {
@@ -111,10 +115,12 @@ export class WSocketGateway implements OnGatewayInit {
   }
 
   @SubscribeMessage('changesocket')
-  public changeSocket(@MessageBody() gameuser: string): string {
-    console.log(gameuser);
-    return 'hi';
-    // return this.gamesService.changeSocket(gameuser);
+  public changeSocket(
+    @MessageBody() gameuser: IChangeSocketPayload,
+    @ConnectedSocket() socket: Socket,
+  ): IChangeSocketPayload {
+    // console.log(gameuser);
+    return this.gamesService.changeSocket(gameuser, socket);
   }
 
   afterInit(server: any): any {}

@@ -12,7 +12,7 @@ interface RefreshProviderProps {
 }
 
 interface IChangeSocketPayload {
-  intraname: string | undefined;
+  intraname: string;
 }
 
 const SocketRefresh: React.FC<RefreshProviderProps> = ({ children }) => {
@@ -23,12 +23,12 @@ const SocketRefresh: React.FC<RefreshProviderProps> = ({ children }) => {
   const [test, setTest] = useState(true);
   const auth = useContext(AuthContext);
   useEffect(() => {
-    // const handleQueueFound = (body: IGameStart) => {
-    //   console.log("Queue found event received");
-    //   removeCookie("queue");
-    //   navigate(`/play/${body.gameId}/${body.side}`);
-    // };
-    // socket.on("queue found", handleQueueFound);
+    const handleQueueFound = (body: IGameStart) => {
+      console.log("Queue found event received");
+      removeCookie("queue");
+      navigate(`/play/${body.gameId}/${body.side}`);
+    };
+    socket.on("queue found", handleQueueFound);
 
     const emitChangeSocket = () => {
       if (user.intraname) {
@@ -46,9 +46,7 @@ const SocketRefresh: React.FC<RefreshProviderProps> = ({ children }) => {
     });
 
     return () => {
-      // console.log("RefreshProvider unmounted");
-      // Cleanup logic (if needed)
-      // socket.off("queue found", handleQueueFound);
+      socket.off("queue found", handleQueueFound);
     };
   }, [auth]);
 

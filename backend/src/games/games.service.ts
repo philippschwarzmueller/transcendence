@@ -31,6 +31,7 @@ import { Game } from './game.entity';
 import { Repository } from 'typeorm';
 import { CreateGameDto } from './dto/create-game.dto';
 import { getWinnerLooser, isGameFinished } from './games.utils';
+import { IChangeSocketPayload } from 'src/wsocket/wsocket.gateway';
 
 const newGameCopy = (): IGame => {
   return JSON.parse(JSON.stringify(gameSpawn));
@@ -360,8 +361,18 @@ export class GamesService {
     return this.runningGames.get(gameId)?.gamemode;
   }
 
-  public changeSocket(gameuser: IGameUserAuth): string {
-    console.log('i am here');
-    return 'hi';
+  public changeSocket(
+    gameuser: IChangeSocketPayload,
+    socket: Socket,
+  ): IChangeSocketPayload {
+    console.log('change socket');
+    this.queuedClients.get(EGamemode.standard).forEach((client) => {
+      if (client.user.name === gameuser.intraname) {
+        client.socket = socket;
+        return;
+      }
+      console.log(client.user.name);
+    });
+    return gameuser;
   }
 }
