@@ -67,6 +67,7 @@ const ProfileSettings: React.FC = () => {
           alert("2FA enabled");
           setQrcode("");
           setTwoFaCode("");
+          auth.user.twoFAenabled = true;
         } else {
           alert("2FA activation failed, try again");
           setTwoFaCode("");
@@ -99,11 +100,11 @@ const ProfileSettings: React.FC = () => {
     });
     const deactivated: boolean = await response.json();
     if (deactivated) {
-			auth.user.twoFAenabled = false;
+      auth.user.twoFAenabled = false;
       alert("2FA deactivated");
     } else {
-			alert("2FA deactivation failed");
-		}
+      alert("2FA deactivation failed");
+    }
   };
 
   const handleNewNameInputChange = (
