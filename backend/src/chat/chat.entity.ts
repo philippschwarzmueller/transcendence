@@ -7,7 +7,6 @@ import {
   ManyToMany,
   PrimaryGeneratedColumn,
   Unique,
-  OneToOne,
 } from 'typeorm';
 
 import { User } from '../users/user.entity';
