@@ -27,8 +27,7 @@ export class ChatServiceBase {
   }
 
   protected updateActiveClients(data: IChannel, client: Socket) {
-    if (!data.title)
-      data.title = '';
+    if (!data.title) data.title = '';
     for (const [key, value] of this.activeClients) {
       const tmp = value.filter((c) => c.user.name !== data.user.name);
       this.activeClients.set(key, tmp);
@@ -63,15 +62,11 @@ export class ChatServiceBase {
     return res;
   }
 
-  public async addChat(
-    chat: IChannel,
-    client: Socket,
-  ): Promise<string[]> {
+  public async addChat(chat: IChannel): Promise<string[]> {
     const res: string[] = [];
     try {
       const user = await this.userService.findOneByName(chat.user.name);
       await this.chatDao.saveChannel(chat, chat.user.name);
-      client.join(chat.title);
       return await this.chatDao.getRawUserChannels(user.id);
     } catch (error) {
       console.log(`SYSTEM: ${error.message.split('\n')[0]}`);
@@ -87,7 +82,11 @@ export class ChatServiceBase {
     }
   }
 
-  public async joinRoom(data: IChannel, client: Socket, server: Server): Promise<string[]> {
+  public async joinRoom(
+    data: IChannel,
+    client: Socket,
+    server: Server,
+  ): Promise<string[]> {
     let res: string[] = [];
     try {
       this.updateActiveClients(data, client);
