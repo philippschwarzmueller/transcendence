@@ -48,7 +48,7 @@ export class WSocketGateway implements OnGatewayInit {
     @MessageBody() data: IChannel,
     @ConnectedSocket() client: Socket,
   ): Promise<string[]> {
-    return await this.chatService.joinRoom(data, client);
+    return await this.chatService.joinRoom(data, client, this.server);
   }
 
   @SubscribeMessage('create')
@@ -56,7 +56,7 @@ export class WSocketGateway implements OnGatewayInit {
     @MessageBody() data: IChannel,
     @ConnectedSocket() client: Socket,
   ): Promise<string[]> {
-    return await this.chatService.addChat(data, client, this.server);
+    return await this.chatService.addChat(data, client);
   }
 
   @SubscribeMessage('alterGameData')

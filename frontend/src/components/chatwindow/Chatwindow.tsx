@@ -91,7 +91,7 @@ const Chatwindow: React.FC = () => {
   const user: IUser = useContext(AuthContext).user;
   const [tabs, setTabs] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<string>("");
-  const [room, setRoom] = useState<string>("general");
+  const [room, setRoom] = useState<string | null>(null);
   const socket: Socket = useContext(SocketContext);
   const navigate = useNavigate();
   let listKey = 0;
@@ -116,6 +116,7 @@ const Chatwindow: React.FC = () => {
         return response.json();
       })
       .then((res: string[]) => setTabs(res)).catch(error => console.log(error));
+    setRoom(tabs[tabs.length - 1]);
   }, []);
 
   useEffect(() => {
@@ -149,7 +150,6 @@ const Chatwindow: React.FC = () => {
   }
 
   const setActive = (tab: string) => {
-    if (tab === undefined) tab = "general";
     setActiveTab(tab);
     setRoom(tab);
   };
