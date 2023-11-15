@@ -7,4 +7,7 @@ export class CreateUserDto {
   token?: string;
   hashedToken?: string;
   tokenExpiry?: number;
+	twoFAenabled: boolean;
+	twoFAsecret?: string;
+	tempTwoFAsecret?: string;
 }

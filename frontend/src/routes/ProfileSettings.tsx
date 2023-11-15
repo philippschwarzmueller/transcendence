@@ -10,6 +10,7 @@ const ProfileSettings: React.FC = () => {
   const BACKEND: string = `http://${window.location.hostname}:${4000}`;
   const [newName, setNewName] = useState("");
   const [profileLink, setProfileLink] = useState(`${auth.user.name}`);
+  const [qrcode, setQrcode] = useState("");
 
   const isWhitespaceOrEmpty = (input: string): boolean => {
     return /^\s*$/.test(input);
@@ -44,6 +45,18 @@ const ProfileSettings: React.FC = () => {
     }
   };
 
+  const handle2FAactivate = async (): Promise<void> => {
+    const response  = await fetch(`${BACKEND}/twofa/enable`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    });
+		const qrImage = await response.text();
+		setQrcode(qrImage);
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     setNewName(e.target.value);
   };
@@ -59,7 +72,12 @@ const ProfileSettings: React.FC = () => {
       />
       <Button onClick={handleNameChange}>Change Name</Button>
       <h3>Change Avatar</h3>
-      <h3>Enable 2FA</h3>
+      <div>
+        <Button onClick={handle2FAactivate}>Enable 2FA</Button>
+				<div>
+        {qrcode && <img src={qrcode} alt="QR Code" />}
+				</div>
+      </div>
       <Link to={`/profile/${profileLink}`}>
         <Button>Back to Profile</Button>
       </Link>
