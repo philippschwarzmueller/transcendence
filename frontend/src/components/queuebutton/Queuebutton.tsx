@@ -27,6 +27,11 @@ export interface IQueuePayload {
   gamemode: EGamemode;
 }
 
+export interface IQueueCookie {
+  intraname: string;
+  timestamp: number;
+}
+
 const Queue: React.FC<IQueueProps> = (
   props: IQueueProps = { gamemode: EGamemode.standard }
 ) => {
@@ -44,8 +49,13 @@ const Queue: React.FC<IQueueProps> = (
   }, []);
 
   const queueUp = (socket: Socket, user: IUser, gamemode: EGamemode): void => {
-    if (user.intraname !== undefined)
-      setCookie("queue", user.intraname, { path: "/" });
+    if (user.intraname !== undefined) {
+      const cookie: IQueueCookie = {
+        intraname: user.intraname,
+        timestamp: Date.now(),
+      };
+      setCookie("queue", cookie, { path: "/" });
+    }
     socket.emit("queue", { user: user, gamemode: gamemode });
   };
 

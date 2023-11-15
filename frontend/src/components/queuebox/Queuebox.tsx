@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import { EGamemode } from "../queuebutton/Queuebutton";
 import Queuebutton from "../queuebutton/Queuebutton";
@@ -23,6 +23,8 @@ const Queuebox: React.FC = () => {
   const auth = useContext(AuthContext);
   const [userInQueue, setUserInQueue] = useState<boolean | null>(null);
   const [cookie, setCookie, deleteCookie] = useCookies(["queue"]);
+  const [timer, setTimer] = useState<number>(0);
+  const [timerId, setTimerId] = useState<any>();
 
   useEffect(() => {
     fetchData();
@@ -33,6 +35,19 @@ const Queuebox: React.FC = () => {
     const payload: IChangeSocketPayload = { intraname: auth.user.name };
     socket.emit("leavequeue", payload);
     deleteCookie("queue");
+    // Reset the timer when leaving the queue
+    setTimer(0);
+    clearInterval(timerId);
+  };
+
+  const startTimer = () => {
+    const intervalId = setInterval(() => {
+      setTimer(Math.floor((Date.now() - cookie.queue.timestamp) / 1000));
+    }, 1000);
+    setTimerId(intervalId);
+
+    // Uncomment the line below if you want to stop the timer after a certain duration
+    // setTimeout(() => clearInterval(intervalId), duration);
   };
 
   const fetchData = async () => {
@@ -42,6 +57,10 @@ const Queuebox: React.FC = () => {
     socket.emit("isplayerinqueue", payload, (res: boolean) => {
       setUserInQueue(res);
       console.log("fetched: ", res);
+      if (res) {
+        // If the user is in the queue, start the timer
+        startTimer();
+      }
     });
   };
 
@@ -59,7 +78,7 @@ const Queuebox: React.FC = () => {
   } else {
     content = (
       <Win98Box>
-        <p>time placeholder</p>
+        <p>Time elapsed: {timer} seconds</p>
         <Button onClick={leaveQueue}>Leave Queue</Button>
       </Win98Box>
     );
