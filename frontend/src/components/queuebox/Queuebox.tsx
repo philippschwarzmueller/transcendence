@@ -9,13 +9,42 @@ import { useCookies } from "react-cookie";
 import Button from "../button";
 
 const Win98Box = styled.div`
-  background-color: #c0c0c0;
-  border: 2px solid #000000;
-  padding: 10px;
-  margin: 10px;
-  font-family: "Arial", sans-serif;
-  font-size: 12px;
-  width: 300px;
+  // background-color: #c0c0c0;
+  // border: 2px solid #000000;
+  // padding: 10px;
+  // margin: 10px;
+  // font-family: "Arial", sans-serif;
+  // font-size: 12px;
+  width: 200px;
+  height: 50px;
+
+  text-align: center;
+  min-width: 7rem;
+  min-height: 2rem;
+  display: flex;
+  align-items: center;
+  background-color: rgb(195, 199, 203);
+  box-shadow: inset 1px 1px 0px 1px rgb(255, 255, 255),
+    inset 0 0 0 1px rgb(134, 138, 142), 1px 1px 0px 1px rgb(0, 0, 0),
+    2px 2px 5px 0px rgba(0, 0, 0, 0.5); /* Outer shadow */
+  padding: 8px;
+  cursor: pointer;
+  &:focus {
+    outline: 1px dotted rgb(0, 0, 0);
+    outline-offset: -5px;
+
+    box-shadow: inset 1px 1px 0px 1px rgb(255, 255, 255),
+      inset 0 0 0 1px rgb(134, 138, 142), 1px 1px 0 0px rgb(0, 0, 0);
+  }
+
+  &:active {
+    padding: 8 20 4;
+
+    outline: 1px dotted rgb(0, 0, 0);
+    outline-offset: -5px;
+
+    box-shadow: inset 0 0 0 1px rgb(134, 138, 142), 0 0 0 1px rgb(0, 0, 0);
+  }
 `;
 
 const Queuebox: React.FC = () => {
@@ -24,7 +53,6 @@ const Queuebox: React.FC = () => {
   const [userInQueue, setUserInQueue] = useState<boolean | null>(null);
   const [cookie, setCookie, deleteCookie] = useCookies(["queue"]);
   const [timer, setTimer] = useState<number>(0);
-  const [timerId, setTimerId] = useState<any>();
 
   useEffect(() => {
     fetchData();
@@ -35,30 +63,28 @@ const Queuebox: React.FC = () => {
     const payload: IChangeSocketPayload = { intraname: auth.user.name };
     socket.emit("leavequeue", payload);
     deleteCookie("queue");
-    // Reset the timer when leaving the queue
     setTimer(0);
-    clearInterval(timerId);
+    const queueInterval = Number(localStorage.getItem("queueInterval"));
+    localStorage.removeItem("queueInterval");
+    clearInterval(queueInterval);
   };
 
   const startTimer = () => {
-    const intervalId = setInterval(() => {
+    const queueInterval = Number(localStorage.getItem("queueInterval"));
+    localStorage.removeItem("queueInterval");
+    clearInterval(queueInterval);
+    const newQueueInterval = setInterval(() => {
       setTimer(Math.floor((Date.now() - cookie.queue.timestamp) / 1000));
     }, 1000);
-    setTimerId(intervalId);
-
-    // Uncomment the line below if you want to stop the timer after a certain duration
-    // setTimeout(() => clearInterval(intervalId), duration);
+    localStorage.setItem("queueInterval", String(newQueueInterval));
   };
 
-  const fetchData = async () => {
-    console.log("fetching data");
+  const fetchData = () => {
     if (!auth.user.name) return;
     const payload: IChangeSocketPayload = { intraname: auth.user.name };
     socket.emit("isplayerinqueue", payload, (res: boolean) => {
       setUserInQueue(res);
-      console.log("fetched: ", res);
       if (res) {
-        // If the user is in the queue, start the timer
         startTimer();
       }
     });
@@ -67,11 +93,12 @@ const Queuebox: React.FC = () => {
   let content: React.ReactNode;
 
   if (userInQueue === null) {
-    content = <div>Loading...</div>;
+    content = <></>;
   } else if (userInQueue === false) {
     content = (
       <Win98Box>
         <Queuebutton gamemode={EGamemode.standard} />
+        <p></p>
         <Queuebutton gamemode={EGamemode.roomMovement} />
       </Win98Box>
     );

@@ -8,6 +8,12 @@ import { useContext, useEffect } from "react";
 import { SocketContext } from "../../context/socket";
 // import Cookies from "universal-cookie";
 import { CookiesProvider, useCookies } from "react-cookie";
+import styled from "styled-components";
+
+const LocalQueueButton = styled(Button)`
+  padding: 8px;
+  margin-right: 8px;
+`;
 
 export enum EGamemode {
   standard = 1,
@@ -41,7 +47,6 @@ const Queue: React.FC<IQueueProps> = (
   const [cookies, setCookie, removeCookie] = useCookies(["queue"]);
 
   useEffect(() => {
-    console.log("test");
     socket.on("queue found", (body: IGameStart) => {
       removeCookie("queue");
       navigate(`/play/${body.gameId}/${body.side}`);
@@ -62,13 +67,13 @@ const Queue: React.FC<IQueueProps> = (
   return (
     <>
       <Centerdiv>
-        <Button
+        <LocalQueueButton
           onClick={() => {
             queueUp(socket, user, props.gamemode);
           }}
         >
           {gameModeNames.get(props.gamemode)}
-        </Button>
+        </LocalQueueButton>
       </Centerdiv>
     </>
   );

@@ -365,13 +365,11 @@ export class GamesService {
     gameuser: IChangeSocketPayload,
     socket: Socket,
   ): IChangeSocketPayload {
-    console.log('change socket');
     this.queuedClients.get(EGamemode.standard).forEach((client) => {
       if (client.user.name === gameuser.intraname) {
         client.socket = socket;
         return;
       }
-      console.log(client.user.name);
     });
     return gameuser;
   }
