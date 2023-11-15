@@ -64,7 +64,6 @@ export class ChatServiceBase {
   public async addChat(
     chat: IChannel,
     client: Socket,
-    server: Server,
   ): Promise<string[]> {
     const res: string[] = [];
     try {
@@ -86,18 +85,13 @@ export class ChatServiceBase {
     }
   }
 
-  public async joinRoom(data: IChannel, client: Socket): Promise<string[]> {
+  public async joinRoom(data: IChannel, client: Socket, server: Server): Promise<string[]> {
     let res: string[] = [];
     try {
       const channel = await this.chatDao.getChannelByTitle(data.title);
-      client.join(data.title);
+      client.join(channel.title);
       this.updateActiveClients(data, client);
-      await this.chatDao.saveMessageToChannel({
-        user: data.user,
-        input: 'joined room',
-        room: data.title,
-      });
-      client.to(data.title).emit('message', `${data.user.name}: joined room`);
+      server.to(data.title).emit('message', `${data.user.name}: joined room`);
       res = await this.chatDao.getRawChannelMessages(channel.id);
     } catch (error) {
       console.log(`SYSTEM: ${error.message.split('\n')[0]}`);
