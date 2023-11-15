@@ -51,7 +51,6 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
   } else if (!isValid) {
     return <Navigate to="/login" />;
   } else {
-    console.log("private route: ", auth.user);
     return children;
   }
 };

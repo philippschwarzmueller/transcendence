@@ -37,19 +37,18 @@ export interface IQueueCookie {
   timestamp: number;
 }
 
-const Queue: React.FC<IQueueProps> = (
+const Queuebutton: React.FC<IQueueProps> = (
   props: IQueueProps = { gamemode: EGamemode.standard }
 ) => {
   const socket: Socket = useContext(SocketContext);
   const user: IUser = useContext(AuthContext).user;
   const navigate = useNavigate();
-  const [cookies, setCookie, removeCookie] = useCookies(["queue"]);
+  const [, setCookie, removeCookie] = useCookies(["queue"]);
 
   useEffect(() => {
     socket.on("queue found", (body: IGameStart) => {
       removeCookie("queue");
       navigate(`/play/${body.gameId}/${body.side}`);
-      console.log("queue found");
     });
   }, []);
 
@@ -79,4 +78,4 @@ const Queue: React.FC<IQueueProps> = (
   );
 };
 
-export default Queue;
+export default Queuebutton;

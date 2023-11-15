@@ -1,12 +1,13 @@
 import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
-import { EGamemode } from "../queuebutton/Queuebutton";
+import { EGamemode, IQueueCookie } from "../queuebutton/Queuebutton";
 import Queuebutton from "../queuebutton/Queuebutton";
 import { SocketContext } from "../../context/socket";
 import { IChangeSocketPayload } from "../refresh/SocketRefresh";
-import { AuthContext } from "../../context/auth";
+import { AuthContext, IAuthContext } from "../../context/auth";
 import { useCookies } from "react-cookie";
 import Button from "../button";
+import { Socket } from "socket.io-client";
 
 const Win98Box = styled.div`
   width: 200px;
@@ -42,8 +43,8 @@ const Win98Box = styled.div`
 `;
 
 const Queuebox: React.FC = () => {
-  const socket = useContext(SocketContext);
-  const auth = useContext(AuthContext);
+  const socket: Socket = useContext(SocketContext);
+  const auth: IAuthContext = useContext(AuthContext);
   const [userInQueue, setUserInQueue] = useState<boolean | null>(null);
   const [cookie, setCookie, deleteCookie] = useCookies(["queue"]);
   const [timer, setTimer] = useState<number>(0);
@@ -58,16 +59,16 @@ const Queuebox: React.FC = () => {
     socket.emit("leavequeue", payload);
     deleteCookie("queue");
     setTimer(0);
-    const queueInterval = Number(localStorage.getItem("queueInterval"));
+    const queueInterval: number = Number(localStorage.getItem("queueInterval"));
     localStorage.removeItem("queueInterval");
     clearInterval(queueInterval);
   };
 
   const startTimer = () => {
-    const queueInterval = Number(localStorage.getItem("queueInterval"));
+    const queueInterval: number = Number(localStorage.getItem("queueInterval"));
     localStorage.removeItem("queueInterval");
     clearInterval(queueInterval);
-    const newQueueInterval = setInterval(() => {
+    const newQueueInterval: ReturnType<typeof setInterval> = setInterval(() => {
       setTimer(Math.floor((Date.now() - cookie.queue.timestamp) / 1000));
     }, 1000);
     localStorage.setItem("queueInterval", String(newQueueInterval));

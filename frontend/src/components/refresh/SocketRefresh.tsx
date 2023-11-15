@@ -3,7 +3,7 @@ import { useCookies } from "react-cookie";
 import { SocketContext } from "../../context/socket";
 import { Socket } from "socket.io-client";
 import { IGameStart } from "../gamewindow/properties";
-import { useNavigate } from "react-router-dom";
+import { NavigateFunction, useNavigate } from "react-router-dom";
 import { AuthContext, IUser } from "../../context/auth";
 import { validateToken } from "../../routes/PrivateRoute";
 
@@ -17,18 +17,16 @@ export interface IChangeSocketPayload {
 
 const SocketRefresh: React.FC<RefreshProviderProps> = ({ children }) => {
   const user: IUser = useContext(AuthContext).user;
-  const [cookies, setCookie, removeCookie] = useCookies(["queue"]);
+  const [, , removeCookie] = useCookies(["queue"]);
   const socket: Socket = useContext(SocketContext);
-  const navigate = useNavigate();
+  const navigate: NavigateFunction = useNavigate();
   const auth = useContext(AuthContext);
 
   useEffect(() => {
-    const handleQueueFound = (body: IGameStart) => {
+    socket.on("queue found", (body: IGameStart) => {
       removeCookie("queue");
       navigate(`/play/${body.gameId}/${body.side}`);
-      console.log("queue found");
-    };
-    socket.on("queue found", handleQueueFound);
+    });
 
     const emitChangeSocket = () => {
       if (user.intraname) {
@@ -42,7 +40,7 @@ const SocketRefresh: React.FC<RefreshProviderProps> = ({ children }) => {
     });
 
     return () => {
-      socket.off("queue found", handleQueueFound);
+      socket.off("queue found");
     };
   }, [auth]);
 
