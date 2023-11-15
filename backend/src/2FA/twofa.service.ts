@@ -21,7 +21,11 @@ export class TwoFAService {
     return foundUser;
   }
 
-  async updateValue(intraname: string, key: string, value: string | boolean) {
+  async updateValue(
+    intraname: string,
+    key: string,
+    value: string | boolean,
+  ): Promise<User> {
     await this.usersRepository.update(
       {
         intraname: intraname,
@@ -30,6 +34,10 @@ export class TwoFAService {
         [key]: value,
       },
     );
+    const updatedUser: User = await this.usersRepository.findOne({
+      where: { intraname: intraname },
+    });
+    return updatedUser;
   }
 
   async getQrCode(hashedToken: string): Promise<string> {
@@ -46,12 +54,12 @@ export class TwoFAService {
   }
 
   async disable2FA(hashedToken: string): Promise<boolean> {
-    const user: User = await this.getUser(hashedToken);
-    await this.updateValue(user.intraname, 'twoFAenabled', false);
-		if(!user.twoFAenabled){
-			return true;
-		}
-		return false;
+    let user: User = await this.getUser(hashedToken);
+    user = await this.updateValue(user.intraname, 'twoFAenabled', false);
+    if (!user.twoFAenabled) {
+      return true;
+    }
+    return false;
   }
 
   async enable2FA(code: string, hashedToken: string): Promise<boolean> {
@@ -74,7 +82,7 @@ export class TwoFAService {
   async verify2FA(code: string, hashedToken: string): Promise<boolean> {
     const user: User = await this.getUser(hashedToken);
     const verified: boolean = await authenticator.check(code, user.twoFAsecret);
-		console.log(verified);
+    console.log(verified);
     return verified;
   }
 }
