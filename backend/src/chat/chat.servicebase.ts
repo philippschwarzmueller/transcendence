@@ -27,6 +27,8 @@ export class ChatServiceBase {
   }
 
   protected updateActiveClients(data: IChannel, client: Socket) {
+    if (!data.title)
+      data.title = '';
     for (const [key, value] of this.activeClients) {
       const tmp = value.filter((c) => c.user.name !== data.user.name);
       this.activeClients.set(key, tmp);
@@ -88,9 +90,9 @@ export class ChatServiceBase {
   public async joinRoom(data: IChannel, client: Socket, server: Server): Promise<string[]> {
     let res: string[] = [];
     try {
+      this.updateActiveClients(data, client);
       const channel = await this.chatDao.getChannelByTitle(data.title);
       client.join(channel.title);
-      this.updateActiveClients(data, client);
       server.to(data.title).emit('message', `${data.user.name}: joined room`);
       res = await this.chatDao.getRawChannelMessages(channel.id);
     } catch (error) {
