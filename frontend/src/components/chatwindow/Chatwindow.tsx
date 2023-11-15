@@ -90,7 +90,7 @@ const Chatwindow: React.FC = () => {
   const [input, setInput] = useState<string>("");
   const user: IUser = useContext(AuthContext).user;
   const [tabs, setTabs] = useState<string[]>([]);
-  const [activeTab, setActiveTab] = useState<string>("");
+  const [activeTab, setActiveTab] = useState<string | null>(null);
   const [room, setRoom] = useState<string | null>(null);
   const socket: Socket = useContext(SocketContext);
   const navigate = useNavigate();
