@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { NavigateFunction, useNavigate } from "react-router-dom";
 import Button from "../button";
 import Centerdiv from "../centerdiv";
 import { Socket } from "socket.io-client";
@@ -42,7 +42,7 @@ const Queuebutton: React.FC<IQueueProps> = (
 ) => {
   const socket: Socket = useContext(SocketContext);
   const user: IUser = useContext(AuthContext).user;
-  const navigate = useNavigate();
+  const navigate: NavigateFunction = useNavigate();
   const [, setCookie, removeCookie] = useCookies(["queue"]);
 
   useEffect(() => {

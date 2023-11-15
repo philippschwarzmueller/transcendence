@@ -66,7 +66,6 @@ const GameWindow: React.FC = () => {
   );
   const navigateToEndScreen: React.MutableRefObject<boolean> = useRef(false);
   const navigateToErrorScreen: React.MutableRefObject<boolean> = useRef(false);
-  const [gameIsDone, SetGameIsDone] = useState(false);
 
   const handleWindowResize = (): void => {
     calculateWindowproperties(getWindowDimensions());
@@ -129,9 +128,8 @@ const GameWindow: React.FC = () => {
       socket.emit("getGameData", gameId, (res: IGame) => {
         gameStateRef.current = res;
         navigateToEndScreen.current = true;
-        if (!gameIsDone) SetGameIsDone(true);
       });
-      // fetchAndDrawFinishedGame(socket, gameId, gameCanvas.endScreen);
+      fetchAndDrawFinishedGame(socket, gameId, gameCanvas.endScreen);
     });
 
     setKeyEventListener(keystateRef);
@@ -143,7 +141,7 @@ const GameWindow: React.FC = () => {
       window.removeEventListener("resize", handleWindowResize);
       finishGame(gameInterval.current);
     };
-  }, [params, gameIsDone]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [params]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <>

@@ -46,14 +46,14 @@ const Queuebox: React.FC = () => {
   const socket: Socket = useContext(SocketContext);
   const auth: IAuthContext = useContext(AuthContext);
   const [userInQueue, setUserInQueue] = useState<boolean | null>(null);
-  const [cookie, setCookie, deleteCookie] = useCookies(["queue"]);
+  const [cookie, , deleteCookie] = useCookies(["queue"]);
   const [timer, setTimer] = useState<number>(0);
 
   useEffect(() => {
     fetchData();
   }, [auth, cookie]);
 
-  const leaveQueue = () => {
+  const leaveQueue = (): void => {
     if (!auth.user.name) return;
     const payload: IChangeSocketPayload = { intraname: auth.user.name };
     socket.emit("leavequeue", payload);
@@ -64,7 +64,7 @@ const Queuebox: React.FC = () => {
     clearInterval(queueInterval);
   };
 
-  const startTimer = () => {
+  const startTimer = (): void => {
     const queueInterval: number = Number(localStorage.getItem("queueInterval"));
     localStorage.removeItem("queueInterval");
     clearInterval(queueInterval);
@@ -74,7 +74,7 @@ const Queuebox: React.FC = () => {
     localStorage.setItem("queueInterval", String(newQueueInterval));
   };
 
-  const fetchData = () => {
+  const fetchData = (): void => {
     if (!auth.user.name) return;
     const payload: IChangeSocketPayload = { intraname: auth.user.name };
     socket.emit("isplayerinqueue", payload, (res: boolean) => {
