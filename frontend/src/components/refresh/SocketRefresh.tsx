@@ -5,6 +5,7 @@ import { Socket } from "socket.io-client";
 import { IGameStart, IGameUser } from "../gamewindow/properties";
 import { useNavigate } from "react-router-dom";
 import { AuthContext, IUser } from "../../context/auth";
+import PrivateRoute, { validateToken } from "../../routes/PrivateRoute";
 
 interface RefreshProviderProps {
   children: JSX.Element[];
@@ -20,9 +21,8 @@ const SocketRefresh: React.FC<RefreshProviderProps> = ({ children }) => {
   const socket: Socket = useContext(SocketContext);
   const navigate = useNavigate();
   const [test, setTest] = useState(true);
+  const auth = useContext(AuthContext);
   useEffect(() => {
-    // console.log("RefreshProvider mounted");
-
     // const handleQueueFound = (body: IGameStart) => {
     //   console.log("Queue found event received");
     //   removeCookie("queue");
@@ -31,22 +31,26 @@ const SocketRefresh: React.FC<RefreshProviderProps> = ({ children }) => {
     // socket.on("queue found", handleQueueFound);
 
     const emitChangeSocket = () => {
-      const payload: IChangeSocketPayload = { intraname: user.intraname };
-      console.log(payload, payload);
-      socket.emit("changesocket", payload, (res: string) => {
-        console.log("res", res);
-      });
+      if (user.intraname) {
+        const payload: IChangeSocketPayload = { intraname: user.intraname };
+        socket.emit("changesocket", payload, (res: string) => {
+          console.log("res", res);
+        });
+      }
     };
 
     // // Emit changesocket once when the component mounts
-    emitChangeSocket();
+    validateToken(auth).then(() => {
+      console.log("validated token: ", auth.user);
+      emitChangeSocket();
+    });
 
     return () => {
       // console.log("RefreshProvider unmounted");
       // Cleanup logic (if needed)
       // socket.off("queue found", handleQueueFound);
     };
-  }, []);
+  }, [auth]);
 
   return <>{children}</>;
 };

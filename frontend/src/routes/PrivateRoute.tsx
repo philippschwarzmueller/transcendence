@@ -26,7 +26,7 @@ export const validateToken = async (auth: IAuthContext): Promise<boolean> => {
     const data: IUser = await response.json();
 
     if (data) {
-      auth.logIn(data);
+      if (!auth.user.intraname) auth.logIn(data);
       return true;
     } else {
       return false;
@@ -44,15 +44,16 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
     validateToken(auth).then((res) => {
       setValidity(res);
     });
-  }, [auth]);
+  }, []);
 
   if (isValid === null) {
     return <div>Loading...</div>;
-  }
-  if (!isValid) {
+  } else if (!isValid) {
     return <Navigate to="/login" />;
+  } else {
+    console.log("private route: ", auth.user);
+    return children;
   }
-  return children;
 };
 
 export default PrivateRoute;
