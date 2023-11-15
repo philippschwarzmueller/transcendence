@@ -157,7 +157,6 @@ const Chatwindow: React.FC = () => {
   return (
     <>
       <Popup
-        onKey={setRoom}
         placeholder="type room name here"
         user={user}
         ref={roomRef}

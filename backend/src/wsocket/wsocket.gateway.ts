@@ -54,9 +54,8 @@ export class WSocketGateway implements OnGatewayInit {
   @SubscribeMessage('create')
   async addChat(
     @MessageBody() data: IChannel,
-    @ConnectedSocket() client: Socket,
   ): Promise<string[]> {
-    return await this.chatService.addChat(data, client);
+    return await this.chatService.addChat(data);
   }
 
   @SubscribeMessage('alterGameData')

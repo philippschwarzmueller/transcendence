@@ -36,7 +36,6 @@ const InputField = styled.div<{
 `;
 
 interface props {
-  onKey: (s: string) => void;
   placeholder: string;
   children: ReactNode;
   user: IUser;
@@ -48,7 +47,7 @@ interface refs {
 }
 
 function Popup(
-  { onKey, placeholder, children, user, setTabs }: props,
+  { placeholder, children, user, setTabs }: props,
   ref: Ref<refs>,
 ) {
   const [input, setInput] = useState<string>("");
@@ -88,7 +87,6 @@ function Popup(
                 { user: user, type: channelType, title: input },
                 (res: string[]) => setTabs(res),
               );
-              onKey(input);
               setDisplay(false);
               setInput("");
             }
