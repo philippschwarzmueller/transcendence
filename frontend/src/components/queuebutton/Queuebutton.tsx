@@ -49,6 +49,7 @@ const Queue: React.FC<IQueueProps> = (
     socket.on("queue found", (body: IGameStart) => {
       removeCookie("queue");
       navigate(`/play/${body.gameId}/${body.side}`);
+      console.log("queue found");
     });
   }, []);
 

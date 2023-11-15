@@ -8,6 +8,7 @@ import properties, {
 import Centerdiv from "../centerdiv";
 import Gamecanvas from "../gamecanvas/Gamecanvas";
 import {
+  clearAllCanvas,
   drawErrorScreen,
   drawGame,
   fetchAndDrawFinishedGame,
@@ -102,6 +103,7 @@ const GameWindow: React.FC = () => {
 
   useEffect(() => {
     handleWindowResize();
+    clearAllCanvas(gameCanvas);
 
     socket.emit("isGameRunning", gameId, (isGameRunning: boolean) => {
       if (!isGameRunning) {
@@ -139,7 +141,7 @@ const GameWindow: React.FC = () => {
       window.removeEventListener("resize", handleWindowResize);
       finishGame(gameInterval.current);
     };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [params]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <>

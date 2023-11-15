@@ -26,6 +26,7 @@ const SocketRefresh: React.FC<RefreshProviderProps> = ({ children }) => {
     const handleQueueFound = (body: IGameStart) => {
       removeCookie("queue");
       navigate(`/play/${body.gameId}/${body.side}`);
+      console.log("queue found");
     };
     socket.on("queue found", handleQueueFound);
 
