@@ -6,6 +6,7 @@ import { SocketContext } from "../../context/socket";
 import { IChangeSocketPayload } from "../refresh/SocketRefresh";
 import { AuthContext } from "../../context/auth";
 import { useCookies } from "react-cookie";
+import Button from "../button";
 
 const Win98Box = styled.div`
   background-color: #c0c0c0;
@@ -21,10 +22,18 @@ const Queuebox: React.FC = () => {
   const socket = useContext(SocketContext);
   const auth = useContext(AuthContext);
   const [userInQueue, setUserInQueue] = useState<boolean | null>(null);
-  const cookie = useCookies(["queue"]);
+  const [cookie, setCookie, deleteCookie] = useCookies(["queue"]);
+
   useEffect(() => {
     fetchData();
   }, [auth, cookie]);
+
+  const leaveQueue = () => {
+    if (!auth.user.name) return;
+    const payload: IChangeSocketPayload = { intraname: auth.user.name };
+    socket.emit("leavequeue", payload);
+    deleteCookie("queue");
+  };
 
   const fetchData = async () => {
     console.log("fetching data");
@@ -50,7 +59,8 @@ const Queuebox: React.FC = () => {
   } else {
     content = (
       <Win98Box>
-        <p>Placeholder Text</p>
+        <p>time placeholder</p>
+        <Button onClick={leaveQueue}>Leave Queue</Button>
       </Win98Box>
     );
   }

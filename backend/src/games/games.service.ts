@@ -377,7 +377,6 @@ export class GamesService {
   }
 
   public isPlayerInQueue(gameuser: IChangeSocketPayload): boolean {
-    console.log('isplayerinqueue');
     let returnValue = false;
     this.queuedClients.forEach((gamemode) => {
       gamemode.forEach((game) => {
@@ -385,5 +384,16 @@ export class GamesService {
       });
     });
     return returnValue;
+  }
+
+  public leaveQueue(gameuser: IChangeSocketPayload): void {
+    this.queuedClients.forEach((gamemode) => {
+      gamemode.forEach((game) => {
+        if (game.user.name === gameuser.intraname) {
+          gamemode.delete(game.user.name);
+          return;
+        }
+      });
+    });
   }
 }

@@ -129,5 +129,10 @@ export class WSocketGateway implements OnGatewayInit {
     return this.gamesService.isPlayerInQueue(gameuser);
   }
 
+  @SubscribeMessage('leavequeue')
+  public leaveQueue(@MessageBody() gameuser: IChangeSocketPayload): void {
+    return this.gamesService.leaveQueue(gameuser);
+  }
+
   afterInit(server: any): any {}
 }
