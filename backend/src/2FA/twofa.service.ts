@@ -45,9 +45,13 @@ export class TwoFAService {
     return qrImage;
   }
 
-  async disable2FA(hashedToken: string): Promise<void> {
+  async disable2FA(hashedToken: string): Promise<boolean> {
     const user: User = await this.getUser(hashedToken);
     await this.updateValue(user.intraname, 'twoFAenabled', false);
+		if(!user.twoFAenabled){
+			return true;
+		}
+		return false;
   }
 
   async enable2FA(code: string, hashedToken: string): Promise<boolean> {
@@ -64,6 +68,13 @@ export class TwoFAService {
         user.tempTwoFAsecret,
       );
     }
+    return verified;
+  }
+
+  async verify2FA(code: string, hashedToken: string): Promise<boolean> {
+    const user: User = await this.getUser(hashedToken);
+    const verified: boolean = await authenticator.check(code, user.twoFAsecret);
+		console.log(verified);
     return verified;
   }
 }

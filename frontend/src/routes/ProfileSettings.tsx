@@ -89,6 +89,23 @@ const ProfileSettings: React.FC = () => {
     setQrcode(qrImage);
   };
 
+  const handleTwoFaDeactivate = async (): Promise<void> => {
+    const response = await fetch(`${BACKEND}/twofa/disable-2FA`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    });
+    const deactivated: boolean = await response.json();
+    if (deactivated) {
+			auth.user.twoFAenabled = false;
+      alert("2FA deactivated");
+    } else {
+			alert("2FA deactivation failed");
+		}
+  };
+
   const handleNewNameInputChange = (
     e: React.ChangeEvent<HTMLInputElement>
   ): void => {
@@ -113,7 +130,9 @@ const ProfileSettings: React.FC = () => {
       <Button onClick={handleNameChange}>Change Name</Button>
       <h3>Change Avatar</h3>
       <div>
-        <Button onClick={handle2FAactivate}>Enable 2FA</Button>
+        {!auth.user.twoFAenabled && (
+          <Button onClick={handle2FAactivate}>Enable 2FA</Button>
+        )}
         <div>{qrcode && <img src={qrcode} alt="QR Code" />}</div>
         <div>
           {qrcode && (
@@ -128,6 +147,11 @@ const ProfileSettings: React.FC = () => {
         <div>
           {qrcode && (
             <Button onClick={handleTwoFaCodeSubmit}>Submit 2FA Code</Button>
+          )}
+        </div>
+        <div>
+          {auth.user.twoFAenabled && (
+            <Button onClick={handleTwoFaDeactivate}>Disable 2FA</Button>
           )}
         </div>
       </div>
