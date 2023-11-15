@@ -25,6 +25,12 @@ export class UsersService {
     }
   }
 
+  async findAllNames(): Promise<string[]> {
+    const res: User[] = await this.usersRepository.find();
+    console.log("hello");
+    return res.map((item) => {return item.name;});
+  }
+
   async updateUserChat(user: User, chat: string): Promise<User> {
     if (user) {
       user.activeChats.push(chat);

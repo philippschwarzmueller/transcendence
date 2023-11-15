@@ -115,7 +115,8 @@ const Chatwindow: React.FC = () => {
         return response.json();
       })
       .then((res: string[]) => setTabs(res));
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
 
   useEffect(() => {
     socket.emit("join", { user, input, room }, (res: string[]) =>

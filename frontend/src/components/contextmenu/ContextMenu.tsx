@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 const StyledUl = styled.ul<{ $display: boolean; $posX: number; $posY: number }>`
   display: ${(props) => (props.$display ? "" : "none")};
   position: absolute;
+  z-index: 600;
   left: ${(props) => props.$posX + "px"};
   top: ${(props) => props.$posY + "px"};
   list-style-type: none;

@@ -1,4 +1,6 @@
+import { useEffect, useState } from "react";
 import { styled } from "styled-components";
+import ContextMenu from "../contextmenu/ContextMenu";
 import Moveablewindow from "../moveablewindow";
 
 const Browser = styled.div`
@@ -36,16 +38,11 @@ const StyledUl = styled.ul`
   width: 200px;
 `;
 
-const Seperator = styled.li`
-    height: 1px;
-    border-top: 1px solid rgb(134, 138, 142);
-    border-bottom: 1px solid rgb(255, 255, 255);
-    width: 98%;
-    margin-left: 2px;
-`;
 
 const StyledLi = styled.li`
   padding: 2px 6px 2px 26px;
+  border-top: 1px solid rgb(134, 138, 142);
+  border-bottom: 1px solid rgb(255, 255, 255);
   &:hover {
     background-color: rgb(0, 14, 122);
     color: white;
@@ -59,40 +56,51 @@ interface IUserBrowser {
 const Userbrowser: React.FC<IUserBrowser> = ({
     display,
   })=> {
+      let [showContext, setShowContext] = useState<boolean>(false);
+      let [currentUser, setCurrentUser] = useState<string>("");
+      let [x, setX] = useState<number>(0);
+      let [y, setY] = useState<number>(0);
+      let [users, setUsers] = useState<string[]>([]);
+
+    useEffect(() => {
+      fetch(`http://${window.location.hostname}:4000/users/names`, {
+          method: "GET",
+      }).then((response) => {
+          if(!response.ok) {
+              throw new Error("Network response was not ok");
+          }
+          return response.json();
+      }).then((res: string[]) => setUsers(res));
+    }, []);
+    function openContextMenu(e: React.MouseEvent<HTMLLIElement, MouseEvent>, user: string) {
+      setX(e.pageX);
+      setY(e.pageY);
+      setCurrentUser(user);
+      setShowContext(!showContext);
+    }
 
   return (
     <>
+      <ContextMenu
+      display={showContext}
+      positionX={x}
+      positionY={y}
+      link={currentUser}/>
       <Moveablewindow
       title="Browser"
       positionX={500}
       positionY={600}
       positionZ={500}
       display={display}
-      ><Browser><StyledUl>
-      <StyledLi>user1</StyledLi>
-      <Seperator></Seperator>
-      <StyledLi>user3</StyledLi>
-      <Seperator></Seperator>
-      <StyledLi>user4</StyledLi>
-      <Seperator></Seperator>
-      <StyledLi>user2</StyledLi>
-      <Seperator></Seperator>
-      <StyledLi>user9</StyledLi>
-      <Seperator></Seperator>
-      <StyledLi>user9</StyledLi>
-      <Seperator></Seperator>
-      <StyledLi>user9</StyledLi>
-      <Seperator></Seperator>
-      <StyledLi>user9</StyledLi>
-      <Seperator></Seperator>
-      <StyledLi>user9</StyledLi>
-      <Seperator></Seperator>
-      <StyledLi>user9</StyledLi>
-      <Seperator></Seperator>
-      <StyledLi>user9</StyledLi>
-      <Seperator></Seperator>
-      <StyledLi>user9</StyledLi>
-      </StyledUl></Browser></Moveablewindow>
+      ><Browser>
+      <StyledUl>
+        {users.map((user) => {
+          return (
+          <StyledLi onClick={(e) => openContextMenu(e, user)}>{user}</StyledLi>
+          );
+        })}
+      </StyledUl></Browser>
+      </Moveablewindow>
     </>
   );
 }
