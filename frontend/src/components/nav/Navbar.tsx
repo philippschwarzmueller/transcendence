@@ -52,9 +52,12 @@ const Navbar: React.FC = () => {
         <StyledLi style={{ padding: 10 }}>
           <StyledLink to={"/queue"}>Queue</StyledLink>
         </StyledLi>
-        <StyledLi style={{ padding: 10 }}>
+        {/* <StyledLi style={{ padding: 10 }}>
+         */}
+        <div style={{ padding: "10px" }}>
           <Queuebox></Queuebox>
-        </StyledLi>
+        </div>
+        {/* </StyledLi> */}
         <StyledLi></StyledLi>
       </ul>
     </StyledNavbar>

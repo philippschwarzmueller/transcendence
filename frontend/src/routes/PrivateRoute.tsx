@@ -41,7 +41,6 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
   const [isValid, setValidity] = useState<boolean | null>(null);
 
   useEffect(() => {
-    console.log("test");
     validateToken(auth).then((res) => {
       setValidity(res);
     });
