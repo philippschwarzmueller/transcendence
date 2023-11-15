@@ -13,7 +13,7 @@ import {
   fetchAndDrawFinishedGame,
 } from "./drawFunctions";
 import { useParams } from "react-router-dom";
-import { EGamemode } from "../queue/Queue";
+import { EGamemode } from "../queuebutton/Queuebutton";
 import { SocketContext } from "../../context/socket";
 import { Socket } from "socket.io-client";
 import { AuthContext, IUser } from "../../context/auth";

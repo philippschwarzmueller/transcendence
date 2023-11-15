@@ -119,8 +119,14 @@ export class WSocketGateway implements OnGatewayInit {
     @MessageBody() gameuser: IChangeSocketPayload,
     @ConnectedSocket() socket: Socket,
   ): IChangeSocketPayload {
-    // console.log(gameuser);
     return this.gamesService.changeSocket(gameuser, socket);
+  }
+
+  @SubscribeMessage('isplayerinqueue')
+  public isPlayerInQueue(
+    @MessageBody() gameuser: IChangeSocketPayload,
+  ): boolean {
+    return this.gamesService.isPlayerInQueue(gameuser);
   }
 
   afterInit(server: any): any {}

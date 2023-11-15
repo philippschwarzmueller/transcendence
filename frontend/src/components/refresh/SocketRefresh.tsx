@@ -11,7 +11,7 @@ interface RefreshProviderProps {
   children: JSX.Element[];
 }
 
-interface IChangeSocketPayload {
+export interface IChangeSocketPayload {
   intraname: string;
 }
 
@@ -20,11 +20,10 @@ const SocketRefresh: React.FC<RefreshProviderProps> = ({ children }) => {
   const [cookies, setCookie, removeCookie] = useCookies(["queue"]);
   const socket: Socket = useContext(SocketContext);
   const navigate = useNavigate();
-  const [test, setTest] = useState(true);
   const auth = useContext(AuthContext);
+
   useEffect(() => {
     const handleQueueFound = (body: IGameStart) => {
-      console.log("Queue found event received");
       removeCookie("queue");
       navigate(`/play/${body.gameId}/${body.side}`);
     };
@@ -33,15 +32,11 @@ const SocketRefresh: React.FC<RefreshProviderProps> = ({ children }) => {
     const emitChangeSocket = () => {
       if (user.intraname) {
         const payload: IChangeSocketPayload = { intraname: user.intraname };
-        socket.emit("changesocket", payload, (res: string) => {
-          console.log("res", res);
-        });
+        socket.emit("changesocket", payload);
       }
     };
 
-    // // Emit changesocket once when the component mounts
     validateToken(auth).then(() => {
-      console.log("validated token: ", auth.user);
       emitChangeSocket();
     });
 

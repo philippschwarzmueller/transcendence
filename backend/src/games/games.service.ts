@@ -375,4 +375,15 @@ export class GamesService {
     });
     return gameuser;
   }
+
+  public isPlayerInQueue(gameuser: IChangeSocketPayload): boolean {
+    console.log('isplayerinqueue');
+    let returnValue = false;
+    this.queuedClients.forEach((gamemode) => {
+      gamemode.forEach((game) => {
+        if (game.user.name === gameuser.intraname) returnValue = true;
+      });
+    });
+    return returnValue;
+  }
 }

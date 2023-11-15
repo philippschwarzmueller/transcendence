@@ -12,11 +12,11 @@ interface LoginRefreshProps {
 }
 
 const LoginRefresh: React.FC<LoginRefreshProps> = ({ children }) => {
-  // const auth: IAuthContext = useContext(AuthContext);
+  const auth: IAuthContext = useContext(AuthContext);
 
-  // useEffect(() => {
-  //   validateToken(auth);
-  // }, [auth]); // Add auth to the dependency array
+  useEffect(() => {
+    validateToken(auth);
+  }, [auth]);
 
   return <>{children}</>;
 };

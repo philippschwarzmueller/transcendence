@@ -1,4 +1,4 @@
-import { EGamemode } from "../queue/Queue";
+import { EGamemode } from "../queuebutton/Queuebutton";
 import { IGameCanvas } from "./Gamewindow";
 import properties, {
   IBall,
