@@ -6,8 +6,7 @@ import { IGameStart } from "../gamewindow/properties";
 import { AuthContext, IUser } from "../../context/auth";
 import { useContext, useEffect } from "react";
 import { SocketContext } from "../../context/socket";
-// import Cookies from "universal-cookie";
-import { CookiesProvider, useCookies } from "react-cookie";
+import { useCookies } from "react-cookie";
 import styled from "styled-components";
 
 const LocalQueueButton = styled(Button)`

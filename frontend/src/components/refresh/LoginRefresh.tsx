@@ -1,10 +1,5 @@
-import React, { useContext, useEffect, useState } from "react";
-import { useCookies } from "react-cookie";
-import { SocketContext } from "../../context/socket";
-import { Socket } from "socket.io-client";
-import { IGameStart, IGameUser } from "../gamewindow/properties";
-import { useNavigate } from "react-router-dom";
-import { AuthContext, IAuthContext, IUser } from "../../context/auth";
+import React, { useContext, useEffect } from "react";
+import { AuthContext, IAuthContext } from "../../context/auth";
 import { validateToken } from "../../routes/PrivateRoute";
 
 interface LoginRefreshProps {

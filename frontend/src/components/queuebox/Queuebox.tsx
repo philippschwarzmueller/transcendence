@@ -9,12 +9,6 @@ import { useCookies } from "react-cookie";
 import Button from "../button";
 
 const Win98Box = styled.div`
-  // background-color: #c0c0c0;
-  // border: 2px solid #000000;
-  // padding: 10px;
-  // margin: 10px;
-  // font-family: "Arial", sans-serif;
-  // font-size: 12px;
   width: 200px;
   height: 50px;
 

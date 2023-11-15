@@ -118,7 +118,7 @@ export class WSocketGateway implements OnGatewayInit {
   public changeSocket(
     @MessageBody() gameuser: IChangeSocketPayload,
     @ConnectedSocket() socket: Socket,
-  ): IChangeSocketPayload {
+  ): void {
     return this.gamesService.changeSocket(gameuser, socket);
   }
 

@@ -364,14 +364,8 @@ export class GamesService {
   public changeSocket(
     gameuser: IChangeSocketPayload,
     socket: Socket,
-  ): IChangeSocketPayload {
-    this.queuedClients.get(EGamemode.standard).forEach((client) => {
-      if (client.user.name === gameuser.intraname) {
-        client.socket = socket;
-        return;
-      }
-    });
-    return gameuser;
+  ): void {
+    this.queuedClients.forEach((gamemode)=>{gamemode.forEach((game)=>{if (game.user.name === gameuser.intraname) game.socket = socket})})
   }
 
   public isPlayerInQueue(gameuser: IChangeSocketPayload): boolean {

@@ -2,10 +2,10 @@ import React, { useContext, useEffect, useState } from "react";
 import { useCookies } from "react-cookie";
 import { SocketContext } from "../../context/socket";
 import { Socket } from "socket.io-client";
-import { IGameStart, IGameUser } from "../gamewindow/properties";
+import { IGameStart } from "../gamewindow/properties";
 import { useNavigate } from "react-router-dom";
 import { AuthContext, IUser } from "../../context/auth";
-import PrivateRoute, { validateToken } from "../../routes/PrivateRoute";
+import { validateToken } from "../../routes/PrivateRoute";
 
 interface RefreshProviderProps {
   children: JSX.Element[];
