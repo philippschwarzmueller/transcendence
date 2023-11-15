@@ -80,8 +80,7 @@ export class ChatServiceBase {
 
   public async removeChat(userId: string, chat: string): Promise<void> {
     try {
-      const user = await this.userService.findOneByName(userId);
-      await this.chatDao.removeUserFromChannel(chat, user);
+      await this.chatDao.removeUserFromChannel(chat, userId);
     } catch (error) {
       console.log(`SYSTEM: ${error.message.split('\n')[0]}`);
     }

@@ -27,6 +27,7 @@ export class ChatService extends ChatServiceBase {
         this.addUser(data, server);
         break;
       case '/kick':
+        this.kickUser(data, server);
         break;
       case '/promote':
         break;
@@ -66,13 +67,34 @@ export class ChatService extends ChatServiceBase {
       const name = data.input.substring(data.input.indexOf(' ') + 1);
       const owner = await this.chatDao.getChannelOwner(data.room);
       if (owner.name !== data.user.name) return;
-      this.chatDao.addUserToChannel(data.room, name);
+      await this.chatDao.addUserToChannel(data.room, name);
       server
         .to(this.getUser(name).socket.id)
         .emit(
           'invite',
           await this.chatDao.getUserChannels(this.getUser(name).user.id),
         );
+        server.to(data.room).emit(`${name}: got added`)
+        this.chatDao.saveMessageToChannel({user: data.user, input: 'got added', room: data.room });
+    } catch (error) {
+      console.log(`SYSTEM: ${error.message.split('\n')[0]}`);
+    }
+  }
+
+  private async kickUser(data: IMessage, server: Server) {
+    try {
+      const name = data.input.substring(data.input.indexOf(' ') + 1);
+      const owner = await this.chatDao.getChannelOwner(data.room);
+      if (owner.name !== data.user.name) return;
+      await this.chatDao.removeUserFromChannel(data.room, name);
+      server
+        .to(this.getUser(name).socket.id)
+        .emit(
+          'invite',
+          await this.chatDao.getUserChannels(this.getUser(name).user.id),
+        );
+        server.to(data.room).emit(`${name}: got kicked`)
+        this.chatDao.saveMessageToChannel({user: data.user, input: 'got kicked', room: data.room });
     } catch (error) {
       console.log(`SYSTEM: ${error.message.split('\n')[0]}`);
     }
