@@ -50,7 +50,7 @@ const Queuebutton: React.FC<IQueueProps> = (
       removeCookie("queue");
       navigate(`/play/${body.gameId}/${body.side}`);
     });
-  }, []);
+  }, [navigate, removeCookie, socket]);
 
   const queueUp = (socket: Socket, user: IUser, gamemode: EGamemode): void => {
     if (user.intraname !== undefined) {

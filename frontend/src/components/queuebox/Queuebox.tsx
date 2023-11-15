@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
-import { EGamemode, IQueueCookie } from "../queuebutton/Queuebutton";
+import { EGamemode } from "../queuebutton/Queuebutton";
 import Queuebutton from "../queuebutton/Queuebutton";
 import { SocketContext } from "../../context/socket";
 import { IChangeSocketPayload } from "../refresh/SocketRefresh";
@@ -49,10 +49,6 @@ const Queuebox: React.FC = () => {
   const [cookie, , deleteCookie] = useCookies(["queue"]);
   const [timer, setTimer] = useState<number>(0);
 
-  useEffect(() => {
-    fetchData();
-  }, [auth, cookie]);
-
   const leaveQueue = (): void => {
     if (!auth.user.name) return;
     const payload: IChangeSocketPayload = { intraname: auth.user.name };
@@ -84,6 +80,8 @@ const Queuebox: React.FC = () => {
       }
     });
   };
+
+  useEffect(fetchData, [auth, cookie, fetchData]);
 
   let content: React.ReactNode;
 
