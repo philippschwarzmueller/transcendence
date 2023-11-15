@@ -323,8 +323,6 @@ export class GamesService {
       localGame.gameState.pointsLeft,
       localGame.gameState.pointsRight,
     );
-    localGame.leftPlayer.socket.emit('endgame');
-    localGame.rightPlayer.socket.emit('endgame');
 
     const databaseGame = await this.gamesRepository.findOne({
       where: { gameId: localGame.gameId },
@@ -353,19 +351,31 @@ export class GamesService {
       looserPoints: looserPoints,
       isFinished: true,
     };
-    await this.gamesRepository.update(localGame.gameId, updatedDatabaseGame);
-    this.runningGames.delete(localGame.gameId);
+    this.gamesRepository
+      .update(localGame.gameId, updatedDatabaseGame)
+      .then(() => {
+        this.runningGames.delete(localGame.gameId);
+        localGame.leftPlayer.socket.emit('endgame');
+        localGame.rightPlayer.socket.emit('endgame');
+      });
   }
 
   public getGamemode(gameId: string): EGamemode | undefined | null {
     return this.runningGames.get(gameId)?.gamemode;
   }
 
-  public changeSocket(
-    gameuser: IChangeSocketPayload,
-    socket: Socket,
-  ): void {
-    this.queuedClients.forEach((gamemode)=>{gamemode.forEach((game)=>{if (game.user.name === gameuser.intraname) game.socket = socket})})
+  public changeSocket(gameuser: IChangeSocketPayload, socket: Socket): void {
+    this.queuedClients.forEach((gamemode) => {
+      gamemode.forEach((game) => {
+        if (game.user.name === gameuser.intraname) game.socket = socket;
+      });
+    });
+    this.runningGames.forEach((game) => {
+      if (game.leftPlayer.user.name === gameuser.intraname)
+        game.leftPlayer.socket = socket;
+      if (game.rightPlayer.user.name === gameuser.intraname)
+        game.rightPlayer.socket = socket;
+    });
   }
 
   public isPlayerInQueue(gameuser: IChangeSocketPayload): boolean {
