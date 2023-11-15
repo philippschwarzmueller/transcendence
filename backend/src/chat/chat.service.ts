@@ -72,11 +72,13 @@ export class ChatService extends ChatServiceBase {
         .to(this.getUser(name).socket.id)
         .emit(
           'invite',
-          await this.chatDao.getUserChannels(this.getUser(name).user.id),
+          await this.chatDao.getRawUserChannels(this.getUser(name).user.id),
         );
-        server.to(data.room).emit(`${name}: got added`)
-        this.chatDao.saveMessageToChannel({user: data.user, input: 'got added', room: data.room });
+      server.to(data.room).emit(`${name}: got added`);
     } catch (error) {
+      server
+        .to(this.getUser(data.user.name).socket.id)
+        .emit('message', 'command failed');
       console.log(`SYSTEM: ${error.message.split('\n')[0]}`);
     }
   }
@@ -91,11 +93,13 @@ export class ChatService extends ChatServiceBase {
         .to(this.getUser(name).socket.id)
         .emit(
           'invite',
-          await this.chatDao.getUserChannels(this.getUser(name).user.id),
+          await this.chatDao.getRawUserChannels(this.getUser(name).user.id),
         );
-        server.to(data.room).emit(`${name}: got kicked`)
-        this.chatDao.saveMessageToChannel({user: data.user, input: 'got kicked', room: data.room });
+      server.to(data.room).emit(`${name}: got kicked`);
     } catch (error) {
+      server
+        .to(this.getUser(data.user.name).socket.id)
+        .emit('message', 'command failed');
       console.log(`SYSTEM: ${error.message.split('\n')[0]}`);
     }
   }
