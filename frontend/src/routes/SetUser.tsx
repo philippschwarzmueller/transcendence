@@ -22,6 +22,7 @@ const SetUser: React.FC = () => {
           auth.logIn({
             id: Number(resUser.id),
             name: resUser.name,
+            intraname: resUser.name,
             image: resUser.profilePictureUrl,
             activeChats: resUser.activeChats,
           });

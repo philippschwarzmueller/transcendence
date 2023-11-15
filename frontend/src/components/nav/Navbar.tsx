@@ -41,9 +41,6 @@ const Navbar: React.FC = () => {
           <StyledLink to={"/chat"}>Chat</StyledLink>
         </StyledLi>
         <StyledLi style={{ padding: 10 }}>
-          <StyledLink to={"/react-basics"}>React basics</StyledLink>
-        </StyledLi>
-        <StyledLi style={{ padding: 10 }}>
           <StyledLink to={"/signup"}>Signup</StyledLink>
         </StyledLi>
         <StyledLi style={{ padding: 10 }}>

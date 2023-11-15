@@ -10,6 +10,7 @@ const Root: React.FC = () => {
   const [user, setUser] = React.useState<IUser>({
     id: undefined,
     name: undefined,
+    intraname: undefined,
     image: undefined,
     token: undefined,
     activeChats: [],
@@ -21,6 +22,7 @@ const Root: React.FC = () => {
     setUser({
       id: undefined,
       name: undefined,
+      intraname: undefined,
       image: undefined,
       token: undefined,
       activeChats: [],

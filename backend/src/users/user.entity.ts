@@ -27,6 +27,9 @@ export class User {
   @Column({ name: 'name' })
   name: string;
 
+  @Column({ default: 'intraname' })
+  intraname: string;
+
   @Column({ default: 'safepw' })
   password: string;
 

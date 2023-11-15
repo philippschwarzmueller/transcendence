@@ -92,4 +92,14 @@ export class AuthController {
     const User: User | null = await this.authService.checkToken(token);
     return User;
   }
+
+  @Post('change-name')
+  async changeName(
+    @Body() body: { newName: string },
+    @Req() req: Request,
+  ): Promise<User | null> {
+    const token: string = req.cookies.token;
+		const user: User | null = await this.authService.checkNameChange(token, body.newName);
+    return user;
+  }
 }

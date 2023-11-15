@@ -1,5 +1,6 @@
 export class CreateUserDto {
   name: string;
+	intraname: string;
   password?: string;
   id?: number;
   profilePictureUrl?: string;
