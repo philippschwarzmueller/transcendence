@@ -9,7 +9,6 @@ import { AuthContext, IUser } from "../../context/auth";
 import Popup from "../popup/Popup";
 import { IGameStart } from "../gamewindow/properties";
 import { useNavigate } from "react-router-dom";
-import Userbrowser from "../userbrowser/Userbrowser";
 
 const Msgfield = styled.div`
   width: 320px;
@@ -87,6 +86,7 @@ const StyledUl = styled.ul`
 
 const Chatwindow: React.FC = () => {
   const [messages, setMessages] = useState<string[]>([]);
+  const [visable, setVisable] = useState<boolean>(false);
   const [input, setInput] = useState<string>("");
   const user: IUser = useContext(AuthContext).user;
   const [tabs, setTabs] = useState<string[]>([]);
@@ -163,9 +163,6 @@ const Chatwindow: React.FC = () => {
       >
         Create
       </Popup>
-      <Userbrowser
-        display={true}
-        ></Userbrowser>
       <Moveablewindow
         title="Chat"
         positionX={200}

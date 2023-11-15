@@ -50,11 +50,11 @@ const StyledLi = styled.li`
 `;
 
 interface IUserBrowser {
-    display: boolean;
+    $display: boolean;
   }
 
 const Userbrowser: React.FC<IUserBrowser> = ({
-    display,
+    $display,
   })=> {
       let [showContext, setShowContext] = useState<boolean>(false);
       let [currentUser, setCurrentUser] = useState<string>("");
@@ -91,7 +91,7 @@ const Userbrowser: React.FC<IUserBrowser> = ({
       positionX={500}
       positionY={600}
       positionZ={500}
-      display={display}
+      display={$display}
       ><Browser>
       <StyledUl>
         {users.map((user) => {

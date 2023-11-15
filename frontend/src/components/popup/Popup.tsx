@@ -11,6 +11,7 @@ import styled from "styled-components";
 import { IUser } from "../../context/auth";
 import { SocketContext } from "../../context/socket";
 import Button from "../button/Button";
+import Userbrowser from "../userbrowser/Userbrowser";
 
 const InputField = styled.div<{
   $display: boolean;
@@ -49,11 +50,12 @@ function Popup(
   { onKey, placeholder, children, user, setTabs }: props,
   ref: Ref<refs>,
 ) {
-  const [input, setInput] = useState<string>("");
   const socket = useContext(SocketContext);
-  let [display, setDisplay] = useState<boolean>(false);
-  let [positionX, setPositionX] = useState<number>(0);
-  let [positionY, setPositionY] = useState<number>(0);
+  const [input, setInput] = useState<string>("");
+  const [display, setDisplay] = useState<boolean>(false);
+  const [positionX, setPositionX] = useState<number>(0);
+  const [positionY, setPositionY] = useState<number>(0);
+  const [visable, setVisable] = useState<boolean>(false);
 
   useImperativeHandle(ref, () => ({
     openRoom,
@@ -68,6 +70,9 @@ function Popup(
 
   return (
     <>
+      <Userbrowser
+        $display={visable}
+        ></Userbrowser>
       <InputField $display={display} $posX={positionX} $posY={positionY}>
         {children}
         <Input
@@ -87,7 +92,8 @@ function Popup(
             }
           }}
         ></Input>
-        <Button>User Chat</Button>
+        <Button onClick={() => setVisable(!visable)}
+          >User Chat</Button>
       </InputField>
     </>
   );
