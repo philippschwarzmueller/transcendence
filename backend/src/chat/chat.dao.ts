@@ -60,8 +60,9 @@ export class ChatDAO {
     queryRunner.release();
   }
 
-  public async removeUserFromChannel(title: string, user: User): Promise<void> {
+  public async removeUserFromChannel(title: string, userId: string): Promise<void> {
     const channel: Channels = await this.getChannelByTitle(title);
+    const user: User = await this.userService.findOneByName(userId);
     channel.users = channel.users.filter((u) => u.id !== user.id);
     this.channelRepo.save(channel);
   }
