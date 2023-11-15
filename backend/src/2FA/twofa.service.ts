@@ -32,7 +32,7 @@ export class TwoFAService {
     );
   }
 
-  async enable2FA(hashedToken: string): Promise<string> {
+  async getQrCode(hashedToken: string): Promise<string> {
     const user: User = await this.getUser(hashedToken);
     const tempSecret: string = authenticator.generateSecret();
     await this.updateValue(user.intraname, 'tempTwoFAsecret', tempSecret);
@@ -43,5 +43,27 @@ export class TwoFAService {
     );
     const qrImage: string = await toDataURL(uri);
     return qrImage;
+  }
+
+  async disable2FA(hashedToken: string): Promise<void> {
+    const user: User = await this.getUser(hashedToken);
+    await this.updateValue(user.intraname, 'twoFAenabled', false);
+  }
+
+  async enable2FA(code: string, hashedToken: string): Promise<boolean> {
+    const user: User = await this.getUser(hashedToken);
+    const verified: boolean = await authenticator.check(
+      code,
+      user.tempTwoFAsecret,
+    );
+    if (verified) {
+      await this.updateValue(user.intraname, 'twoFAenabled', true);
+      await this.updateValue(
+        user.intraname,
+        'twoFAsecret',
+        user.tempTwoFAsecret,
+      );
+    }
+    return verified;
   }
 }

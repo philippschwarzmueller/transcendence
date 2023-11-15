@@ -11,6 +11,7 @@ const ProfileSettings: React.FC = () => {
   const [newName, setNewName] = useState("");
   const [profileLink, setProfileLink] = useState(`${auth.user.name}`);
   const [qrcode, setQrcode] = useState("");
+  const [twoFaCode, setTwoFaCode] = useState("");
 
   const isWhitespaceOrEmpty = (input: string): boolean => {
     return /^\s*$/.test(input);
@@ -45,20 +46,59 @@ const ProfileSettings: React.FC = () => {
     }
   };
 
+  const handleTwoFaCodeSubmit = async (): Promise<void> => {
+    if (!isWhitespaceOrEmpty(twoFaCode)) {
+      try {
+        const res: Response = await fetch(`${BACKEND}/twofa/enable-2FA`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ twoFaCode }),
+          credentials: "include",
+        });
+
+        if (!res.ok) {
+          throw new Error(`HTTP error! Status: ${res.status}`);
+        }
+
+        const verified: boolean = await res.json();
+        if (verified) {
+          alert("2FA enabled");
+          setQrcode("");
+          setTwoFaCode("");
+        } else {
+          alert("2FA activation failed, try again");
+          setTwoFaCode("");
+        }
+      } catch {
+        console.log("error");
+      }
+    }
+  };
+
   const handle2FAactivate = async (): Promise<void> => {
-    const response  = await fetch(`${BACKEND}/twofa/enable`, {
+    const response = await fetch(`${BACKEND}/twofa/get-2FA-qrcode`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       credentials: "include",
     });
-		const qrImage = await response.text();
-		setQrcode(qrImage);
+    const qrImage = await response.text();
+    setQrcode(qrImage);
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+  const handleNewNameInputChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ): void => {
     setNewName(e.target.value);
+  };
+
+  const handleTwoFaCodeInputChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ): void => {
+    setTwoFaCode(e.target.value);
   };
 
   return (
@@ -68,15 +108,28 @@ const ProfileSettings: React.FC = () => {
         label="New profile name"
         placeholder="new name goes here"
         value={newName}
-        onChange={handleInputChange}
+        onChange={handleNewNameInputChange}
       />
       <Button onClick={handleNameChange}>Change Name</Button>
       <h3>Change Avatar</h3>
       <div>
         <Button onClick={handle2FAactivate}>Enable 2FA</Button>
-				<div>
-        {qrcode && <img src={qrcode} alt="QR Code" />}
-				</div>
+        <div>{qrcode && <img src={qrcode} alt="QR Code" />}</div>
+        <div>
+          {qrcode && (
+            <Input
+              label="2FA code"
+              placeholder="Enter 2FA code here"
+              value={twoFaCode}
+              onChange={handleTwoFaCodeInputChange}
+            ></Input>
+          )}
+        </div>
+        <div>
+          {qrcode && (
+            <Button onClick={handleTwoFaCodeSubmit}>Submit 2FA Code</Button>
+          )}
+        </div>
       </div>
       <Link to={`/profile/${profileLink}`}>
         <Button>Back to Profile</Button>
