@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Outlet } from "react-router-dom";
 import Nav from "../components/nav";
 import GlobalStyle from "./GlobalStyle";

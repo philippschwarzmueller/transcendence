@@ -22,7 +22,7 @@ const Win98Box = styled.div`
   background-color: rgb(195, 199, 203);
   box-shadow: inset 1px 1px 0px 1px rgb(255, 255, 255),
     inset 0 0 0 1px rgb(134, 138, 142), 1px 1px 0px 1px rgb(0, 0, 0),
-    2px 2px 5px 0px rgba(0, 0, 0, 0.5); /* Outer shadow */
+    2px 2px 5px 0px rgba(0, 0, 0, 0.5);
   padding: 8px;
   cursor: pointer;
   &:focus {
