@@ -25,6 +25,7 @@ export function logTime(timestamp: number, msg: string) {
 export class AuthService {
   private clientID: string;
   private clientSecret: string;
+  private hostIP: string;
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
@@ -32,6 +33,7 @@ export class AuthService {
   ) {
     this.clientID = this.configService.get<string>('INTRA_CLIENT_ID');
     this.clientSecret = this.configService.get<string>('INTRA_SECRET_KEY');
+    this.hostIP = this.configService.get<string>('HOST_IP');
   }
 
   async login(user: CreateUserDto) {
@@ -133,7 +135,7 @@ export class AuthService {
   }
 
   async intraLogin(@Res() res: any): Promise<void> {
-    const url: string = `https://api.intra.42.fr/oauth/authorize?client_id=${this.clientID}&redirect_uri=http%3A%2F%2Flocalhost%3A4000%2Fauth%2Fcallback&response_type=code`;
+    const url: string = `https://api.intra.42.fr/oauth/authorize?client_id=${this.clientID}&redirect_uri=http%3A%2F%2F${this.hostIP}%3A4000%2Fauth%2Fcallback&response_type=code`;
     res.redirect(url);
   }
 
@@ -148,7 +150,7 @@ export class AuthService {
           client_id: this.clientID,
           client_secret: this.clientSecret,
           code: code,
-          redirect_uri: 'http://localhost:4000/auth/callback',
+          redirect_uri: `http://${this.hostIP}:4000/auth/callback`,
         }),
       },
     ).catch((e) => console.error(e));
