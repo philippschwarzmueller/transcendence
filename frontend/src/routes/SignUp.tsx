@@ -3,6 +3,7 @@ import Button from "../components/button";
 import Input from "../components/input";
 import Form from "../components/form";
 import Pagetitle from "../components/pagetitle";
+import { BACKEND } from "./SetUser";
 
 interface signUpBody {
   name: string;
@@ -14,14 +15,11 @@ const SignUp: React.FC = () => {
   async function handleSubmit(event: React.MouseEvent) {
     event.preventDefault();
     try {
-      const response: Response = await fetch(
-        "http://localhost:4000/auth/signup",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(input),
-        }
-      );
+      const response: Response = await fetch(`${BACKEND}/auth/signup`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(input),
+      });
       const data: any = await response.json();
       if (response.ok) {
         alert(`User ${input.name} created succesfully`);

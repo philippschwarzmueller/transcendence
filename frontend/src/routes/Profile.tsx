@@ -5,6 +5,7 @@ import Playercard from "../components/playercard";
 import CenterDiv from "../components/centerdiv";
 import ProfilePicture from "../components/profilepicture/ProfilePicture";
 import { AuthContext } from "../context/auth";
+import { BACKEND } from "./SetUser";
 
 export interface IUser {
   id: number;
@@ -23,7 +24,7 @@ const Profile: React.FC = () => {
       navigate("/login");
     }
     if (userId) {
-      fetch(`http://localhost:4000/users/${userId}`)
+      fetch(`${BACKEND}/users/${userId}`)
         .then((res) => res.json())
         .then((resuser) => setUser(resuser));
     }
@@ -31,7 +32,7 @@ const Profile: React.FC = () => {
 
   let [users, setUsers] = useState<IUser[]>([]);
   useEffect(() => {
-    fetch(`http://localhost:4000/users`)
+    fetch(`${BACKEND}/users`)
       .then((res) => res.json())
       .then((users) => setUsers(users));
   }, []);

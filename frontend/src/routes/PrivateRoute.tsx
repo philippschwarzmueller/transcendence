@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { AuthContext, IAuthContext, IUser } from "../context/auth";
 import { Navigate } from "react-router-dom";
+import { BACKEND } from "./SetUser";
 
 interface PrivateRouteProps {
   children: JSX.Element;
@@ -14,7 +15,7 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
     const validateToken = async (): Promise<void> => {
       try {
         const response: Response = await fetch(
-          "http://localhost:4000/auth/validate-token",
+          `${BACKEND}/auth/validate-token`,
           {
             method: "POST",
             headers: {
