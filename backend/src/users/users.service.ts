@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { User } from './user.entity';
 
 @Injectable()
@@ -8,6 +8,8 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
+    @Inject('DATA_SOURCE')
+    private dataSource: DataSource,
   ) {}
 
   findAll(): Promise<User[]> {
@@ -51,5 +53,12 @@ export class UsersService {
     } else {
       return undefined;
     }
+  }
+
+  async getBlockList(userId: string): Promise<User[]> {
+    return (await this.usersRepository.findOne({
+      where: { name: userId },
+      relations: ['blocked'],
+    })).blocked;
   }
 }

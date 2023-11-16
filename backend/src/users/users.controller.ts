@@ -4,6 +4,8 @@ import {
   HttpException,
   HttpStatus,
   Param,
+  Query,
+  Post
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from './user.entity';
@@ -13,8 +15,10 @@ export class UsersController {
   constructor(private usersService: UsersService) {}
   @Get()
   findAll(): Promise<User[]> {
+    console.log('hi');
     return this.usersService.findAll();
   }
+
   @Get(':userId')
   async findOne(@Param('userId') name: string): Promise<User> {
     try {
@@ -24,5 +28,10 @@ export class UsersController {
         cause: e,
       });
     }
+  }
+
+  @Post(':userId')
+  async findBlocked(@Param('userId') name: string): Promise<User[]> {
+    return this.usersService.getBlockList(name);
   }
 }

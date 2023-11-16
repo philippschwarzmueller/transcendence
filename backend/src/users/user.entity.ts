@@ -59,4 +59,7 @@ export class User {
   @Column({default: 0, })
   tokenExpiry: number;
 
+  @ManyToMany(() => User)
+  @JoinTable()
+  blocked: User[];
 }
