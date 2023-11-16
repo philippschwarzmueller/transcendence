@@ -1,5 +1,5 @@
 import { Channels, Messages } from 'src/chat/chat.entity';
-import { Column, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn, Unique } from 'typeorm';
+import { Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn, Unique } from 'typeorm';
 
 @Entity('users')
 @Unique(['name'])
@@ -20,6 +20,9 @@ export class User {
       }
   })
   channels: Channels[];
+
+  @OneToMany(() => Channels, channel => channel.owner)
+  owned: Channels[];
 
   @Column({ name: 'name' })
   name: string;
