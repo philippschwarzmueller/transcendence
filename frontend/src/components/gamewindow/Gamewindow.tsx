@@ -17,7 +17,7 @@ import { useParams } from "react-router-dom";
 import { EGamemode } from "../queuebutton/Queuebutton";
 import { SocketContext } from "../../context/socket";
 import { Socket } from "socket.io-client";
-import { AuthContext, IAuthContext, IUser } from "../../context/auth";
+import { AuthContext, IAuthContext } from "../../context/auth";
 import { setKeyEventListener } from "./keyboardinput";
 import {
   calculateWindowproperties,
