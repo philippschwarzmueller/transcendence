@@ -9,16 +9,13 @@ interface PrivateRouteProps {
 
 export const validateToken = async (auth: IAuthContext): Promise<boolean> => {
   try {
-    const response: Response = await fetch(
-      "http://localhost:4000/auth/validate-token",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      }
-    );
+    const response: Response = await fetch(`${BACKEND}/auth/validate-token`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    });
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -27,7 +24,9 @@ export const validateToken = async (auth: IAuthContext): Promise<boolean> => {
     const data: IUser = await response.json();
 
     if (data) {
-      if (!auth.user.intraname) auth.logIn(data);
+      if (!auth.user.intraname) {
+        auth.logIn(data);
+      }
       return true;
     } else {
       return false;

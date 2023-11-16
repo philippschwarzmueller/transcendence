@@ -77,7 +77,6 @@ const Queuebox: React.FC = () => {
   const location: string = useLocation().pathname.split("/")[1];
 
   const fetchData = (): void => {
-    console.log("location:", location);
     if (!auth.user.name) return;
     const payload: IChangeSocketPayload = { intraname: auth.user.name };
     socket.emit("isplayerinqueue", payload, (res: boolean) => {
