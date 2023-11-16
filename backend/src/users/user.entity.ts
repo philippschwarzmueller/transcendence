@@ -60,6 +60,16 @@ export class User {
   tokenExpiry: number;
 
   @ManyToMany(() => User)
-  @JoinTable()
+  @JoinTable({
+    name: 'block_list',
+    joinColumn: {
+      name: 'blocking',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'blocked',
+      referencedColumnName: 'id',
+    },
+  })
   blocked: User[];
 }

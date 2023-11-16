@@ -5,7 +5,6 @@ import { Repository } from 'typeorm';
 import { User } from '../users/user.entity';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { hash as bcrypt_hash, compare as bcrypt_compare } from 'bcrypt';
-import { UsersService } from 'src/users/users.service';
 
 export interface TokenResponse {
   access_token: string;
@@ -100,7 +99,6 @@ export class AuthService {
           token: data.access_token,
           hashedToken: hashedToken,
           tokenExpiry: currentTime + data.expires_in,
-          blocked: await this.usersRepository.find(),
         })
       );
     }

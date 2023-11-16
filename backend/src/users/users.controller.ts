@@ -5,7 +5,8 @@ import {
   HttpStatus,
   Param,
   Query,
-  Post
+  Post,
+  Put
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from './user.entity';
@@ -15,7 +16,6 @@ export class UsersController {
   constructor(private usersService: UsersService) {}
   @Get()
   findAll(): Promise<User[]> {
-    console.log('hi');
     return this.usersService.findAll();
   }
 
@@ -30,8 +30,4 @@ export class UsersController {
     }
   }
 
-  @Post(':userId')
-  async findBlocked(@Param('userId') name: string): Promise<User[]> {
-    return this.usersService.getBlockList(name);
-  }
 }

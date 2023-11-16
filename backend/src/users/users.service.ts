@@ -61,4 +61,18 @@ export class UsersService {
       relations: ['blocked'],
     })).blocked;
   }
+
+  async addToBlockList(userId: string, blockedId: string ): Promise<void> {
+    const user = await this.findOneByName(userId);
+    const block = await this.findOneByName(blockedId);
+    const queryRunner = this.dataSource.createQueryRunner();
+    console.log(`${userId} ${blockedId}`);
+    queryRunner.connect();
+    await queryRunner.manager.query(
+      `INSERT INTO block_list (blocking, "blocked")
+        VALUES (${user.id}, ${block.id})
+        ON CONFLICT (blocking, "blocked") DO NOTHING;`,
+    );
+    queryRunner.release();
+  }
 }
