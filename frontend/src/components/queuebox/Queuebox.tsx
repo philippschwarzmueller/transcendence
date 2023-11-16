@@ -9,6 +9,7 @@ import { useCookies } from "react-cookie";
 import Button from "../button";
 import { Socket } from "socket.io-client";
 import { useLocation } from "react-router-dom";
+import { validateToken } from "../../routes/PrivateRoute";
 
 const Win98Box = styled.div`
   width: 200px;
@@ -52,6 +53,7 @@ const Queuebox: React.FC = () => {
   const [userInQueue, setUserInQueue] = useState<boolean | null>(null);
   const [cookie, , deleteCookie] = useCookies(["queue"]);
   const [timer, setTimer] = useState<number>(0);
+  const [userIsLoggedIn, SetUserIsLoggedIn] = useState<boolean>(false);
 
   const leaveQueue = (): void => {
     if (!auth.user.name) return;
@@ -88,9 +90,10 @@ const Queuebox: React.FC = () => {
   };
 
   useEffect(fetchData, [auth, cookie, fetchData, location]);
+  validateToken(auth).then(SetUserIsLoggedIn);
 
   let content: React.ReactNode;
-  if (userInQueue === null || location === "play") {
+  if (userInQueue === null || location === "play" || !userIsLoggedIn) {
     content = <></>;
   } else if (userInQueue === false) {
     content = (
