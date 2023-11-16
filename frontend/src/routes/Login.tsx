@@ -4,6 +4,7 @@ import Input from "../components/input";
 import Form from "../components/form";
 import Pagetitle from "../components/pagetitle";
 import { AuthContext } from "../context/auth";
+import { BACKEND } from "./SetUser";
 
 interface loginBody {
   name: string;
@@ -17,14 +18,11 @@ const Login: React.FC = () => {
   const handleSubmit = async (event: React.MouseEvent) => {
     event.preventDefault();
     try {
-      const response: Response = await fetch(
-        "http://localhost:4000/auth/login",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(input),
-        }
-      );
+      const response: Response = await fetch(`${BACKEND}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(input),
+      });
 
       const data: any = await response.json();
 
@@ -41,12 +39,12 @@ const Login: React.FC = () => {
   };
 
   const handleIntraLogin = async (event: React.MouseEvent) => {
-    window.location.replace("http://localhost:4000/auth/intra-login");
+    window.location.replace(`${BACKEND}/auth/intra-login`);
   };
 
   const handleLogout = async (event: React.MouseEvent) => {
     auth.logOut();
-    fetch("http://localhost:4000/auth/logout", {
+    fetch(`${BACKEND}/auth/logout`, {
       method: "GET",
       credentials: "include",
     })

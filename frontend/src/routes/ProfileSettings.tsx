@@ -3,10 +3,10 @@ import { Link } from "react-router-dom";
 import Button from "../components/button";
 import { AuthContext, IUser } from "../context/auth";
 import Input from "../components/input";
+import { BACKEND } from "./SetUser";
 
 const ProfileSettings: React.FC = () => {
   const auth = useContext(AuthContext);
-  const BACKEND: string = `http://${window.location.hostname}:${4000}`;
   const [newName, setNewName] = useState("");
   const [profileLink, setProfileLink] = useState(`${auth.user.name}`);
   const [qrcode, setQrcode] = useState("");

@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { AuthContext, IAuthContext, IUser } from "../context/auth";
 import { Navigate } from "react-router-dom";
+import { BACKEND } from "./SetUser";
 
 interface PrivateRouteProps {
   children: JSX.Element;
