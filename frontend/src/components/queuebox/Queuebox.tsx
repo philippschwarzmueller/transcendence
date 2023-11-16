@@ -8,6 +8,7 @@ import { AuthContext, IAuthContext } from "../../context/auth";
 import { useCookies } from "react-cookie";
 import Button from "../button";
 import { Socket } from "socket.io-client";
+import { useLocation } from "react-router-dom";
 
 const Win98Box = styled.div`
   width: 200px;
@@ -70,7 +71,10 @@ const Queuebox: React.FC = () => {
     localStorage.setItem("queueInterval", String(newQueueInterval));
   };
 
+  const location: string = useLocation().pathname.split("/")[1];
+
   const fetchData = (): void => {
+    console.log("location:", location);
     if (!auth.user.name) return;
     const payload: IChangeSocketPayload = { intraname: auth.user.name };
     socket.emit("isplayerinqueue", payload, (res: boolean) => {
@@ -81,11 +85,10 @@ const Queuebox: React.FC = () => {
     });
   };
 
-  useEffect(fetchData, [auth, cookie, fetchData]);
+  useEffect(fetchData, [auth, cookie, fetchData, location]);
 
   let content: React.ReactNode;
-
-  if (userInQueue === null) {
+  if (userInQueue === null || location === "play") {
     content = <></>;
   } else if (userInQueue === false) {
     content = (
