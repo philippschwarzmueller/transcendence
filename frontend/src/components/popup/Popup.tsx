@@ -5,7 +5,6 @@ import React, {
   Ref,
   ReactNode,
   useContext,
-  useEffect,
 } from "react";
 
 import Input from "../input/Input";
