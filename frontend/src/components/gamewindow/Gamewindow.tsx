@@ -125,13 +125,15 @@ const GameWindow: React.FC = () => {
       gamemode.current = gamemodeRemote;
     });
 
-    socket.on("endgame", () => {
-      finishGame(gameInterval.current);
-      socket.emit("getGameData", gameId, (res: IGame) => {
-        gameStateRef.current = res;
-        navigateToEndScreen.current = true;
-      });
-      fetchAndDrawFinishedGame(socket, gameId, gameCanvas.endScreen);
+    socket.on("endgame", (res: string) => {
+      if (res === gameId) {
+        finishGame(gameInterval.current);
+        socket.emit("getGameData", gameId, (res: IGame) => {
+          gameStateRef.current = res;
+          navigateToEndScreen.current = true;
+        });
+        fetchAndDrawFinishedGame(socket, gameId, gameCanvas.endScreen);
+      }
     });
 
     setKeyEventListener(keystateRef);

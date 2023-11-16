@@ -355,8 +355,8 @@ export class GamesService {
       .update(localGame.gameId, updatedDatabaseGame)
       .then(() => {
         this.runningGames.delete(localGame.gameId);
-        localGame.leftPlayer.socket.emit('endgame');
-        localGame.rightPlayer.socket.emit('endgame');
+        localGame.leftPlayer.socket.emit('endgame', localGame.gameId);
+        localGame.rightPlayer.socket.emit('endgame', localGame.gameId);
       });
   }
 
