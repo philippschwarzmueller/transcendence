@@ -98,7 +98,6 @@ const SetUser: React.FC = () => {
           </div>
         </div>
       )}
-      ;
     </>
   );
 };
