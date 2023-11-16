@@ -19,8 +19,8 @@ export enum EGamemode {
   roomMovement = 2,
 }
 const gameModeNames: Map<EGamemode, string> = new Map([
-  [EGamemode.standard, "Standard"],
-  [EGamemode.roomMovement, "2D Movement"],
+  [EGamemode.standard, "PONG Original"],
+  [EGamemode.roomMovement, "PONG 2D"],
 ]);
 
 export interface IQueueProps {

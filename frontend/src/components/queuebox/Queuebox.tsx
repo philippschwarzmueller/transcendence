@@ -19,12 +19,15 @@ const Win98Box = styled.div`
   min-height: 2rem;
   display: flex;
   align-items: center;
+  justify-content: center;
+
   background-color: rgb(195, 199, 203);
   box-shadow: inset 1px 1px 0px 1px rgb(255, 255, 255),
     inset 0 0 0 1px rgb(134, 138, 142), 1px 1px 0px 1px rgb(0, 0, 0),
     2px 2px 5px 0px rgba(0, 0, 0, 0.5);
   padding: 8px;
   cursor: pointer;
+
   &:focus {
     outline: 1px dotted rgb(0, 0, 0);
     outline-offset: -5px;
@@ -32,7 +35,7 @@ const Win98Box = styled.div`
     box-shadow: inset 1px 1px 0px 1px rgb(255, 255, 255),
       inset 0 0 0 1px rgb(134, 138, 142), 1px 1px 0 0px rgb(0, 0, 0);
   }
-
+  /* 
   &:active {
     padding: 8 20 4;
 
@@ -40,7 +43,7 @@ const Win98Box = styled.div`
     outline-offset: -5px;
 
     box-shadow: inset 0 0 0 1px rgb(134, 138, 142), 0 0 0 1px rgb(0, 0, 0);
-  }
+  } */
 `;
 
 const Queuebox: React.FC = () => {
