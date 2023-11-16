@@ -4,7 +4,7 @@ export interface IUser {
   id?: number | undefined;
   name: string | undefined;
   intraname: string | undefined;
-	twoFAenabled: boolean;
+  twoFAenabled: boolean;
   image: string | undefined;
   token?: string | undefined;
   activeChats: string[];
@@ -14,7 +14,7 @@ let default_user: IUser = {
   id: undefined,
   name: undefined,
   intraname: undefined,
-	twoFAenabled: false,
+  twoFAenabled: false,
   image: undefined,
   token: undefined,
   activeChats: [],

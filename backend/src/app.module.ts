@@ -30,7 +30,7 @@ import { TwoFAModule } from './2FA/twofa.module';
     GamesModule,
     ChatModule,
     WSocketModule,
-		TwoFAModule,
+    TwoFAModule,
   ],
   controllers: [AppController],
   providers: [GreetingService, WSocketGateway],
