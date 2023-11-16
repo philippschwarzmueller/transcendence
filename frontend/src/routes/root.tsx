@@ -5,11 +5,12 @@ import GlobalStyle from "./GlobalStyle";
 import { AuthContext, IUser } from "../context/auth";
 import { SocketContext, awSocket } from "../context/socket";
 
-
 const Root: React.FC = () => {
   const [user, setUser] = React.useState<IUser>({
     id: undefined,
     name: undefined,
+    intraname: undefined,
+    twoFAenabled: false,
     image: undefined,
     token: undefined,
     activeChats: [],
@@ -21,6 +22,8 @@ const Root: React.FC = () => {
     setUser({
       id: undefined,
       name: undefined,
+      intraname: undefined,
+      twoFAenabled: false,
       image: undefined,
       token: undefined,
       activeChats: [],
@@ -29,11 +32,11 @@ const Root: React.FC = () => {
   return (
     <>
       <AuthContext.Provider value={{ user, logIn, logOut }}>
-      <SocketContext.Provider value={awSocket}>
-        <GlobalStyle />
-        <Nav />
-        <Outlet />
-      </SocketContext.Provider>
+        <SocketContext.Provider value={awSocket}>
+          <GlobalStyle />
+          <Nav />
+          <Outlet />
+        </SocketContext.Provider>
       </AuthContext.Provider>
     </>
   );

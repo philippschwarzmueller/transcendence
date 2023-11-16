@@ -6,12 +6,14 @@ import React, {
   ReactNode,
   useContext,
 } from "react";
+
 import Input from "../input/Input";
 import styled from "styled-components";
 import { IUser } from "../../context/auth";
 import { SocketContext } from "../../context/socket";
 import Button from "../button/Button";
 import Userbrowser from "../userbrowser/Userbrowser";
+import { EChannelType } from "../chatwindow/properties";
 
 const InputField = styled.div<{
   $display: boolean;
@@ -35,7 +37,6 @@ const InputField = styled.div<{
 `;
 
 interface props {
-  onKey: (s: string) => void;
   placeholder: string;
   children: ReactNode;
   user: IUser;
@@ -47,7 +48,7 @@ interface refs {
 }
 
 function Popup(
-  { onKey, placeholder, children, user, setTabs }: props,
+  { placeholder, children, user, setTabs }: props,
   ref: Ref<refs>,
 ) {
   const socket = useContext(SocketContext);
@@ -56,6 +57,9 @@ function Popup(
   const [positionX, setPositionX] = useState<number>(0);
   const [positionY, setPositionY] = useState<number>(0);
   const [visable, setVisable] = useState<boolean>(false);
+  const [channelType, setChanneltype] = useState<EChannelType>(
+    EChannelType.PUBLIC,
+  );
 
   useImperativeHandle(ref, () => ({
     openRoom,
@@ -76,17 +80,18 @@ function Popup(
       <InputField $display={display} $posX={positionX} $posY={positionY}>
         {children}
         <Input
-          id='room'
+          id="room"
           value={input}
           label="room"
           placeholder={placeholder}
           onChange={(e) => setInput(e.target.value)}
           onKeyUp={(e: React.KeyboardEvent) => {
             if (e.key === "Enter") {
-              socket.emit("create", { user: user, input: input, room: input }, (res: string[]) =>
-                setTabs(res)
+              socket.emit(
+                "create",
+                { user: user, type: channelType, title: input },
+                (res: string[]) => setTabs(res),
               );
-              onKey(input);
               setDisplay(false);
               setInput("");
             }
@@ -94,6 +99,28 @@ function Popup(
         ></Input>
         <Button onClick={() => setVisable(!visable)}
           >User Chat</Button>
+        <form>
+          <label>
+            <input
+              type="radio"
+              name="type"
+              value="public"
+              checked={channelType === EChannelType.PUBLIC}
+              onChange={() => setChanneltype(EChannelType.PUBLIC)}
+            ></input>
+            Public
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="type"
+              value="private"
+              checked={channelType === EChannelType.PRIVATE}
+              onChange={() => setChanneltype(EChannelType.PRIVATE)}
+            ></input>
+            Private
+          </label>
+        </form>
       </InputField>
     </>
   );

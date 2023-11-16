@@ -13,7 +13,13 @@ export interface IMessage {
   room: string;
 }
 
-export interface userInfo {
-  user: IGameUser;
-  opponent: IGameUser | null;
+export enum EChannelType {
+  PRIVATE,
+  PUBLIC
+}
+
+export interface IChannel {
+  user: IUser;
+  type: EChannelType;
+  title: string;
 }

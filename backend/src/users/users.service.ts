@@ -41,7 +41,7 @@ export class UsersService {
 
   async removeUserChat(user: User, chat: string): Promise<User> {
     if (user) {
-      const index: number = user.activeChats.findIndex(obj => obj === chat)
+      const index: number = user.activeChats.findIndex((obj) => obj === chat);
       user.activeChats.splice(index, 1);
       return await this.usersRepository.save(user);
     } else {

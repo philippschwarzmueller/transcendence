@@ -19,7 +19,7 @@ const Profile: React.FC = () => {
   let [user, setUser] = useState<IUser>();
 
   useEffect(() => {
-    if (userId === undefined && !auth.user.token ) {
+    if (userId === undefined && !auth.user.token) {
       navigate("/login");
     }
     if (userId) {
@@ -44,6 +44,9 @@ const Profile: React.FC = () => {
         name={user ? user.name : auth.user.name}
         profilePictureUrl={user ? user.profilePictureUrl : auth.user.image}
       ></ProfilePicture>
+      <Link to="/profile/settings">
+        <Button>Profile Settings</Button>
+      </Link>
       <h2>Stats</h2>
       <p>Games played: 420</p>
       <p>Win/Loss: 69%</p>

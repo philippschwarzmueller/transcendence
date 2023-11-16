@@ -39,6 +39,8 @@ const Home: React.FC = () => {
         auth.logIn({
           id: Number(data.id),
           name: data.name,
+          intraname: data.intraname,
+          twoFAenabled: data.twoFAenabled,
           image: data.profilePictureUrl,
           activeChats: data.activeChats,
         });

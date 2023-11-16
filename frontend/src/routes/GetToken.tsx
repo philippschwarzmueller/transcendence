@@ -39,6 +39,8 @@ const GetToken: React.FC = () => {
               image: res.profilePictureUrl,
               token: res.token,
               activeChats: res.activeChats,
+              intraname: res.intraname,
+              twoFAenabled: res.twoFAenabled,
             });
             setCookie("token", res.token, 7);
           }
