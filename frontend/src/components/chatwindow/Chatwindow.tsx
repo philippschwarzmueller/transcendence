@@ -9,6 +9,7 @@ import { AuthContext, IUser } from "../../context/auth";
 import Popup from "../popup/Popup";
 import { IGameStart } from "../gamewindow/properties";
 import { useNavigate } from "react-router-dom";
+import { EChannelType } from "./properties";
 
 const Msgfield = styled.div`
   width: 320px;
@@ -89,8 +90,8 @@ const Chatwindow: React.FC = () => {
   const [input, setInput] = useState<string>("");
   const user: IUser = useContext(AuthContext).user;
   const [tabs, setTabs] = useState<string[]>([]);
-  const [activeTab, setActiveTab] = useState<string>("");
-  const [room, setRoom] = useState<string>("general");
+  const [activeTab, setActiveTab] = useState<string | null>(null);
+  const [room, setRoom] = useState<string | null>(null);
   const socket: Socket = useContext(SocketContext);
   const navigate = useNavigate();
   let listKey = 0;
@@ -99,6 +100,7 @@ const Chatwindow: React.FC = () => {
   const roomRef: any = useRef<typeof Popup | null>(null);
 
   socket.on("message", (res: string) => setMessages([...messages, res]));
+  socket.on("invite", (res: string[]) => setTabs(res));
   socket.on("game", (body: IGameStart) => {
     navigate(`/play/${body.gameId}/${body.side}`);
   });
@@ -113,12 +115,15 @@ const Chatwindow: React.FC = () => {
         }
         return response.json();
       })
-      .then((res: string[]) => setTabs(res));
+      .then((res: string[]) => setTabs(res)).catch(error => console.log(error));
+    setRoom(tabs[tabs.length - 1]);
   }, []);
 
   useEffect(() => {
-    socket.emit("join", { user, input, room }, (res: string[]) =>
-      setMessages(res),
+    socket.emit(
+      "join",
+      { user: user, type: EChannelType.PUBLIC, title: room },
+      (res: string[]) => setMessages(res),
     );
   }, [room]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -145,7 +150,6 @@ const Chatwindow: React.FC = () => {
   }
 
   const setActive = (tab: string) => {
-    if (tab === undefined) tab = "general";
     setActiveTab(tab);
     setRoom(tab);
   };
@@ -153,7 +157,6 @@ const Chatwindow: React.FC = () => {
   return (
     <>
       <Popup
-        onKey={setRoom}
         placeholder="type room name here"
         user={user}
         ref={roomRef}

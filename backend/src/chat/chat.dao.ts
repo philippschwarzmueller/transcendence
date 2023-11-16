@@ -3,9 +3,8 @@ import { User } from 'src/users/user.entity';
 import { DataSource, Repository } from 'typeorm';
 import { Injectable, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IMessage } from './properties';
+import { EChannelType, IChannel, IMessage } from './properties';
 import { UsersService } from 'src/users/users.service';
-import { databaseProviders } from 'src/database.providers';
 
 @Injectable()
 export class ChatDAO {
@@ -30,17 +29,19 @@ export class ChatDAO {
     );
   }
 
-  public async saveChannel(title: string, user: string): Promise<void> {
+  public async saveChannel(channel: IChannel, user: string): Promise<void> {
     const existingChannel = await this.channelRepo.findOne({
-      where: { title },
+      where: { title: channel.title },
     });
-    if (existingChannel) {
-      await this.addUserToChannel(title, user);
-    } else {
+    if (existingChannel && existingChannel.type !== EChannelType.PRIVATE) {
+      await this.addUserToChannel(channel.title, user);
+    } else if (!existingChannel) {
       await this.channelRepo.save(
         this.channelRepo.create({
-          title: title,
+          title: channel.title,
+          owner: await this.userService.findOneByName(user),
           users: [await this.userService.findOneByName(user)],
+          type: channel.type,
         }),
       );
     }
@@ -51,17 +52,17 @@ export class ChatDAO {
     const newUser: User = await this.userService.findOneByName(user);
     const queryRunner = this.dataSource.createQueryRunner();
     queryRunner.connect();
-    await queryRunner.manager
-      .query(
-        `INSERT INTO channel_subscription (channel, "user")
+    await queryRunner.manager.query(
+      `INSERT INTO channel_subscription (channel, "user")
         VALUES (${channel.id}, ${newUser.id})
         ON CONFLICT (channel, "user") DO NOTHING;`,
-      )
+    );
     queryRunner.release();
   }
 
-  public async removeUserFromChannel(title: string, user: User): Promise<void> {
+  public async removeUserFromChannel(title: string, userId: string): Promise<void> {
     const channel: Channels = await this.getChannelByTitle(title);
+    const user: User = await this.userService.findOneByName(userId);
     channel.users = channel.users.filter((u) => u.id !== user.id);
     this.channelRepo.save(channel);
   }
@@ -110,7 +111,14 @@ export class ChatDAO {
     });
   }
 
-  //getChannelOwner
+  public async getChannelOwner(title: string): Promise<User> {
+    return (
+      await this.channelRepo.findOne({
+        where: { title: title },
+        relations: ['owner'],
+      })
+    ).owner;
+  }
   //updateUserRole
   //getMessagesFiltert
 }

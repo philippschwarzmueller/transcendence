@@ -17,7 +17,7 @@ import {
   IQueuePayload,
 } from '../games/properties';
 
-import { IMessage } from '../chat/properties';
+import { IChannel, IMessage } from '../chat/properties';
 import { Socket, Server } from 'socket.io';
 import { GamesService } from '../games/games.service';
 import { ChatService } from 'src/chat/chat.service';
@@ -51,18 +51,15 @@ export class WSocketGateway implements OnGatewayInit {
 
   @SubscribeMessage('join')
   async join(
-    @MessageBody() data: IMessage,
+    @MessageBody() data: IChannel,
     @ConnectedSocket() client: Socket,
   ): Promise<string[]> {
-    return await this.chatService.joinRoom(data, client);
+    return await this.chatService.joinRoom(data, client, this.server);
   }
 
   @SubscribeMessage('create')
-  async addChat(
-    @MessageBody() data: IMessage,
-    @ConnectedSocket() client: Socket,
-  ): Promise<string[]> {
-    return await this.chatService.addChat(data.user.name, data.room, client);
+  async addChat(@MessageBody() data: IChannel): Promise<string[]> {
+    return await this.chatService.addChat(data);
   }
 
   @SubscribeMessage('alterGameData')

@@ -11,6 +11,7 @@ import { Game } from './games/game.entity';
 import { Channels, Messages } from './chat/chat.entity';
 import { WSocketModule } from './wsocket/wsocket.module';
 import { WSocketGateway } from './wsocket/wsocket.gateway';
+import { TwoFAModule } from './2FA/twofa.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { WSocketGateway } from './wsocket/wsocket.gateway';
     GamesModule,
     ChatModule,
     WSocketModule,
+    TwoFAModule,
   ],
   controllers: [AppController],
   providers: [GreetingService, WSocketGateway],

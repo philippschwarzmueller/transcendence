@@ -46,12 +46,12 @@ const Login: React.FC = () => {
 
   const handleLogout = async (event: React.MouseEvent) => {
     auth.logOut();
-    fetch('http://localhost:4000/auth/logout', {
-      method: 'GET',
-      credentials: 'include',
+    fetch("http://localhost:4000/auth/logout", {
+      method: "GET",
+      credentials: "include",
     })
-      .then(response => response.text())
-      .catch(error => console.error('Error:', error));
+      .then((response) => response.text())
+      .catch((error) => console.error("Error:", error));
   };
 
   return (
@@ -81,7 +81,9 @@ const Login: React.FC = () => {
           Login
         </Button>
       </Form>
-      <Button onClick={(event: React.MouseEvent) => handleLogout(event)}>Log Out</Button>
+      <Button onClick={(event: React.MouseEvent) => handleLogout(event)}>
+        Log Out
+      </Button>
       <Button onClick={(event: React.MouseEvent) => handleIntraLogin(event)}>
         Login via 42 intra
       </Button>
