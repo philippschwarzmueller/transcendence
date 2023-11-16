@@ -38,27 +38,15 @@ const Navbar: React.FC = () => {
         <StyledLi style={{ padding: 10 }}>
           <StyledLink to={"/home"}>Home</StyledLink>
         </StyledLi>
-        {/* <StyledLi style={{ padding: 10 }}>
-          <StyledLink to={"/play"}>Play</StyledLink>
-        </StyledLi> */}
         <StyledLi style={{ padding: 10 }}>
           <StyledLink to={"/chat"}>Chat</StyledLink>
         </StyledLi>
-        {/* <StyledLi style={{ padding: 10 }}>
-          <StyledLink to={"/signup"}>Signup</StyledLink>
-        </StyledLi> */}
         <StyledLi style={{ padding: 10 }}>
           <StyledLink to={"/login"}>Login</StyledLink>
         </StyledLi>
-        {/* <StyledLi style={{ padding: 10 }}>
-          <StyledLink to={"/queue"}>Queue</StyledLink>
-        </StyledLi> */}
-        {/* <StyledLi style={{ padding: 10 }}>
-         */}
         <div style={{ padding: "10px" }}>
           <Queuebox></Queuebox>
         </div>
-        {/* </StyledLi> */}
         <StyledLi></StyledLi>
       </ul>
     </StyledNavbar>
