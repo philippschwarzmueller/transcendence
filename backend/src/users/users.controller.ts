@@ -1,11 +1,12 @@
 import {
-	Body,
+  Body,
   Controller,
   Get,
   HttpException,
   HttpStatus,
   Param,
-	Req,
+  Post,
+  Req,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from './user.entity';
@@ -28,24 +29,47 @@ export class UsersController {
       });
     }
   }
-	@Get('send-friend-request')
-	async sendFriendRequest(@Body() body: { requestedFriend: string },
-	@Req() req: Request,): Promise<boolean> {
-		const token: string = req.cookies.token;
-		const user: User | null = await this.usersService.exchangeTokenforUser(token);
-		const friend: User | null = await this.usersService.findOneByName(body.requestedFriend);
-		if(user === null || friend === null){
-			return false
-		}
-		await this.usersService.addFriend(user.name, friend.name);
-		return true;
-	}
+  @Post('send-friend-request')
+  async sendFriendRequest(
+    @Body() body: { requestedFriend: string },
+    @Req() req: Request,
+  ): Promise<boolean> {
+    const token: string = req.cookies.token;
+		console.log(token);
+    const user: User | null =
+      await this.usersService.exchangeTokenforUser(token);
+    const friend: User | null = await this.usersService.findOneByName(
+      body.requestedFriend,
+    );
+		console.log(friend);
+    if (user === null || friend === null) {
+      return false;
+    }
+		console.log(`in controler ${user.name}`);
+    console.log(`in controler ${friend.name}`);
+    await this.usersService.addFriend(user.name, friend.name);
+    return true;
+  }
 
-	@Get('get-pending-friend-requests')
-	async getPendingFriendRequests(@Req() req: Request): Promise<User[]> {
-		const token: string = req.cookies.token;
-		const user: User | null = await this.usersService.exchangeTokenforUser(token);
-		const pendingUsers: User[] = await this.usersService.getFriendRequestList(user.name);
-		return pendingUsers;
-	}
+  @Post('get-pending-friend-requests')
+  async getPendingFriendRequests(@Req() req: Request): Promise<User[]> {
+    const token: string = req.cookies.token;
+    const user: User | null =
+      await this.usersService.exchangeTokenforUser(token);
+    const pendingUsers: User[] = await this.usersService.getFriendRequestList(
+      user.name,
+    );
+    return pendingUsers;
+  }
+
+  @Post('get-received-friend-requests')
+  async getReceivedFriendRequests(@Req() req: Request): Promise<User[]> {
+    const token: string = req.cookies.token;
+    const user: User | null =
+      await this.usersService.exchangeTokenforUser(token);
+    const ReceivedFriendRequestsFromUsers: User[] = await this.usersService.getReceivedFriendRequestList(
+      user.name,
+    );
+    return ReceivedFriendRequestsFromUsers;
+  }
 }

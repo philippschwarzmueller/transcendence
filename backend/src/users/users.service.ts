@@ -33,9 +33,10 @@ export class UsersService {
 				hashedToken: frontendToken,
 			},
 		});
-		if (!user) {
-			return null;
-		}
+			if (!user) {
+				return null;
+			}
+		return user;
 	}
 
   async updateUserChat(user: User, chat: string): Promise<User> {
@@ -69,8 +70,15 @@ export class UsersService {
 	async getFriendRequestList(userId: string): Promise<User[]> {
     return (await this.usersRepository.findOne({
       where: { name: userId },
-      relations: ['received_friend_request'], //blocked
+      relations: ['friend_requested'], //blocked
     })).friend_requested; //blocked
+  }
+
+	async getReceivedFriendRequestList(userId: string): Promise<User[]> {
+    return (await this.usersRepository.findOne({
+      where: { name: userId },
+      relations: ['friend_requests_received'], //blocked
+    })).friend_requests_received; //blocked
   }
 
   async addFriend(userId: string, friendId: string ): Promise<void> {

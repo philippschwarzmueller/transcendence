@@ -73,4 +73,18 @@ export class User {
   })
   friend_requested: User[];
 
+	@ManyToMany(() => User)
+  @JoinTable({
+    name: 'pending_friend_list',
+    joinColumn: {
+      name: 'received_friend_request',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'requesting_friend',
+      referencedColumnName: 'id',
+    },
+  })
+  friend_requests_received: User[];
+
 }

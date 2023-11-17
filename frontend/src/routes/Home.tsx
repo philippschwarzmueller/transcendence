@@ -89,6 +89,18 @@ const Home: React.FC = () => {
     const pendingUsers: IUser[] = await response.json();
 		console.log(pendingUsers);
   };
+
+	const handleGetReceived = async (): Promise<void> => {
+    const response = await fetch(`${BACKEND}/users/get-received-friend-requests`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    });
+    const receivedUsers: IUser[] = await response.json();
+		console.log(receivedUsers);
+  };
 	
 
   return (
@@ -113,6 +125,7 @@ const Home: React.FC = () => {
         ></Input>
 				<Button onClick={handleFriendrequest}>Send Friend Request</Button>
 				<Button onClick={handleGetPending}>get Pending Friend Requests</Button>
+				<Button onClick={handleGetReceived}>get Received Friend Requests</Button>
       </div>
     </>
   );
