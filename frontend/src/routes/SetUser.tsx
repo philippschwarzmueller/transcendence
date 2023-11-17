@@ -4,6 +4,8 @@ import { AuthContext, IUser } from "../context/auth";
 import Input from "../components/input/Input";
 import Button from "../components/button";
 
+export const BACKEND: string = `http://${window.location.hostname}:${4000}`;
+
 const SetUser: React.FC = () => {
   const nav = useNavigate();
   const location = useLocation();
@@ -11,7 +13,6 @@ const SetUser: React.FC = () => {
   const [twoFaCode, setTwoFaCode] = useState("");
   const [user, setUser] = useState<IUser>();
   const auth = useContext(AuthContext);
-  const BACKEND: string = `http://${window.location.hostname}:${4000}`;
 
   const handleTwoFaCodeSubmit = async (): Promise<void> => {
     try {

@@ -2,7 +2,7 @@
 COMPOSE = docker-compose.yml
 
 #build and run
-all:  docker run
+all: setup_ip docker run
 
 #build and run
 up: $(REDIRECT) docker
@@ -54,5 +54,8 @@ docker:
 		sleep 20; \
 	fi
 	@echo "Docker is up and running"
+
+setup_ip:
+	./setup_ip.sh
 
 .PHONY: docker redirect kill_all fclean clean dow run re up all

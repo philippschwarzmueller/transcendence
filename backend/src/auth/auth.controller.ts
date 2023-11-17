@@ -15,10 +15,17 @@ import { CreateUserDto } from '../users/dto/create-user.dto';
 import { User } from '../users/user.entity';
 import { Response, Request } from 'express';
 import { TokenResponse } from './auth.service';
+import { ConfigService } from '@nestjs/config';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  private hostIP: string;
+  constructor(
+    private authService: AuthService,
+    private configService: ConfigService,
+  ) {
+    this.hostIP = this.configService.get<string>('HOST_IP');
+  }
   @Post('login')
   @HttpCode(200)
   async login(@Body() createUserDto: CreateUserDto): Promise<User> {
@@ -78,11 +85,11 @@ export class AuthController {
       hashedToken,
     );
     res.cookie('token', hashedToken, {
-      secure: true,
+      secure: false,
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
-    res.redirect(`http://localhost:3000/set-user?user=${user.name}`);
+    res.redirect(`http://${this.hostIP}:3000/set-user?user=${user.name}`);
   }
 
   @Post('validate-token')
@@ -99,7 +106,10 @@ export class AuthController {
     @Req() req: Request,
   ): Promise<User | null> {
     const token: string = req.cookies.token;
-		const user: User | null = await this.authService.checkNameChange(token, body.newName);
+    const user: User | null = await this.authService.checkNameChange(
+      token,
+      body.newName,
+    );
     return user;
   }
 }

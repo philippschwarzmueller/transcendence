@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Pagetitle from "../components/pagetitle/";
 import { AuthContext } from "../context/auth";
 import Button from "../components/button";
+import { BACKEND } from "./SetUser";
 
 const Home: React.FC = () => {
   const auth = useContext(AuthContext);
@@ -11,19 +12,16 @@ const Home: React.FC = () => {
 
   const handleClick = async () => {
     try {
-      const response = await fetch(
-        "http://localhost:4000/auth/validate-token",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            username: auth.user.name,
-          }),
-          credentials: "include",
-        }
-      );
+      const response = await fetch(`${BACKEND}/auth/validate-token`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: auth.user.name,
+        }),
+        credentials: "include",
+      });
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
