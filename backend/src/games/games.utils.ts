@@ -1,6 +1,6 @@
 import { IGameBackend, IUser, maxScore } from './properties';
 
-export const getWinnerLooser = (game: IGameBackend): [IUser, IUser] => {
+export const getWinnerLooserNames = (game: IGameBackend): [IUser, IUser] => {
   const winner: IUser =
     game.gameState.pointsLeft === maxScore
       ? game.leftPlayer.user
