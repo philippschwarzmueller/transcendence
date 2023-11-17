@@ -1,12 +1,15 @@
 import {
+	Body,
   Controller,
   Get,
   HttpException,
   HttpStatus,
   Param,
+	Req,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from './user.entity';
+import { Request } from 'express';
 
 @Controller('users')
 export class UsersController {
@@ -25,4 +28,12 @@ export class UsersController {
       });
     }
   }
+	@Get('send-friend-request')
+	async sendFriendRequest(@Body() body: { requestedFriend: string },
+	@Req() req: Request,): Promise<boolean> {
+		const token: string = req.cookies.token;
+		const user: User | null = await this.usersService.exchangeTokenforUser(token);
+		const friend: User | null = await this.usersService.findOneByName(body.requestedFriend);
+		return true;
+	}
 }

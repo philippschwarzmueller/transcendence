@@ -59,4 +59,18 @@ export class User {
   @Column({default: 0, })
   tokenExpiry: number;
 
+	@ManyToMany(() => User)
+  @JoinTable({
+    name: 'pending_friend_list', //blocked list
+    joinColumn: {
+      name: 'requesting_friend', //blocking
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'received_friend_request', //blocked
+      referencedColumnName: 'id',
+    },
+  })
+  friend_requested: User[];
+
 }
