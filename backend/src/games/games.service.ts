@@ -49,12 +49,6 @@ export class GamesService {
       [EGamemode.standard, new Map()],
       [EGamemode.roomMovement, new Map()],
     ]);
-
-    setInterval(() => {
-      this.gamesRepository.findOne({ where: { gameId: '1' } }).then((res) => {
-        console.log(res?.winner);
-      });
-    }, 3000);
   }
 
   public runningGames: Map<string, IGameBackend>;
@@ -223,8 +217,6 @@ export class GamesService {
     rightPlayer: IGameUser,
     gamemode: EGamemode,
   ): Promise<string> {
-    console.log('leftplayer', leftPlayer.user.intraname);
-    console.log(rightPlayer.user);
     const newGame: IGame = newGameCopy();
     const gameId: string = await this.generateGameId(gamemode);
     newGame.gameId = gameId;
@@ -311,10 +303,12 @@ export class GamesService {
   private async cleanUpFinishedGame(localGame: IGameBackend): Promise<void> {
     this.stop(localGame.gameId);
     localGame.gameState.isFinished = true;
-    const [winnerPlayer, looserPlayer]: IUser[] =
-      getWinnerLooserNames(localGame);
-    localGame.gameState.winner = winnerPlayer;
-    localGame.gameState.looser = looserPlayer;
+
+    const [winner, looser]: User[] = await getWinnerLooserNames(
+      this.userRepository,
+      localGame,
+    );
+
     const winnerPoints = Math.max(
       localGame.gameState.pointsLeft,
       localGame.gameState.pointsRight,
@@ -323,24 +317,6 @@ export class GamesService {
       localGame.gameState.pointsLeft,
       localGame.gameState.pointsRight,
     );
-
-    const winner: User = await this.userRepository.findOne({
-      where: { intraname: winnerPlayer.intraname },
-    });
-
-    if (!winner) {
-      console.error(`User with intraname ${winnerPlayer.intraname} not found`);
-      return;
-    }
-
-    const looser: User = await this.userRepository.findOne({
-      where: { intraname: looserPlayer.intraname },
-    });
-
-    if (!looser) {
-      console.error(`User with intraname ${looserPlayer.intraname} not found`);
-      return;
-    }
 
     const gameToUpdate = await this.gamesRepository.findOne({
       where: { gameId: localGame.gameId },
@@ -376,13 +352,13 @@ export class GamesService {
   public changeSocket(gameuser: IChangeSocketPayload, socket: Socket): void {
     this.queuedClients.forEach((gamemode) => {
       gamemode.forEach((game) => {
-        if (game.user.name === gameuser.intraname) game.socket = socket;
+        if (game.user.intraname === gameuser.intraname) game.socket = socket;
       });
     });
     this.runningGames.forEach((game) => {
-      if (game.leftPlayer.user.name === gameuser.intraname)
+      if (game.leftPlayer.user.intraname === gameuser.intraname)
         game.leftPlayer.socket = socket;
-      if (game.rightPlayer.user.name === gameuser.intraname)
+      if (game.rightPlayer.user.intraname === gameuser.intraname)
         game.rightPlayer.socket = socket;
     });
   }
@@ -391,7 +367,7 @@ export class GamesService {
     let returnValue = false;
     this.queuedClients.forEach((gamemode) => {
       gamemode.forEach((game) => {
-        if (game.user.name === gameuser.intraname) returnValue = true;
+        if (game.user.intraname === gameuser.intraname) returnValue = true;
       });
     });
     return returnValue;
@@ -400,8 +376,8 @@ export class GamesService {
   public leaveQueue(gameuser: IChangeSocketPayload): void {
     this.queuedClients.forEach((gamemode) => {
       gamemode.forEach((game) => {
-        if (game.user.name === gameuser.intraname) {
-          gamemode.delete(game.user.name);
+        if (game.user.intraname === gameuser.intraname) {
+          gamemode.delete(game.user.intraname);
           return;
         }
       });

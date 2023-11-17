@@ -44,8 +44,6 @@ export interface IGame {
   pointsRight: number;
   keyStateLeft: IKeyState;
   keyStateRight: IKeyState;
-  winner?: IUser;
-  looser?: IUser;
   isFinished: boolean;
 }
 
