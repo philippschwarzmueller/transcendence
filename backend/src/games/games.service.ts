@@ -8,6 +8,7 @@ import properties, {
   IGame,
   IGameBackend,
   IGameUser,
+  IGameUserAuth,
   IKeyState,
   IPaddle,
   IUser,
