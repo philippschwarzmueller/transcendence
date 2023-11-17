@@ -10,6 +10,7 @@ interface IMatch {
   winnerPoints: number;
   looserPoints: number;
   wonGame: boolean;
+  timestamp: Date;
 }
 
 @Controller('games')
@@ -80,6 +81,7 @@ export class GamesController {
         winnerPoints: game.winnerPoints,
         looserPoints: game.looserPoints,
         wonGame: game.winner.name === intraname,
+        timestamp: game.createdAt,
       });
     });
     user.lostGames.forEach((game) => {
@@ -90,6 +92,7 @@ export class GamesController {
         winnerPoints: game.winnerPoints,
         looserPoints: game.looserPoints,
         wonGame: game.winner.name === intraname,
+        timestamp: game.createdAt,
       });
     });
     return Matches;
