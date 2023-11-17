@@ -50,10 +50,13 @@ export interface IGame {
 }
 
 export interface IUser {
-  id: number | undefined;
-  name: string | undefined;
-  image: string | undefined;
-  token: string | undefined;
+  id?: number | undefined;
+  name?: string | undefined;
+  intraname?: string | undefined;
+  twoFAenabled?: boolean;
+  image?: string | undefined;
+  token?: string | undefined;
+  activeChats?: string[];
 }
 
 export interface IGameUserAuth {

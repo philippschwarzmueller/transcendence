@@ -15,21 +15,21 @@ export class Game {
   @PrimaryGeneratedColumn()
   gameId: string;
 
-  @Column({ nullable: true })
-  leftPlayer?: string;
-
-  @Column({ nullable: true })
-  rightPlayer?: string;
-
-  @ManyToOne(() => User)
-  @JoinColumn({ name: 'winner' })
+  @ManyToOne(
+    () => User,
+    (winner) => {
+      winner.wonGames;
+    },
+  )
   winner?: User;
 
-  // @Column({ nullable: true })
-  // winner?: User;
-
-  @Column({ nullable: true })
-  looser?: string;
+  @ManyToOne(
+    () => User,
+    (looser) => {
+      looser.lostGames;
+    },
+  )
+  looser?: User;
 
   @Column({ nullable: true })
   winnerPoints?: number;
