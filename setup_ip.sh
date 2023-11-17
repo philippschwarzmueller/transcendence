@@ -1,7 +1,8 @@
 
 
-get_ip_linugitx() {
-  hostname -I | awk '{print $1}'
+get_ip_linux() {
+  # hostname -I | awk '{print $6}'
+  echo "localhost"
 }
 
 get_ip_mac() {
