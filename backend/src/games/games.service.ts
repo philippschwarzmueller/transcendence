@@ -51,6 +51,12 @@ export class GamesService {
       [EGamemode.standard, new Map()],
       [EGamemode.roomMovement, new Map()],
     ]);
+
+    setInterval(() => {
+      this.gamesRepository
+        .findOne({ where: { gameId: '1' } })
+        .then(console.log);
+    }, 3000);
   }
 
   public runningGames: Map<string, IGameBackend>;
@@ -94,8 +100,9 @@ export class GamesService {
       returnGame.gameExists = false;
       return returnGame;
     }
-
-    returnGame.winner = databaseGame.winner.name;
+    // console.log('databaseGame:', databaseGame);
+    // console.log('winner:', databaseGame.winner);
+    returnGame.winner = 'we';
     returnGame.looser = databaseGame.looser;
     returnGame.winnerPoints = databaseGame.winnerPoints;
     returnGame.looserPoints = databaseGame.looserPoints;
@@ -331,18 +338,15 @@ export class GamesService {
       where: { gameId: localGame.gameId },
     });
 
-    console.log(
-      await this.userRepository.findOne({
-        where: { intraname: winnerName.name },
-      }),
-    );
-
     if (!databaseGame) return;
+
+    const winner: User = await this.userRepository.findOne({
+      where: { intraname: winnerName.name },
+    });
+    // console.log('winner', winner);
     const updatedDatabaseGame: CreateGameDto = {
       gameId: localGame.gameId,
-      winner: await this.userRepository.findOne({
-        where: { intraname: winnerName.name },
-      }),
+      winner: winner,
       looser:
         looserName != null &&
         looserName != undefined &&
@@ -355,12 +359,22 @@ export class GamesService {
       looserPoints: looserPoints,
       isFinished: true,
     };
+
     this.gamesRepository
       .update(localGame.gameId, updatedDatabaseGame)
-      .then(() => {
+      .then(async () => {
+        // Log winner here after the update has completed
+        // console.log(updatedDatabaseGame.winner);
+
         this.runningGames.delete(localGame.gameId);
         localGame.leftPlayer.socket.emit('endgame', localGame.gameId);
         localGame.rightPlayer.socket.emit('endgame', localGame.gameId);
+
+        // Retrieve the updated game from the database and log the winner
+        const updatedGame = await this.gamesRepository.findOne({
+          where: { gameId: localGame.gameId },
+        });
+        // console.log('Winner after update:', updatedGame?.winner);
       });
   }
 
