@@ -73,6 +73,7 @@ export class GamesController {
     });
     if (!user) throw new BadRequestException('user not found');
     const Matches: IMatch[] = [];
+
     user.wonGames.forEach((game) => {
       if (!game.isFinished) return;
       Matches.push({
@@ -95,6 +96,9 @@ export class GamesController {
         timestamp: game.createdAt,
       });
     });
-    return Matches;
+
+    return Matches.sort(
+      (a, b) => b.timestamp.getTime() - a.timestamp.getTime(),
+    );
   }
 }
