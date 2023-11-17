@@ -4,6 +4,7 @@ import Pagetitle from "../components/pagetitle/";
 import { AuthContext } from "../context/auth";
 import Button from "../components/button";
 import { BACKEND } from "./SetUser";
+import MatchHistory from "../components/matchhistory/Matchhistory";
 
 const Home: React.FC = () => {
   const auth = useContext(AuthContext);
@@ -66,6 +67,11 @@ const Home: React.FC = () => {
         <Pagetitle>Welcome to WinPong, {auth.user.name}</Pagetitle>
         <h1>Is my Session valid?</h1>
         <Button onClick={handleClick}>{validity ? "Valid" : "Invalid"}</Button>
+        {auth?.user?.intraname ? (
+          <MatchHistory playerName={auth.user.intraname}></MatchHistory>
+        ) : (
+          <></>
+        )}
       </div>
     </>
   );
