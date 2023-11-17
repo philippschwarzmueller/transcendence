@@ -1,5 +1,13 @@
-import { Column, Entity, PrimaryGeneratedColumn, Unique } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  Unique,
+} from 'typeorm';
 import { EGamemode } from './properties';
+import { User } from 'src/users/user.entity';
 
 @Entity('games')
 @Unique(['gameId'])
@@ -13,8 +21,12 @@ export class Game {
   @Column({ nullable: true })
   rightPlayer?: string;
 
-  @Column({ nullable: true })
-  winner?: string;
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'winner' })
+  winner?: User;
+
+  // @Column({ nullable: true })
+  // winner?: User;
 
   @Column({ nullable: true })
   looser?: string;

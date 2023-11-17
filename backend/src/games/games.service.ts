@@ -30,8 +30,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Game } from './game.entity';
 import { Repository } from 'typeorm';
 import { CreateGameDto } from './dto/create-game.dto';
-import { getWinnerLooser, isGameFinished } from './games.utils';
 import { IChangeSocketPayload } from 'src/wsocket/wsocket.gateway';
+import { getWinnerLooserNames, isGameFinished } from './games.utils';
+import { User } from 'src/users/user.entity';
 
 const newGameCopy = (): IGame => {
   return JSON.parse(JSON.stringify(gameSpawn));
@@ -42,6 +43,8 @@ export class GamesService {
   constructor(
     @InjectRepository(Game)
     private gamesRepository: Repository<Game>, // private configService: ConfigService,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
   ) {
     this.runningGames = new Map<string, IGameBackend>();
     this.queuedClients = new Map([
@@ -92,7 +95,7 @@ export class GamesService {
       return returnGame;
     }
 
-    returnGame.winner = databaseGame.winner;
+    returnGame.winner = databaseGame.winner.name;
     returnGame.looser = databaseGame.looser;
     returnGame.winnerPoints = databaseGame.winnerPoints;
     returnGame.looserPoints = databaseGame.looserPoints;
@@ -312,9 +315,9 @@ export class GamesService {
   private async cleanUpFinishedGame(localGame: IGameBackend): Promise<void> {
     this.stop(localGame.gameId);
     localGame.gameState.isFinished = true;
-    const [winner, looser] = getWinnerLooser(localGame);
-    localGame.gameState.winner = winner;
-    localGame.gameState.looser = looser;
+    const [winnerName, looserName] = getWinnerLooserNames(localGame);
+    localGame.gameState.winner = winnerName;
+    localGame.gameState.looser = looserName;
     const winnerPoints = Math.max(
       localGame.gameState.pointsLeft,
       localGame.gameState.pointsRight,
@@ -328,24 +331,25 @@ export class GamesService {
       where: { gameId: localGame.gameId },
     });
 
+    console.log(
+      await this.userRepository.findOne({
+        where: { intraname: winnerName.name },
+      }),
+    );
+
     if (!databaseGame) return;
     const updatedDatabaseGame: CreateGameDto = {
       gameId: localGame.gameId,
-      winner:
-        winner != null &&
-        winner != undefined &&
-        winner.name != '' &&
-        winner.name != undefined &&
-        winner.name != null
-          ? winner.name
-          : 'null',
+      winner: await this.userRepository.findOne({
+        where: { intraname: winnerName.name },
+      }),
       looser:
-        looser != null &&
-        looser != undefined &&
-        looser.name != '' &&
-        looser.name != undefined &&
-        looser.name != null
-          ? looser.name
+        looserName != null &&
+        looserName != undefined &&
+        looserName.name != '' &&
+        looserName.name != undefined &&
+        looserName.name != null
+          ? looserName.name
           : 'null',
       winnerPoints: winnerPoints,
       looserPoints: looserPoints,
