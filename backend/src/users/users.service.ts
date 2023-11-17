@@ -66,7 +66,7 @@ export class UsersService {
     }
   }
 	
-	async getBlockList(userId: string): Promise<User[]> {
+	async getFriendRequestList(userId: string): Promise<User[]> {
     return (await this.usersRepository.findOne({
       where: { name: userId },
       relations: ['received_friend_request'], //blocked

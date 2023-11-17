@@ -3,11 +3,14 @@ import { useNavigate } from "react-router-dom";
 import Pagetitle from "../components/pagetitle/";
 import { AuthContext } from "../context/auth";
 import Button from "../components/button";
+import Input from "../components/input/Input";
 import { BACKEND } from "./SetUser";
+import { IUser } from "../context/auth";
 
 const Home: React.FC = () => {
   const auth = useContext(AuthContext);
   const [validity, setValidity] = useState(false);
+	const [requestedFriend, setRequestedFriend] = useState("");
   let navigate = useNavigate();
 
   const handleClick = async () => {
@@ -52,6 +55,42 @@ const Home: React.FC = () => {
     }
   };
 
+	const handleRequestedFriendInputChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ): void => {
+    setRequestedFriend(e.target.value);
+  };
+
+	const handleFriendrequest = async (): Promise<void> => {
+    const response = await fetch(`${BACKEND}/users/send-friend-request`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+			body: JSON.stringify({ requestedFriend }),
+      credentials: "include",
+    });
+    const success = await response.json();
+    if(success){
+			alert("success");
+			return ;
+		}
+		alert("failed");
+  };
+
+	const handleGetPending = async (): Promise<void> => {
+    const response = await fetch(`${BACKEND}/users/get-pending-friend-requests`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    });
+    const pendingUsers: IUser[] = await response.json();
+		console.log(pendingUsers);
+  };
+	
+
   return (
     <>
       <div
@@ -66,6 +105,14 @@ const Home: React.FC = () => {
         <Pagetitle>Welcome to WinPong, {auth.user.name}</Pagetitle>
         <h1>Is my Session valid?</h1>
         <Button onClick={handleClick}>{validity ? "Valid" : "Invalid"}</Button>
+				<Input
+              label="friend request"
+              placeholder="Enter name of user here"
+              value={requestedFriend}
+              onChange={handleRequestedFriendInputChange}
+        ></Input>
+				<Button onClick={handleFriendrequest}>Send Friend Request</Button>
+				<Button onClick={handleGetPending}>get Pending Friend Requests</Button>
       </div>
     </>
   );

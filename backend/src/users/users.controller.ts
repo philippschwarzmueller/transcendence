@@ -34,6 +34,18 @@ export class UsersController {
 		const token: string = req.cookies.token;
 		const user: User | null = await this.usersService.exchangeTokenforUser(token);
 		const friend: User | null = await this.usersService.findOneByName(body.requestedFriend);
+		if(user === null || friend === null){
+			return false
+		}
+		await this.usersService.addFriend(user.name, friend.name);
 		return true;
+	}
+
+	@Get('get-pending-friend-requests')
+	async getPendingFriendRequests(@Req() req: Request): Promise<User[]> {
+		const token: string = req.cookies.token;
+		const user: User | null = await this.usersService.exchangeTokenforUser(token);
+		const pendingUsers: User[] = await this.usersService.getFriendRequestList(user.name);
+		return pendingUsers;
 	}
 }
