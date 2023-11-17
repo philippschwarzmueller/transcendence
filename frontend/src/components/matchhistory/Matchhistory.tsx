@@ -24,7 +24,7 @@ const Container = styled.div`
   max-width: 400px;
   max-height: 500px;
   margin: auto;
-  overflow: hidden; /* Hide the main container overflow */
+  overflow: hidden;
 `;
 
 const Win98Box = styled.div`
@@ -36,17 +36,13 @@ const Win98Box = styled.div`
     inset 0 0 0 1px rgb(134, 138, 142), 1px 1px 0px 1px rgb(0, 0, 0),
     2px 2px 5px 0px rgba(0, 0, 0, 0.5);
   cursor: pointer;
-  height: 100%; /* Set height to 100% of the parent container */
+  height: 100%;
 `;
 
 const ContentContainer = styled.div`
   display: flex;
   flex-direction: column;
-  height: 100%; /* Set height to 100% of the parent container */
-`;
-
-const TitleContainer = styled.div`
-  margin-bottom: 10px; /* Adjust the margin to create space below the title */
+  height: 100%;
 `;
 
 const Title = styled.div`
@@ -56,16 +52,17 @@ const Title = styled.div`
   font-weight: bold;
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
-  width: 96.5%; /* Add 12px to accommodate scrollbar */
+  width: 96.5%;
   box-shadow: rgb(255, 255, 255) 1px 1px 0px 1px inset,
     rgb(134, 138, 142) 0px 0px 0px 1px inset, rgb(0, 0, 0) 1px 1px 0px 1px;
+  margin-bottom: 10px;
 `;
 
 const MatchListContainer = styled.div`
   overflow-y: auto;
   flex: 1;
-  padding: 8px; /* Add padding to create space between content and edges */
-  box-sizing: border-box; /* Include padding in the element's total width and height */
+  padding: 8px;
+  box-sizing: border-box;
 `;
 
 const MatchList = styled.ul`
@@ -163,9 +160,7 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({ playerName }) => {
     <Container>
       <Win98Box>
         <ContentContainer>
-          <TitleContainer>
-            <Title>Match History</Title>
-          </TitleContainer>
+          <Title>Match History</Title>
           <MatchListContainer>
             <MatchList>
               {matches.slice(0, 10).map((match, index) => (
