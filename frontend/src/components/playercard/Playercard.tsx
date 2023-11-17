@@ -53,6 +53,7 @@ const PlayerCard: React.FC<IUser> = ({ name, profilePictureUrl }) => {
         </div>
       </StyledDiv>
       <ContextMenu
+        name = {name}
         display={showContext}
         positionX={x}
         positionY={y}

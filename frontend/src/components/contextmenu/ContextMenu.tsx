@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useContext } from "react";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
+import { AuthContext } from "../../context/auth";
 
 const StyledUl = styled.ul<{ $display: boolean; $posX: number; $posY: number }>`
   display: ${(props) => (props.$display ? "" : "none")};
@@ -37,28 +38,42 @@ const OptionLi = styled.li`
 `;
 
 export interface IContextMenu {
+  name: string;
   display: boolean;
   positionX: number;
   positionY: number;
   link: string;
 }
 
+const blockProfile = (user: string | undefined, block: string) => {
+  fetch(`http://${window.location.hostname}:4000/users?blocking=${user}&blocked=${block}`, {
+    method: "PUT",
+  }).catch(error => console.log(error));
+}
+
 const ContextMenu: React.FC<IContextMenu> = ({
+  name,
   display,
   positionX,
   positionY,
   link,
 }) => {
+  const user = useContext(AuthContext).user;
+
   return (
     <>
       <StyledUl $display={display} $posX={positionX} $posY={positionY}>
         <OptionLi>🏓 Challenge to Game</OptionLi>
         <LineLi />
-        <OptionLi>💬 Start Chat</OptionLi>
+          <OptionLi>💬 Start Chat</OptionLi>
         <LineLi />
         <Link to={`/profile/${link}`}>
           <OptionLi>👤 Visit Profile</OptionLi>
         </Link>
+        <LineLi />
+        <a onClick={() => blockProfile(user.name, name)}>
+          <OptionLi>🚫 Block Profile</OptionLi>
+        </a>
       </StyledUl>
     </>
   );

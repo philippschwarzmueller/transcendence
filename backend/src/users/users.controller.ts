@@ -4,6 +4,8 @@ import {
   HttpException,
   HttpStatus,
   Param,
+  Query,
+  Put,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from './user.entity';
@@ -27,4 +29,8 @@ export class UsersController {
     }
   }
 
+  @Put()
+  async block(@Query('blocking') blocking: string, @Query('blocked') blocked: string): Promise<void> {
+    return this.usersService.addToBlockList(blocking, blocked);
+  }
 }
