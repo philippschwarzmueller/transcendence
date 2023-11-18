@@ -93,7 +93,7 @@ export class ChatServiceBase {
       const channel = await this.chatDao.getChannelByTitle(data.title);
       client.join(channel.title);
       server.to(data.title).emit('message', `${data.user.name}: joined room`);
-      res = await this.chatDao.getRawChannelMessages(channel.id);
+      res = await this.chatDao.getRawChannelMessages(channel.id, data.user.name);
     } catch (error) {
       console.log(`SYSTEM: ${error.message.split('\n')[0]}`);
     }
