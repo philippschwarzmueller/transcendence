@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
+import { AuthContext } from "../../context/auth";
 
 const StyledNavbar = styled.nav`
   bottom: 0px;
@@ -28,6 +29,7 @@ const StyledLi = styled.button`
 `;
 
 const Navbar: React.FC = () => {
+  const auth = useContext(AuthContext);
   return (
     <StyledNavbar>
       <ul style={{ listStyle: "none", display: "inline-flex" }}>
@@ -49,6 +51,9 @@ const Navbar: React.FC = () => {
         <StyledLi style={{ padding: 10 }}>
           <StyledLink to={"/queue"}>Queue</StyledLink>
         </StyledLi>
+        {auth.user.intraname !== undefined && <StyledLi style={{ padding: 10 }}>
+          <StyledLink to={`/profile/${auth.user.name}`}>My Profile</StyledLink>
+        </StyledLi>}
         <StyledLi></StyledLi>
       </ul>
     </StyledNavbar>

@@ -17,18 +17,20 @@ const Profile: React.FC = () => {
   const auth = useContext(AuthContext);
   let { userId } = useParams();
   let navigate = useNavigate();
-  let [user, setUser] = useState<IUser>();
+  //let [user, setUser] = useState<IUser>();
+  const [ownProfile, setOwnProfile] = useState(false);
 
-  useEffect(() => {
-    if (userId === undefined && !auth.user.token) {
+/*   useEffect(() => {
+    console.log(auth.user.name);
+     if (userId === undefined && !auth.user.token) {
       navigate("/login");
-    }
+    } 
     if (userId) {
       fetch(`${BACKEND}/users/${userId}`)
         .then((res) => res.json())
         .then((resuser) => setUser(resuser));
     }
-  }, [auth.user.token, navigate, userId]);
+  }, [auth.user.token, navigate, userId]); */
 
   let [users, setUsers] = useState<IUser[]>([]);
   useEffect(() => {
@@ -36,6 +38,14 @@ const Profile: React.FC = () => {
       .then((res) => res.json())
       .then((users) => setUsers(users));
   }, []);
+
+  useEffect(() => {
+    if(auth.user.name === userId ){
+      setOwnProfile(true);
+    }
+  }, [auth.user.name, userId])
+
+  console.log(auth.user.name);
 
   return (
     <>
@@ -45,9 +55,9 @@ const Profile: React.FC = () => {
         name={user ? user.name : auth.user.name}
         profilePictureUrl={user ? user.profilePictureUrl : auth.user.image}
       ></ProfilePicture>
-      <Link to="/profile/settings">
+      { ownProfile && <Link to="/profile/settings">
         <Button>Profile Settings</Button>
-      </Link>
+      </Link>}
       <h2>Stats</h2>
       <p>Games played: 420</p>
       <p>Win/Loss: 69%</p>
