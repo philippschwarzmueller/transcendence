@@ -63,6 +63,7 @@ const StatsWindow: React.FC<StatsWindowProps> = ({ intraname }) => {
   const [wonGames, setWonGames] = useState<number>(0);
   const [totalGames, setTotalGames] = useState<number>(0);
   const [elo, setElo] = useState<number>(0);
+  const [winRate, setWinRate] = useState<number>(0);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -74,14 +75,19 @@ const StatsWindow: React.FC<StatsWindowProps> = ({ intraname }) => {
           `${BACKEND}/games/gettotalgamesamount/${intraname}`
         );
         const responseElo = await fetch(`${BACKEND}/games/getelo/${intraname}`);
+        const responseWinRate = await fetch(
+          `${BACKEND}/games/getwinrate/${intraname}`
+        );
 
         const won = await responseWon.json();
         const total = await responseTotal.json();
         const playerElo = await responseElo.json();
+        const rate = await responseWinRate.json();
 
         setWonGames(won);
         setTotalGames(total);
         setElo(playerElo);
+        setWinRate(rate);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -89,9 +95,6 @@ const StatsWindow: React.FC<StatsWindowProps> = ({ intraname }) => {
 
     fetchData();
   }, [intraname]);
-
-  const winRate =
-    totalGames > 0 ? ((wonGames / totalGames) * 100).toFixed(2) : 0;
 
   return (
     <StyledStatsWindow>
@@ -103,7 +106,7 @@ const StatsWindow: React.FC<StatsWindowProps> = ({ intraname }) => {
         </StatItem>
         <StatItem>
           <StatLabel>Win Rate:</StatLabel>
-          <StatValue>{winRate}%</StatValue>
+          <StatValue>{winRate.toFixed(2)}%</StatValue>
         </StatItem>
         <StatItem>
           <StatLabel>Total Games:</StatLabel>

@@ -56,6 +56,16 @@ export class GamesController {
     );
   }
 
+  @Get('getwinrate/:intraname')
+  public async getWinrate(
+    @Param('intraname') intraname: string,
+  ): Promise<number> {
+    const totalGames: number = await this.getTotalGamesAmount(intraname);
+    return totalGames > 0
+      ? ((await this.getWonGamesAmount(intraname)) / totalGames) * 100
+      : 0;
+  }
+
   @Get('getelo/:intraname')
   public async getElo(@Param('intraname') intraname: string): Promise<number> {
     const user: User = await this.userRepository.findOne({
