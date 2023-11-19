@@ -41,6 +41,7 @@ export interface IContextMenu {
   positionX: number;
   positionY: number;
   link: string | undefined;
+  pendingFriend: boolean;
 }
 
 const ContextMenu: React.FC<IContextMenu> = ({
@@ -48,6 +49,7 @@ const ContextMenu: React.FC<IContextMenu> = ({
   positionX,
   positionY,
   link,
+  pendingFriend,
 }) => {
   return (
     <>

@@ -71,4 +71,24 @@ export class UsersController {
       await this.usersService.getReceivedFriendRequestList(user.name);
     return ReceivedFriendRequestsFromUsers;
   }
+
+  @Post('accept-friend-request')
+  async acceptFriendRequest(
+    @Body() body: { friend: string },
+    @Req() req: Request,
+  ): Promise<boolean> {
+    const token: string = req.cookies.token;
+    const user: User | null =
+      await this.usersService.exchangeTokenforUser(token);
+    const friend: User | null = await this.usersService.findOneByName(
+      body.friend,
+    );
+    if (user === null || friend === null) {
+      return false;
+    }
+    console.log(`in controler ${user.name}`);
+    console.log(`in controler ${friend.name}`);
+    await this.usersService.acceptFriendRequest(user.name, friend.name);
+    return true;
+  }
 }

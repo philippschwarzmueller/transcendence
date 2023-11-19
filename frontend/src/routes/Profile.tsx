@@ -16,6 +16,10 @@ const Profile: React.FC = () => {
   const [ownProfile, setOwnProfile] = useState(false);
 
   useEffect(() => {
+    setOwnProfile(auth.user.name === userId);
+  }, [userId, auth.user.name]);
+
+  useEffect(() => {
     const fetchUser = async () => {
       if (userId) {
         try {
@@ -36,11 +40,6 @@ const Profile: React.FC = () => {
     fetchUser();
   }, [userId]);
 
-  useEffect(() => {
-    if (auth.user.name === userId) {
-      setOwnProfile(true);
-    }
-  }, [user])
 
   useEffect(() => {
     const fetchIncomingFriends = async () => {
@@ -57,7 +56,7 @@ const Profile: React.FC = () => {
         }
         const friends = await res.json();
         setIncomingFriends(friends);
-        console.log(incomingFriends)
+        console.log(friends)
       } catch(error) {
         console.error('Error fetching pendingFriendRequests:', error);
       }
@@ -81,7 +80,7 @@ const Profile: React.FC = () => {
       <p>Games played: 420</p>
       <p>Win/Loss: 69%</p>
       {ownProfile && <h2>Incoming friend requests</h2>}
-      { <CenterDiv>
+      {ownProfile && <CenterDiv>
         <ul
           style={{
             display: "flex",
@@ -103,11 +102,6 @@ const Profile: React.FC = () => {
           })}
         </ul>
       </CenterDiv>}
-      {userId === undefined ? (
-        <Link to="/profile/settings">
-          <Button>Change Settings</Button>
-        </Link>
-      ) : null}
     </>
   );
 };

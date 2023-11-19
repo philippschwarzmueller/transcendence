@@ -94,4 +94,18 @@ export class User {
     },
   })
   friend_requests_received: User[];
+
+  @ManyToMany(() => User)
+  @JoinTable({
+    name: 'friends',
+    joinColumn: {
+      name: 'user_id',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'friend_id',
+      referencedColumnName: 'id',
+    },
+  })
+  friends: User[];
 }
