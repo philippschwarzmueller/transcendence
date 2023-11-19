@@ -1,8 +1,8 @@
 import { BadRequestException, Controller, Get, Param } from '@nestjs/common';
 import { User } from '../users/user.entity';
-import { Game } from './game.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { EGamemode } from './properties';
 
 interface IMatch {
   winnerNickname: string;
@@ -12,13 +12,12 @@ interface IMatch {
   wonGame: boolean;
   timestamp: Date;
   enemyIntra: string;
+  gamemode: EGamemode;
 }
 
 @Controller('games')
 export class GamesController {
   constructor(
-    @InjectRepository(Game)
-    private gamesRepository: Repository<Game>, // private configService: ConfigService,
     @InjectRepository(User)
     private userRepository: Repository<User>,
   ) {}
@@ -97,6 +96,7 @@ export class GamesController {
           game.winner.name === intraname
             ? game.looser.intraname
             : game.winner.intraname,
+        gamemode: game.gamemode,
       });
     });
     user.lostGames.forEach((game) => {
@@ -112,6 +112,7 @@ export class GamesController {
           game.winner.name === intraname
             ? game.looser.intraname
             : game.winner.intraname,
+        gamemode: game.gamemode,
       });
     });
 

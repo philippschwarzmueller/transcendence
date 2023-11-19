@@ -18,7 +18,7 @@ export enum EGamemode {
   standard = 1,
   roomMovement = 2,
 }
-const gameModeNames: Map<EGamemode, string> = new Map([
+export const gameModeNames: Map<EGamemode, string> = new Map([
   [EGamemode.standard, "PONG Original"],
   [EGamemode.roomMovement, "PONG 2D"],
 ]);

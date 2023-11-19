@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { BACKEND } from "../../routes/SetUser";
+import { EGamemode } from "../gamewindow/properties";
+import { gameModeNames } from "../queuebutton/Queuebutton";
 
 interface IMatch {
   winnerNickname: string;
@@ -11,6 +13,7 @@ interface IMatch {
   wonGame: boolean;
   timestamp: Date;
   enemyIntra: string;
+  gamemode: EGamemode;
 }
 
 interface MatchHistoryProps {
@@ -21,7 +24,7 @@ const Container = styled.div`
   position: relative;
   text-align: center;
   width: 100%;
-  max-width: 400px;
+  max-width: 500px;
   max-height: 500px;
   margin: auto;
   overflow: hidden;
@@ -77,6 +80,7 @@ const MatchItem = styled.li<{ won: boolean }>`
   padding: 15px;
   display: flex;
   justify-content: space-between;
+  align-items: center; // Center items vertically
   border: 1px solid #000080;
   border-radius: 3px;
   box-shadow: rgb(255, 255, 255) 1px 1px 0px 1px inset,
@@ -104,7 +108,7 @@ const MatchTimestamp = styled.div`
 const MatchPlayers = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-end; // Align items to the right
 `;
 
 const MatchPlayer = styled.div`
@@ -132,6 +136,11 @@ const ScoreSeparator = styled.div`
   color: #808080;
 `;
 
+const GameModeName = styled.div`
+  color: #336699;
+  font-weight: bold;
+`;
+
 const MatchHistory: React.FC<MatchHistoryProps> = ({ intraname }) => {
   const [matches, setMatches] = useState<IMatch[]>([]);
   const navigate = useNavigate();
@@ -154,6 +163,10 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({ intraname }) => {
 
   const handleMatchClick = (enemyIntra: string) => {
     navigate(`/profile/${enemyIntra}`);
+  };
+
+  const getGameModeName = (gamemode: EGamemode) => {
+    return gameModeNames.get(gamemode) || "";
   };
 
   return (
@@ -193,6 +206,7 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({ intraname }) => {
                     <ScoreSeparator>-</ScoreSeparator>
                     <MatchScore>{match.looserPoints}</MatchScore>
                   </MatchScores>
+                  <GameModeName>{getGameModeName(match.gamemode)}</GameModeName>
                 </MatchItem>
               ))}
             </MatchList>
