@@ -35,17 +35,17 @@ export class UsersController {
     @Req() req: Request,
   ): Promise<boolean> {
     const token: string = req.cookies.token;
-		console.log(token);
+    console.log(token);
     const user: User | null =
       await this.usersService.exchangeTokenforUser(token);
     const friend: User | null = await this.usersService.findOneByName(
       body.requestedFriend,
     );
-		console.log(friend);
+    console.log(friend);
     if (user === null || friend === null) {
       return false;
     }
-		console.log(`in controler ${user.name}`);
+    console.log(`in controler ${user.name}`);
     console.log(`in controler ${friend.name}`);
     await this.usersService.addFriend(user.name, friend.name);
     return true;
@@ -67,9 +67,8 @@ export class UsersController {
     const token: string = req.cookies.token;
     const user: User | null =
       await this.usersService.exchangeTokenforUser(token);
-    const ReceivedFriendRequestsFromUsers: User[] = await this.usersService.getReceivedFriendRequestList(
-      user.name,
-    );
+    const ReceivedFriendRequestsFromUsers: User[] =
+      await this.usersService.getReceivedFriendRequestList(user.name);
     return ReceivedFriendRequestsFromUsers;
   }
 }
