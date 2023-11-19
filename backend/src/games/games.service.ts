@@ -301,6 +301,29 @@ export class GamesService {
     return this.runningGames.get(gameId).gameState;
   }
 
+  private calculateNewElo(
+    winnerElo: number,
+    looserElo: number,
+  ): [number, number] {
+    const eloFactor: number = 32;
+    const winChance: number = 1 / (1 + 10 ** ((looserElo - winnerElo) / 400));
+    const lossChance: number = 1 / (1 + 10 ** ((winnerElo - looserElo) / 400));
+    const newWinnerElo: number = winnerElo + eloFactor * (1 - winChance);
+    const newLooserElo: number = looserElo + eloFactor * (0 - lossChance);
+    return [Math.floor(newWinnerElo), Math.floor(newLooserElo)];
+  }
+
+  private async handleElo(
+    winner: User,
+    looser: User,
+    gamemode: EGamemode,
+  ): Promise<void> {
+    if (gamemode != EGamemode.standard) return;
+    [winner.elo, looser.elo] = this.calculateNewElo(winner.elo, looser.elo);
+    this.userRepository.save(winner);
+    this.userRepository.save(looser);
+  }
+
   private async cleanUpFinishedGame(localGame: IGameBackend): Promise<void> {
     this.stop(localGame.gameId);
     localGame.gameState.isFinished = true;
@@ -333,6 +356,8 @@ export class GamesService {
     gameToUpdate.winnerPoints = winnerPoints;
     gameToUpdate.looserPoints = looserPoints;
     gameToUpdate.isFinished = true;
+
+    await this.handleElo(winner, looser, localGame.gamemode);
 
     this.gamesRepository
       .save(gameToUpdate)
