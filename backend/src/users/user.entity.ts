@@ -1,5 +1,13 @@
-import { Channels, Messages } from 'src/chat/chat.entity';
-import { Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn, Unique } from 'typeorm';
+import { Channels } from 'src/chat/chat.entity';
+import {
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  Unique,
+} from 'typeorm';
 
 @Entity('users')
 @Unique(['name'])
@@ -7,21 +15,21 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToMany(type => Channels)
+  @ManyToMany(() => Channels)
   @JoinTable({
-      name: "channel_subscription",
-      joinColumn: {
-          name: "user",
-          referencedColumnName: "id"
-      },
-      inverseJoinColumn: {
-          name: "channel",
-          referencedColumnName: "id"
-      }
+    name: 'channel_subscription',
+    joinColumn: {
+      name: 'user',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'channel',
+      referencedColumnName: 'id',
+    },
   })
   channels: Channels[];
 
-  @OneToMany(() => Channels, channel => channel.owner)
+  @OneToMany(() => Channels, (channel) => channel.owner)
   owned: Channels[];
 
   @Column({ name: 'name' })
@@ -37,10 +45,10 @@ export class User {
   token: string;
 
   @Column({ default: 'hashedToken' })
-	hashedToken: string;
+  hashedToken: string;
 
   @Column({ default: false })
-	twoFAenabled: boolean;
+  twoFAenabled: boolean;
 
   @Column({ default: 'twoFAsecret' })
   twoFAsecret: string;
@@ -56,10 +64,10 @@ export class User {
   @Column('text', { array: true, default: [] })
   activeChats: string[];
 
-  @Column({default: 0, })
+  @Column({ default: 0 })
   tokenExpiry: number;
 
-	@ManyToMany(() => User)
+  @ManyToMany(() => User)
   @JoinTable({
     name: 'pending_friend_list', //blocked list
     joinColumn: {
@@ -73,7 +81,7 @@ export class User {
   })
   friend_requested: User[];
 
-	@ManyToMany(() => User)
+  @ManyToMany(() => User)
   @JoinTable({
     name: 'pending_friend_list',
     joinColumn: {
@@ -86,5 +94,4 @@ export class User {
     },
   })
   friend_requests_received: User[];
-
 }

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import Avatar from "../avatar";
 import ContextMenu from "../contextmenu/ContextMenu";
-import { IUser } from "../../routes/Profile";
+import { IUser } from "../../context/auth";
 
 const StyledDiv = styled.div`
   text-align: center;

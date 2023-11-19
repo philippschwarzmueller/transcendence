@@ -42,7 +42,7 @@ const Home: React.FC = () => {
           name: data.name,
           intraname: data.intraname,
           twoFAenabled: data.twoFAenabled,
-          image: data.profilePictureUrl,
+          profilePictureUrl: data.profilePictureUrl,
           activeChats: data.activeChats,
         });
       }

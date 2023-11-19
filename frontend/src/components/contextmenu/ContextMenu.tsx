@@ -40,7 +40,7 @@ export interface IContextMenu {
   display: boolean;
   positionX: number;
   positionY: number;
-  link: string;
+  link: string | undefined;
 }
 
 const ContextMenu: React.FC<IContextMenu> = ({
@@ -56,9 +56,9 @@ const ContextMenu: React.FC<IContextMenu> = ({
         <LineLi />
         <OptionLi>💬 Start Chat</OptionLi>
         <LineLi />
-        <Link to={`/profile/${link}`}>
+        {link !== undefined && <Link to={`/profile/${link}`}>
           <OptionLi>👤 Visit Profile</OptionLi>
-        </Link>
+        </Link>}
       </StyledUl>
     </>
   );

@@ -1,68 +1,64 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import Button from "../components/button";
 import Playercard from "../components/playercard";
 import CenterDiv from "../components/centerdiv";
 import ProfilePicture from "../components/profilepicture/ProfilePicture";
-import { AuthContext } from "../context/auth";
+import { IUser, AuthContext } from "../context/auth";
 import { BACKEND } from "./SetUser";
 
-export interface IUser {
-  id: number;
-  name: string;
-  profilePictureUrl: string;
-}
 
 const Profile: React.FC = () => {
   const auth = useContext(AuthContext);
   let { userId } = useParams();
-  let navigate = useNavigate();
-  //let [user, setUser] = useState<IUser>();
+  let [user, setUser] = useState<IUser>();
   const [ownProfile, setOwnProfile] = useState(false);
 
-/*   useEffect(() => {
-    console.log(auth.user.name);
-     if (userId === undefined && !auth.user.token) {
-      navigate("/login");
-    } 
-    if (userId) {
-      fetch(`${BACKEND}/users/${userId}`)
-        .then((res) => res.json())
-        .then((resuser) => setUser(resuser));
-    }
-  }, [auth.user.token, navigate, userId]); */
-
-  let [users, setUsers] = useState<IUser[]>([]);
   useEffect(() => {
-    fetch(`${BACKEND}/users`)
-      .then((res) => res.json())
-      .then((users) => setUsers(users));
+    const fetchUser = async () => {
+      if (userId) {
+        try {
+          const res = await fetch(`${BACKEND}/users/${userId}`);
+          if (!res.ok) {
+            throw new Error('Network response was not ok');
+          }
+          const profileUser = await res.json();
+          setUser(profileUser);
+        } catch (error) {
+          console.error('Error fetching user:', error);
+        }
+      } else {
+        setUser(auth.user);
+      }
+    };
+    
+    fetchUser();
   }, []);
 
   useEffect(() => {
-    if(auth.user.name === userId ){
+    if (auth.user.name === userId) {
       setOwnProfile(true);
     }
-  }, [auth.user.name, userId])
-
-  console.log(auth.user.name);
+  }, [user])
 
   return (
     <>
-      <h1>{user ? user.name : auth.user.name}'s Profile</h1>
-      <p>{user ? user.profilePictureUrl : auth.user.image}</p>
+      <h1>{user?.name}'s Profile</h1>
+      <p>{user?.profilePictureUrl}</p>
       <ProfilePicture
-        name={user ? user.name : auth.user.name}
-        profilePictureUrl={user ? user.profilePictureUrl : auth.user.image}
-      ></ProfilePicture>
-      { ownProfile && <Link to="/profile/settings">
-        <Button>Profile Settings</Button>
-      </Link>}
+        name={user?.name}
+        profilePictureUrl={user?.profilePictureUrl}
+      />
+      {ownProfile && (
+        <Link to="/profile/settings">
+          <Button>Profile Settings</Button>
+        </Link>
+      )}
       <h2>Stats</h2>
       <p>Games played: 420</p>
       <p>Win/Loss: 69%</p>
       <h2>All Users From Backend As Friends</h2>
-      <CenterDiv>
+      {/*  <CenterDiv>
         <ul
           style={{
             display: "flex",
@@ -76,14 +72,14 @@ const Profile: React.FC = () => {
               <li key={users.name}>
                 <Playercard
                   name={users.name}
-                  profilePictureUrl={users.profilePictureUrl}
+                  image={users.image}
                   id={users.id}
                 />
               </li>
             );
           })}
         </ul>
-      </CenterDiv>
+      </CenterDiv> */}
       {userId === undefined ? (
         <Link to="/profile/settings">
           <Button>Change Settings</Button>
