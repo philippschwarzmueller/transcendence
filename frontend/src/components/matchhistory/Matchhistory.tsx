@@ -74,8 +74,13 @@ const MatchList = styled.ul`
   margin: 0;
 `;
 
-const MatchItem = styled.li<{ won: boolean }>`
-  background-color: ${(props) => (props.won ? "#a5d6a7" : "#ef9a9a")};
+interface MatchItemProps {
+  won: string;
+}
+
+const MatchItem = styled.li<MatchItemProps>`
+  background-color: ${(props) =>
+    props.won === "true" ? "#a5d6a7" : "#ef9a9a"};
   margin-bottom: 10px;
   padding: 15px;
   display: flex;
@@ -93,8 +98,9 @@ const MatchDetails = styled.div`
   align-items: flex-start;
 `;
 
-const MatchStatus = styled.div<{ won: boolean }>`
-  background-color: ${(props) => (props.won ? "#2e7d32" : "#c62828")};
+const MatchStatus = styled.div<{ won: string }>`
+  background-color: ${(props) =>
+    props.won === "true" ? "#2e7d32" : "#c62828"};
   color: #ffffff;
   padding: 5px;
   border-radius: 3px;
@@ -179,11 +185,11 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({ intraname }) => {
               {matches.slice(0, 10).map((match, index) => (
                 <MatchItem
                   key={index}
-                  won={match.wonGame}
+                  won={match.wonGame.toString()}
                   onClick={() => handleMatchClick(match.enemyIntra)}
                 >
                   <MatchDetails>
-                    <MatchStatus won={match.wonGame}>
+                    <MatchStatus won={match.wonGame.toString()}>
                       {match.wonGame ? "🏆" : "😞"}
                     </MatchStatus>
                     <MatchTimestamp>
