@@ -319,9 +319,13 @@ export class GamesService {
     gamemode: EGamemode,
   ): Promise<void> {
     if (gamemode != EGamemode.standard) return;
-    [winner.elo, looser.elo] = this.calculateNewElo(winner.elo, looser.elo);
-    this.userRepository.save(winner);
-    this.userRepository.save(looser);
+    const [latestWinnerElo, latestLooserElo] = this.calculateNewElo(
+      winner.elo[winner.elo.length - 1],
+      looser.elo[looser.elo.length - 1],
+    );
+    winner.elo.push(latestWinnerElo);
+    looser.elo.push(latestLooserElo);
+    await this.userRepository.save([winner, looser]);
   }
 
   private async cleanUpFinishedGame(localGame: IGameBackend): Promise<void> {

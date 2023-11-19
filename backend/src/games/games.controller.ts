@@ -72,6 +72,17 @@ export class GamesController {
       where: { intraname: intraname },
     });
     if (!user) throw new BadRequestException('user not found');
+    return user.elo[user.elo.length - 1];
+  }
+
+  @Get('getallelo/:intraname')
+  public async getAllElo(
+    @Param('intraname') intraname: string,
+  ): Promise<number[]> {
+    const user: User = await this.userRepository.findOne({
+      where: { intraname: intraname },
+    });
+    if (!user) throw new BadRequestException('user not found');
     return user.elo;
   }
 

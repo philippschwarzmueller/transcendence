@@ -75,6 +75,8 @@ export class User {
   @OneToMany(() => Game, (game) => game.looser)
   lostGames: Game[];
 
-  @Column({ default: 1000 })
-  elo: number;
+  @Column('jsonb', {
+    default: [1000, 1000, 1000, 1000, 1000],
+  })
+  elo: number[];
 }

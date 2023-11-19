@@ -6,6 +6,7 @@ import Button from "../components/button";
 import { BACKEND } from "./SetUser";
 import MatchHistory from "../components/matchhistory/Matchhistory";
 import StatsWindow from "../components/stats/StatsWindow";
+import GraphComponent from "../components/elograph/elograph";
 
 const Home: React.FC = () => {
   const auth = useContext(AuthContext);
@@ -72,6 +73,7 @@ const Home: React.FC = () => {
           <>
             <StatsWindow intraname={auth.user.intraname}></StatsWindow>
             <MatchHistory intraname={auth.user.intraname}></MatchHistory>
+            <GraphComponent intraname={auth.user.intraname}></GraphComponent>
           </>
         ) : (
           <></>
