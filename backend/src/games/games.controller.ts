@@ -57,6 +57,15 @@ export class GamesController {
     );
   }
 
+  @Get('getelo/:intraname')
+  public async getElo(@Param('intraname') intraname: string): Promise<number> {
+    const user: User = await this.userRepository.findOne({
+      where: { intraname: intraname },
+    });
+    if (!user) throw new BadRequestException('user not found');
+    return user.elo;
+  }
+
   @Get('getallgames/:intraname')
   public async getallgames(
     @Param('intraname') intraname: string,
