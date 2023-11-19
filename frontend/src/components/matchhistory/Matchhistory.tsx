@@ -14,7 +14,7 @@ interface IMatch {
 }
 
 interface MatchHistoryProps {
-  playerName: string;
+  intraname: string;
 }
 
 const Container = styled.div`
@@ -132,7 +132,7 @@ const ScoreSeparator = styled.div`
   color: #808080;
 `;
 
-const MatchHistory: React.FC<MatchHistoryProps> = ({ playerName }) => {
+const MatchHistory: React.FC<MatchHistoryProps> = ({ intraname }) => {
   const [matches, setMatches] = useState<IMatch[]>([]);
   const navigate = useNavigate();
 
@@ -140,7 +140,7 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({ playerName }) => {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          `${BACKEND}/games/getallgames/${playerName}`
+          `${BACKEND}/games/getallgames/${intraname}`
         );
         const data = await response.json();
         setMatches(data);
@@ -150,7 +150,7 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({ playerName }) => {
     };
 
     fetchData();
-  }, [playerName]);
+  }, [intraname]);
 
   const handleMatchClick = (enemyIntra: string) => {
     navigate(`/profile/${enemyIntra}`);

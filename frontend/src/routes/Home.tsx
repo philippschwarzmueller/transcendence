@@ -70,8 +70,8 @@ const Home: React.FC = () => {
         <Button onClick={handleClick}>{validity ? "Valid" : "Invalid"}</Button>
         {auth?.user?.intraname ? (
           <>
-            <MatchHistory playerName={auth.user.intraname}></MatchHistory>
             <StatsWindow intraname={auth.user.intraname}></StatsWindow>
+            <MatchHistory intraname={auth.user.intraname}></MatchHistory>
           </>
         ) : (
           <></>
