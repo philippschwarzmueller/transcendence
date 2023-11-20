@@ -24,6 +24,32 @@ export class LeaderboardService {
   ) {}
 
   public async getData(gamemode: string): Promise<ILeaderboardLine[]> {
-    return [];
+    const allData: ILeaderboardLine[] = [];
+    const allUsers: User[] = await this.userRepository.find({
+      relations: ['wonGames', 'lostGames'],
+    });
+    allUsers.forEach((user) => {
+      let wonGames: number = 0;
+      user.wonGames.forEach((game) => {
+        if (gamemode === '0' || gamemode === game.gamemode.toString())
+          wonGames++;
+      });
+      let lostGames: number = 0;
+      user.lostGames.forEach((game) => {
+        if (gamemode === '0' || gamemode === game.gamemode.toString())
+          lostGames++;
+      });
+      const newDataEntry: ILeaderboardLine = {
+        intraname: user.intraname,
+        nickname: user.name,
+        elo: user.elo[user.elo.length - 1],
+        wonGames: wonGames,
+        winrate:
+          wonGames || lostGames ? (wonGames * 100) / (wonGames + lostGames) : 0,
+        totalGames: wonGames + lostGames,
+      };
+      allData.push(newDataEntry);
+    });
+    return allData;
   }
 }
