@@ -69,24 +69,8 @@ const Home: React.FC = () => {
         <Pagetitle>Welcome to WinPong, {auth.user.name}</Pagetitle>
         <h1>Is my Session valid?</h1>
         <Button onClick={handleClick}>{validity ? "Valid" : "Invalid"}</Button>
-        <Dropdown
-          title="title"
-          items={[
-            {
-              label: "first",
-              func: () => {
-                console.log("first");
-              },
-            },
-            {
-              label: "second",
-              func: () => {
-                console.log("second");
-              },
-            },
-          ]}
-        ></Dropdown>
-        <Leaderboard></Leaderboard>
+
+        <Leaderboard />
       </div>
     </>
   );

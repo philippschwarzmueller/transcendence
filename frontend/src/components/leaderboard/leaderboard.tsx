@@ -59,9 +59,8 @@ const Leaderboard: React.FC = () => {
   useEffect(() => {
     const sortedData = [...data];
     sortData(sortedData, sortedBy);
-
     setData(sortedData);
-  }, [sortedBy]);
+  }, [sortedBy, gamemode]);
 
   useEffect(() => {
     if (checkedStandardBox && checked2dBox) setGamemode("0");
