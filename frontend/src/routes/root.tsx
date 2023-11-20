@@ -4,6 +4,7 @@ import Nav from "../components/nav";
 import GlobalStyle from "./GlobalStyle";
 import { AuthContext, IUser } from "../context/auth";
 import { SocketContext, awSocket } from "../context/socket";
+import RefreshProvider from "../components/refresh/RefreshProvider";
 
 const Root: React.FC = () => {
   const [user, setUser] = React.useState<IUser>({
@@ -29,13 +30,16 @@ const Root: React.FC = () => {
       activeChats: [],
     });
   };
+
   return (
     <>
       <AuthContext.Provider value={{ user, logIn, logOut }}>
         <SocketContext.Provider value={awSocket}>
-          <GlobalStyle />
-          <Nav />
-          <Outlet />
+          <RefreshProvider>
+            <GlobalStyle />
+            <Nav />
+            <Outlet />
+          </RefreshProvider>
         </SocketContext.Provider>
       </AuthContext.Provider>
     </>

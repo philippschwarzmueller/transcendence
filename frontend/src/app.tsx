@@ -19,14 +19,7 @@ function App() {
       <Route path="/" element={<Root />} errorElement={<ErrorPage />}>
         <Route index element={<Home />} />
         <Route path="home" element={<Home />} />
-        <Route
-          path="play"
-          element={
-            <PrivateRoute>
-              <Game />
-            </PrivateRoute>
-          }
-        >
+        <Route path="play" element={<Game />}>
           <Route path=":gameId" element={<Game />}>
             <Route path=":side" element={<Game />} />
           </Route>
