@@ -96,7 +96,7 @@ const Userbrowser: React.FC<IUserBrowser> = ({
       <StyledUl>
         {users.map((user) => {
           return (
-          <StyledLi onClick={(e) => openContextMenu(e, user)}>{user}</StyledLi>
+          <StyledLi key={user} onClick={(e) => openContextMenu(e, user)}>{user}</StyledLi>
           );
         })}
       </StyledUl></Browser>
