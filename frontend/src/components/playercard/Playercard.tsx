@@ -36,9 +36,10 @@ interface PlayerCardProps {
   name: string | undefined;
   id: number | undefined,
   profilePictureUrl: string | undefined,
+  pendingFriend: boolean;
 }
 
-const PlayerCard: React.FC<PlayerCardProps> = ({ name, profilePictureUrl }) => {
+const PlayerCard: React.FC<PlayerCardProps> = ({ name, profilePictureUrl, pendingFriend }) => {
   let [showContext, setShowContext] = useState<boolean>(false);
   let [x, setX] = useState<number>(0);
   let [y, setY] = useState<number>(0);
@@ -61,6 +62,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ name, profilePictureUrl }) => {
         positionX={x}
         positionY={y}
         link={name}
+        pendingFriend={pendingFriend}
       />
     </>
   );

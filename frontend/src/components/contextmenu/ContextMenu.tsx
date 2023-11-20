@@ -54,6 +54,10 @@ const ContextMenu: React.FC<IContextMenu> = ({
   return (
     <>
       <StyledUl $display={display} $posX={positionX} $posY={positionY}>
+        {pendingFriend && <OptionLi>👥 Accept friend request</OptionLi>}
+        {pendingFriend && <LineLi />}
+        <OptionLi>🚫 Block User</OptionLi>
+        <LineLi />
         <OptionLi>🏓 Challenge to Game</OptionLi>
         <LineLi />
         <OptionLi>💬 Start Chat</OptionLi>
