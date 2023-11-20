@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
+import React, { useState } from "react";
+import styled from "styled-components";
 
 const DropdownWrapper = styled.div`
   position: relative;
@@ -33,12 +33,15 @@ const Menu = styled.ul<MenuProps>`
   border: 1px solid #000;
   box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
   z-index: 1;
-  display: ${(props) => (props.open ? 'block' : 'none')};
+  display: ${(props) => (props.open ? "block" : "none")};
 `;
 
 const MenuItem = styled.li`
   padding: 8px 16px;
   cursor: pointer;
+  &:hover {
+    background-color: #094c4c;
+  }
 `;
 
 interface DropdownItem {
@@ -55,7 +58,7 @@ const Dropdown: React.FC<DropdownProps> = (props) => {
   const [open, setOpen] = useState<boolean>(false);
 
   // Get the last label from the items array
-  const lastLabel = props.items.length > 0 ? props.items[props.items.length - 1].label : '';
+  const [lastLabel, setLastLabel] = useState<string>(props.items[0].label);
 
   return (
     <DropdownWrapper>
@@ -73,6 +76,7 @@ const Dropdown: React.FC<DropdownProps> = (props) => {
             key={index}
             onClick={() => {
               item.func();
+              setLastLabel(item.label);
               setOpen(false);
             }}
           >
