@@ -43,6 +43,8 @@ const Leaderboard: React.FC = () => {
   const [data, setData] = useState<ILeaderboardLine[]>([]);
   const [gamemode, setGamemode] = useState<string>("0");
   const [sortedBy, setSortedBy] = useState<ESortedBy>(ESortedBy.Elo);
+  const [checkedStandardBox, setCheckedStandardBox] = useState<boolean>(true);
+  const [checked2dBox, setChecked2dBox] = useState<boolean>(true);
 
   useEffect(() => {
     fetch(`${BACKEND}/leaderboard/data/${gamemode}`)
@@ -60,40 +62,70 @@ const Leaderboard: React.FC = () => {
     setData(sortedData);
   }, [sortedBy]);
 
+  useEffect(() => {
+    if (checkedStandardBox && checked2dBox) setGamemode("0");
+    else if (checkedStandardBox && !checked2dBox) setGamemode("1");
+    else if (!checkedStandardBox && checked2dBox) setGamemode("2");
+    else setGamemode("3");
+  }, [checkedStandardBox, checked2dBox]);
   return (
     <>
       {/* <Win98Box> */}
       <h1>Leaderboard</h1>
-      <h2>enter boxes + sorting here</h2>
-      <Dropdown
-        title="select sorting"
-        items={[
-          {
-            label: "Elo",
-            func: () => {
-              setSortedBy(ESortedBy.Elo);
+      <div>
+        <div>
+          <p>standard</p>
+          <input
+            type="checkbox"
+            checked={checkedStandardBox}
+            onChange={() => {
+              setCheckedStandardBox(!checkedStandardBox);
+              console.log("checked standard box");
+            }}
+          />
+        </div>
+        <div>
+          <p>2d</p>
+          <input
+            type="checkbox"
+            title="2d"
+            checked={checked2dBox}
+            onChange={() => {
+              setChecked2dBox(!checked2dBox);
+              console.log("checked 2d box");
+            }}
+          />
+        </div>
+        <Dropdown
+          title="select sorting"
+          items={[
+            {
+              label: "Elo",
+              func: () => {
+                setSortedBy(ESortedBy.Elo);
+              },
             },
-          },
-          {
-            label: "WonGames",
-            func: () => {
-              setSortedBy(ESortedBy.WonGames);
+            {
+              label: "WonGames",
+              func: () => {
+                setSortedBy(ESortedBy.WonGames);
+              },
             },
-          },
-          {
-            label: "Winrate",
-            func: () => {
-              setSortedBy(ESortedBy.Winrate);
+            {
+              label: "Winrate",
+              func: () => {
+                setSortedBy(ESortedBy.Winrate);
+              },
             },
-          },
-          {
-            label: "TotalGames",
-            func: () => {
-              setSortedBy(ESortedBy.TotalGames);
+            {
+              label: "TotalGames",
+              func: () => {
+                setSortedBy(ESortedBy.TotalGames);
+              },
             },
-          },
-        ]}
-      ></Dropdown>
+          ]}
+        ></Dropdown>
+      </div>
       <table>
         <tr>
           <th>Rank</th>
