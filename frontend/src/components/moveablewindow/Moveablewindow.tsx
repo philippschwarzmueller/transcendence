@@ -1,7 +1,7 @@
 import { ReactNode, useState } from "react";
 import styled from "styled-components";
 
-const StyledWindow = styled.div<{ $display: boolean , $posZ: number}>`
+const StyledWindow = styled.div<{ $display: boolean; $posZ: number }>`
   position: absolute;
   z-index: ${(props) => props.$posZ};
   display: ${(props) => (props.$display ? "" : "none")};
@@ -26,13 +26,13 @@ const Windowbar = styled.div`
 `;
 
 interface IMoveableWindow {
-    title: string;
-    positionX: number;
-    positionY: number;
-    positionZ: number;
-    display: boolean;
-    children: ReactNode;
-  }
+  title: string;
+  positionX: number;
+  positionY: number;
+  positionZ: number;
+  display: boolean;
+  children: ReactNode;
+}
 
 const Moveablewindow: React.FC<IMoveableWindow> = ({
   title,
@@ -42,7 +42,7 @@ const Moveablewindow: React.FC<IMoveableWindow> = ({
   display,
   children,
 }) => {
-  const [position, setPosition] = useState({ x: positionX, y: positionY});
+  const [position, setPosition] = useState({ x: positionX, y: positionY });
   const [offset, setOffset] = useState({ x: 0, y: 0 });
 
   const startDrag = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -92,7 +92,11 @@ const Moveablewindow: React.FC<IMoveableWindow> = ({
 
   return (
     <>
-      <StyledWindow $posZ={positionZ} $display={display} style={{ top: position.y, left: position.x }}>
+      <StyledWindow
+        $posZ={positionZ}
+        $display={display}
+        style={{ top: position.y, left: position.x }}
+      >
         <Windowbar
           draggable={true}
           onDragStart={startDrag}
@@ -103,7 +107,7 @@ const Moveablewindow: React.FC<IMoveableWindow> = ({
           <img
             width="16"
             height="16"
-            src={require('../../images/monitor.png')}
+            src={require("../../images/monitor.png")}
             alt="Monitor"
           ></img>
           {title}
