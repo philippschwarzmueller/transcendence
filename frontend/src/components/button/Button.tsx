@@ -20,18 +20,12 @@ const Button = styled.button<{$position?: string, $top?: string, $right?: string
   }
 
   &:focus {
-    outline: 1px dotted rgb(0, 0, 0);
-    outline-offset: -5px;
-
     box-shadow: inset 1px 1px 0px 1px rgb(255, 255, 255),
       inset 0 0 0 1px rgb(134, 138, 142), 1px 1px 0 0px rgb(0, 0, 0);
   }
 
   &:active {
     padding: 8 20 4;
-
-    outline: 1px dotted rgb(0, 0, 0);
-    outline-offset: -5px;
 
     box-shadow: inset 0 0 0 1px rgb(134, 138, 142), 0 0 0 1px rgb(0, 0, 0);
   }

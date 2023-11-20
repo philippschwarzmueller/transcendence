@@ -22,7 +22,7 @@ const Windowbar = styled.div`
   background: rgb(0, 14, 122);
   color: White;
   font-size: 1em;
-  cursor: pointer;
+  cursor: grab;
 `;
 
 interface IMoveableWindow {

@@ -85,7 +85,11 @@ const StyledUl = styled.ul`
   list-style: none;
 `;
 
-const Chatwindow: React.FC = () => {
+interface props {
+  $display: boolean;
+}
+
+const Chatwindow: React.FC<props> = ({$display}) => {
   const [messages, setMessages] = useState<string[]>([]);
   const [input, setInput] = useState<string>("");
   const user: IUser = useContext(AuthContext).user;
@@ -169,7 +173,7 @@ const Chatwindow: React.FC = () => {
         positionX={200}
         positionY={200}
         positionZ={0}
-        display={true}
+        display={$display}
         >
         <Tabbar>
           {tabs.map((tab) => {
