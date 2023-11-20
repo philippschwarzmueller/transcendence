@@ -5,6 +5,15 @@ import { Repository } from 'typeorm';
 import { User } from 'src/users/user.entity';
 import { Game } from 'src/games/game.entity';
 
+export interface ILeaderboardLine {
+  intraname: string;
+  nickname: string;
+  elo: number;
+  wonGames: number;
+  winrate: number;
+  totalGames: number;
+}
+
 @Injectable()
 export class LeaderboardService {
   constructor(
@@ -14,7 +23,7 @@ export class LeaderboardService {
     private userRepository: Repository<User>,
   ) {}
 
-  public test(): string {
-    return 'working';
+  public async getData(gamemode: string): Promise<ILeaderboardLine[]> {
+    return [];
   }
 }

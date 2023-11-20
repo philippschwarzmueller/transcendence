@@ -1,8 +1,8 @@
-import { Controller, Get, Inject } from '@nestjs/common';
+import { Controller, Get, Inject, Param } from '@nestjs/common';
 import { User } from '../users/user.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { LeaderboardService } from './leaderboard.service';
+import { ILeaderboardLine, LeaderboardService } from './leaderboard.service';
 import { Game } from 'src/games/game.entity';
 
 @Controller('leaderboard')
@@ -16,20 +16,10 @@ export class LeaderboardController {
     private leaderboardService: LeaderboardService,
   ) {}
 
-  @Get('test')
-  public test(): string {
-    return this.leaderboardService.test();
+  @Get('data/:gamemode')
+  public async getData(
+    @Param('gamemode') gamemode: string,
+  ): Promise<ILeaderboardLine[]> {
+    return this.leaderboardService.getData(gamemode);
   }
-
-  // @Get('getwongamesamount/:intraname')
-  // public async getWonGamesAmount(
-  //   @Param('intraname') intraname: string,
-  // ): Promise<number> {
-  //   const user: User = await this.userRepository.findOne({
-  //     where: { intraname: intraname },
-  //     relations: ['wonGames'],
-  //   });
-  //   if (!user) throw new BadRequestException('user not found');
-  //   return user.wonGames.length;
-  // }
 }
