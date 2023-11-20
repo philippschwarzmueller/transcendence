@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { BACKEND } from "../../routes/SetUser";
 import { Win98Box } from "../matchhistory/Matchhistory";
 import Dropdown from "../dropdown/dropdown";
+import Checkbox from "../checkbox/checkbox";
 
 interface ILeaderboardLine {
   intraname: string;
@@ -68,33 +69,33 @@ const Leaderboard: React.FC = () => {
     else if (!checkedStandardBox && checked2dBox) setGamemode("2");
     else setGamemode("3");
   }, [checkedStandardBox, checked2dBox]);
+
   return (
     <>
       {/* <Win98Box> */}
       <h1>Leaderboard</h1>
       <div>
         <div>
-          <p>standard</p>
-          <input
-            type="checkbox"
-            checked={checkedStandardBox}
-            onChange={() => {
-              setCheckedStandardBox(!checkedStandardBox);
-              console.log("checked standard box");
-            }}
-          />
-        </div>
-        <div>
-          <p>2d</p>
-          <input
-            type="checkbox"
-            title="2d"
-            checked={checked2dBox}
-            onChange={() => {
-              setChecked2dBox(!checked2dBox);
-              console.log("checked 2d box");
-            }}
-          />
+          <div>
+            <Checkbox
+              label="Standard Pong"
+              checked={checkedStandardBox}
+              onChange={() => {
+                setCheckedStandardBox(!checkedStandardBox);
+                console.log("checked standard box");
+              }}
+            />
+          </div>
+          <div>
+            <Checkbox
+              label="2D Pong"
+              checked={checked2dBox}
+              onChange={() => {
+                setChecked2dBox(!checked2dBox);
+                console.log("checked 2d box");
+              }}
+            />
+          </div>
         </div>
         <Dropdown
           title="select sorting"
