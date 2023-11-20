@@ -11,6 +11,7 @@ export interface ILeaderboardLine {
   wonGames: number;
   winrate: number;
   totalGames: number;
+  rank: number;
 }
 
 @Injectable()
@@ -44,8 +45,14 @@ export class LeaderboardService {
         winrate:
           wonGames || lostGames ? (wonGames * 100) / (wonGames + lostGames) : 0,
         totalGames: wonGames + lostGames,
+        rank: 0,
       };
       allData.push(newDataEntry);
+    });
+    allData.sort((a, b) => b.elo - a.elo);
+    let rank: number = 1;
+    allData.forEach((entry) => {
+      entry.rank = rank++;
     });
     return allData;
   }

@@ -9,6 +9,7 @@ interface ILeaderboardLine {
   wonGames: number;
   winrate: number;
   totalGames: number;
+  rank: number;
 }
 
 const Leaderboard: React.FC = () => {
@@ -30,7 +31,7 @@ const Leaderboard: React.FC = () => {
       <h2>enter boxes + sorting here</h2>
       <table>
         <tr>
-          <th>Pos</th>
+          <th>Rank</th>
           <th>Nickname</th>
           <th>Elo</th>
           <th>WonGames</th>
@@ -40,7 +41,7 @@ const Leaderboard: React.FC = () => {
         {data.map((val, key) => {
           return (
             <tr key={key}>
-              <td>{0}</td>
+              <td>{val.rank}</td>
               <td>{val.nickname}</td>
               <td>{val.elo}</td>
               <td>{val.wonGames}</td>
