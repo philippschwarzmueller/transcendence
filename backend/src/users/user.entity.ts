@@ -69,13 +69,13 @@ export class User {
 
   @ManyToMany(() => User)
   @JoinTable({
-    name: 'pending_friend_list', //blocked list
+    name: 'friend_requests',
     joinColumn: {
-      name: 'requesting_friend', //blocking
+      name: 'user_id', // This user is the one who sent the request
       referencedColumnName: 'id',
     },
     inverseJoinColumn: {
-      name: 'received_friend_request', //blocked
+      name: 'friend_id', // The user who received the request
       referencedColumnName: 'id',
     },
   })
@@ -83,27 +83,31 @@ export class User {
 
   @ManyToMany(() => User)
   @JoinTable({
-    name: 'pending_friend_list',
+    name: 'friend_requests_received',
     joinColumn: {
-      name: 'received_friend_request',
+      name: 'friend_id', // This user is the one who sent the request
       referencedColumnName: 'id',
     },
     inverseJoinColumn: {
-      name: 'requesting_friend',
+      name: 'user_id', // The user who received the request
       referencedColumnName: 'id',
     },
   })
   friend_requests_received: User[];
 
+/*   @ManyToMany(() => User, user => user.friend_requested)
+  friend_requests_received: User[]; */
+
+  // Established friends
   @ManyToMany(() => User)
   @JoinTable({
     name: 'friends',
     joinColumn: {
-      name: 'user_id',
+      name: 'user_id', // This user
       referencedColumnName: 'id',
     },
     inverseJoinColumn: {
-      name: 'friend_id',
+      name: 'friend_id', // The friend
       referencedColumnName: 'id',
     },
   })

@@ -85,28 +85,36 @@ export class UsersService {
     ).friend_requests_received; //blocked
   }
 
-  async addFriend(userId: string, friendId: string): Promise<void> {
-    const user = await this.findOneByName(userId);
-    const friend = await this.findOneByName(friendId);
-    const queryRunner = this.dataSource.createQueryRunner();
-    console.log(`${userId} sends friend request to ${friendId}`);
-    queryRunner.connect();
-    await queryRunner.manager.query(
-      `INSERT INTO pending_friend_list (requesting_friend, "received_friend_request")
-        VALUES (${user.id}, ${friend.id})
-        ON CONFLICT (requesting_friend, "received_friend_request") DO NOTHING;`,
-    );
-    queryRunner.release();
+  async addFriend(user: User, friend: User): Promise<void> {
+    const reloadedUser = await this.usersRepository.findOne({
+      where: { name: user.name },
+      relations: ['friend_requested'],
+    });
+    const reloadedFriend = await this.usersRepository.findOne({
+      where: { name: friend.name },
+      relations: ['friend_requests_received'],
+    });
+  
+    if (!reloadedUser || !reloadedFriend) {
+      throw new Error('User or friend not found');
+    }
+  
+    // Add the friend to the user's sent friend requests
+    reloadedUser.friend_requested.push(reloadedFriend);
+    reloadedFriend.friend_requests_received.push(reloadedUser);
+  
+    await this.usersRepository.save(reloadedUser);
+    await this.usersRepository.save(reloadedFriend);
   }
+  
+  
 
-  async acceptFriendRequest(userName: string, friendName: string) {
+  async acceptFriendRequest(user: User, friend: User) {
     // Assuming you have a UserRepository and it can access the User entity
-    const user = await this.findOneByName(userName);
-    const friend = await this.findOneByName(friendName);
 
     // Remove the friend request
     user.friend_requests_received = user.friend_requests_received.filter(
-      (fr) => fr.name !== friendName,
+      (fr) => fr.name !== friend.name,
     );
     await this.usersRepository.save(user);
 
