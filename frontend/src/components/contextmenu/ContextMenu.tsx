@@ -123,6 +123,16 @@ const ContextMenu: React.FC<IContextMenu> = ({
           </OptionLi>
         )}
         {pendingFriend && <LineLi />}
+        {link !== undefined && (
+          <Link to={`/profile/${link}`}>
+            <OptionLi>👤 Visit Profile</OptionLi>
+          </Link>
+        )}
+        <LineLi />
+        <OptionLi>🏓 Challenge to Game</OptionLi>
+        <LineLi />
+        <OptionLi>💬 Start Chat</OptionLi>
+        <LineLi />
         {isFriend && (
           <OptionLi onClick={() => handleFriendRemove(link, isFriend)}>
             ❌ Remove friend
@@ -131,15 +141,6 @@ const ContextMenu: React.FC<IContextMenu> = ({
         {isFriend && <LineLi />}
         <OptionLi>🚫 Block User</OptionLi>
         <LineLi />
-        <OptionLi>🏓 Challenge to Game</OptionLi>
-        <LineLi />
-        <OptionLi>💬 Start Chat</OptionLi>
-        <LineLi />
-        {link !== undefined && (
-          <Link to={`/profile/${link}`}>
-            <OptionLi>👤 Visit Profile</OptionLi>
-          </Link>
-        )}
       </StyledUl>
     </>
   );

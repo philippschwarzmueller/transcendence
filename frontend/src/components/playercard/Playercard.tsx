@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import Avatar from "../avatar";
 import ContextMenu from "../contextmenu/ContextMenu";
 import { IUser } from "../../context/auth";
+import { BACKEND } from "../../routes/SetUser";
 
 const StyledDiv = styled.div`
   text-align: center;
@@ -36,26 +37,83 @@ interface PlayerCardProps {
   name: string | undefined;
   id: number | undefined;
   profilePictureUrl: string | undefined;
-  pendingFriend: boolean;
-  isFriend: boolean;
   triggerReload: () => void;
 }
 
 const PlayerCard: React.FC<PlayerCardProps> = ({
   name,
   profilePictureUrl,
-  pendingFriend,
-  isFriend,
   triggerReload,
 }) => {
   let [showContext, setShowContext] = useState<boolean>(false);
   let [x, setX] = useState<number>(0);
   let [y, setY] = useState<number>(0);
+  let [isFriend, setIsFriend] = useState(false);
+  let [isPendingFriend, setIsPendingFriend] = useState(false);
   function openContextMenu(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
     setX(e.pageX);
     setY(e.pageY);
     setShowContext(!showContext);
   }
+
+  const fetchIsFriend = async () => {
+    try {
+      const res: Response = await fetch(
+        `${BACKEND}/users/get-received-friend-requests`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
+      if (!res.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const friends: IUser [] = await res.json();
+      if(friends.length > 0){
+        const userExists: boolean = friends.some(user => user.name === name);
+        setIsFriend(userExists);
+      }
+    } catch (error) {
+      console.error("Error fetching pendingFriendRequests:", error);
+    }
+  }
+
+  const fetchIsPendingFriend = async () => {
+    try {
+      const res: Response = await fetch(`${BACKEND}/users/get-friends`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
+      if (!res.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const friends: IUser[] = await res.json();
+      if(friends.length > 0){
+        const userExists: boolean = friends.some(user => user.name === name);
+        setIsPendingFriend(userExists);
+      }
+    } catch (error) {
+      console.error("Error fetching pendingFriendRequests:", error);
+    }
+  }
+
+  useEffect(() => {
+    const fetchData = async () => {
+      await fetchIsFriend();
+      await fetchIsPendingFriend();
+    };
+  
+    fetchData();
+    console.log(isFriend);
+    console.log(isPendingFriend);
+  }, []);
+
   return (
     <>
       <StyledDiv onClick={(e) => openContextMenu(e)}>
@@ -70,7 +128,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
         positionX={x}
         positionY={y}
         link={name}
-        pendingFriend={pendingFriend}
+        pendingFriend={isPendingFriend}
         isFriend={isFriend}
         triggerReload={triggerReload}
       />

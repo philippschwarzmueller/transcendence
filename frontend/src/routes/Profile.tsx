@@ -17,7 +17,7 @@ const Profile: React.FC = () => {
   const [reloadTrigger, setReloadTrigger] = useState(false);
 
   const triggerReload = () => {
-    setReloadTrigger(prev => !prev);
+    setReloadTrigger((prev) => !prev);
   };
 
   useEffect(() => {
@@ -27,65 +27,63 @@ const Profile: React.FC = () => {
     fetchUser();
   }, [userId, auth.user.name, reloadTrigger]);
 
-    const fetchUser = async () => {
-      if (userId) {
-        try {
-          const res: Response = await fetch(`${BACKEND}/users/${userId}`);
-          if (!res.ok) {
-            throw new Error("Network response was not ok");
-          }
-          const profileUser: IUser = await res.json();
-          setUser(profileUser);
-        } catch (error) {
-          console.error("Error fetching user:", error);
-        }
-      } else {
-        setUser(auth.user);
-      }
-    };
-
-
-    const fetchIncomingFriends = async () => {
+  const fetchUser = async () => {
+    if (userId) {
       try {
-        const res: Response = await fetch(
-          `${BACKEND}/users/get-received-friend-requests`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            credentials: "include",
-          }
-        );
+        const res: Response = await fetch(`${BACKEND}/users/${userId}`);
         if (!res.ok) {
           throw new Error("Network response was not ok");
         }
-        const friends = await res.json();
-        setIncomingFriends(friends);
-        console.log(friends);
+        const profileUser: IUser = await res.json();
+        setUser(profileUser);
       } catch (error) {
-        console.error("Error fetching pendingFriendRequests:", error);
+        console.error("Error fetching user:", error);
       }
-    };
+    } else {
+      setUser(auth.user);
+    }
+  };
 
-    const fetchFriends = async () => {
-      try {
-        const res: Response = await fetch(`${BACKEND}/users/get-friends`, {
+  const fetchIncomingFriends = async () => {
+    try {
+      const res: Response = await fetch(
+        `${BACKEND}/users/get-received-friend-requests`,
+        {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           credentials: "include",
-        });
-        if (!res.ok) {
-          throw new Error("Network response was not ok");
         }
-        const friends = await res.json();
-        setFriends(friends);
-      } catch (error) {
-        console.error("Error fetching pendingFriendRequests:", error);
+      );
+      if (!res.ok) {
+        throw new Error("Network response was not ok");
       }
-    };
+      const friends = await res.json();
+      setIncomingFriends(friends);
+    } catch (error) {
+      console.error("Error fetching pendingFriendRequests:", error);
+    }
+  };
+
+  const fetchFriends = async () => {
+    try {
+      const res: Response = await fetch(`${BACKEND}/users/get-friends`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
+      if (!res.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const friends = await res.json();
+      setFriends(friends);
+    } catch (error) {
+      console.error("Error fetching pendingFriendRequests:", error);
+    }
+  };
 
   return (
     <>
@@ -122,8 +120,6 @@ const Profile: React.FC = () => {
                     name={users?.name}
                     profilePictureUrl={users?.profilePictureUrl}
                     id={users.id}
-                    pendingFriend={true}
-                    isFriend={false}
                     triggerReload={triggerReload}
                   />
                 </li>
@@ -150,8 +146,6 @@ const Profile: React.FC = () => {
                     name={users?.name}
                     profilePictureUrl={users?.profilePictureUrl}
                     id={users.id}
-                    pendingFriend={false}
-                    isFriend={true}
                     triggerReload={triggerReload}
                   />
                 </li>
