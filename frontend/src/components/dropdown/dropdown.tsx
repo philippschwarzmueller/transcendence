@@ -1,47 +1,49 @@
-import React, { useState } from "react";
+import React from "react";
 import styled from "styled-components";
+import caret from "./downcaret.png";
 
-const DropdownWrapper = styled.div`
+const Wrapper = styled.div`
   position: relative;
-  display: inline-block;
-  margin-bottom: 16px; /* Add margin for spacing between title and button */
+  width: 200px;
+  height: 22px;
 `;
 
 const Title = styled.div`
   font-weight: bold;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 `;
 
-const Button = styled.button`
-  background-color: #c0c0c0;
-  color: #000;
-  padding: 8px 16px;
-  border: none;
-  cursor: pointer;
-`;
-
-interface MenuProps {
-  open: boolean;
-}
-
-const Menu = styled.ul<MenuProps>`
-  position: absolute;
-  list-style: none;
-  padding: 0;
-  margin: 4px 0 0;
-  background-color: #ffffff;
+const StyledSelect = styled.select`
+  position: relative;
+  outline: none;
   border: 1px solid #000;
-  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
-  z-index: 1;
-  display: ${(props) => (props.open ? "block" : "none")};
+  border-radius: 0;
+  width: 100%;
+  height: 20px;
+  padding: 2px 20px 2px 6px; /* Adjusted padding for text and caret */
+
+  color: #000;
+  background-color: #c0c0c0;
+  appearance: none;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #a0a0a0;
+  }
 `;
 
-const MenuItem = styled.li`
-  padding: 8px 16px;
-  cursor: pointer;
-  &:hover {
-    background-color: #094c4c;
-  }
+const CaretIcon = styled.div`
+  position: absolute;
+  right: 6px; /* Adjusted right position */
+  top: 50%;
+  transform: translateY(-50%);
+  width: 10px;
+  height: 10px;
+  background-color: #c0c0c0;
+  background-image: url("${caret}");
+  background-position: center;
+  background-repeat: no-repeat;
+  pointer-events: none; /* Ensures that the caret doesn't interfere with dropdown interaction */
 `;
 
 interface DropdownItem {
@@ -55,36 +57,30 @@ interface DropdownProps {
 }
 
 const Dropdown: React.FC<DropdownProps> = (props) => {
-  const [open, setOpen] = useState<boolean>(false);
-
-  // Get the last label from the items array
-  const [lastLabel, setLastLabel] = useState<string>(props.items[0].label);
+  const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedItem = props.items.find(
+      (item) => item.label === event.target.value
+    );
+    if (selectedItem) {
+      selectedItem.func();
+    }
+  };
 
   return (
-    <DropdownWrapper>
-      <Title>{props.title}</Title>
-      <Button
-        onClick={() => {
-          setOpen(!open);
-        }}
-      >
-        {lastLabel}
-      </Button>
-      <Menu open={open}>
-        {props.items.map((item, index) => (
-          <MenuItem
-            key={index}
-            onClick={() => {
-              item.func();
-              setLastLabel(item.label);
-              setOpen(false);
-            }}
-          >
-            {item.label}
-          </MenuItem>
-        ))}
-      </Menu>
-    </DropdownWrapper>
+    <label>
+      Select your desired soring
+      <Wrapper>
+        <StyledSelect onChange={handleSelectChange}>
+          {props.items &&
+            props.items.map((item, index) => (
+              <option key={index} value={item.label}>
+                {item.label}
+              </option>
+            ))}
+        </StyledSelect>
+        <CaretIcon />
+      </Wrapper>
+    </label>
   );
 };
 
