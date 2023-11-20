@@ -12,6 +12,7 @@ import { Channels, Messages } from './chat/chat.entity';
 import { WSocketModule } from './wsocket/wsocket.module';
 import { WSocketGateway } from './wsocket/wsocket.gateway';
 import { TwoFAModule } from './2FA/twofa.module';
+import { LeaderboardModule } from './leaderboard/leaderboard.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { TwoFAModule } from './2FA/twofa.module';
     ChatModule,
     WSocketModule,
     TwoFAModule,
+    LeaderboardModule,
   ],
   controllers: [AppController],
   providers: [GreetingService, WSocketGateway],
