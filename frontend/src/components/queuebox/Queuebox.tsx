@@ -47,8 +47,8 @@ const Queuebox: React.FC = () => {
   const [userIsLoggedIn, SetUserIsLoggedIn] = useState<boolean>(false);
 
   const leaveQueue = (): void => {
-    if (!auth.user.name) return;
-    const payload: IChangeSocketPayload = { intraname: auth.user.name };
+    if (!auth.user.intraname) return;
+    const payload: IChangeSocketPayload = { intraname: auth.user.intraname };
     socket.emit("leavequeue", payload);
     deleteCookie("queue");
     setTimer(0);
@@ -70,8 +70,8 @@ const Queuebox: React.FC = () => {
   const location: string = useLocation().pathname.split("/")[1];
 
   const fetchData = (): void => {
-    if (!auth.user.name) return;
-    const payload: IChangeSocketPayload = { intraname: auth.user.name };
+    if (!auth.user.intraname) return;
+    const payload: IChangeSocketPayload = { intraname: auth.user.intraname };
     socket.emit("isplayerinqueue", payload, (res: boolean) => {
       setUserInQueue(res);
       if (res) {
