@@ -100,30 +100,47 @@ const Taskbar: React.FC = () => {
     <StartMenu $display={displayStart}>
       <TextBar>Transcendence95</TextBar>
       <StyledUl>
-        <StyledLi>👤Profile</StyledLi>
+        <StyledLi>
+          <img src={require('../../images/head.png')} height="16" width="16" alt="profile" />
+          Profile
+        </StyledLi>
         <Seperator />
-        <StyledLi onClick={() => setDisplayUsers(!displayUsers)}>👥Users</StyledLi>
-        <StyledLi>📄Blocklist</StyledLi>
-        <StyledLi>👥Friends</StyledLi>
+        <StyledLi onClick={() => setDisplayUsers(!displayUsers)}>
+          <img src={require('../../images/folder_search.png')} height="16" width="16" alt="useres" />
+          Users
+        </StyledLi>
+        <StyledLi>
+          <img src={require('../../images/block.png')} height="16" width="16" alt="block" />
+          Blocklist
+        </StyledLi>
+        <StyledLi>
+          <img src={require('../../images/buddy.png')} height="16" width="16" alt="friend" />
+          Friends
+        </StyledLi>
         <Seperator />
-        <StyledLi>🏆Stats</StyledLi>
+        <StyledLi>
+          <img src={require('../../images/book.png')} height="16" width="16" alt="leaderboard" />
+          Leaderboard
+        </StyledLi>
         <Seperator />
-        <StyledLi>👤Login</StyledLi>
+        <StyledLi>
+          <img src={require('../../images/door.png')} height="16" width="16" alt="login" />
+          Login
+        </StyledLi>
       </StyledUl>
     </StartMenu>
     <StyledNavbar>
       <TaskButton
       onClick={() => setDisplayStart(!displayStart)}
-      $active={displayStart}
-      >
-      <img width="26" height="26" alt="Windows95 Logo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABJklEQVR4Ae3BW26bUAAFwDmIfYNXfkq5UWyq0LyI2g/PePpf1D8yu059TDyIoyI+p74mNpNzda6G+rrazDalIYihjoqgTqyGxRAvargZVgezczHUO+oDFsOCeDXZhNiUGuIo7oK4yOREqSHuYlPqIpOhNiE2pR6U2pSWutDkRIhNqR80G2IoEuJBiBch3nAzrP4Qw2pYHMRREUMRbyuC+p7Mdi0JYqijIqhTq2ExxG+t3e1mt64OZudiqHfVe5bFbllIvJrsErvWEEdxF8RFJqdaQ9zFrnWRyVC7xK510Nq1tC40OZXYtX7QbIihCImDxKvEm26G1aPEbl3tlsVBHBUxFPG2IqjvyeQohjqqoagLzc7FUB8Xf1dfUHd1VNTnFfX09LT5BT2CXilFFQW0AAAAAElFTkSuQmCC" />
-      Start
+      $active={displayStart}>
+        <img width="26" height="26" alt="Windows95 Logo" src={require('../../images/logo.png')} />
+        Start
       </TaskButton>
       <TaskButton
       onClick={() => setDisplayChat(!displayChat)}
-      $active={displayChat}
-      >
-      Chat
+      $active={displayChat}>
+        <img width="26" height="26" alt="Chat logo" src={require('../../images/msg.png')} />
+        Chat
       </TaskButton>
       </StyledNavbar>
     </>
