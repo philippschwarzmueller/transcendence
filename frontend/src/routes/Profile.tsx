@@ -12,6 +12,7 @@ const Profile: React.FC = () => {
   let { userId } = useParams();
   let [user, setUser] = useState<IUser>();
   let [incomingFriends, setIncomingFriends] = useState<IUser[]>([]);
+  let [friends, setFriends] = useState<IUser[]>([]);
   const [ownProfile, setOwnProfile] = useState(false);
 
   useEffect(() => {
@@ -65,6 +66,31 @@ const Profile: React.FC = () => {
     fetchIncomingFriends();
   }, []);
 
+  useEffect(() => {
+    const fetchFriends = async () => {
+      try {
+        const res: Response = await fetch(
+          `${BACKEND}/users/get-friends`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            credentials: "include",
+          }
+        );
+        if (!res.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const friends = await res.json();
+        setFriends(friends);
+      } catch (error) {
+        console.error("Error fetching pendingFriendRequests:", error);
+      }
+    };
+    fetchFriends();
+  }, []);
+
   return (
     <>
       <h1>{user?.name}'s Profile</h1>
@@ -99,6 +125,32 @@ const Profile: React.FC = () => {
                     profilePictureUrl={users?.profilePictureUrl}
                     id={users.id}
                     pendingFriend={true}
+                  />
+                </li>
+              );
+            })}
+          </ul>
+        </CenterDiv>
+      )}
+      {ownProfile && (friends.length > 0) && <h2>Friends</h2>}
+      {ownProfile && (friends.length > 0) && (
+        <CenterDiv>
+          <ul
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: "10px",
+              listStyleType: "none",
+            }}
+          >
+            {friends.map((users: IUser) => {
+              return (
+                <li key={users.name}>
+                  <Playercard
+                    name={users?.name}
+                    profilePictureUrl={users?.profilePictureUrl}
+                    id={users.id}
+                    pendingFriend={false}
                   />
                 </li>
               );

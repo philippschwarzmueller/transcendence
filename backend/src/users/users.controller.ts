@@ -85,4 +85,14 @@ export class UsersController {
     await this.usersService.acceptFriendRequest(user, friend);
     return true;
   }
+
+  @Post('get-friends')
+  async getFriends(@Req() req: Request): Promise<User[]> {
+    const token: string = req.cookies.token;
+    const user: User | null =
+      await this.usersService.exchangeTokenforUser(token);
+    const friendList: User[] =
+      await this.usersService.getFriendList(user.name);
+    return friendList;
+  }
 }

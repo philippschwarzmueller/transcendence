@@ -71,11 +71,11 @@ export class User {
   @JoinTable({
     name: 'friend_requests',
     joinColumn: {
-      name: 'user_id', // This user is the one who sent the request
+      name: 'user_id',
       referencedColumnName: 'id',
     },
     inverseJoinColumn: {
-      name: 'friend_id', // The user who received the request
+      name: 'friend_id',
       referencedColumnName: 'id',
     },
   })
@@ -85,20 +85,16 @@ export class User {
   @JoinTable({
     name: 'friend_requests_received',
     joinColumn: {
-      name: 'friend_id', // This user is the one who sent the request
+      name: 'friend_id',
       referencedColumnName: 'id',
     },
     inverseJoinColumn: {
-      name: 'user_id', // The user who received the request
+      name: 'user_id',
       referencedColumnName: 'id',
     },
   })
   friend_requests_received: User[];
 
-/*   @ManyToMany(() => User, user => user.friend_requested)
-  friend_requests_received: User[]; */
-
-  // Established friends
   @ManyToMany(() => User)
   @JoinTable({
     name: 'friends',

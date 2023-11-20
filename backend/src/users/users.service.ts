@@ -86,42 +86,54 @@ export class UsersService {
   }
 
   async addFriend(user: User, friend: User): Promise<void> {
-    const reloadedUser = await this.usersRepository.findOne({
+    const sender = await this.usersRepository.findOne({
       where: { name: user.name },
       relations: ['friend_requested'],
     });
-    const reloadedFriend = await this.usersRepository.findOne({
+    const receiver = await this.usersRepository.findOne({
       where: { name: friend.name },
       relations: ['friend_requests_received'],
     });
   
-    if (!reloadedUser || !reloadedFriend) {
+    if (!sender || !receiver) {
       throw new Error('User or friend not found');
     }
+
+    sender.friend_requested.push(receiver);
+    receiver.friend_requests_received.push(user);
   
-    // Add the friend to the user's sent friend requests
-    reloadedUser.friend_requested.push(reloadedFriend);
-    reloadedFriend.friend_requests_received.push(reloadedUser);
-  
-    await this.usersRepository.save(reloadedUser);
-    await this.usersRepository.save(reloadedFriend);
+    await this.usersRepository.save(sender);
+    await this.usersRepository.save(receiver);
   }
-  
-  
 
   async acceptFriendRequest(user: User, friend: User) {
-    // Assuming you have a UserRepository and it can access the User entity
+    const receiver: User = await this.usersRepository.findOne({
+      where: { name: user.name },
+      relations: ['friend_requests_received'],
+    });
 
-    // Remove the friend request
-    user.friend_requests_received = user.friend_requests_received.filter(
-      (fr) => fr.name !== friend.name,
-    );
-    await this.usersRepository.save(user);
+    const sender:User = await this.usersRepository.findOne({
+      where: { name: friend.name },
+      relations: ['friend_requested'],
+    });
 
-    // Add each other as friends
-    user.friends.push(friend);
-    friend.friends.push(user);
+    sender.friends.push(receiver);
+    receiver.friends.push(sender);
+    
+    sender.friend_requested = sender.friend_requested.filter((friend) => friend.name !== receiver.name);
+    receiver.friend_requests_received = sender.friend_requests_received.filter((friend) => friend.name !== sender.name);
 
+    await this.usersRepository.save(sender);
+    await this.usersRepository.save(receiver);
     await this.usersRepository.save([user, friend]);
+  }
+
+  async getFriendList(userId: string): Promise<User[]> {
+    return (
+      await this.usersRepository.findOne({
+        where: { name: userId },
+        relations: ['friends'],
+      })
+    ).friends;
   }
 }

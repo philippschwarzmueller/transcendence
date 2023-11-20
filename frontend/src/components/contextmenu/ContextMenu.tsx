@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
+import { BACKEND } from "../../routes/SetUser";
 
 const StyledUl = styled.ul<{ $display: boolean; $posX: number; $posY: number }>`
   display: ${(props) => (props.$display ? "" : "none")};
@@ -51,10 +52,37 @@ const ContextMenu: React.FC<IContextMenu> = ({
   link,
   pendingFriend,
 }) => {
+
+  const handleFriendAccept = async (friend: string | undefined, pendingFriend: boolean) => {
+    if(friend !== undefined){
+      try {
+        const res = await fetch(`${BACKEND}/users/accept-friend-request`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({ friend }),
+        });
+  
+        if (!res.ok) {
+          throw new Error("Network response was not ok");
+        }
+  
+        const success: boolean = await res.json();
+        if(success){
+          pendingFriend = false;
+        }
+      } catch(error) {
+        console.error("Error accepting friend request:", error);
+      }
+    }
+  };
+
   return (
     <>
       <StyledUl $display={display} $posX={positionX} $posY={positionY}>
-        {pendingFriend && <OptionLi>👥 Accept friend request</OptionLi>}
+        {pendingFriend && <OptionLi onClick={() => handleFriendAccept(link, pendingFriend)}>👥 Accept friend request</OptionLi>}
         {pendingFriend && <LineLi />}
         <OptionLi>🚫 Block User</OptionLi>
         <LineLi />
