@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { styled } from "styled-components";
 import Chatwindow from "../chatwindow/Chatwindow";
+import Moveablewindow from "../moveablewindow/Moveablewindow";
+import Queuebox from "../queuebox/Queuebox";
 import Userbrowser from "../userbrowser";
 
 const StyledNavbar = styled.nav`
@@ -27,7 +29,7 @@ const TaskButton = styled.button<{ $active: boolean }>`
   outline: none;
   display: flex;
   text-align: center;
-  font-size: ${(props) => props.$active ? "21px" : "22px"};
+  font-size: ${(props) => props.$active ? "2.2vh" : "2.2vh"};
   justify-content: flex-start;
   cursor: pointer;
   outline: ${(props) => props.$active ? "black dotted 1px" : ""};
@@ -47,7 +49,7 @@ const TaskButton = styled.button<{ $active: boolean }>`
 const StartMenu = styled.div<{ $display: boolean}>`
   display: ${(props) => (props.$display ? "flex" : "none")};
   position: absolute;
-  bottom: 38px;
+  bottom: 3.1vh;
   border: none;
   left: 2px;
   z-index: 4;
@@ -88,13 +90,40 @@ const TextBar = styled.div`
   cursor: default;
 `;
 
+const Icon = styled.div<{ $active: boolean }>`
+  width: 64px;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  position: relative;
+  color: white;
+  outline-offset: -4px;
+  background-color: ${(props) => props.$active ? "rgb(0, 14, 122)" : ""};
+  outline: ${(props) => props.$active ? "white dotted 1px" : ""};
+`;
+
 const Taskbar: React.FC = () => {
   const [displayChat, setDisplayChat] = useState<boolean>(false);
   const [displayUsers, setDisplayUsers] = useState<boolean>(false);
   const [displayStart, setDisplayStart] = useState<boolean>(false);
+  const [displayQueue, setDisplayQueue] = useState<boolean>(false);
 
   return (
     <>
+    <Icon
+    onClick={() => setDisplayQueue(!displayQueue)}
+    $active={displayQueue}>
+    <img src={require('../../images/pong.png')} alt="pong" height="64px" />
+    Pong
+    </Icon>
+    <Moveablewindow
+      title="Queue"
+      positionX={900}
+      positionY={900}
+      positionZ={0}
+      display={displayQueue}
+      >
+    </Moveablewindow>
     <Chatwindow $display={displayChat} />
     <Userbrowser $display={displayUsers} />
     <StartMenu $display={displayStart}>
