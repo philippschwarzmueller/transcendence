@@ -22,9 +22,11 @@ const Profile: React.FC = () => {
 
   useEffect(() => {
     setOwnProfile(auth.user.name === userId);
-  }, [userId, auth.user.name]);
+    fetchIncomingFriends();
+    fetchFriends();
+    fetchUser();
+  }, [userId, auth.user.name, reloadTrigger]);
 
-  useEffect(() => {
     const fetchUser = async () => {
       if (userId) {
         try {
@@ -42,10 +44,7 @@ const Profile: React.FC = () => {
       }
     };
 
-    fetchUser();
-  }, [userId]);
 
-  useEffect(() => {
     const fetchIncomingFriends = async () => {
       try {
         const res: Response = await fetch(
@@ -68,10 +67,7 @@ const Profile: React.FC = () => {
         console.error("Error fetching pendingFriendRequests:", error);
       }
     };
-    fetchIncomingFriends();
-  }, [triggerReload]);
 
-  useEffect(() => {
     const fetchFriends = async () => {
       try {
         const res: Response = await fetch(`${BACKEND}/users/get-friends`, {
@@ -90,8 +86,6 @@ const Profile: React.FC = () => {
         console.error("Error fetching pendingFriendRequests:", error);
       }
     };
-    fetchFriends();
-  }, [triggerReload]);
 
   return (
     <>
