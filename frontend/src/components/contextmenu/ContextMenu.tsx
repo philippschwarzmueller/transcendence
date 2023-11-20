@@ -14,10 +14,8 @@ const StyledUl = styled.ul<{ $display: boolean; $posX: number; $posY: number }>`
   margin-block-start: 0px;
   margin-inline-start: 0px;
   padding-inline-start: 0px;
-  box-shadow:
-    rgb(255, 255, 255) 1px 1px 0px 1px inset,
-    rgb(134, 138, 142) 0px 0px 0px 1px inset,
-    rgb(0, 0, 0) 1px 1px 0px 1px;
+  box-shadow: rgb(255, 255, 255) 1px 1px 0px 1px inset,
+    rgb(134, 138, 142) 0px 0px 0px 1px inset, rgb(0, 0, 0) 1px 1px 0px 1px;
 `;
 
 const LineLi = styled.li`
@@ -43,6 +41,8 @@ export interface IContextMenu {
   positionY: number;
   link: string | undefined;
   pendingFriend: boolean;
+  isFriend: boolean;
+  triggerReload: () => void;
 }
 
 const ContextMenu: React.FC<IContextMenu> = ({
@@ -51,10 +51,14 @@ const ContextMenu: React.FC<IContextMenu> = ({
   positionY,
   link,
   pendingFriend,
+  isFriend,
+  triggerReload,
 }) => {
-
-  const handleFriendAccept = async (friend: string | undefined, pendingFriend: boolean) => {
-    if(friend !== undefined){
+  const handleFriendAccept = async (
+    friend: string | undefined,
+    pendingFriend: boolean
+  ) => {
+    if (friend !== undefined) {
       try {
         const res = await fetch(`${BACKEND}/users/accept-friend-request`, {
           method: "POST",
@@ -64,16 +68,47 @@ const ContextMenu: React.FC<IContextMenu> = ({
           credentials: "include",
           body: JSON.stringify({ friend }),
         });
-  
+
         if (!res.ok) {
           throw new Error("Network response was not ok");
         }
-  
+
         const success: boolean = await res.json();
-        if(success){
+        if (success) {
           pendingFriend = false;
+          triggerReload();
         }
-      } catch(error) {
+      } catch (error) {
+        console.error("Error accepting friend request:", error);
+      }
+    }
+  };
+
+  const handleFriendRemove = async (
+    friend: string | undefined,
+    isfriend: boolean
+  ) => {
+    if (friend !== undefined) {
+      try {
+        const res = await fetch(`${BACKEND}/users/remove-friend`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({ friend }),
+        });
+
+        if (!res.ok) {
+          throw new Error("Network response was not ok");
+        }
+
+        const success: boolean = await res.json();
+        if (success) {
+          isfriend = false;
+          triggerReload();
+        }
+      } catch (error) {
         console.error("Error accepting friend request:", error);
       }
     }
@@ -82,17 +117,29 @@ const ContextMenu: React.FC<IContextMenu> = ({
   return (
     <>
       <StyledUl $display={display} $posX={positionX} $posY={positionY}>
-        {pendingFriend && <OptionLi onClick={() => handleFriendAccept(link, pendingFriend)}>👥 Accept friend request</OptionLi>}
+        {pendingFriend && (
+          <OptionLi onClick={() => handleFriendAccept(link, pendingFriend)}>
+            👥 Accept friend request
+          </OptionLi>
+        )}
         {pendingFriend && <LineLi />}
+        {isFriend && (
+          <OptionLi onClick={() => handleFriendRemove(link, isFriend)}>
+            ❌ Remove friend
+          </OptionLi>
+        )}
+        {isFriend && <LineLi />}
         <OptionLi>🚫 Block User</OptionLi>
         <LineLi />
         <OptionLi>🏓 Challenge to Game</OptionLi>
         <LineLi />
         <OptionLi>💬 Start Chat</OptionLi>
         <LineLi />
-        {link !== undefined && <Link to={`/profile/${link}`}>
-          <OptionLi>👤 Visit Profile</OptionLi>
-        </Link>}
+        {link !== undefined && (
+          <Link to={`/profile/${link}`}>
+            <OptionLi>👤 Visit Profile</OptionLi>
+          </Link>
+        )}
       </StyledUl>
     </>
   );

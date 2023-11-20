@@ -95,4 +95,22 @@ export class UsersController {
       await this.usersService.getFriendList(user.name);
     return friendList;
   }
+
+  @Post('remove-friend')
+  async removeFriend(
+    @Body() body: { friend: string },
+    @Req() req: Request,
+  ): Promise<boolean> {
+    const token: string = req.cookies.token;
+    const user: User | null =
+      await this.usersService.exchangeTokenforUser(token);
+    const friend: User | null = await this.usersService.findOneByName(
+      body.friend,
+    );
+    if (user === null || friend === null) {
+      return false;
+    }
+    await this.usersService.removeFriend(user, friend);
+    return true;
+  }
 }

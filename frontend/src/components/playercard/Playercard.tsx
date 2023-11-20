@@ -34,12 +34,20 @@ const StyledDiv = styled.div`
 `;
 interface PlayerCardProps {
   name: string | undefined;
-  id: number | undefined,
-  profilePictureUrl: string | undefined,
+  id: number | undefined;
+  profilePictureUrl: string | undefined;
   pendingFriend: boolean;
+  isFriend: boolean;
+  triggerReload: () => void;
 }
 
-const PlayerCard: React.FC<PlayerCardProps> = ({ name, profilePictureUrl, pendingFriend }) => {
+const PlayerCard: React.FC<PlayerCardProps> = ({
+  name,
+  profilePictureUrl,
+  pendingFriend,
+  isFriend,
+  triggerReload,
+}) => {
   let [showContext, setShowContext] = useState<boolean>(false);
   let [x, setX] = useState<number>(0);
   let [y, setY] = useState<number>(0);
@@ -63,6 +71,8 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ name, profilePictureUrl, pendin
         positionY={y}
         link={name}
         pendingFriend={pendingFriend}
+        isFriend={isFriend}
+        triggerReload={triggerReload}
       />
     </>
   );

@@ -109,12 +109,12 @@ export class UsersService {
   async acceptFriendRequest(user: User, friend: User) {
     const receiver: User = await this.usersRepository.findOne({
       where: { name: user.name },
-      relations: ['friend_requests_received'],
+      relations: ['friend_requests_received', 'friends', 'friend_requested'],
     });
 
     const sender:User = await this.usersRepository.findOne({
       where: { name: friend.name },
-      relations: ['friend_requested'],
+      relations: ['friend_requested', 'friends', 'friend_requests_received'],
     });
 
     sender.friends.push(receiver);
@@ -126,6 +126,25 @@ export class UsersService {
     await this.usersRepository.save(sender);
     await this.usersRepository.save(receiver);
     await this.usersRepository.save([user, friend]);
+  }
+
+  async removeFriend(user: User, friend: User) {
+    const remover: User = await this.usersRepository.findOne({
+      where: { name: user.name },
+      relations: ['friends'],
+    });
+
+    const removeFriend:User = await this.usersRepository.findOne({
+      where: { name: friend.name },
+      relations: ['friends'],
+    });
+
+    remover.friends = remover.friends.filter((friend) => friend.name !== removeFriend.name);
+    removeFriend.friends = removeFriend.friends.filter((friend) => friend.name !== remover.name);
+
+    await this.usersRepository.save(remover);
+    await this.usersRepository.save(removeFriend);
+    await this.usersRepository.save([remover, removeFriend]);
   }
 
   async getFriendList(userId: string): Promise<User[]> {

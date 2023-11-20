@@ -14,6 +14,11 @@ const Profile: React.FC = () => {
   let [incomingFriends, setIncomingFriends] = useState<IUser[]>([]);
   let [friends, setFriends] = useState<IUser[]>([]);
   const [ownProfile, setOwnProfile] = useState(false);
+  const [reloadTrigger, setReloadTrigger] = useState(false);
+
+  const triggerReload = () => {
+    setReloadTrigger(prev => !prev);
+  };
 
   useEffect(() => {
     setOwnProfile(auth.user.name === userId);
@@ -64,21 +69,18 @@ const Profile: React.FC = () => {
       }
     };
     fetchIncomingFriends();
-  }, []);
+  }, [triggerReload]);
 
   useEffect(() => {
     const fetchFriends = async () => {
       try {
-        const res: Response = await fetch(
-          `${BACKEND}/users/get-friends`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            credentials: "include",
-          }
-        );
+        const res: Response = await fetch(`${BACKEND}/users/get-friends`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        });
         if (!res.ok) {
           throw new Error("Network response was not ok");
         }
@@ -89,7 +91,7 @@ const Profile: React.FC = () => {
       }
     };
     fetchFriends();
-  }, []);
+  }, [triggerReload]);
 
   return (
     <>
@@ -106,8 +108,10 @@ const Profile: React.FC = () => {
       <h2>Stats</h2>
       <p>Games played: 420</p>
       <p>Win/Loss: 69%</p>
-      {ownProfile && <h2>Incoming friend requests</h2>}
-      {ownProfile && (
+      {ownProfile && incomingFriends.length > 0 && (
+        <h2>Incoming friend requests</h2>
+      )}
+      {ownProfile && incomingFriends.length > 0 && (
         <CenterDiv>
           <ul
             style={{
@@ -125,6 +129,8 @@ const Profile: React.FC = () => {
                     profilePictureUrl={users?.profilePictureUrl}
                     id={users.id}
                     pendingFriend={true}
+                    isFriend={false}
+                    triggerReload={triggerReload}
                   />
                 </li>
               );
@@ -132,8 +138,8 @@ const Profile: React.FC = () => {
           </ul>
         </CenterDiv>
       )}
-      {ownProfile && (friends.length > 0) && <h2>Friends</h2>}
-      {ownProfile && (friends.length > 0) && (
+      {ownProfile && friends.length > 0 && <h2>Friends</h2>}
+      {ownProfile && friends.length > 0 && (
         <CenterDiv>
           <ul
             style={{
@@ -151,6 +157,8 @@ const Profile: React.FC = () => {
                     profilePictureUrl={users?.profilePictureUrl}
                     id={users.id}
                     pendingFriend={false}
+                    isFriend={true}
+                    triggerReload={triggerReload}
                   />
                 </li>
               );
