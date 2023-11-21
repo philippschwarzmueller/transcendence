@@ -52,6 +52,24 @@ const sortData = (data: ILeaderboardLine[], sortedBy: ESortedBy): void => {
 const StyledTableContainer = styled.div`
   max-height: 150px;
   overflow-y: auto;
+  &::-webkit-scrollbar {
+    width: 17x;
+    height: 17px;
+  }
+  &::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+  }
+  &::-webkit-scrollbar-thumb {
+    box-sizing: border-box;
+    display: inline-block;
+    background: rgb(195, 199, 203);
+    color: rgb(0, 0, 0);
+    border: 0px;
+    box-shadow: rgb(0, 0, 0) -1px -1px 0px 0px inset,
+      rgb(210, 210, 210) 1px 1px 0px 0px inset,
+      rgb(134, 138, 142) -2px -2px 0px 0px inset,
+      rgb(255, 255, 255) 2px 2px 0px 0px inset;
+  }
 `;
 
 const StyledTable = styled.table`
