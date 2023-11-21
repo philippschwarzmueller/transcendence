@@ -1,60 +1,83 @@
-import React from "react";
+import React, { forwardRef } from "react";
 import styled from "styled-components";
+
 import caret from "./downcaret.png";
 
 const Wrapper = styled.div`
   position: relative;
   width: 200px;
-  height: 22px;
+  height: 20px;
 `;
 
-const Title = styled.div`
-  font-weight: bold;
-  margin-bottom: 4px;
-`;
-
-const StyledSelect = styled.select`
+const Select = styled.select`
   position: relative;
   outline: none;
-  border: 1px solid #000;
+  border: none;
   border-radius: 0;
   width: 100%;
   height: 20px;
-  padding: 2px 20px 2px 6px; /* Adjusted padding for text and caret */
+  padding: 3px;
 
   color: #000;
-  background-color: #c0c0c0;
-  appearance: none;
-  cursor: pointer;
+  background-color: white;
 
-  &:hover {
-    background-color: #a0a0a0;
+  border-left: 1px solid #000;
+  border-top: 1px solid #000;
+
+  box-shadow: inset -1px -1px 0 0 #808080, inset 1px 1px 0 0 #000,
+    0.5px 0.5px 0 0.5px #fff;
+
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+`;
+
+const CaretWrapper = styled.div`
+  position: absolute;
+  right: -1%;
+  top: 9%;
+  width: 20px;
+  height: 100%;
+  pointer-events: none;
+
+  &:after {
+    display: flex;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    font-size: 14px;
+    line-height: 1.1;
+    content: "";
+    pointer-events: none;
+
+    background-color: #c0c0c0;
+    box-shadow: inset 0.5px 0.7px 0px 0.7px #808080, inset -1px 0px 0 1px #000,
+      inset 1.5px 1.5px 0px 1.5px #fff;
+
+    border-right: 1;
+    border-bottom: 1;
+
+    background-image: url("${caret}");
+    background-position: 60% 60%;
+    background-repeat: no-repeat;
   }
 `;
 
-const CaretIcon = styled.div`
-  position: absolute;
-  right: 6px; /* Adjusted right position */
-  top: 50%;
-  transform: translateY(-50%);
-  width: 10px;
-  height: 10px;
-  background-color: #c0c0c0;
-  background-image: url("${caret}");
-  background-position: center;
-  background-repeat: no-repeat;
-  pointer-events: none; /* Ensures that the caret doesn't interfere with dropdown interaction */
+const StyledOption = styled.option`
+  color: red;
+  background-color: red;
+  border-radius: 15px;
 `;
 
-interface DropdownItem {
+type DropdownItem = {
   func: () => void;
   label: string;
-}
+};
 
-interface DropdownProps {
+type DropdownProps = {
   title: string;
   items: DropdownItem[];
-}
+};
 
 const Dropdown: React.FC<DropdownProps> = (props) => {
   const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -67,20 +90,17 @@ const Dropdown: React.FC<DropdownProps> = (props) => {
   };
 
   return (
-    <label>
-      Select your desired soring
-      <Wrapper>
-        <StyledSelect onChange={handleSelectChange}>
-          {props.items &&
-            props.items.map((item, index) => (
-              <option key={index} value={item.label}>
-                {item.label}
-              </option>
-            ))}
-        </StyledSelect>
-        <CaretIcon />
-      </Wrapper>
-    </label>
+    <Wrapper>
+      <Select onChange={handleSelectChange}>
+        {props.items &&
+          props.items.map((item, index) => (
+            <StyledOption key={index} value={item.label}>
+              {item.label}
+            </StyledOption>
+          ))}
+      </Select>
+      <CaretWrapper />
+    </Wrapper>
   );
 };
 
