@@ -12,6 +12,8 @@ import {
   IFinishedGame,
   IGame,
   IGameSocketPayload,
+  IGameUser,
+  IGameUserAuth,
   IQueuePayload,
 } from '../games/properties';
 
@@ -20,6 +22,10 @@ import { Socket, Server } from 'socket.io';
 import { GamesService } from '../games/games.service';
 import { ChatService } from 'src/chat/chat.service';
 import { Inject, Injectable } from '@nestjs/common';
+
+export interface IChangeSocketPayload {
+  intraname: string;
+}
 
 @Injectable()
 @WebSocketGateway(9000, {
@@ -52,9 +58,7 @@ export class WSocketGateway implements OnGatewayInit {
   }
 
   @SubscribeMessage('create')
-  async addChat(
-    @MessageBody() data: IChannel,
-  ): Promise<string[]> {
+  async addChat(@MessageBody() data: IChannel): Promise<string[]> {
     return await this.chatService.addChat(data);
   }
 
@@ -105,6 +109,26 @@ export class WSocketGateway implements OnGatewayInit {
     @MessageBody() gameId: string,
   ): EGamemode | undefined | null {
     return this.gamesService.getGamemode(gameId);
+  }
+
+  @SubscribeMessage('changesocket')
+  public changeSocket(
+    @MessageBody() gameuser: IChangeSocketPayload,
+    @ConnectedSocket() socket: Socket,
+  ): void {
+    return this.gamesService.changeSocket(gameuser, socket);
+  }
+
+  @SubscribeMessage('isplayerinqueue')
+  public isPlayerInQueue(
+    @MessageBody() gameuser: IChangeSocketPayload,
+  ): boolean {
+    return this.gamesService.isPlayerInQueue(gameuser);
+  }
+
+  @SubscribeMessage('leavequeue')
+  public leaveQueue(@MessageBody() gameuser: IChangeSocketPayload): void {
+    return this.gamesService.leaveQueue(gameuser);
   }
 
   afterInit(server: any): any {}

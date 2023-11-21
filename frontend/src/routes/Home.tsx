@@ -6,6 +6,9 @@ import Button from "../components/button";
 import Input from "../components/input/Input";
 import { BACKEND } from "./SetUser";
 import { IUser } from "../context/auth";
+import MatchHistory from "../components/matchhistory/Matchhistory";
+import StatsWindow from "../components/stats/StatsWindow";
+import GraphComponent from "../components/elograph/elograph";
 
 const Home: React.FC = () => {
   const auth = useContext(AuthContext);
@@ -126,6 +129,15 @@ const Home: React.FC = () => {
 				<Button onClick={handleFriendrequest}>Send Friend Request</Button>
 				<Button onClick={handleGetPending}>get Pending Friend Requests</Button>
 				<Button onClick={handleGetReceived}>get Received Friend Requests</Button>
+        {auth?.user?.intraname ? (
+          <>
+            <StatsWindow intraname={auth.user.intraname}></StatsWindow>
+            <MatchHistory intraname={auth.user.intraname}></MatchHistory>
+            <GraphComponent intraname={auth.user.intraname}></GraphComponent>
+          </>
+        ) : (
+          <></>
+        )}
       </div>
     </>
   );

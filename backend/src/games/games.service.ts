@@ -8,6 +8,7 @@ import properties, {
   IGame,
   IGameBackend,
   IGameUser,
+  IGameUserAuth,
   IKeyState,
   IPaddle,
   IUser,
@@ -28,8 +29,9 @@ import { Socket } from 'socket.io';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Game } from './game.entity';
 import { Repository } from 'typeorm';
-import { CreateGameDto } from './dto/create-game.dto';
-import { getWinnerLooser, isGameFinished } from './games.utils';
+import { IChangeSocketPayload } from 'src/wsocket/wsocket.gateway';
+import { getWinnerLooserNames, isGameFinished } from './games.utils';
+import { User } from 'src/users/user.entity';
 
 const newGameCopy = (): IGame => {
   return JSON.parse(JSON.stringify(gameSpawn));
@@ -40,6 +42,8 @@ export class GamesService {
   constructor(
     @InjectRepository(Game)
     private gamesRepository: Repository<Game>, // private configService: ConfigService,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
   ) {
     this.runningGames = new Map<string, IGameBackend>();
     this.queuedClients = new Map([
@@ -51,15 +55,9 @@ export class GamesService {
   public runningGames: Map<string, IGameBackend>;
   public queuedClients: Map<EGamemode, Map<string, IGameUser>>;
 
-  private async generateGameId(
-    leftPlayerName: string,
-    rightPlayerName: string,
-    gamemode: EGamemode,
-  ): Promise<string> {
+  private async generateGameId(gamemode: EGamemode): Promise<string> {
     const newGame = this.gamesRepository.create({
       isFinished: false,
-      leftPlayer: leftPlayerName,
-      rightPlayer: rightPlayerName,
       gamemode: gamemode,
     });
     await this.gamesRepository.save(newGame); // This inserts the new game and assigns an ID
@@ -83,15 +81,15 @@ export class GamesService {
   public async getGameFromDatabase(gameId: string): Promise<IFinishedGame> {
     const databaseGame: Game = await this.gamesRepository.findOne({
       where: { gameId: gameId },
+      relations: ['winner', 'looser'],
     });
     const returnGame: IFinishedGame = { gameExists: true };
     if (!databaseGame) {
       returnGame.gameExists = false;
       return returnGame;
     }
-
-    returnGame.winner = databaseGame.winner;
-    returnGame.looser = databaseGame.looser;
+    returnGame.winner = databaseGame.winner.name;
+    returnGame.looser = databaseGame.looser.name;
     returnGame.winnerPoints = databaseGame.winnerPoints;
     returnGame.looserPoints = databaseGame.looserPoints;
     return returnGame;
@@ -221,11 +219,7 @@ export class GamesService {
     gamemode: EGamemode,
   ): Promise<string> {
     const newGame: IGame = newGameCopy();
-    const gameId: string = await this.generateGameId(
-      leftPlayer.user.name,
-      rightPlayer.user.name,
-      gamemode,
-    );
+    const gameId: string = await this.generateGameId(gamemode);
     newGame.gameId = gameId;
     this.runningGames.set(gameId, {
       gameId: gameId,
@@ -259,9 +253,9 @@ export class GamesService {
     client: Socket,
   ): void {
     this.queuedClients.forEach((queue) => {
-      queue.delete(user.name);
+      queue.delete(user.intraname);
     });
-    this.queuedClients.get(gamemode).set(user.name, {
+    this.queuedClients.get(gamemode).set(user.intraname, {
       user: user,
       socket: client,
     });
@@ -307,12 +301,42 @@ export class GamesService {
     return this.runningGames.get(gameId).gameState;
   }
 
+  private calculateNewElo(
+    winnerElo: number,
+    looserElo: number,
+  ): [number, number] {
+    const eloFactor: number = 32;
+    const winChance: number = 1 / (1 + 10 ** ((looserElo - winnerElo) / 400));
+    const lossChance: number = 1 / (1 + 10 ** ((winnerElo - looserElo) / 400));
+    const newWinnerElo: number = winnerElo + eloFactor * (1 - winChance);
+    const newLooserElo: number = looserElo + eloFactor * (0 - lossChance);
+    return [Math.floor(newWinnerElo), Math.floor(newLooserElo)];
+  }
+
+  private async handleElo(
+    winner: User,
+    looser: User,
+    gamemode: EGamemode,
+  ): Promise<void> {
+    if (gamemode != EGamemode.standard) return;
+    const [latestWinnerElo, latestLooserElo] = this.calculateNewElo(
+      winner.elo[winner.elo.length - 1],
+      looser.elo[looser.elo.length - 1],
+    );
+    winner.elo.push(latestWinnerElo);
+    looser.elo.push(latestLooserElo);
+    await this.userRepository.save([winner, looser]);
+  }
+
   private async cleanUpFinishedGame(localGame: IGameBackend): Promise<void> {
     this.stop(localGame.gameId);
     localGame.gameState.isFinished = true;
-    const [winner, looser] = getWinnerLooser(localGame);
-    localGame.gameState.winner = winner;
-    localGame.gameState.looser = looser;
+
+    const [winner, looser]: User[] = await getWinnerLooserNames(
+      this.userRepository,
+      localGame,
+    );
+
     const winnerPoints = Math.max(
       localGame.gameState.pointsLeft,
       localGame.gameState.pointsRight,
@@ -321,41 +345,72 @@ export class GamesService {
       localGame.gameState.pointsLeft,
       localGame.gameState.pointsRight,
     );
-    localGame.leftPlayer.socket.emit('endgame');
-    localGame.rightPlayer.socket.emit('endgame');
 
-    const databaseGame = await this.gamesRepository.findOne({
+    const gameToUpdate = await this.gamesRepository.findOne({
       where: { gameId: localGame.gameId },
     });
 
-    if (!databaseGame) return;
-    const updatedDatabaseGame: CreateGameDto = {
-      gameId: localGame.gameId,
-      winner:
-        winner != null &&
-        winner != undefined &&
-        winner.name != '' &&
-        winner.name != undefined &&
-        winner.name != null
-          ? winner.name
-          : 'null',
-      looser:
-        looser != null &&
-        looser != undefined &&
-        looser.name != '' &&
-        looser.name != undefined &&
-        looser.name != null
-          ? looser.name
-          : 'null',
-      winnerPoints: winnerPoints,
-      looserPoints: looserPoints,
-      isFinished: true,
-    };
-    await this.gamesRepository.update(localGame.gameId, updatedDatabaseGame);
-    this.runningGames.delete(localGame.gameId);
+    if (!gameToUpdate) {
+      console.error(`Game with ID ${localGame.gameId} not found`);
+      return;
+    }
+
+    gameToUpdate.winner = winner;
+    gameToUpdate.looser = looser;
+    gameToUpdate.winnerPoints = winnerPoints;
+    gameToUpdate.looserPoints = looserPoints;
+    gameToUpdate.isFinished = true;
+
+    await this.handleElo(winner, looser, localGame.gamemode);
+
+    this.gamesRepository
+      .save(gameToUpdate)
+      .then(() => {
+        this.runningGames.delete(localGame.gameId);
+        localGame.leftPlayer.socket.emit('endgame', localGame.gameId);
+        localGame.rightPlayer.socket.emit('endgame', localGame.gameId);
+      })
+      .catch((error) => {
+        console.error('Error updating game:', error.message);
+      });
   }
 
   public getGamemode(gameId: string): EGamemode | undefined | null {
     return this.runningGames.get(gameId)?.gamemode;
+  }
+
+  public changeSocket(gameuser: IChangeSocketPayload, socket: Socket): void {
+    this.queuedClients.forEach((gamemode) => {
+      gamemode.forEach((game) => {
+        if (game.user.intraname === gameuser.intraname) game.socket = socket;
+      });
+    });
+    this.runningGames.forEach((game) => {
+      if (game.leftPlayer.user.intraname === gameuser.intraname)
+        game.leftPlayer.socket = socket;
+      if (game.rightPlayer.user.intraname === gameuser.intraname)
+        game.rightPlayer.socket = socket;
+    });
+  }
+
+  public isPlayerInQueue(gameuser: IChangeSocketPayload): boolean {
+    let returnValue = false;
+    this.queuedClients.forEach((gamemode) => {
+      gamemode.forEach((game) => {
+        if (game.user.intraname === gameuser.intraname) returnValue = true;
+      });
+    });
+    return returnValue;
+  }
+
+  public leaveQueue(gameuser: IChangeSocketPayload): void {
+    this.queuedClients.forEach((gamemode) => {
+      gamemode.forEach((game) => {
+        if (game.user.intraname === gameuser.intraname) {
+          gamemode.delete(game.user.intraname);
+          return;
+        }
+      });
+    });
   }
 }

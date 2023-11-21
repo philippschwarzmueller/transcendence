@@ -1,9 +1,11 @@
-import { Channels } from 'src/chat/chat.entity';
+import { Channels, Messages } from 'src/chat/chat.entity';
+import { Game } from 'src/games/game.entity';
 import {
   Column,
   Entity,
   JoinTable,
   ManyToMany,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   Unique,
@@ -108,4 +110,14 @@ export class User {
     },
   })
   friends: User[];
+  @OneToMany(() => Game, (game) => game.winner)
+  wonGames: Game[];
+
+  @OneToMany(() => Game, (game) => game.looser)
+  lostGames: Game[];
+
+  @Column('jsonb', {
+    default: [1000, 1000, 1000, 1000, 1000],
+  })
+  elo: number[];
 }

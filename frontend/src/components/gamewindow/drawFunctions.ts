@@ -1,4 +1,4 @@
-import { EGamemode } from "../queue/Queue";
+import { EGamemode } from "../queuebutton/Queuebutton";
 import { IGameCanvas } from "./Gamewindow";
 import properties, {
   IBall,
@@ -10,6 +10,16 @@ import properties, {
   goalSizePercent,
 } from "./properties";
 import { Gamesocket } from "./socket";
+
+export const clearAllCanvas = (allCanvas: IGameCanvas): void => {
+  Object.values(allCanvas).forEach(
+    (canvas: React.MutableRefObject<HTMLCanvasElement>) => {
+      canvas.current
+        .getContext("2d")
+        ?.clearRect(0, 0, properties.window.width, properties.window.height);
+    }
+  );
+};
 
 export const drawGame = (
   gamemode: React.MutableRefObject<EGamemode>,
