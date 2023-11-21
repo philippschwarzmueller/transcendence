@@ -85,7 +85,10 @@ const Userbrowser: React.FC<IUserBrowser> = ({
       display={showContext}
       positionX={x}
       positionY={y}
-      link={currentUser}/>
+      link={currentUser}
+      isFriendIncoming={false}
+      isPendingFriendIncoming={false}
+      />
       <Moveablewindow
       title="Browser"
       positionX={500}
