@@ -3,6 +3,14 @@ import { BACKEND } from "../../routes/SetUser";
 import { Win98Box } from "../matchhistory/Matchhistory";
 import Dropdown from "../dropdown/dropdown";
 import Checkbox from "../checkbox/checkbox";
+import styled from "styled-components";
+import WindowWrapper from "../outlinecontainer/outlinecontainer";
+
+const HorizontalContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
 
 interface ILeaderboardLine {
   intraname: string;
@@ -71,31 +79,8 @@ const Leaderboard: React.FC = () => {
 
   return (
     <>
-      {/* <Win98Box> */}
-      <h1>Leaderboard</h1>
-      <div>
-        <div>
-          <div>
-            <Checkbox
-              label="Standard Pong"
-              checked={checkedStandardBox}
-              onChange={() => {
-                setCheckedStandardBox(!checkedStandardBox);
-                console.log("checked standard box");
-              }}
-            />
-          </div>
-          <div>
-            <Checkbox
-              label="2D Pong"
-              checked={checked2dBox}
-              onChange={() => {
-                setChecked2dBox(!checked2dBox);
-                console.log("checked 2d box");
-              }}
-            />
-          </div>
-        </div>
+      <p></p>
+      <WindowWrapper title="sortBy">
         <Dropdown
           title="select sorting"
           items={[
@@ -125,7 +110,25 @@ const Leaderboard: React.FC = () => {
             },
           ]}
         ></Dropdown>
-      </div>
+        <p></p>
+        <Checkbox
+          label="Standard Pong"
+          checked={checkedStandardBox}
+          onChange={() => {
+            setCheckedStandardBox(!checkedStandardBox);
+            console.log("checked standard box");
+          }}
+        />
+        <Checkbox
+          label="2D Pong"
+          checked={checked2dBox}
+          onChange={() => {
+            setChecked2dBox(!checked2dBox);
+            console.log("checked 2d box");
+          }}
+        />
+      </WindowWrapper>
+      <p></p>
       <table>
         <tr>
           <th>Rank</th>
@@ -148,7 +151,6 @@ const Leaderboard: React.FC = () => {
           );
         })}
       </table>
-      {/* </Win98Box> */}
     </>
   );
 };
