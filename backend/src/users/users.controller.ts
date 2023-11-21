@@ -125,6 +125,6 @@ export class UsersController {
     const friend: User | null = await this.usersService.findOneByName(
       body.name,
     );
-    return(await this.usersService.getFriendState(user.name, friend.name));
+    return await this.usersService.getFriendState(user.name, friend.name);
   }
 }
