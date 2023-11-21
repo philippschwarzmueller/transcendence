@@ -11,6 +11,7 @@ import {
 import { UsersService } from './users.service';
 import { User } from './user.entity';
 import { Request } from 'express';
+import { FriendState } from './users.service';
 
 @Controller('users')
 export class UsersController {
@@ -91,8 +92,7 @@ export class UsersController {
     const token: string = req.cookies.token;
     const user: User | null =
       await this.usersService.exchangeTokenforUser(token);
-    const friendList: User[] =
-      await this.usersService.getFriendList(user.name);
+    const friendList: User[] = await this.usersService.getFriendList(user.name);
     return friendList;
   }
 
@@ -113,4 +113,60 @@ export class UsersController {
     await this.usersService.removeFriend(user, friend);
     return true;
   }
+
+  
+
+  @Post('get-friend-state')
+  async getFriendState(
+    @Body() body: { name: string },
+    @Req() req: Request,
+  ): Promise<FriendState> {
+    const token: string = req.cookies.token;
+    const user: User | null =
+      await this.usersService.exchangeTokenforUser(token);
+    const friend: User | null = await this.usersService.findOneByName(
+      body.name,
+    );
+    return(await this.usersService.getFriendState(user.name, friend.name));
+  }
+
+/*   @Post('user-is-friend')
+  async userIsFriend(
+    @Body() body: { name: string },
+    @Req() req: Request,
+  ): Promise<boolean> {
+    const token: string = req.cookies.token;
+    const user: User | null =
+      await this.usersService.exchangeTokenforUser(token);
+    const friend: User | null = await this.usersService.findOneByName(
+      body.name,
+    );
+    if (user === null || friend === null) {
+      return false;
+    }
+    const isFriend: boolean = await this.usersService.userIsFriend(
+      user.name,
+      friend.name,
+    );
+    return isFriend;
+  }
+
+  @Post('user-is-pending-friend')
+  async userisPendingFriend(
+    @Body() body: { name: string },
+    @Req() req: Request,
+  ): Promise<boolean> {
+    const token: string = req.cookies.token;
+    const user: User | null =
+    await this.usersService.exchangeTokenforUser(token);
+    const friend: User | null = await this.usersService.findOneByName(
+      body.name,
+    );
+    if (user === null || friend === null) {
+      return false;
+    }
+    const isPendingFriend: boolean =
+      await this.usersService.userIsPendingFriend(user.name, friend.name);
+    return isPendingFriend;
+  } */
 }

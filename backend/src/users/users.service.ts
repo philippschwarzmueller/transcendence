@@ -3,6 +3,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { User } from './user.entity';
 
+export enum FriendState {
+  noFriend,
+  pendingFriend,
+  Friend,
+}
+
 @Injectable()
 export class UsersService {
   constructor(
@@ -94,14 +100,14 @@ export class UsersService {
       where: { name: friend.name },
       relations: ['friend_requests_received'],
     });
-  
+
     if (!sender || !receiver) {
       throw new Error('User or friend not found');
     }
 
     sender.friend_requested.push(receiver);
     receiver.friend_requests_received.push(user);
-  
+
     await this.usersRepository.save(sender);
     await this.usersRepository.save(receiver);
   }
@@ -112,16 +118,20 @@ export class UsersService {
       relations: ['friend_requests_received', 'friends', 'friend_requested'],
     });
 
-    const sender:User = await this.usersRepository.findOne({
+    const sender: User = await this.usersRepository.findOne({
       where: { name: friend.name },
       relations: ['friend_requested', 'friends', 'friend_requests_received'],
     });
 
     sender.friends.push(receiver);
     receiver.friends.push(sender);
-    
-    sender.friend_requested = sender.friend_requested.filter((friend) => friend.name !== receiver.name);
-    receiver.friend_requests_received = sender.friend_requests_received.filter((friend) => friend.name !== sender.name);
+
+    sender.friend_requested = sender.friend_requested.filter(
+      (friend) => friend.name !== receiver.name,
+    );
+    receiver.friend_requests_received = sender.friend_requests_received.filter(
+      (friend) => friend.name !== sender.name,
+    );
 
     await this.usersRepository.save(sender);
     await this.usersRepository.save(receiver);
@@ -134,13 +144,17 @@ export class UsersService {
       relations: ['friends'],
     });
 
-    const removeFriend:User = await this.usersRepository.findOne({
+    const removeFriend: User = await this.usersRepository.findOne({
       where: { name: friend.name },
       relations: ['friends'],
     });
 
-    remover.friends = remover.friends.filter((friend) => friend.name !== removeFriend.name);
-    removeFriend.friends = removeFriend.friends.filter((friend) => friend.name !== remover.name);
+    remover.friends = remover.friends.filter(
+      (friend) => friend.name !== removeFriend.name,
+    );
+    removeFriend.friends = removeFriend.friends.filter(
+      (friend) => friend.name !== remover.name,
+    );
 
     await this.usersRepository.save(remover);
     await this.usersRepository.save(removeFriend);
@@ -154,5 +168,35 @@ export class UsersService {
         relations: ['friends'],
       })
     ).friends;
+  }
+
+  async userIsFriend(user: string, friend: string): Promise<boolean> {
+    const friends: User[] = await this.getFriendList(user);
+    const isFriend: boolean = friends.some(
+      (friendUser) => friendUser.name === friend,
+    );
+    return isFriend;
+  }
+
+  async userIsPendingFriend(user: string, friend: string): Promise<boolean> {
+    const pendingFriends: User[] =
+      await this.getReceivedFriendRequestList(user);
+    const ispendingFriend: boolean = pendingFriends.some(
+      (friendUser) => friendUser.name === friend,
+    );
+    return ispendingFriend;
+  }
+
+  async getFriendState(user: string, friend: string): Promise<FriendState> {
+    const isFriend = await this.userIsFriend(user, friend);
+    const isPendingFriend = await this.userIsPendingFriend(user, friend);
+
+    if (isFriend) {
+      return FriendState.Friend;
+    } else if (isPendingFriend) {
+      return FriendState.pendingFriend;
+    } else {
+      return FriendState.noFriend;
+    }
   }
 }

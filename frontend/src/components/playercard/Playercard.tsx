@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import Avatar from "../avatar";
 import ContextMenu from "../contextmenu/ContextMenu";
-import { IUser } from "../../context/auth";
 import { BACKEND } from "../../routes/SetUser";
 
 const StyledDiv = styled.div`
@@ -48,8 +47,9 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
   let [showContext, setShowContext] = useState<boolean>(false);
   let [x, setX] = useState<number>(0);
   let [y, setY] = useState<number>(0);
-  let [isFriend, setIsFriend] = useState(false);
-  let [isPendingFriend, setIsPendingFriend] = useState(false);
+  let [isFriend, setIsFriend] = useState<boolean>(false);
+  let [isPendingFriend, setIsPendingFriend] = useState<boolean>(false);
+  let [isLoading, setIsLoading] = useState<boolean>(true);
   function openContextMenu(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
     setX(e.pageX);
     setY(e.pageY);
@@ -58,61 +58,57 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
 
   const fetchIsFriend = async () => {
     try {
+      const res: Response = await fetch(`${BACKEND}/users/user-is-friend`, {
+        method: "Post",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ name }),
+      });
+      if (!res.ok) {
+        throw new Error("Network response was not ok");
+      }
+      setIsFriend(await res.json());
+    } catch (error) {
+      console.error("Error fetching Friend:", error);
+    }
+  };
+
+  const fetchIsPendingFriend = async () => {
+    try {
       const res: Response = await fetch(
-        `${BACKEND}/users/get-received-friend-requests`,
+        `${BACKEND}/users/user-is-pending-friend`,
         {
-          method: "POST",
+          method: "Post",
           headers: {
             "Content-Type": "application/json",
           },
           credentials: "include",
+          body: JSON.stringify({ name }),
         }
       );
       if (!res.ok) {
         throw new Error("Network response was not ok");
       }
-      const friends: IUser [] = await res.json();
-      if(friends.length > 0){
-        const userExists: boolean = friends.some(user => user.name === name);
-        setIsFriend(userExists);
-      }
+      setIsPendingFriend(await res.json());
     } catch (error) {
       console.error("Error fetching pendingFriendRequests:", error);
     }
-  }
-
-  const fetchIsPendingFriend = async () => {
-    try {
-      const res: Response = await fetch(`${BACKEND}/users/get-friends`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      });
-      if (!res.ok) {
-        throw new Error("Network response was not ok");
-      }
-      const friends: IUser[] = await res.json();
-      if(friends.length > 0){
-        const userExists: boolean = friends.some(user => user.name === name);
-        setIsPendingFriend(userExists);
-      }
-    } catch (error) {
-      console.error("Error fetching pendingFriendRequests:", error);
-    }
-  }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
       await fetchIsFriend();
       await fetchIsPendingFriend();
+      setIsLoading(false);
     };
-  
     fetchData();
-    console.log(isFriend);
-    console.log(isPendingFriend);
   }, []);
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <>
@@ -128,8 +124,8 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
         positionX={x}
         positionY={y}
         link={name}
-        pendingFriend={isPendingFriend}
-        isFriend={isFriend}
+        isPendingFriendIncoming={isPendingFriend}
+        isFriendIncoming={isFriend}
         triggerReload={triggerReload}
       />
     </>

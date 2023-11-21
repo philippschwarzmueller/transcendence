@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
 import { BACKEND } from "../../routes/SetUser";
@@ -40,8 +40,8 @@ export interface IContextMenu {
   positionX: number;
   positionY: number;
   link: string | undefined;
-  pendingFriend: boolean;
-  isFriend: boolean;
+  isFriendIncoming: boolean;
+  isPendingFriendIncoming: boolean;
   triggerReload: () => void;
 }
 
@@ -50,13 +50,17 @@ const ContextMenu: React.FC<IContextMenu> = ({
   positionX,
   positionY,
   link,
-  pendingFriend,
-  isFriend,
+  isFriendIncoming,
+  isPendingFriendIncoming,
   triggerReload,
 }) => {
+  const [isFriend, setIsFriend] = useState<boolean>(isFriendIncoming);
+  const [isPendingFriend, setIsPendingFriend] = useState<boolean>(
+    isPendingFriendIncoming
+  );
   const handleFriendAccept = async (
     friend: string | undefined,
-    pendingFriend: boolean
+    isPendingFriend: boolean | undefined
   ) => {
     if (friend !== undefined) {
       try {
@@ -75,7 +79,7 @@ const ContextMenu: React.FC<IContextMenu> = ({
 
         const success: boolean = await res.json();
         if (success) {
-          pendingFriend = false;
+          setIsPendingFriend(false);
           triggerReload();
         }
       } catch (error) {
@@ -86,7 +90,7 @@ const ContextMenu: React.FC<IContextMenu> = ({
 
   const handleFriendRemove = async (
     friend: string | undefined,
-    isfriend: boolean
+    isFriend: boolean
   ) => {
     if (friend !== undefined) {
       try {
@@ -105,7 +109,7 @@ const ContextMenu: React.FC<IContextMenu> = ({
 
         const success: boolean = await res.json();
         if (success) {
-          isfriend = false;
+          setIsFriend(false);
           triggerReload();
         }
       } catch (error) {
@@ -117,12 +121,12 @@ const ContextMenu: React.FC<IContextMenu> = ({
   return (
     <>
       <StyledUl $display={display} $posX={positionX} $posY={positionY}>
-        {pendingFriend && (
-          <OptionLi onClick={() => handleFriendAccept(link, pendingFriend)}>
+        {isPendingFriend && (
+          <OptionLi onClick={() => handleFriendAccept(link, isPendingFriend)}>
             👥 Accept friend request
           </OptionLi>
         )}
-        {pendingFriend && <LineLi />}
+        {isPendingFriend && <LineLi />}
         {link !== undefined && (
           <Link to={`/profile/${link}`}>
             <OptionLi>👤 Visit Profile</OptionLi>
