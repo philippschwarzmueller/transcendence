@@ -18,8 +18,10 @@ const Title = styled.div`
   font-size: 14px;
   color: #000;
   position: absolute;
-  bottom: 60px;
-  padding: 3px;
+  bottom: 35px;
+  padding-left: 3px;
+  padding-right: 3px;
+  padding-bottom: 3px;
   background-color: rgb(195, 199, 203);
 `;
 
