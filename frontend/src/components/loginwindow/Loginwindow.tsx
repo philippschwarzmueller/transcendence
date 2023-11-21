@@ -36,7 +36,7 @@ const Windowbar = styled.div`
   background: rgb(0, 14, 122);
   color: White;
   font-size: 1em;
-  cursor: grab;
+  cursor: default;
 `;
 
 const Loginwindow: React.FC = () => {
@@ -60,7 +60,7 @@ const Loginwindow: React.FC = () => {
         <LoginBox>
           <img src={require("../../images/key.png")} alt="keys" width="64px" height="64px" />
           <InputFields>
-            <p>Just press the button to log in</p>
+            <p style={{cursor: "default"}}>Just press the button to log in</p>
             <Button onClick={ () => handleIntraLogin() }>Ok</Button>
           </InputFields>
         </LoginBox>

@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { styled } from "styled-components";
 import Chatwindow from "../chatwindow/Chatwindow";
-import Loginwindow from "../loginwindow/Loginwindow";
 import Moveablewindow from "../moveablewindow/Moveablewindow";
+import Profilewindow from "../profilewindow/Profilewindow";
 import Queuebox from "../queuebox/Queuebox";
 import Userbrowser from "../userbrowser";
 
@@ -108,10 +108,10 @@ const Taskbar: React.FC = () => {
   const [displayUsers, setDisplayUsers] = useState<boolean>(false);
   const [displayStart, setDisplayStart] = useState<boolean>(false);
   const [displayQueue, setDisplayQueue] = useState<boolean>(false);
+  const [displayProfile, setDisplayProfile] = useState<boolean>(true);
 
   return (
     <>
-    <Loginwindow />
     <Icon
     onClick={() => setDisplayQueue(!displayQueue)}
     $active={displayQueue}>
@@ -127,6 +127,7 @@ const Taskbar: React.FC = () => {
       >
     <Queuebox />
     </Moveablewindow>
+    <Profilewindow $display={displayProfile} />
     <Chatwindow $display={displayChat} />
     <Userbrowser $display={displayUsers} />
     <StartMenu $display={displayStart}>
