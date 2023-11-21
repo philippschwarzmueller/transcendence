@@ -1,5 +1,14 @@
-import { Column, Entity, PrimaryGeneratedColumn, Unique } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  Unique,
+} from 'typeorm';
 import { EGamemode } from './properties';
+import { User } from 'src/users/user.entity';
 
 @Entity('games')
 @Unique(['gameId'])
@@ -7,17 +16,21 @@ export class Game {
   @PrimaryGeneratedColumn()
   gameId: string;
 
-  @Column({ nullable: true })
-  leftPlayer?: string;
+  @ManyToOne(
+    () => User,
+    (winner) => {
+      winner.wonGames;
+    },
+  )
+  winner?: User;
 
-  @Column({ nullable: true })
-  rightPlayer?: string;
-
-  @Column({ nullable: true })
-  winner?: string;
-
-  @Column({ nullable: true })
-  looser?: string;
+  @ManyToOne(
+    () => User,
+    (looser) => {
+      looser.lostGames;
+    },
+  )
+  looser?: User;
 
   @Column({ nullable: true })
   winnerPoints?: number;
@@ -30,4 +43,8 @@ export class Game {
 
   @Column()
   gamemode: EGamemode;
+
+  @Column({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
+  @CreateDateColumn()
+  createdAt: Date;
 }

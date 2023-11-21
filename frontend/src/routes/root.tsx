@@ -12,7 +12,7 @@ const Root: React.FC = () => {
     name: undefined,
     intraname: undefined,
     twoFAenabled: false,
-    image: undefined,
+    profilePictureUrl: undefined,
     token: undefined,
     activeChats: [],
   });
@@ -25,7 +25,7 @@ const Root: React.FC = () => {
       name: undefined,
       intraname: undefined,
       twoFAenabled: false,
-      image: undefined,
+      profilePictureUrl: undefined,
       token: undefined,
       activeChats: [],
     });

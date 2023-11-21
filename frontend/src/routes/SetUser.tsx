@@ -35,7 +35,7 @@ const SetUser: React.FC = () => {
           name: user.name,
           intraname: user.name,
           twoFAenabled: user.twoFAenabled,
-          image: user.image,
+          profilePictureUrl: user.profilePictureUrl,
           activeChats: user.activeChats,
         });
         setRedirect(true);
@@ -67,7 +67,7 @@ const SetUser: React.FC = () => {
               name: resUser.name,
               intraname: resUser.name,
               twoFAenabled: resUser.twoFAenabled,
-              image: resUser.profilePictureUrl,
+              profilePictureUrl: resUser.profilePictureUrl,
               activeChats: resUser.activeChats,
             });
             setRedirect(true);
