@@ -39,6 +39,12 @@ interface PlayerCardProps {
   triggerReload: () => void;
 }
 
+export enum FriendState {
+  noFriend,
+  pendingFriend,
+  friend,
+}
+
 const PlayerCard: React.FC<PlayerCardProps> = ({
   name,
   profilePictureUrl,
@@ -56,9 +62,9 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
     setShowContext(!showContext);
   }
 
-  const fetchIsFriend = async () => {
+  const fetchFriendData = async () => {
     try {
-      const res: Response = await fetch(`${BACKEND}/users/user-is-friend`, {
+      const res: Response = await fetch(`${BACKEND}/users/get-friend-state`, {
         method: "Post",
         headers: {
           "Content-Type": "application/json",
@@ -69,29 +75,13 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
       if (!res.ok) {
         throw new Error("Network response was not ok");
       }
-      setIsFriend(await res.json());
-    } catch (error) {
-      console.error("Error fetching Friend:", error);
-    }
-  };
-
-  const fetchIsPendingFriend = async () => {
-    try {
-      const res: Response = await fetch(
-        `${BACKEND}/users/user-is-pending-friend`,
-        {
-          method: "Post",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify({ name }),
-        }
-      );
-      if (!res.ok) {
-        throw new Error("Network response was not ok");
+      const friendState: FriendState = await res.json();
+      if (friendState === FriendState.friend) {
+        setIsFriend(true);
       }
-      setIsPendingFriend(await res.json());
+      if (friendState === FriendState.pendingFriend) {
+        setIsPendingFriend(true);
+      }
     } catch (error) {
       console.error("Error fetching pendingFriendRequests:", error);
     }
@@ -99,8 +89,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
 
   useEffect(() => {
     const fetchData = async () => {
-      await fetchIsFriend();
-      await fetchIsPendingFriend();
+      await fetchFriendData();
       setIsLoading(false);
     };
     fetchData();
