@@ -27,9 +27,9 @@ const Windowbar = styled.div`
 
 interface IMoveableWindow {
   title: string;
-  positionX: number;
-  positionY: number;
-  positionZ: number;
+  positionX?: number;
+  positionY?: number;
+  positionZ?: number;
   display: boolean;
   children: ReactNode;
 }
@@ -42,7 +42,7 @@ const Moveablewindow: React.FC<IMoveableWindow> = ({
   display,
   children,
 }) => {
-  const [position, setPosition] = useState({ x: positionX, y: positionY });
+  const [position, setPosition] = useState({ x: (positionX ? positionX : 200), y: (positionY ? positionY : 100) });
   const [offset, setOffset] = useState({ x: 0, y: 0 });
 
   const startDrag = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -93,7 +93,7 @@ const Moveablewindow: React.FC<IMoveableWindow> = ({
   return (
     <>
       <StyledWindow
-        $posZ={positionZ}
+        $posZ={positionZ ? positionZ : 0}
         $display={display}
         style={{ top: position.y, left: position.x }}
       >
