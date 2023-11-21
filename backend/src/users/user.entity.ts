@@ -17,7 +17,7 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToMany((type) => Channels)
+  @ManyToMany(() => Channels)
   @JoinTable({
     name: 'channel_subscription',
     joinColumn: {
@@ -69,6 +69,47 @@ export class User {
   @Column({ default: 0 })
   tokenExpiry: number;
 
+  @ManyToMany(() => User)
+  @JoinTable({
+    name: 'friend_requests',
+    joinColumn: {
+      name: 'user_id',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'friend_id',
+      referencedColumnName: 'id',
+    },
+  })
+  friend_requested: User[];
+
+  @ManyToMany(() => User)
+  @JoinTable({
+    name: 'friend_requests_received',
+    joinColumn: {
+      name: 'friend_id',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'user_id',
+      referencedColumnName: 'id',
+    },
+  })
+  friend_requests_received: User[];
+
+  @ManyToMany(() => User)
+  @JoinTable({
+    name: 'friends',
+    joinColumn: {
+      name: 'user_id', // This user
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'friend_id', // The friend
+      referencedColumnName: 'id',
+    },
+  })
+  friends: User[];
   @OneToMany(() => Game, (game) => game.winner)
   wonGames: Game[];
 
