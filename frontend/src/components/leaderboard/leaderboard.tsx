@@ -57,6 +57,7 @@ const StyledTableContainer = styled.div`
     height: 17px;
   }
   &::-webkit-scrollbar-track {
+    margin-top: 6px;
     -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
   }
   &::-webkit-scrollbar-thumb {
@@ -82,7 +83,7 @@ const StyledTable = styled.table`
 const StyledTableHead = styled.thead`
   position: sticky;
   border: 5px solid #00000000;
-  top: 2px;
+  top: 4px;
   background-color: white;
   /* z-index: 1; */
 `;
