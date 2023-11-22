@@ -92,6 +92,7 @@ export class ChatServiceBase {
       this.updateActiveClients(data, client);
       const channel = await this.chatDao.getChannel(data.id);
       client.join(channel.title);
+      client.leave(data.prev);
       server.to(channel.title).emit('message', `${data.user.name}: joined room`);
       res = await this.chatDao.getRawChannelMessages(channel.id);
     } catch (error) {

@@ -61,7 +61,7 @@ const Userbrowser: React.FC<IUserBrowser> = ({
       let [x, setX] = useState<number>(0);
       let [y, setY] = useState<number>(0);
       let [users, setUsers] = useState<string[]>([]);
-      let listKey = 0;
+      let listKey = -1;
 
     useEffect(() => {
       fetch(`http://${window.location.hostname}:4000/users/names`, {
@@ -101,7 +101,7 @@ const Userbrowser: React.FC<IUserBrowser> = ({
       <StyledUl>
         {users.map((user) => {
           return (
-          <StyledLi key={listKey} onClick={(e) => openContextMenu(e, user)}>{user}</StyledLi>
+          <StyledLi key={listKey--} onClick={(e) => openContextMenu(e, user)}>{user}</StyledLi>
           );
         })}
       </StyledUl></Browser>

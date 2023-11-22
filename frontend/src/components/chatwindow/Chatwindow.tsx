@@ -92,6 +92,7 @@ const Chatwindow: React.FC = () => {
   const [tabs, setTabs] = useState<ITab[]>([]);
   const [activeTab, setActiveTab] = useState<string | null>(null);
   const [room, setRoom] = useState<ITab | null>(null);
+  const [prevRoom, setPrevRoom] = useState<ITab | null>(null);
   const socket: Socket = useContext(SocketContext);
   const navigate = useNavigate();
   let listKey = 0;
@@ -122,10 +123,10 @@ const Chatwindow: React.FC = () => {
   useEffect(() => {
     socket.emit(
       "join",
-      { user: user, type: 0, id: room?.id, title: room?.title },
+      { user: user, type: 0, id: room?.id, title: room?.title, prev: prevRoom?.title },
       (res: string[]) => setMessages(res),
     );
-  }, [room]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [room, prevRoom]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(
     () =>
@@ -152,6 +153,7 @@ const Chatwindow: React.FC = () => {
 
   const setActive = (tab: ITab) => {
     setActiveTab(tab.title);
+    setPrevRoom(room);
     setRoom(tab);
   };
 

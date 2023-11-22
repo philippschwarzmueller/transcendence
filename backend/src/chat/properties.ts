@@ -25,6 +25,7 @@ export interface IChannel {
   type: EChannelType;
   id: number;
   title: string;
+  prev: string;
 }
 
 export interface ITab {
