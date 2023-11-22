@@ -108,7 +108,7 @@ const Taskbar: React.FC = () => {
   const [displayUsers, setDisplayUsers] = useState<boolean>(false);
   const [displayStart, setDisplayStart] = useState<boolean>(false);
   const [displayQueue, setDisplayQueue] = useState<boolean>(false);
-  const [displayProfile, setDisplayProfile] = useState<boolean>(true);
+  const [displayProfile, setDisplayProfile] = useState<boolean>(false);
 
   return (
     <>
@@ -133,9 +133,13 @@ const Taskbar: React.FC = () => {
     <StartMenu $display={displayStart}>
       <TextBar>Transcendence95</TextBar>
       <StyledUl>
-        <StyledLi>
+        <StyledLi onClick={() => setDisplayProfile(!displayProfile)}>
           <img src={require('../../images/head.png')} height="16" width="16" alt="profile" />
           Profile
+        </StyledLi>
+        <StyledLi>
+          <img src={require('../../images/settings.png')} height="16" width="16" alt="profile" />
+          Profile Settings
         </StyledLi>
         <Seperator />
         <StyledLi onClick={() => setDisplayUsers(!displayUsers)}>
@@ -158,7 +162,7 @@ const Taskbar: React.FC = () => {
         <Seperator />
         <StyledLi>
           <img src={require('../../images/door.png')} height="16" width="16" alt="login" />
-          Login
+          Logout
         </StyledLi>
       </StyledUl>
     </StartMenu>

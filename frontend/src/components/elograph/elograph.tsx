@@ -11,12 +11,13 @@ import {
 } from "recharts";
 import { BACKEND } from "../../routes/SetUser";
 
-const GraphContainer = styled.div`
+const GraphContainer = styled.div<{ $display?: boolean }>`
   width: 100%;
   max-width: 500px;
   max-height: 300px;
   margin: auto;
   overflow: hidden;
+  display: ${(props) => props.$display ? "" : "none"};
 `;
 
 const Win98Box = styled.div`
@@ -24,9 +25,6 @@ const Win98Box = styled.div`
   display: flex;
   flex-direction: column;
   background-color: rgb(195, 199, 203);
-  box-shadow: inset 1px 1px 0px 1px rgb(255, 255, 255),
-    inset 0 0 0 1px rgb(134, 138, 142), 1px 1px 0px 1px rgb(0, 0, 0),
-    2px 2px 5px 0px rgba(0, 0, 0, 0.5);
   cursor: pointer;
   height: 100%;
 `;
@@ -35,19 +33,6 @@ const ContentContainer = styled.div`
   display: flex;
   flex-direction: column;
   height: 100%;
-`;
-
-const Title = styled.div`
-  background-color: #5a7b8c;
-  color: white;
-  padding: 5px;
-  font-weight: bold;
-  border-top-left-radius: 5px;
-  border-top-right-radius: 5px;
-  width: 96.5%;
-  box-shadow: rgb(255, 255, 255) 1px 1px 0px 1px inset,
-    rgb(134, 138, 142) 0px 0px 0px 1px inset, rgb(0, 0, 0) 1px 1px 0px 1px;
-  margin-bottom: 10px;
 `;
 
 const CustomTooltipContainer = styled.div`
@@ -71,7 +56,7 @@ const CustomTooltip: React.FC<any> = ({ active, payload }) => {
   return null;
 };
 
-const GraphComponent: React.FC<{ intraname: string }> = ({ intraname }) => {
+const GraphComponent: React.FC<{ intraname: string, display?: boolean}> = ({ intraname, display }) => {
   const [eloValues, setEloValues] = useState<number[]>([]);
 
   useEffect(() => {
@@ -98,14 +83,13 @@ const GraphComponent: React.FC<{ intraname: string }> = ({ intraname }) => {
 
   const ticks = Array.from(
     { length: (domainMax - domainMin) / 100 + 1 },
-    (_, i) => domainMin + i * 100
+    (_, i) => domainMin + i * 100,
   );
 
   return (
-    <GraphContainer>
+    <GraphContainer $display={display}>
       <Win98Box>
         <ContentContainer>
-          <Title>Elo History</Title>
           <LineChart width={500} height={300} data={data}>
             <CartesianGrid stroke="#ccc" />
             <XAxis dataKey="index" tick={false} />
