@@ -2,6 +2,7 @@ import { useState } from "react";
 import { styled } from "styled-components";
 import Chatwindow from "../chatwindow/Chatwindow";
 import Moveablewindow from "../moveablewindow/Moveablewindow";
+import Profilesettings from "../profilesettings/Profilesettings";
 import Profilewindow from "../profilewindow/Profilewindow";
 import Queuebox from "../queuebox/Queuebox";
 import Userbrowser from "../userbrowser";
@@ -109,6 +110,7 @@ const Taskbar: React.FC = () => {
   const [displayStart, setDisplayStart] = useState<boolean>(false);
   const [displayQueue, setDisplayQueue] = useState<boolean>(false);
   const [displayProfile, setDisplayProfile] = useState<boolean>(false);
+  const [displayProfileSettings, setDisplayProfileSettings] = useState<boolean>(false);
 
   return (
     <>
@@ -128,6 +130,7 @@ const Taskbar: React.FC = () => {
     <Queuebox />
     </Moveablewindow>
     <Profilewindow $display={displayProfile} />
+    <Profilesettings $display={displayProfileSettings} />
     <Chatwindow $display={displayChat} />
     <Userbrowser $display={displayUsers} />
     <StartMenu $display={displayStart}>
@@ -137,7 +140,7 @@ const Taskbar: React.FC = () => {
           <img src={require('../../images/head.png')} height="16" width="16" alt="profile" />
           Profile
         </StyledLi>
-        <StyledLi>
+        <StyledLi onClick={() => setDisplayProfileSettings(!displayProfileSettings)}>
           <img src={require('../../images/settings.png')} height="16" width="16" alt="profile" />
           Profile Settings
         </StyledLi>
