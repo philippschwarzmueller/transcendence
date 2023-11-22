@@ -7,12 +7,10 @@ export enum EChannelType {
 
 export interface IChannel {
   user: IUser;
-  type: EChannelType;
-  title: string;
+  id: number;
 }
 
 export interface ITab {
-  type: EChannelType;
   id: number;
   title: string;
 }

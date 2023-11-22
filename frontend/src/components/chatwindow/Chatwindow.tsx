@@ -91,7 +91,7 @@ const Chatwindow: React.FC = () => {
   const user: IUser = useContext(AuthContext).user;
   const [tabs, setTabs] = useState<ITab[]>([]);
   const [activeTab, setActiveTab] = useState<string | null>(null);
-  const [room, setRoom] = useState<string | null>(null);
+  const [room, setRoom] = useState<ITab | null>(null);
   const socket: Socket = useContext(SocketContext);
   const navigate = useNavigate();
   let listKey = 0;
@@ -116,13 +116,13 @@ const Chatwindow: React.FC = () => {
         return response.json();
       })
       .then((res: ITab[]) => setTabs(res)).catch(error => console.log(error));
-    if (tabs.length > 0) setRoom(tabs[tabs.length - 1].title);
+    if (tabs.length > 0) setRoom(tabs[tabs.length - 1]);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     socket.emit(
       "join",
-      { user: user, type: EChannelType.PUBLIC, title: room },
+      { user: user, type: 0, id: room?.id, title: room?.title },
       (res: string[]) => setMessages(res),
     );
   }, [room]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -140,18 +140,18 @@ const Chatwindow: React.FC = () => {
   useEffect(() => {
     setTabs(tabs);
     if (tabs.length > 0)
-      setActive(tabs[tabs.length - 1].title);
+      setActive(tabs[tabs.length - 1]);
   }, [tabs]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function send(event: React.MouseEvent | React.KeyboardEvent) {
     event.preventDefault();
     if (input.trim() !== "" && user !== undefined)
-      socket.emit("message", { user, input, room });
+      socket.emit("message", { user, input, room: room?.title, id: room?.id });
     setInput("");
   }
 
-  const setActive = (tab: string) => {
-    setActiveTab(tab);
+  const setActive = (tab: ITab) => {
+    setActiveTab(tab.title);
     setRoom(tab);
   };
 
@@ -176,7 +176,7 @@ const Chatwindow: React.FC = () => {
           {tabs.map((tab) => {
             return (
               <StyledLi
-                onClick= {() => setActive(tab.title)}
+                onClick= {() => setActive(tab)}
                 key={tab.title}
                 $active={tab.title === activeTab ? "true" : "false"}
               >
@@ -202,7 +202,7 @@ const Chatwindow: React.FC = () => {
                   return e.title !== activeTab;
                 }),
               );
-              if (tabs.length > 0 ) setActive(tabs[tabs.length - 1].title);
+              if (tabs.length > 0 ) setActive(tabs[tabs.length - 1]);
             }}
             $position="absolute"
             $top="35px"

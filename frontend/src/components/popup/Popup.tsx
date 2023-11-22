@@ -89,7 +89,7 @@ function Popup(
             if (e.key === "Enter") {
               socket.emit(
                 "create",
-                { user: user, type: channelType, title: input },
+                { user: user, type: channelType, id: 0, title: input },
                 (res: ITab[]) => setTabs(res),
               );
               setDisplay(false);

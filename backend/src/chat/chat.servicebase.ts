@@ -74,7 +74,7 @@ export class ChatServiceBase {
     return res;
   }
 
-  public async removeChat(userId: string, chat: string): Promise<void> {
+  public async removeChat(userId: string, chat: number): Promise<void> {
     try {
       await this.chatDao.removeUserFromChannel(chat, userId);
     } catch (error) {
@@ -90,9 +90,9 @@ export class ChatServiceBase {
     let res: string[] = [];
     try {
       this.updateActiveClients(data, client);
-      const channel = await this.chatDao.getChannelByTitle(data.title);
+      const channel = await this.chatDao.getChannel(data.id);
       client.join(channel.title);
-      server.to(data.title).emit('message', `${data.user.name}: joined room`);
+      server.to(channel.title).emit('message', `${data.user.name}: joined room`);
       res = await this.chatDao.getRawChannelMessages(channel.id);
     } catch (error) {
       console.log(`SYSTEM: ${error.message.split('\n')[0]}`);

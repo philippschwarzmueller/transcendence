@@ -65,9 +65,9 @@ export class ChatService extends ChatServiceBase {
   private async addUser(data: IMessage, server: Server) {
     try {
       const name = data.input.substring(data.input.indexOf(' ') + 1);
-      const owner = await this.chatDao.getChannelOwner(data.room);
+      const owner = await this.chatDao.getChannelOwner(data.id);
       if (owner.name !== data.user.name) return;
-      await this.chatDao.addUserToChannel(data.room, name);
+      await this.chatDao.addUserToChannel(data.id, name);
       server
         .to(this.getUser(name).socket.id)
         .emit(
@@ -86,9 +86,9 @@ export class ChatService extends ChatServiceBase {
   private async kickUser(data: IMessage, server: Server) {
     try {
       const name = data.input.substring(data.input.indexOf(' ') + 1);
-      const owner = await this.chatDao.getChannelOwner(data.room);
+      const owner = await this.chatDao.getChannelOwner(data.id);
       if (owner.name !== data.user.name) return;
-      await this.chatDao.removeUserFromChannel(data.room, name);
+      await this.chatDao.removeUserFromChannel(data.id, name);
       server
         .to(this.getUser(name).socket.id)
         .emit(

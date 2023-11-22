@@ -23,7 +23,7 @@ export class ChatDAO {
     await this.messsageRepo.save(
       this.messsageRepo.create({
         sender: await this.userService.findOneByName(message.user.name),
-        channel: await this.getChannelByTitle(message.room),
+        channel: await this.getChannel(message.id),
         content: message.input,
       }),
     );
@@ -34,7 +34,7 @@ export class ChatDAO {
       where: { title: channel.title },
     });
     if (existingChannel && existingChannel.type !== EChannelType.PRIVATE) {
-      await this.addUserToChannel(channel.title, user);
+      await this.addUserToChannel(existingChannel.id, user);
     } else if (!existingChannel) {
       await this.channelRepo.save(
         this.channelRepo.create({
@@ -47,8 +47,8 @@ export class ChatDAO {
     }
   }
 
-  public async addUserToChannel(title: string, user: string): Promise<void> {
-    const channel: Channels = await this.getChannelByTitle(title);
+  public async addUserToChannel(id: number, user: string): Promise<void> {
+    const channel: Channels = await this.getChannel(id);
     const newUser: User = await this.userService.findOneByName(user);
     const queryRunner = this.dataSource.createQueryRunner();
     queryRunner.connect();
@@ -60,19 +60,15 @@ export class ChatDAO {
     queryRunner.release();
   }
 
-  public async removeUserFromChannel(title: string, userId: string): Promise<void> {
-    const channel: Channels = await this.getChannelByTitle(title);
+  public async removeUserFromChannel(id: number, userId: string): Promise<void> {
+    const channel: Channels = await this.getChannel(id);
     const user: User = await this.userService.findOneByName(userId);
     channel.users = channel.users.filter((u) => u.id !== user.id);
     this.channelRepo.save(channel);
   }
 
-  public async getChannelByTitle(title: string): Promise<Channels> {
-    return await this.channelRepo
-      .createQueryBuilder('channel')
-      .leftJoinAndSelect('channel.users', 'users')
-      .where('channel.title = :title', { title })
-      .getOne();
+  public async getChannel(id: number): Promise<Channels> {
+    return await this.channelRepo.findOne({ where: {id: id}, relations: ['users']});
   }
 
   public async getChannelMessages(channelId: number): Promise<Messages[]> {
@@ -115,10 +111,10 @@ export class ChatDAO {
     });
   }
 
-  public async getChannelOwner(title: string): Promise<User> {
+  public async getChannelOwner(id: number): Promise<User> {
     return (
       await this.channelRepo.findOne({
-        where: { title: title },
+        where: { id: id },
         relations: ['owner'],
       })
     ).owner;

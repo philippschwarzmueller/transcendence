@@ -16,7 +16,7 @@ export class ChatController {
   @HttpCode(201)
   async deleteChat(
     @Query('userId') userId: string,
-    @Query('chat') chat: string,
+    @Query('chat') chat: number,
   ): Promise<void> {
     await this.chatService.removeChat(userId, chat);
   }

@@ -11,6 +11,7 @@ export interface IMessage {
   user: IUser;
   input: string;
   room: string;
+  id: number;
 }
 
 export enum EChannelType {
