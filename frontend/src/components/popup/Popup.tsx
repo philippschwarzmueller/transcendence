@@ -13,7 +13,7 @@ import { IUser } from "../../context/auth";
 import { SocketContext } from "../../context/socket";
 import Button from "../button/Button";
 import Userbrowser from "../userbrowser/Userbrowser";
-import { EChannelType } from "../chatwindow/properties";
+import { EChannelType, ITab } from "../chatwindow/properties";
 
 const InputField = styled.div<{
   $display: boolean;
@@ -40,7 +40,7 @@ interface props {
   placeholder: string;
   children: ReactNode;
   user: IUser;
-  setTabs: (s: string[]) => void;
+  setTabs: (s: ITab[]) => void;
 }
 
 interface refs {
@@ -90,7 +90,7 @@ function Popup(
               socket.emit(
                 "create",
                 { user: user, type: channelType, title: input },
-                (res: string[]) => setTabs(res),
+                (res: ITab[]) => setTabs(res),
               );
               setDisplay(false);
               setInput("");

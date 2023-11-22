@@ -10,3 +10,9 @@ export interface IChannel {
   type: EChannelType;
   title: string;
 }
+
+export interface ITab {
+  type: EChannelType;
+  id: number;
+  title: string;
+}

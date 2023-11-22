@@ -3,7 +3,7 @@ import { User } from 'src/users/user.entity';
 import { DataSource, Repository } from 'typeorm';
 import { Injectable, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EChannelType, IChannel, IMessage } from './properties';
+import { EChannelType, IChannel, IMessage, ITab } from './properties';
 import { UsersService } from 'src/users/users.service';
 
 @Injectable()
@@ -105,9 +105,13 @@ export class ChatDAO {
     });
   }
 
-  public async getRawUserChannels(userId: number): Promise<string[]> {
+  public async getRawUserChannels(userId: number): Promise<ITab[]> {
     return (await this.getUserChannels(userId)).map((item) => {
-      return item.title;
+      return {
+        type: item.type,
+        id: item.id,
+        title: item.title,
+      };
     });
   }
 

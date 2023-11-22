@@ -15,11 +15,19 @@ export interface IMessage {
 
 export enum EChannelType {
   PRIVATE,
-  PUBLIC
+  PUBLIC,
+  CHAT,
 }
 
 export interface IChannel {
   user: IUser;
   type: EChannelType;
+  id: number;
+  title: string;
+}
+
+export interface ITab {
+  type: EChannelType;
+  id: number;
   title: string;
 }

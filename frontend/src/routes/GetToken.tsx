@@ -36,7 +36,7 @@ const GetToken: React.FC = () => {
             auth.logIn({
               id: res.id,
               name: res.name,
-              image: res.profilePictureUrl,
+              profilePictureUrl: res.profilePictureUrl,
               token: res.token,
               activeChats: res.activeChats,
               intraname: res.intraname,

@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
-import { EChannelType, IChannel } from './properties';
+import { EChannelType, IChannel, ITab } from './properties';
 import { ChatDAO } from './chat.dao';
 import { Socket, Server } from 'socket.io';
 import { IGameUser } from 'src/games/properties';
@@ -51,8 +51,8 @@ export class ChatServiceBase {
     return null;
   }
 
-  public async getChats(userId: string): Promise<string[]> {
-    let res: string[] = [];
+  public async getChats(userId: string): Promise<ITab[]> {
+    let res: ITab[] = [];
     try {
       const user = await this.userService.findOneByName(userId);
       res = await this.chatDao.getRawUserChannels(user.id);
@@ -62,8 +62,8 @@ export class ChatServiceBase {
     return res;
   }
 
-  public async addChat(chat: IChannel): Promise<string[]> {
-    const res: string[] = [];
+  public async addChat(chat: IChannel): Promise<ITab[]> {
+    const res: ITab[] = [];
     try {
       const user = await this.userService.findOneByName(chat.user.name);
       await this.chatDao.saveChannel(chat, chat.user.name);

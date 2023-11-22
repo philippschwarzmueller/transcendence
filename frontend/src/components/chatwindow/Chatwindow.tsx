@@ -9,7 +9,7 @@ import { AuthContext, IUser } from "../../context/auth";
 import Popup from "../popup/Popup";
 import { IGameStart } from "../gamewindow/properties";
 import { useNavigate } from "react-router-dom";
-import { EChannelType } from "./properties";
+import { EChannelType, ITab } from "./properties";
 
 const Msgfield = styled.div`
   width: 320px;
@@ -89,7 +89,7 @@ const Chatwindow: React.FC = () => {
   const [messages, setMessages] = useState<string[]>([]);
   const [input, setInput] = useState<string>("");
   const user: IUser = useContext(AuthContext).user;
-  const [tabs, setTabs] = useState<string[]>([]);
+  const [tabs, setTabs] = useState<ITab[]>([]);
   const [activeTab, setActiveTab] = useState<string | null>(null);
   const [room, setRoom] = useState<string | null>(null);
   const socket: Socket = useContext(SocketContext);
@@ -100,7 +100,7 @@ const Chatwindow: React.FC = () => {
   const roomRef: any = useRef<typeof Popup | null>(null);
 
   socket.on("message", (res: string) => setMessages([...messages, res]));
-  socket.on("invite", (res: string[]) => setTabs(res));
+  socket.on("invite", (res: ITab[]) => setTabs(res));
   socket.on("game", (body: IGameStart) => {
     navigate(`/play/${body.gameId}/${body.side}`);
   });
@@ -115,8 +115,8 @@ const Chatwindow: React.FC = () => {
         }
         return response.json();
       })
-      .then((res: string[]) => setTabs(res)).catch(error => console.log(error));
-    setRoom(tabs[tabs.length - 1]);
+      .then((res: ITab[]) => setTabs(res)).catch(error => console.log(error));
+    if (tabs.length > 0) setRoom(tabs[tabs.length - 1].title);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
@@ -139,7 +139,8 @@ const Chatwindow: React.FC = () => {
 
   useEffect(() => {
     setTabs(tabs);
-    setActive(tabs[tabs.length - 1]);
+    if (tabs.length > 0)
+      setActive(tabs[tabs.length - 1].title);
   }, [tabs]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function send(event: React.MouseEvent | React.KeyboardEvent) {
@@ -175,11 +176,11 @@ const Chatwindow: React.FC = () => {
           {tabs.map((tab) => {
             return (
               <StyledLi
-                onClick={() => setActive(tab)}
-                key={tab}
-                $active={tab === activeTab ? "true" : "false"}
+                onClick= {() => setActive(tab.title)}
+                key={tab.title}
+                $active={tab.title === activeTab ? "true" : "false"}
               >
-                {tab}
+                {tab.title}
               </StyledLi>
             );
           })}
@@ -198,10 +199,10 @@ const Chatwindow: React.FC = () => {
               );
               setTabs(
                 tabs.filter(function (e) {
-                  return e !== activeTab;
+                  return e.title !== activeTab;
                 }),
               );
-              setActive(tabs[tabs.length - 1]);
+              if (tabs.length > 0 ) setActive(tabs[tabs.length - 1].title);
             }}
             $position="absolute"
             $top="35px"
