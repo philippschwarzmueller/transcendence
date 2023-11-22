@@ -140,9 +140,7 @@ export class UsersController {
   }
 
   @Post('get-custom-avatar')
-  async getCustomAvatar(
-    @Req() req: Request,
-  ): Promise<string> {
+  async getCustomAvatar(@Req() req: Request): Promise<string> {
     const token: string = req.cookies.token;
     const user: User | null =
       await this.usersService.exchangeTokenforUser(token);
