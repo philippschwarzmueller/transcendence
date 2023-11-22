@@ -127,4 +127,25 @@ export class UsersController {
     );
     return await this.usersService.getFriendState(user.name, friend.name);
   }
+
+  @Post('change-avatar')
+  async changeAvatar(
+    @Body() body: { avatar: string },
+    @Req() req: Request,
+  ): Promise<boolean> {
+    const token: string = req.cookies.token;
+    const user: User | null =
+      await this.usersService.exchangeTokenforUser(token);
+    return await this.usersService.changeAvatar(user.name, body.avatar);
+  }
+
+  @Post('get-custom-avatar')
+  async getCustomAvatar(
+    @Req() req: Request,
+  ): Promise<string> {
+    const token: string = req.cookies.token;
+    const user: User | null =
+      await this.usersService.exchangeTokenforUser(token);
+    return await this.usersService.getCustomAvatar(user.name);
+  }
 }

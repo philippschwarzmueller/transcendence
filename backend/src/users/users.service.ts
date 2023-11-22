@@ -33,6 +33,8 @@ export class UsersService {
     }
   }
 
+  //User for Token
+
   async exchangeTokenforUser(frontendToken: string): Promise<User | null> {
     const user: User = await this.usersRepository.findOne({
       where: {
@@ -44,6 +46,8 @@ export class UsersService {
     }
     return user;
   }
+
+  //Chat
 
   async updateUserChat(user: User, chat: string): Promise<User> {
     if (user) {
@@ -72,6 +76,8 @@ export class UsersService {
       return undefined;
     }
   }
+
+  // Friends
 
   async getFriendRequestList(userId: string): Promise<User[]> {
     return (
@@ -198,5 +204,30 @@ export class UsersService {
     } else {
       return FriendState.noFriend;
     }
+  }
+
+  //Change Avatar
+
+  async changeAvatar(user: string, avatar: string): Promise<boolean> {
+    const result = await this.usersRepository.update(
+      {
+        name: user,
+      },
+      {
+        upladedAvatar: avatar,
+      },
+    );
+    if (result.affected && result.affected > 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  async getCustomAvatar(user: string): Promise<string> {
+    const res: User = await this.usersRepository.findOne({
+      where: { name: user },
+    });
+    return res.upladedAvatar;
   }
 }
