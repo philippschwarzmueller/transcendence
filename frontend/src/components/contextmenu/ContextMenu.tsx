@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
 import { BACKEND } from "../../routes/SetUser";
+import { FriendState } from "../playercard/Playercard";
 
 const StyledUl = styled.ul<{ $display: boolean; $posX: number; $posY: number }>`
   display: ${(props) => (props.$display ? "" : "none")};
@@ -40,8 +41,7 @@ export interface IContextMenu {
   positionX: number;
   positionY: number;
   link: string | undefined;
-  isFriendIncoming: boolean;
-  isPendingFriendIncoming: boolean;
+  IncomingFriendState: FriendState;
   triggerReload: () => void;
 }
 
@@ -50,18 +50,13 @@ const ContextMenu: React.FC<IContextMenu> = ({
   positionX,
   positionY,
   link,
-  isFriendIncoming,
-  isPendingFriendIncoming,
+  IncomingFriendState,
   triggerReload,
 }) => {
-  const [isFriend, setIsFriend] = useState<boolean>(isFriendIncoming);
-  const [isPendingFriend, setIsPendingFriend] = useState<boolean>(
-    isPendingFriendIncoming
-  );
-  const handleFriendAccept = async (
-    friend: string | undefined,
-    isPendingFriend: boolean | undefined
-  ) => {
+  const [friendState, setFriendState] =
+    useState<FriendState>(IncomingFriendState);
+
+  const handleFriendAccept = async (friend: string | undefined) => {
     if (friend !== undefined) {
       try {
         const res = await fetch(`${BACKEND}/users/accept-friend-request`, {
@@ -79,7 +74,7 @@ const ContextMenu: React.FC<IContextMenu> = ({
 
         const success: boolean = await res.json();
         if (success) {
-          setIsPendingFriend(false);
+          setFriendState(FriendState.friend);
           triggerReload();
         }
       } catch (error) {
@@ -88,10 +83,7 @@ const ContextMenu: React.FC<IContextMenu> = ({
     }
   };
 
-  const handleFriendRemove = async (
-    friend: string | undefined,
-    isFriend: boolean
-  ) => {
+  const handleFriendRemove = async (friend: string | undefined) => {
     if (friend !== undefined) {
       try {
         const res = await fetch(`${BACKEND}/users/remove-friend`, {
@@ -109,7 +101,7 @@ const ContextMenu: React.FC<IContextMenu> = ({
 
         const success: boolean = await res.json();
         if (success) {
-          setIsFriend(false);
+          setFriendState(FriendState.noFriend);
           triggerReload();
         }
       } catch (error) {
@@ -118,15 +110,48 @@ const ContextMenu: React.FC<IContextMenu> = ({
     }
   };
 
+  const handleFriendAdd = async (friend: string | undefined) => {
+    if (friend !== undefined) {
+      try {
+        const res = await fetch(`${BACKEND}/users/send-friend-request`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({ friend }),
+        });
+
+        if (!res.ok) {
+          throw new Error("Network response was not ok");
+        }
+
+        const success: boolean = await res.json();
+        if (success) {
+          setFriendState(FriendState.pendingFriend);
+          triggerReload();
+        }
+      } catch (error) {
+        console.error("Error sending friend request", error);
+      }
+    }
+  };
+
   return (
     <>
       <StyledUl $display={display} $posX={positionX} $posY={positionY}>
-        {isPendingFriend && (
-          <OptionLi onClick={() => handleFriendAccept(link, isPendingFriend)}>
+        {friendState === FriendState.pendingFriend && (
+          <OptionLi onClick={() => handleFriendAccept(link)}>
             👥 Accept friend request
           </OptionLi>
         )}
-        {isPendingFriend && <LineLi />}
+        {friendState === FriendState.pendingFriend && <LineLi />}
+        {friendState === FriendState.noFriend && (
+          <OptionLi onClick={() => handleFriendAdd(link)}>
+             👨‍❤️‍💋‍👨 Add as friend
+          </OptionLi>
+        )}
+        {friendState === FriendState.noFriend && <LineLi/>}
         {link !== undefined && (
           <Link to={`/profile/${link}`}>
             <OptionLi>👤 Visit Profile</OptionLi>
@@ -137,12 +162,12 @@ const ContextMenu: React.FC<IContextMenu> = ({
         <LineLi />
         <OptionLi>💬 Start Chat</OptionLi>
         <LineLi />
-        {isFriend && (
-          <OptionLi onClick={() => handleFriendRemove(link, isFriend)}>
+        {friendState === FriendState.friend && (
+          <OptionLi onClick={() => handleFriendRemove(link)}>
             ❌ Remove friend
           </OptionLi>
         )}
-        {isFriend && <LineLi />}
+        {friendState === FriendState.friend && <LineLi />}
         <OptionLi>🚫 Block User</OptionLi>
         <LineLi />
       </StyledUl>

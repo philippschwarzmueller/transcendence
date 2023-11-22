@@ -53,8 +53,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
   let [showContext, setShowContext] = useState<boolean>(false);
   let [x, setX] = useState<number>(0);
   let [y, setY] = useState<number>(0);
-  let [isFriend, setIsFriend] = useState<boolean>(false);
-  let [isPendingFriend, setIsPendingFriend] = useState<boolean>(false);
+  let [friendState, setFriendState] = useState<FriendState>(FriendState.noFriend);
   let [isLoading, setIsLoading] = useState<boolean>(true);
   function openContextMenu(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
     setX(e.pageX);
@@ -77,10 +76,10 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
       }
       const friendState: FriendState = await res.json();
       if (friendState === FriendState.friend) {
-        setIsFriend(true);
+        setFriendState(FriendState.friend);
       }
       if (friendState === FriendState.pendingFriend) {
-        setIsPendingFriend(true);
+        setFriendState(FriendState.pendingFriend);
       }
     } catch (error) {
       console.error("Error fetching pendingFriendRequests:", error);
@@ -113,8 +112,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
         positionX={x}
         positionY={y}
         link={name}
-        isPendingFriendIncoming={isPendingFriend}
-        isFriendIncoming={isFriend}
+        IncomingFriendState={friendState}
         triggerReload={triggerReload}
       />
     </>
