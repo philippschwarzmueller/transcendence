@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import Avatar from "../avatar";
 import ContextMenu from "../contextmenu/ContextMenu";
-import { IUser } from "../../routes/Profile";
+import { BACKEND } from "../../routes/SetUser";
 
 const StyledDiv = styled.div`
   text-align: center;
@@ -32,17 +32,73 @@ const StyledDiv = styled.div`
     box-shadow: inset 0 0 0 1px rgb(134, 138, 142), 0 0 0 1px rgb(0, 0, 0);
   }
 `;
+interface PlayerCardProps {
+  name: string | undefined;
+  id: number | undefined;
+  profilePictureUrl: string | undefined;
+  triggerReload: () => void;
+}
 
+export enum FriendState {
+  noFriend,
+  pendingFriend,
+  friend,
+}
 
-const PlayerCard: React.FC<IUser> = ({ name, profilePictureUrl }) => {
+const PlayerCard: React.FC<PlayerCardProps> = ({
+  name,
+  profilePictureUrl,
+  triggerReload,
+}) => {
   let [showContext, setShowContext] = useState<boolean>(false);
   let [x, setX] = useState<number>(0);
   let [y, setY] = useState<number>(0);
+  let [isFriend, setIsFriend] = useState<boolean>(false);
+  let [isPendingFriend, setIsPendingFriend] = useState<boolean>(false);
+  let [isLoading, setIsLoading] = useState<boolean>(true);
   function openContextMenu(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
     setX(e.pageX);
     setY(e.pageY);
     setShowContext(!showContext);
   }
+
+  const fetchFriendData = async () => {
+    try {
+      const res: Response = await fetch(`${BACKEND}/users/get-friend-state`, {
+        method: "Post",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ name }),
+      });
+      if (!res.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const friendState: FriendState = await res.json();
+      if (friendState === FriendState.friend) {
+        setIsFriend(true);
+      }
+      if (friendState === FriendState.pendingFriend) {
+        setIsPendingFriend(true);
+      }
+    } catch (error) {
+      console.error("Error fetching pendingFriendRequests:", error);
+    }
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      await fetchFriendData();
+      setIsLoading(false);
+    };
+    fetchData();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <>
       <StyledDiv onClick={(e) => openContextMenu(e)}>
@@ -57,6 +113,9 @@ const PlayerCard: React.FC<IUser> = ({ name, profilePictureUrl }) => {
         positionX={x}
         positionY={y}
         link={name}
+        isPendingFriendIncoming={isPendingFriend}
+        isFriendIncoming={isFriend}
+        triggerReload={triggerReload}
       />
     </>
   );

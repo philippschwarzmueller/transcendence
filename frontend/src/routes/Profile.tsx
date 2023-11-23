@@ -1,84 +1,159 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import Button from "../components/button";
 import Playercard from "../components/playercard";
 import CenterDiv from "../components/centerdiv";
 import ProfilePicture from "../components/profilepicture/ProfilePicture";
-import { AuthContext } from "../context/auth";
+import { IUser, AuthContext, IAuthContext } from "../context/auth";
 import { BACKEND } from "./SetUser";
 
-export interface IUser {
-  id: number;
-  name: string;
-  profilePictureUrl: string;
-}
-
 const Profile: React.FC = () => {
-  const auth = useContext(AuthContext);
+  const auth: IAuthContext = useContext(AuthContext);
   let { userId } = useParams();
-  let navigate = useNavigate();
   let [user, setUser] = useState<IUser>();
+  let [incomingFriends, setIncomingFriends] = useState<IUser[]>([]);
+  let [friends, setFriends] = useState<IUser[]>([]);
+  const [ownProfile, setOwnProfile] = useState(false);
+  const [reloadTrigger, setReloadTrigger] = useState(false);
+
+  const triggerReload = () => {
+    setReloadTrigger((prev) => !prev);
+  };
 
   useEffect(() => {
-    if (userId === undefined && !auth.user.token) {
-      navigate("/login");
-    }
+    setOwnProfile(auth.user.name === userId);
+    fetchIncomingFriends();
+    fetchFriends();
+    fetchUser();
+  }, [userId, auth.user.name, reloadTrigger]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const fetchUser = async () => {
     if (userId) {
-      fetch(`${BACKEND}/users/${userId}`)
-        .then((res) => res.json())
-        .then((resuser) => setUser(resuser));
+      try {
+        const res: Response = await fetch(`${BACKEND}/users/${userId}`);
+        if (!res.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const profileUser: IUser = await res.json();
+        setUser(profileUser);
+      } catch (error) {
+        console.error("Error fetching user:", error);
+      }
+    } else {
+      setUser(auth.user);
     }
-  }, [auth.user.token, navigate, userId]);
+  };
 
-  let [users, setUsers] = useState<IUser[]>([]);
-  useEffect(() => {
-    fetch(`${BACKEND}/users`)
-      .then((res) => res.json())
-      .then((users) => setUsers(users));
-  }, []);
+  const fetchIncomingFriends = async () => {
+    try {
+      const res: Response = await fetch(
+        `${BACKEND}/users/get-received-friend-requests`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
+      if (!res.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const friends = await res.json();
+      setIncomingFriends(friends);
+    } catch (error) {
+      console.error("Error fetching pendingFriendRequests:", error);
+    }
+  };
+
+  const fetchFriends = async () => {
+    try {
+      const res: Response = await fetch(`${BACKEND}/users/get-friends`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
+      if (!res.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const friends = await res.json();
+      setFriends(friends);
+    } catch (error) {
+      console.error("Error fetching pendingFriendRequests:", error);
+    }
+  };
 
   return (
     <>
-      <h1>{user ? user.name : auth.user.name}'s Profile</h1>
-      <p>{user ? user.profilePictureUrl : auth.user.image}</p>
+      <h1>{user?.name}'s Profile</h1>
       <ProfilePicture
-        name={user ? user.name : auth.user.name}
-        profilePictureUrl={user ? user.profilePictureUrl : auth.user.image}
-      ></ProfilePicture>
-      <Link to="/profile/settings">
-        <Button>Profile Settings</Button>
-      </Link>
+        name={user?.name}
+        profilePictureUrl={user?.profilePictureUrl}
+      />
+      {ownProfile && (
+        <Link to="/profile/settings">
+          <Button>Profile Settings</Button>
+        </Link>
+      )}
       <h2>Stats</h2>
       <p>Games played: 420</p>
       <p>Win/Loss: 69%</p>
-      <h2>All Users From Backend As Friends</h2>
-      <CenterDiv>
-        <ul
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            gap: "10px",
-            listStyleType: "none",
-          }}
-        >
-          {users.map((users: IUser) => {
-            return (
-              <li key={users.name}>
-                <Playercard
-                  name={users.name}
-                  profilePictureUrl={users.profilePictureUrl}
-                  id={users.id}
-                />
-              </li>
-            );
-          })}
-        </ul>
-      </CenterDiv>
-      {userId === undefined ? (
-        <Link to="/profile/settings">
-          <Button>Change Settings</Button>
-        </Link>
-      ) : null}
+      {ownProfile && incomingFriends.length > 0 && (
+        <h2>Incoming friend requests</h2>
+      )}
+      {ownProfile && incomingFriends.length > 0 && (
+        <CenterDiv>
+          <ul
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: "10px",
+              listStyleType: "none",
+            }}
+          >
+            {incomingFriends.map((users: IUser) => {
+              return (
+                <li key={users.name}>
+                  <Playercard
+                    name={users?.name}
+                    profilePictureUrl={users?.profilePictureUrl}
+                    id={users.id}
+                    triggerReload={triggerReload}
+                  />
+                </li>
+              );
+            })}
+          </ul>
+        </CenterDiv>
+      )}
+      {ownProfile && friends.length > 0 && <h2>Friends</h2>}
+      {ownProfile && friends.length > 0 && (
+        <CenterDiv>
+          <ul
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: "10px",
+              listStyleType: "none",
+            }}
+          >
+            {friends.map((users: IUser) => {
+              return (
+                <li key={users.name}>
+                  <Playercard
+                    name={users?.name}
+                    profilePictureUrl={users?.profilePictureUrl}
+                    id={users.id}
+                    triggerReload={triggerReload}
+                  />
+                </li>
+              );
+            })}
+          </ul>
+        </CenterDiv>
+      )}
     </>
   );
 };

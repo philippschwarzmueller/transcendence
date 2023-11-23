@@ -1,12 +1,13 @@
-import { useContext, useState } from "react";
+import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
-import Button from "../components/button";
-import { AuthContext, IUser } from "../context/auth";
-import Input from "../components/input";
+import { AuthContext, IAuthContext, IUser } from "../context/auth";
+import NameChangeSection from '../components/changename';
+import TwoFactorAuthSection from '../components/twoFaSection';
 import { BACKEND } from "./SetUser";
+import Button from "../components/button/Button";
 
 const ProfileSettings: React.FC = () => {
-  const auth = useContext(AuthContext);
+  const auth: IAuthContext = useContext(AuthContext);
   const [newName, setNewName] = useState("");
   const [profileLink, setProfileLink] = useState(`${auth.user.name}`);
   const [qrcode, setQrcode] = useState("");
@@ -106,55 +107,25 @@ const ProfileSettings: React.FC = () => {
     }
   };
 
-  const handleNewNameInputChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ): void => {
-    setNewName(e.target.value);
-  };
-
-  const handleTwoFaCodeInputChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ): void => {
-    setTwoFaCode(e.target.value);
-  };
 
   return (
     <>
       <h1>Profile Settings</h1>
-      <Input
-        label="New profile name"
-        placeholder="new name goes here"
-        value={newName}
-        onChange={handleNewNameInputChange}
+      <NameChangeSection
+        newName={newName}
+        setNewName={setNewName}
+        handleNameChange={handleNameChange}
       />
-      <Button onClick={handleNameChange}>Change Name</Button>
       <h3>Change Avatar</h3>
-      <div>
-        {!auth.user.twoFAenabled && (
-          <Button onClick={handle2FAactivate}>Enable 2FA</Button>
-        )}
-        <div>{qrcode && <img src={qrcode} alt="QR Code" />}</div>
-        <div>
-          {qrcode && (
-            <Input
-              label="2FA code"
-              placeholder="Enter 2FA code here"
-              value={twoFaCode}
-              onChange={handleTwoFaCodeInputChange}
-            ></Input>
-          )}
-        </div>
-        <div>
-          {qrcode && (
-            <Button onClick={handleTwoFaCodeSubmit}>Submit 2FA Code</Button>
-          )}
-        </div>
-        <div>
-          {auth.user.twoFAenabled && (
-            <Button onClick={handleTwoFaDeactivate}>Disable 2FA</Button>
-          )}
-        </div>
-      </div>
+      <TwoFactorAuthSection
+        twoFaCode={twoFaCode}
+        setTwoFaCode={setTwoFaCode}
+        handleTwoFaCodeSubmit={handleTwoFaCodeSubmit}
+        handle2FAactivate={handle2FAactivate}
+        handleTwoFaDeactivate={handleTwoFaDeactivate}
+        qrcode={qrcode}
+        auth={auth}
+      />
       <Link to={`/profile/${profileLink}`}>
         <Button>Back to Profile</Button>
       </Link>
@@ -163,3 +134,4 @@ const ProfileSettings: React.FC = () => {
 };
 
 export default ProfileSettings;
+
