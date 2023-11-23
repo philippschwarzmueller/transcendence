@@ -32,7 +32,7 @@ const Container = styled.div<{ $display?: boolean }>`
   overflow: hidden;
 `;
 
-const Win98Box = styled.div`
+export const Win98Box = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;

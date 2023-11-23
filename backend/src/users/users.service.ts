@@ -5,8 +5,9 @@ import { User } from './user.entity';
 
 export enum FriendState {
   noFriend,
+  requestedFriend,
   pendingFriend,
-  Friend,
+  friend,
 }
 
 @Injectable()
@@ -35,8 +36,12 @@ export class UsersService {
 
   async findAllNames(): Promise<string[]> {
     const res: User[] = await this.usersRepository.find();
-    return res.map((item) => {return item.name;});
+    return res.map((item) => {
+      return item.name;
+    });
   }
+
+  //User for Token
 
   async exchangeTokenforUser(frontendToken: string): Promise<User | null> {
     const user: User = await this.usersRepository.findOne({
@@ -49,6 +54,8 @@ export class UsersService {
     }
     return user;
   }
+
+  //Chat
 
   async updateUserChat(user: User, chat: string): Promise<User> {
     if (user) {
@@ -78,22 +85,24 @@ export class UsersService {
     }
   }
 
+  // Friends
+
   async getFriendRequestList(userId: string): Promise<User[]> {
     return (
       await this.usersRepository.findOne({
         where: { name: userId },
-        relations: ['friend_requested'], //blocked
+        relations: ['friend_requested'],
       })
-    ).friend_requested; //blocked
+    ).friend_requested;
   }
 
   async getReceivedFriendRequestList(userId: string): Promise<User[]> {
     return (
       await this.usersRepository.findOne({
         where: { name: userId },
-        relations: ['friend_requests_received'], //blocked
+        relations: ['friend_requests_received'],
       })
-    ).friend_requests_received; //blocked
+    ).friend_requests_received;
   }
 
   async addFriend(user: User, friend: User): Promise<void> {
@@ -192,16 +201,58 @@ export class UsersService {
     return ispendingFriend;
   }
 
+  async userIsRequestedFriend(user: string, friend: string): Promise<boolean> {
+    const RequestedFriends: User[] = await this.getFriendRequestList(user);
+    const isRequestedFriend: boolean = RequestedFriends.some(
+      (friendUser) => friendUser.name === friend,
+    );
+    return isRequestedFriend;
+  }
+
   async getFriendState(user: string, friend: string): Promise<FriendState> {
-    const isFriend = await this.userIsFriend(user, friend);
-    const isPendingFriend = await this.userIsPendingFriend(user, friend);
+    const isFriend: boolean = await this.userIsFriend(user, friend);
+    const isPendingFriend: boolean = await this.userIsPendingFriend(
+      user,
+      friend,
+    );
+    const isRequestedFriend: boolean = await this.userIsRequestedFriend(
+      user,
+      friend,
+    );
 
     if (isFriend) {
-      return FriendState.Friend;
+      return FriendState.friend;
     } else if (isPendingFriend) {
       return FriendState.pendingFriend;
+    } else if (isRequestedFriend) {
+      return FriendState.requestedFriend;
     } else {
       return FriendState.noFriend;
     }
+  }
+
+  //Change Avatar
+
+  async changeAvatar(user: string, avatar: string): Promise<boolean> {
+    const result = await this.usersRepository.update(
+      {
+        name: user,
+      },
+      {
+        upladedAvatar: avatar,
+      },
+    );
+    if (result.affected && result.affected > 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  async getCustomAvatar(user: string): Promise<string> {
+    const res: User = await this.usersRepository.findOne({
+      where: { name: user },
+    });
+    return res.upladedAvatar;
   }
 }

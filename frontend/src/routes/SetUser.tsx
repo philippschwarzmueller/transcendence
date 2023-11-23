@@ -43,7 +43,7 @@ const SetUser: React.FC = () => {
         alert("Wrong 2FA Code");
       }
     } catch {
-      console.log("error");
+      console.error("error");
     }
   };
 
