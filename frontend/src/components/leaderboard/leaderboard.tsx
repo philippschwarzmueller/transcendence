@@ -134,7 +134,6 @@ const Leaderboard: React.FC = () => {
               checked={checkedStandardBox}
               onChange={() => {
                 setCheckedStandardBox(!checkedStandardBox);
-                console.log("checked standard box");
               }}
             />
             <Checkbox
@@ -142,7 +141,6 @@ const Leaderboard: React.FC = () => {
               checked={checked2dBox}
               onChange={() => {
                 setChecked2dBox(!checked2dBox);
-                console.log("checked 2d box");
               }}
             />
             <Dropdown

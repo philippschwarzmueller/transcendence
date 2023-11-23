@@ -1,5 +1,4 @@
-// NameChangeSection.tsx
-import React from 'react';
+import React from "react";
 import Input from "../input";
 import Button from "../button";
 
@@ -9,7 +8,11 @@ interface NameChangeSectionProps {
   handleNameChange: () => Promise<void>;
 }
 
-const NameChangeSection: React.FC<NameChangeSectionProps> = ({ newName, setNewName, handleNameChange }) => (
+const NameChangeSection: React.FC<NameChangeSectionProps> = ({
+  newName,
+  setNewName,
+  handleNameChange,
+}) => (
   <>
     <Input
       label="New profile name"

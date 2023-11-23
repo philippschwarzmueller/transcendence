@@ -32,14 +32,14 @@ export class UsersController {
   }
   @Post('send-friend-request')
   async sendFriendRequest(
-    @Body() body: { requestedFriend: string },
+    @Body() body: { friend: string },
     @Req() req: Request,
   ): Promise<boolean> {
     const token: string = req.cookies.token;
     const user: User | null =
       await this.usersService.exchangeTokenforUser(token);
     const friend: User | null = await this.usersService.findOneByName(
-      body.requestedFriend,
+      body.friend,
     );
     if (user === null || friend === null) {
       return false;
