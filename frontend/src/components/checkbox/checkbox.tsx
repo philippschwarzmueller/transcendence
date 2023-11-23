@@ -1,6 +1,5 @@
-import React, { forwardRef } from "react";
-import styled, { css } from "styled-components";
-import th from "styled-components";
+import React from "react";
+import styled from "styled-components";
 import check from "./check.svg";
 
 const Icon = styled.span`

@@ -5,9 +5,6 @@ import { AuthContext } from "../context/auth";
 import Button from "../components/button";
 import { BACKEND } from "./SetUser";
 import Leaderboard from "../components/leaderboard/leaderboard";
-import Dropdown from "../components/dropdown/dropdown";
-import { title } from "process";
-import Moveablewindow from "../components/moveablewindow";
 
 const Home: React.FC = () => {
   const auth = useContext(AuthContext);
@@ -70,9 +67,7 @@ const Home: React.FC = () => {
         <Pagetitle>Welcome to WinPong, {auth.user.name}</Pagetitle>
         <h1>Is my Session valid?</h1>
         <Button onClick={handleClick}>{validity ? "Valid" : "Invalid"}</Button>
-        <Moveablewindow>
-          <Leaderboard />
-        </Moveablewindow>
+        <Leaderboard />
       </div>
     </>
   );

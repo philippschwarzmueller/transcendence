@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { BACKEND } from "../../routes/SetUser";
-import { Win98Box } from "../matchhistory/Matchhistory";
 import Dropdown from "../dropdown/dropdown";
 import Checkbox from "../checkbox/checkbox";
 import styled from "styled-components";
 import WindowWrapper from "../outlinecontainer/outlinecontainer";
 import { NavigateFunction, useNavigate } from "react-router-dom";
+import Moveablewindow from "../moveablewindow";
 
 const HorizontalContainer = styled.div`
   display: flex;
@@ -90,11 +90,6 @@ const StyledTableHead = styled.thead`
 
 const StyledTableBody = styled.tbody``;
 
-const FUdiv = styled.div`
-  justify-content: space-evenly;
-  width: 590px;
-`;
-
 const Leaderboard: React.FC = () => {
   const [data, setData] = useState<ILeaderboardLine[]>([]);
   const [gamemode, setGamemode] = useState<string>("0");
@@ -120,7 +115,7 @@ const Leaderboard: React.FC = () => {
     const sortedData = [...data];
     sortData(sortedData, sortedBy);
     setData(sortedData);
-  }, [sortedBy, gamemode]);
+  }, [sortedBy, gamemode]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (checkedStandardBox && checked2dBox) setGamemode("0");
@@ -131,88 +126,90 @@ const Leaderboard: React.FC = () => {
 
   return (
     <>
-      <WindowWrapper title="sortBy">
-        <HorizontalContainer>
-          <p></p>
-          <Checkbox
-            label="Standard Pong"
-            checked={checkedStandardBox}
-            onChange={() => {
-              setCheckedStandardBox(!checkedStandardBox);
-              console.log("checked standard box");
-            }}
-          />
-          <Checkbox
-            label="2D Pong"
-            checked={checked2dBox}
-            onChange={() => {
-              setChecked2dBox(!checked2dBox);
-              console.log("checked 2d box");
-            }}
-          />
-          <Dropdown
-            title="select sorting"
-            items={[
-              {
-                label: "Elo",
-                func: () => {
-                  setSortedBy(ESortedBy.Elo);
+      <Moveablewindow>
+        <WindowWrapper title="sortBy">
+          <HorizontalContainer>
+            <p></p>
+            <Checkbox
+              label="Standard Pong"
+              checked={checkedStandardBox}
+              onChange={() => {
+                setCheckedStandardBox(!checkedStandardBox);
+                console.log("checked standard box");
+              }}
+            />
+            <Checkbox
+              label="2D Pong"
+              checked={checked2dBox}
+              onChange={() => {
+                setChecked2dBox(!checked2dBox);
+                console.log("checked 2d box");
+              }}
+            />
+            <Dropdown
+              title="select sorting"
+              items={[
+                {
+                  label: "Elo",
+                  func: () => {
+                    setSortedBy(ESortedBy.Elo);
+                  },
                 },
-              },
-              {
-                label: "WonGames",
-                func: () => {
-                  setSortedBy(ESortedBy.WonGames);
+                {
+                  label: "WonGames",
+                  func: () => {
+                    setSortedBy(ESortedBy.WonGames);
+                  },
                 },
-              },
-              {
-                label: "Winrate",
-                func: () => {
-                  setSortedBy(ESortedBy.Winrate);
+                {
+                  label: "Winrate",
+                  func: () => {
+                    setSortedBy(ESortedBy.Winrate);
+                  },
                 },
-              },
-              {
-                label: "TotalGames",
-                func: () => {
-                  setSortedBy(ESortedBy.TotalGames);
+                {
+                  label: "TotalGames",
+                  func: () => {
+                    setSortedBy(ESortedBy.TotalGames);
+                  },
                 },
-              },
-            ]}
-          ></Dropdown>
-        </HorizontalContainer>
-      </WindowWrapper>
-      <p></p>
-      <StyledTableContainer>
-        <StyledTable>
-          <StyledTableHead>
-            <tr>
-              <th>Rank</th>
-              <th>Nickname</th>
-              <th>Elo</th>
-              <th>WonGames</th>
-              <th>Winrate</th>
-              <th>TotalGames</th>
-            </tr>
-          </StyledTableHead>
-          <StyledTableBody>
-            {data.map((val, key) => (
-              <tr
-                onClick={() => {
-                  handleElementClick(val.intraname);
-                }}
-                key={key}
-              >
-                <td>{val.rank}</td>
-                <td>{val.nickname}</td>
-                <td>{val.elo}</td>
-                <td>{val.wonGames}</td>
-                <td>{val.winrate.toFixed(2)}%</td>
-                <td>{val.totalGames}</td>
+              ]}
+            ></Dropdown>
+          </HorizontalContainer>
+        </WindowWrapper>
+        <p></p>
+        <StyledTableContainer>
+          <StyledTable>
+            <StyledTableHead>
+              <tr>
+                <th>Rank</th>
+                <th>Nickname</th>
+                <th>Elo</th>
+                <th>WonGames</th>
+                <th>Winrate</th>
+                <th>TotalGames</th>
               </tr>
-            ))}
-          </StyledTableBody>
-        </StyledTable>
-      </StyledTableContainer>
+            </StyledTableHead>
+            <StyledTableBody>
+              {data.map((val, key) => (
+                <tr
+                  onClick={() => {
+                    handleElementClick(val.intraname);
+                  }}
+                  key={key}
+                >
+                  <td>{val.rank}</td>
+                  <td>{val.nickname}</td>
+                  <td>{val.elo}</td>
+                  <td>{val.wonGames}</td>
+                  <td>{val.winrate.toFixed(2)}%</td>
+                  <td>{val.totalGames}</td>
+                </tr>
+              ))}
+            </StyledTableBody>
+          </StyledTable>
+        </StyledTableContainer>
+      </Moveablewindow>
     </>
   );
 };
