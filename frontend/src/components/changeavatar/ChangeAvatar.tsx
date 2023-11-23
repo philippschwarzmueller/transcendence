@@ -11,12 +11,16 @@ const AvatarChangeSection: React.FC = () => {
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
-      const reader = new FileReader();
-      reader.onload = () => {
-        const base64String = reader.result as string;
-        setAvatar(base64String);
-      };
-      reader.readAsDataURL(file);
+      if (file.size <= 2000000) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const base64String = reader.result as string;
+          setAvatar(base64String);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        alert("File size should be 1.5 MB or less.");
+      }
     }
   };
 
