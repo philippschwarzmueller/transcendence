@@ -49,12 +49,9 @@ const StyledLi = styled.li`
   }
 `;
 
-interface IUserBrowser {
-    $display: boolean;
-  }
-
-const Userbrowser: React.FC<IUserBrowser> = ({
+const Userbrowser: React.FC<{ $display: boolean, z?: number }> = ({
     $display,
+    z
   })=> {
       let [showContext, setShowContext] = useState<boolean>(false);
       let [currentUser, setCurrentUser] = useState<string>("");
@@ -85,15 +82,13 @@ const Userbrowser: React.FC<IUserBrowser> = ({
       display={showContext}
       positionX={x}
       positionY={y}
-      link={currentUser}
-      isFriendIncoming={false}
-      isPendingFriendIncoming={false}
+      name={currentUser}
       />
       <Moveablewindow
       title="Browser"
       positionX={500}
       positionY={600}
-      positionZ={500}
+      positionZ={z}
       display={$display}
       ><Browser>
       <StyledUl>

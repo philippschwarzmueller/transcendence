@@ -85,11 +85,10 @@ const StyledUl = styled.ul`
   list-style: none;
 `;
 
-interface props {
-  $display: boolean;
-}
-
-const Chatwindow: React.FC<props> = ({$display}) => {
+const Chatwindow: React.FC<{ $display: boolean, z?: number }> = ({
+  $display,
+  z,
+}) => {
   const [messages, setMessages] = useState<string[]>([]);
   const [input, setInput] = useState<string>("");
   const user: IUser = useContext(AuthContext).user;
@@ -119,7 +118,8 @@ const Chatwindow: React.FC<props> = ({$display}) => {
         }
         return response.json();
       })
-      .then((res: string[]) => setTabs(res)).catch(error => console.log(error));
+      .then((res: string[]) => setTabs(res))
+      .catch((error) => console.log(error));
     setRoom(tabs[tabs.length - 1]);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -172,9 +172,9 @@ const Chatwindow: React.FC<props> = ({$display}) => {
         title="Chat"
         positionX={200}
         positionY={200}
-        positionZ={0}
+        positionZ={z}
         display={$display}
-        >
+      >
         <Tabbar>
           {tabs.map((tab) => {
             return (

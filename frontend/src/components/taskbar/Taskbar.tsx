@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { styled } from "styled-components";
 import Chatwindow from "../chatwindow/Chatwindow";
+import Leaderboard from "../leaderboard/leaderboard";
 import Moveablewindow from "../moveablewindow/Moveablewindow";
 import Profilesettings from "../profilesettings/Profilesettings";
 import Profilewindow from "../profilewindow/Profilewindow";
@@ -68,6 +69,7 @@ const StartMenu = styled.div<{ $display: boolean }>`
     1px 0px 0 0px #000000,
     0px 1px 0 0px #000000,
     1px 1px 0 0px #000000;
+  user-select: none;
 `;
 
 const StyledUl = styled.ul`
@@ -76,6 +78,7 @@ const StyledUl = styled.ul`
   padding: 0px;
   border: none;
   width: 200px;
+  user-select: none;
 `;
 
 const Seperator = styled.li`
@@ -86,6 +89,7 @@ const Seperator = styled.li`
 const StyledLi = styled.li`
   font-size: 22px;
   cursor: pointer;
+  user-select: none;
   &:hover {
     background-color: rgb(0, 14, 122);
     color: white;
@@ -100,6 +104,7 @@ const TextBar = styled.div`
   color: rgb(195, 199, 203);
   font-size: 30px;
   cursor: default;
+  user-select: none;
 `;
 
 const Icon = styled.div<{ $active: boolean }>`
@@ -119,6 +124,7 @@ const Taskbar: React.FC = () => {
   const [displayUsers, setDisplayUsers] = useState<boolean>(false);
   const [displayStart, setDisplayStart] = useState<boolean>(false);
   const [displayQueue, setDisplayQueue] = useState<boolean>(false);
+  const [displayLeaderboard, setDisplayLeaderboard] = useState<boolean>(false);
   const [displayProfile, setDisplayProfile] = useState<boolean>(false);
   const [displayProfileSettings, setDisplayProfileSettings] =
     useState<boolean>(false);
@@ -145,6 +151,7 @@ const Taskbar: React.FC = () => {
       <Profilesettings $display={displayProfileSettings} />
       <Chatwindow $display={displayChat} />
       <Userbrowser $display={displayUsers} />
+      <Leaderboard $display={displayLeaderboard} />
       <StartMenu $display={displayStart}>
         <TextBar>Transcendence95</TextBar>
         <StyledUl>
@@ -197,7 +204,7 @@ const Taskbar: React.FC = () => {
             Friends
           </StyledLi>
           <Seperator />
-          <StyledLi>
+          <StyledLi onClick={() => setDisplayLeaderboard(!displayLeaderboard)}>
             <img
               src={require("../../images/book.png")}
               height="16"

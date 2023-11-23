@@ -7,10 +7,6 @@ import Moveablewindow from "../moveablewindow/Moveablewindow";
 import ProfilePicture from "../profilepicture/ProfilePicture";
 import StatsWindow from "../stats/StatsWindow";
 
-interface IProfileWindow {
-  $display: boolean;
-}
-
 const UserData = styled.div``;
 
 const Tabbar = styled.ul`
@@ -64,7 +60,10 @@ const ProfileArea = styled.div`
   display: flex;
 `;
 
-const Profilewindow: React.FC<IProfileWindow> = ({ $display }) => {
+const Profilewindow: React.FC<{ $display: boolean; z?: number }> = ({
+  $display,
+  z,
+}) => {
   const auth = useContext(AuthContext);
   const [displayMatch, setDisplayMatch] = useState<boolean>(true);
   const [displayElo, setDisplayElo] = useState<boolean>(false);
@@ -73,6 +72,7 @@ const Profilewindow: React.FC<IProfileWindow> = ({ $display }) => {
       <Moveablewindow
         title={auth.user.name ? auth.user.name + "'s profile" : "profile"}
         display={$display}
+        positionZ={z}
       >
         <ProfileArea>
           <UserData>
