@@ -119,6 +119,15 @@ const Icon = styled.div<{ $active: boolean }>`
   outline: ${(props) => (props.$active ? "white dotted 1px" : "")};
 `;
 
+enum Windows {
+  Queue = 0,
+  Profile = 1,
+  Settings = 2,
+  Chat = 3,
+  Users = 4,
+  Leaderboard = 5,
+}
+
 const Taskbar: React.FC = () => {
   const [displayChat, setDisplayChat] = useState<boolean>(false);
   const [displayUsers, setDisplayUsers] = useState<boolean>(false);
@@ -128,6 +137,20 @@ const Taskbar: React.FC = () => {
   const [displayProfile, setDisplayProfile] = useState<boolean>(false);
   const [displayProfileSettings, setDisplayProfileSettings] =
     useState<boolean>(false);
+  const [displayOrder, setDisplayOrder] = useState<number[]>([
+    0, 10, 20, 30, 40, 50,
+  ]);
+
+  function changeOrder(pos: number) {
+    setDisplayOrder([
+      pos === Windows.Queue ? 50 : displayOrder[Windows.Queue] - 10,
+      pos === Windows.Profile ? 50 : displayOrder[Windows.Profile] - 10,
+      pos === Windows.Settings ? 50 : displayOrder[Windows.Settings] - 10,
+      pos === Windows.Chat ? 50 : displayOrder[Windows.Chat] - 10,
+      pos === Windows.Users ? 50 : displayOrder[Windows.Users] - 10,
+      pos === Windows.Leaderboard ? 50 : displayOrder[Windows.Leaderboard] - 10,
+    ]);
+  }
 
   return (
     <>
@@ -138,24 +161,50 @@ const Taskbar: React.FC = () => {
         <img src={require("../../images/pong.png")} alt="pong" height="64px" />
         Pong
       </Icon>
-      <Moveablewindow
-        title="Queue"
-        positionX={900}
-        positionY={200}
-        positionZ={0}
-        display={displayQueue}
-      >
-        <Queuebox />
-      </Moveablewindow>
-      <Profilewindow $display={displayProfile} />
-      <Profilesettings $display={displayProfileSettings} />
-      <Chatwindow $display={displayChat} />
-      <Userbrowser $display={displayUsers} />
-      <Leaderboard $display={displayLeaderboard} />
+      <a onClick={() => changeOrder(Windows.Queue)}>
+        <Moveablewindow
+          title="Queue"
+          positionX={900}
+          positionY={200}
+          positionZ={displayOrder[Windows.Queue]}
+          display={displayQueue}
+        >
+          <Queuebox />
+        </Moveablewindow>
+      </a>
+      <a onClick={() => changeOrder(Windows.Profile)}>
+        <Profilewindow
+          $display={displayProfile}
+          z={displayOrder[Windows.Profile]}
+        />
+      </a>
+      <a onClick={() => changeOrder(Windows.Settings)}>
+        <Profilesettings
+          $display={displayProfileSettings}
+          z={displayOrder[Windows.Settings]}
+        />
+      </a>
+      <a onClick={() => changeOrder(Windows.Chat)}>
+        <Chatwindow $display={displayChat} z={displayOrder[Windows.Chat]} />
+      </a>
+      <a onClick={() => changeOrder(Windows.Users)}>
+        <Userbrowser $display={displayUsers} z={displayOrder[Windows.Users]} />
+      </a>
+      <a onClick={() => changeOrder(Windows.Leaderboard)}>
+        <Leaderboard
+          $display={displayLeaderboard}
+          z={displayOrder[Windows.Leaderboard]}
+        />
+      </a>
       <StartMenu $display={displayStart}>
         <TextBar>Transcendence95</TextBar>
         <StyledUl>
-          <StyledLi onClick={() => setDisplayProfile(!displayProfile)}>
+          <StyledLi
+            onClick={() => {
+              setDisplayProfile(!displayProfile);
+              changeOrder(Windows.Profile);
+            }}
+          >
             <img
               src={require("../../images/head.png")}
               height="16"
@@ -165,7 +214,10 @@ const Taskbar: React.FC = () => {
             Profile
           </StyledLi>
           <StyledLi
-            onClick={() => setDisplayProfileSettings(!displayProfileSettings)}
+            onClick={() => {
+              setDisplayProfileSettings(!displayProfileSettings);
+              changeOrder(Windows.Settings);
+            }}
           >
             <img
               src={require("../../images/settings.png")}
@@ -176,7 +228,12 @@ const Taskbar: React.FC = () => {
             Profile Settings
           </StyledLi>
           <Seperator />
-          <StyledLi onClick={() => setDisplayUsers(!displayUsers)}>
+          <StyledLi
+            onClick={() => {
+              setDisplayUsers(!displayUsers);
+              changeOrder(Windows.Users);
+            }}
+          >
             <img
               src={require("../../images/folder_search.png")}
               height="16"
@@ -204,7 +261,12 @@ const Taskbar: React.FC = () => {
             Friends
           </StyledLi>
           <Seperator />
-          <StyledLi onClick={() => setDisplayLeaderboard(!displayLeaderboard)}>
+          <StyledLi
+            onClick={() => {
+              setDisplayLeaderboard(!displayLeaderboard);
+              changeOrder(Windows.Leaderboard);
+            }}
+          >
             <img
               src={require("../../images/book.png")}
               height="16"
@@ -239,7 +301,10 @@ const Taskbar: React.FC = () => {
           Start
         </TaskButton>
         <TaskButton
-          onClick={() => setDisplayChat(!displayChat)}
+          onClick={() => {
+            setDisplayChat(!displayChat);
+            changeOrder(Windows.Chat);
+          }}
           $active={displayChat}
         >
           <img
