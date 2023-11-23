@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
 import { BACKEND } from "../../routes/SetUser";
-import { FriendState } from "../playercard/Playercard";
+import { AuthContext, IAuthContext } from "../../context/auth";
 
 const StyledUl = styled.ul<{ $display: boolean; $posX: number; $posY: number }>`
   display: ${(props) => (props.$display ? "" : "none")};
@@ -40,22 +40,30 @@ export interface IContextMenu {
   display: boolean;
   positionX: number;
   positionY: number;
-  link: string | undefined;
-  IncomingFriendState: FriendState;
+  name: string | undefined;
   triggerReload: () => void;
+}
+
+export enum FriendState {
+  noFriend,
+  pendingFriend,
+  friend,
 }
 
 const ContextMenu: React.FC<IContextMenu> = ({
   display,
   positionX,
   positionY,
-  link,
-  IncomingFriendState,
+  name,
   triggerReload,
 }) => {
-  const [friendState, setFriendState] =
-    useState<FriendState>(IncomingFriendState);
-
+  const [friendState, setFriendState] = useState<FriendState>(
+    FriendState.noFriend
+  );
+  const [ownProfile, setOwnProfile] = useState<boolean>(false);
+  let [isLoading, setIsLoading] = useState<boolean>(true);
+  const auth: IAuthContext = useContext(AuthContext);
+  const [, setRefreshFlag] = useState(false);
   const handleFriendAccept = async (friend: string | undefined) => {
     if (friend !== undefined) {
       try {
@@ -76,6 +84,7 @@ const ContextMenu: React.FC<IContextMenu> = ({
         if (success) {
           setFriendState(FriendState.friend);
           triggerReload();
+          refreshContextMenu();
         }
       } catch (error) {
         console.error("Error accepting friend request:", error);
@@ -103,6 +112,7 @@ const ContextMenu: React.FC<IContextMenu> = ({
         if (success) {
           setFriendState(FriendState.noFriend);
           triggerReload();
+          refreshContextMenu();
         }
       } catch (error) {
         console.error("Error accepting friend request:", error);
@@ -118,8 +128,8 @@ const ContextMenu: React.FC<IContextMenu> = ({
           headers: {
             "Content-Type": "application/json",
           },
-          credentials: "include",
           body: JSON.stringify({ friend }),
+          credentials: "include",
         });
 
         if (!res.ok) {
@@ -130,6 +140,7 @@ const ContextMenu: React.FC<IContextMenu> = ({
         if (success) {
           setFriendState(FriendState.pendingFriend);
           triggerReload();
+          refreshContextMenu();
         }
       } catch (error) {
         console.error("Error sending friend request", error);
@@ -137,39 +148,84 @@ const ContextMenu: React.FC<IContextMenu> = ({
     }
   };
 
+  const fetchFriendData = async () => {
+    try {
+      const res: Response = await fetch(`${BACKEND}/users/get-friend-state`, {
+        method: "Post",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ name }),
+      });
+      if (!res.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const friendState: FriendState = await res.json();
+      if (friendState === FriendState.friend) {
+        setFriendState(FriendState.friend);
+      }
+      if (friendState === FriendState.pendingFriend) {
+        setFriendState(FriendState.pendingFriend);
+      }
+      if (auth.user.name === name) {
+        setOwnProfile(true);
+      }
+    } catch (error) {
+      console.error("Error fetching pendingFriendRequests:", error);
+    }
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      await fetchFriendData();
+      setIsLoading(false);
+    };
+    fetchData();
+  }, [friendState]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const refreshContextMenu = () => {
+    setRefreshFlag((prev) => !prev);
+  };
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <>
       <StyledUl $display={display} $posX={positionX} $posY={positionY}>
         {friendState === FriendState.pendingFriend && (
-          <OptionLi onClick={() => handleFriendAccept(link)}>
+          <OptionLi onClick={() => handleFriendAccept(name)}>
             👥 Accept friend request
           </OptionLi>
         )}
         {friendState === FriendState.pendingFriend && <LineLi />}
-        {friendState === FriendState.noFriend && (
-          <OptionLi onClick={() => handleFriendAdd(link)}>
-             👨‍❤️‍💋‍👨 Add as friend
+        {friendState === FriendState.noFriend && !ownProfile && (
+          <OptionLi onClick={() => handleFriendAdd(name)}>
+            👨‍❤️‍💋‍👨 Add as friend
           </OptionLi>
         )}
-        {friendState === FriendState.noFriend && <LineLi/>}
-        {link !== undefined && (
-          <Link to={`/profile/${link}`}>
+        {friendState === FriendState.noFriend && <LineLi />}
+        {name !== undefined && (
+          <Link to={`/profile/${name}`}>
             <OptionLi>👤 Visit Profile</OptionLi>
           </Link>
         )}
         <LineLi />
-        <OptionLi>🏓 Challenge to Game</OptionLi>
-        <LineLi />
-        <OptionLi>💬 Start Chat</OptionLi>
-        <LineLi />
+        {!ownProfile && <OptionLi>🏓 Challenge to Game</OptionLi>}
+        {!ownProfile && <LineLi />}
+        {!ownProfile && <OptionLi>💬 Start Chat</OptionLi>}
+        {!ownProfile && <LineLi />}
         {friendState === FriendState.friend && (
-          <OptionLi onClick={() => handleFriendRemove(link)}>
+          <OptionLi onClick={() => handleFriendRemove(name)}>
             ❌ Remove friend
           </OptionLi>
         )}
         {friendState === FriendState.friend && <LineLi />}
-        <OptionLi>🚫 Block User</OptionLi>
-        <LineLi />
+        {!ownProfile && <OptionLi>🚫 Block User</OptionLi>}
+        {!ownProfile && <LineLi />}
       </StyledUl>
     </>
   );
