@@ -46,6 +46,7 @@ export interface IContextMenu {
 
 export enum FriendState {
   noFriend,
+  requestedFriend,
   pendingFriend,
   friend,
 }
@@ -162,12 +163,7 @@ const ContextMenu: React.FC<IContextMenu> = ({
         throw new Error("Network response was not ok");
       }
       const friendState: FriendState = await res.json();
-      if (friendState === FriendState.friend) {
-        setFriendState(FriendState.friend);
-      }
-      if (friendState === FriendState.pendingFriend) {
-        setFriendState(FriendState.pendingFriend);
-      }
+      setFriendState(friendState);
       if (auth.user.name === name) {
         setOwnProfile(true);
       }
@@ -190,24 +186,33 @@ const ContextMenu: React.FC<IContextMenu> = ({
   };
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div></div>;
   }
 
   return (
     <>
       <StyledUl $display={display} $posX={positionX} $posY={positionY}>
+        {/* PENDING FRIEND */}
         {friendState === FriendState.pendingFriend && (
           <OptionLi onClick={() => handleFriendAccept(name)}>
             👥 Accept friend request
           </OptionLi>
         )}
         {friendState === FriendState.pendingFriend && <LineLi />}
+        {/* NO FRIEND */}
         {friendState === FriendState.noFriend && !ownProfile && (
           <OptionLi onClick={() => handleFriendAdd(name)}>
             👨‍❤️‍💋‍👨 Add as friend
           </OptionLi>
         )}
         {friendState === FriendState.noFriend && <LineLi />}
+        {/* REQUESTED FRIEND */}
+        {friendState === FriendState.requestedFriend && !ownProfile && (
+          <OptionLi>
+            👀 Friend request pending
+          </OptionLi>
+        )}
+        {friendState === FriendState.requestedFriend && <LineLi />}
         {name !== undefined && (
           <Link to={`/profile/${name}`}>
             <OptionLi>👤 Visit Profile</OptionLi>
@@ -218,6 +223,7 @@ const ContextMenu: React.FC<IContextMenu> = ({
         {!ownProfile && <LineLi />}
         {!ownProfile && <OptionLi>💬 Start Chat</OptionLi>}
         {!ownProfile && <LineLi />}
+        {/* FRIEND */}
         {friendState === FriendState.friend && (
           <OptionLi onClick={() => handleFriendRemove(name)}>
             ❌ Remove friend
