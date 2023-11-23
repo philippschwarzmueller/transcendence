@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import styled from "styled-components";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { BACKEND } from "../../routes/SetUser";
+import { AuthContext, IUser } from "../../context/auth";
+import { EChannelType, IChannel } from "../chatwindow/properties";
 
 const StyledUl = styled.ul<{ $display: boolean; $posX: number; $posY: number }>`
   display: ${(props) => (props.$display ? "" : "none")};
@@ -36,6 +38,23 @@ const OptionLi = styled.li`
   }
 `;
 
+const startChat = (user: IUser, target?: string) => {
+  const body: IChannel = {
+    user: user,
+    type: EChannelType.CHAT,
+    id: 0,
+    title: target,
+  }
+  console.log('ehre');
+  fetch(`http://${window.location.hostname}:4000/chat`, {
+    method: "POST",
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
+  })
+}
+
 export interface IContextMenu {
   display: boolean;
   positionX: number;
@@ -59,6 +78,9 @@ const ContextMenu: React.FC<IContextMenu> = ({
   const [isPendingFriend, setIsPendingFriend] = useState<boolean>(
     isPendingFriendIncoming
   );
+  const auth = useContext(AuthContext).user;
+  const navigate = useNavigate();
+
   const handleFriendAccept = async (
     friend: string | undefined,
     isPendingFriend: boolean | undefined
@@ -136,7 +158,7 @@ const ContextMenu: React.FC<IContextMenu> = ({
         <LineLi />
         <OptionLi>🏓 Challenge to Game</OptionLi>
         <LineLi />
-        <OptionLi>💬 Start Chat</OptionLi>
+        <OptionLi onClick={() => {startChat(auth, link); navigate('/chat');}}>💬 Start Chat</OptionLi>
         <LineLi />
         {isFriend && (
           <OptionLi onClick={() => handleFriendRemove(link, isFriend)}>

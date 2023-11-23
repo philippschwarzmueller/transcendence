@@ -1,6 +1,6 @@
-import { Controller, Delete, HttpCode, Get, Query } from '@nestjs/common';
+import { Controller, Delete, HttpCode, Get, Query, Post, Body } from '@nestjs/common';
 import { ChatService } from './chat.service';
-import { ITab } from './properties';
+import { IChannel, ITab } from './properties';
 
 @Controller('chat')
 export class ChatController {
@@ -19,5 +19,14 @@ export class ChatController {
     @Query('chat') chat: number,
   ): Promise<void> {
     await this.chatService.removeChat(userId, chat);
+  }
+
+  @Post()
+  @HttpCode(201)
+  async createChat(
+    @Body() data: IChannel
+  ): Promise<void> {
+    console.log(data);
+    this.chatService.addU2UChat(data);
   }
 }

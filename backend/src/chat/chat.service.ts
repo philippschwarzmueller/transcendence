@@ -55,7 +55,7 @@ export class ChatService extends ChatServiceBase {
     }
     try {
       const mess = `${data.user.name}: ${data.input}`;
-      server.to(data.room).emit('message', mess);
+      server.to(data.room.toString()).emit('message', mess);
       await this.chatDao.saveMessageToChannel(data);
     } catch (error) {
       console.log(`SYSTEM: ${error.message.split('\n')[0]}`);
@@ -65,16 +65,16 @@ export class ChatService extends ChatServiceBase {
   private async addUser(data: IMessage, server: Server) {
     try {
       const name = data.input.substring(data.input.indexOf(' ') + 1);
-      const owner = await this.chatDao.getChannelOwner(data.id);
+      const owner = await this.chatDao.getChannelOwner(data.room);
       if (owner.name !== data.user.name) return;
-      await this.chatDao.addUserToChannel(data.id, name);
+      await this.chatDao.addUserToChannel(data.room, name);
       server
         .to(this.getUser(name).socket.id)
         .emit(
           'invite',
           await this.chatDao.getRawUserChannels(this.getUser(name).user.id),
         );
-      server.to(data.room).emit(`${name}: got added`);
+      server.to(data.room.toString()).emit(`${name}: got added`);
     } catch (error) {
       server
         .to(this.getUser(data.user.name).socket.id)
@@ -86,16 +86,16 @@ export class ChatService extends ChatServiceBase {
   private async kickUser(data: IMessage, server: Server) {
     try {
       const name = data.input.substring(data.input.indexOf(' ') + 1);
-      const owner = await this.chatDao.getChannelOwner(data.id);
+      const owner = await this.chatDao.getChannelOwner(data.room);
       if (owner.name !== data.user.name) return;
-      await this.chatDao.removeUserFromChannel(data.id, name);
+      await this.chatDao.removeUserFromChannel(data.room, name);
       server
         .to(this.getUser(name).socket.id)
         .emit(
           'invite',
           await this.chatDao.getRawUserChannels(this.getUser(name).user.id),
         );
-      server.to(data.room).emit(`${name}: got kicked`);
+      server.to(data.room.toString()).emit(`${name}: got kicked`);
     } catch (error) {
       server
         .to(this.getUser(data.user.name).socket.id)

@@ -123,7 +123,7 @@ const Chatwindow: React.FC = () => {
   useEffect(() => {
     socket.emit(
       "join",
-      { user: user, type: 0, id: room?.id, title: room?.title, prev: prevRoom?.title },
+      { user: user, type: 0, id: room?.id, title: room?.title, prev: prevRoom?.id },
       (res: string[]) => setMessages(res),
     );
   }, [room, prevRoom]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -147,7 +147,7 @@ const Chatwindow: React.FC = () => {
   function send(event: React.MouseEvent | React.KeyboardEvent) {
     event.preventDefault();
     if (input.trim() !== "" && user !== undefined)
-      socket.emit("message", { user, input, room: room?.title, id: room?.id });
+      socket.emit("message", { user, input, room: room?.id });
     setInput("");
   }
 

@@ -10,8 +10,7 @@ export interface IUser {
 export interface IMessage {
   user: IUser;
   input: string;
-  room: string;
-  id: number;
+  room: number;
 }
 
 export enum EChannelType {
@@ -25,7 +24,7 @@ export interface IChannel {
   type: EChannelType;
   id: number;
   title: string;
-  prev: string;
+  prev: number;
 }
 
 export interface ITab {

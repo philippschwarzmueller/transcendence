@@ -5,6 +5,7 @@ import { Injectable, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EChannelType, IChannel, IMessage, ITab } from './properties';
 import { UsersService } from 'src/users/users.service';
+import { channel } from 'diagnostics_channel';
 
 @Injectable()
 export class ChatDAO {
@@ -23,13 +24,13 @@ export class ChatDAO {
     await this.messsageRepo.save(
       this.messsageRepo.create({
         sender: await this.userService.findOneByName(message.user.name),
-        channel: await this.getChannel(message.id),
+        channel: await this.getChannel(message.room),
         content: message.input,
       }),
     );
   }
 
-  public async saveChannel(channel: IChannel, user: string): Promise<void> {
+  public async saveChannel(channel: IChannel, user: string): Promise<Channels> {
     const existingChannel = await this.channelRepo.findOne({
       where: { title: channel.title },
     });
@@ -45,10 +46,15 @@ export class ChatDAO {
         }),
       );
     }
+    return await this.channelRepo.findOne({
+      where: { title: channel.title },
+    });
   }
 
   public async addUserToChannel(id: number, user: string): Promise<void> {
     const channel: Channels = await this.getChannel(id);
+    if (channel.type === EChannelType.CHAT && channel.users.length === 2)
+      return;
     const newUser: User = await this.userService.findOneByName(user);
     const queryRunner = this.dataSource.createQueryRunner();
     queryRunner.connect();
@@ -94,21 +100,38 @@ export class ChatDAO {
       .getMany();
   }
 
-  public async getAllChannels(): Promise<string[]> {
+  public async getAllChannels(): Promise<number[]> {
     const res: Channels[] = await this.channelRepo.find();
     return res.map((item) => {
-      return item.title;
+      return item.id;
     });
   }
 
+  public async getTitle(channel: Channels, userId: number): Promise<string> {
+    if (channel.type !== EChannelType.CHAT)
+      return channel.title;
+    const queryRunner = this.dataSource.createQueryRunner();
+    queryRunner.connect();
+    const res = await queryRunner.manager.query(
+      `SELECT name
+      FROM users
+      INNER JOIN channel_subscription ON users.id = channel_subscription.user
+      WHERE channel_subscription.channel = ${channel.id}
+      AND users.id != ${userId}`
+    );
+    queryRunner.release();
+    return res[0].name;
+  }
+
   public async getRawUserChannels(userId: number): Promise<ITab[]> {
-    return (await this.getUserChannels(userId)).map((item) => {
+    const tmp: Channels[] = await this.getUserChannels(userId);
+    return (await Promise.all(tmp.map(async (item) => {
       return {
         type: item.type,
         id: item.id,
-        title: item.title,
+        title: await this.getTitle(item, userId),
       };
-    });
+    })));
   }
 
   public async getChannelOwner(id: number): Promise<User> {
