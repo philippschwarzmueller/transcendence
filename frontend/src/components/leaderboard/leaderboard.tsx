@@ -85,7 +85,6 @@ const StyledTableHead = styled.thead`
   border: 5px solid #00000000;
   top: 4px;
   background-color: white;
-  /* z-index: 1; */
 `;
 
 const StyledTableBody = styled.tbody``;
