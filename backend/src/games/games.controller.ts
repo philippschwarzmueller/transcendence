@@ -28,7 +28,7 @@ interface ISpectateGame {
   leftPlayerNickname: string;
   leftPlayerIntraname: string;
   leftPlayerPoints: number;
-  righPlayerNickname: string;
+  rightPlayerNickname: string;
   rightPlayerIntraname: string;
   rightPlayerPoints: number;
 }
@@ -52,7 +52,7 @@ export class GamesController {
         leftPlayerNickname: game.leftPlayer.user.name,
         leftPlayerIntraname: game.leftPlayer.user.intraname,
         leftPlayerPoints: game.gameState.pointsLeft,
-        righPlayerNickname: game.rightPlayer.user.name,
+        rightPlayerNickname: game.rightPlayer.user.name,
         rightPlayerIntraname: game.rightPlayer.user.intraname,
         rightPlayerPoints: game.gameState.pointsRight,
       };
@@ -76,7 +76,7 @@ export class GamesController {
           leftPlayerNickname: game.leftPlayer.user.name,
           leftPlayerIntraname: game.leftPlayer.user.intraname,
           leftPlayerPoints: game.gameState.pointsLeft,
-          righPlayerNickname: game.rightPlayer.user.name,
+          rightPlayerNickname: game.rightPlayer.user.name,
           rightPlayerIntraname: game.rightPlayer.user.intraname,
           rightPlayerPoints: game.gameState.pointsRight,
         };
