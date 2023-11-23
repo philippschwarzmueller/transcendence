@@ -208,9 +208,7 @@ const ContextMenu: React.FC<IContextMenu> = ({
         {friendState === FriendState.noFriend && <LineLi />}
         {/* REQUESTED FRIEND */}
         {friendState === FriendState.requestedFriend && !ownProfile && (
-          <OptionLi>
-            👀 Friend request pending
-          </OptionLi>
+          <OptionLi>👀 Friend request pending</OptionLi>
         )}
         {friendState === FriendState.requestedFriend && <LineLi />}
         {name !== undefined && (
