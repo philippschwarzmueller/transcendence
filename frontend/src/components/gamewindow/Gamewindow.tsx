@@ -13,7 +13,7 @@ import {
   drawGame,
   fetchAndDrawFinishedGame,
 } from "./drawFunctions";
-import { useParams } from "react-router-dom";
+import { NavigateFunction, useNavigate, useParams } from "react-router-dom";
 import { EGamemode } from "../queuebutton/Queuebutton";
 import { SocketContext } from "../../context/socket";
 import { Socket } from "socket.io-client";
@@ -25,6 +25,8 @@ import {
   resizeCanvas,
 } from "./windowresizing";
 import { validateToken } from "../../routes/PrivateRoute";
+import Button from "../button";
+import styled from "styled-components";
 
 export interface IGameCanvas {
   background: React.MutableRefObject<HTMLCanvasElement>;
@@ -33,6 +35,18 @@ export interface IGameCanvas {
   ball: React.MutableRefObject<HTMLCanvasElement>;
   endScreen: React.MutableRefObject<HTMLCanvasElement>;
 }
+
+const StyledDiv = styled.div`
+  border: 4px black;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const StyledButton = styled(Button)`
+  z-index: 5;
+  margin-top: -22px;
+`;
 
 const finishGame = (
   gameInterval: ReturnType<typeof setInterval> | undefined
@@ -67,6 +81,7 @@ const GameWindow: React.FC = () => {
   );
   const navigateToEndScreen: React.MutableRefObject<boolean> = useRef(false);
   const navigateToErrorScreen: React.MutableRefObject<boolean> = useRef(false);
+  const navigate: NavigateFunction = useNavigate();
 
   const handleWindowResize = (): void => {
     calculateWindowproperties(getWindowDimensions());
@@ -149,51 +164,62 @@ const GameWindow: React.FC = () => {
 
   return (
     <>
-      <Centerdiv>
-        <div>
-          <Gamecanvas
-            id="backgroundCanvas"
-            ref={gameCanvas.background}
-            width={properties.window.width}
-            height={properties.window.height}
-            tabIndex={0}
-          ></Gamecanvas>
-        </div>
-        <div>
-          <Gamecanvas
-            id="scoreCanvas"
-            ref={gameCanvas.score}
-            width={properties.window.width}
-            height={properties.window.height}
-            tabIndex={0}
-          ></Gamecanvas>
-        </div>
-        <div>
-          <Gamecanvas
-            id="paddleCanvas"
-            ref={gameCanvas.paddle}
-            width={properties.window.width}
-            height={properties.window.height}
-            tabIndex={0}
-          ></Gamecanvas>
-        </div>
-        <div>
-          <Gamecanvas
-            id="ballCanvas"
-            ref={gameCanvas.ball}
-            width={properties.window.width}
-            height={properties.window.height}
-            tabIndex={1}
-          ></Gamecanvas>
-          <Gamecanvas
-            id="endScreenCanvas"
-            ref={gameCanvas.endScreen}
-            width={properties.window.width}
-            height={properties.window.height}
-            tabIndex={1}
-          ></Gamecanvas>
-        </div>
-      </Centerdiv>
+      <StyledDiv>
+        <Centerdiv>
+          <div>
+            <Gamecanvas
+              id="backgroundCanvas"
+              ref={gameCanvas.background}
+              width={properties.window.width}
+              height={properties.window.height}
+              tabIndex={0}
+            ></Gamecanvas>
+          </div>
+          <div>
+            <Gamecanvas
+              id="scoreCanvas"
+              ref={gameCanvas.score}
+              width={properties.window.width}
+              height={properties.window.height}
+              tabIndex={0}
+            ></Gamecanvas>
+          </div>
+          <div>
+            <Gamecanvas
+              id="paddleCanvas"
+              ref={gameCanvas.paddle}
+              width={properties.window.width}
+              height={properties.window.height}
+              tabIndex={0}
+            ></Gamecanvas>
+          </div>
+          <div>
+            <Gamecanvas
+              id="ballCanvas"
+              ref={gameCanvas.ball}
+              width={properties.window.width}
+              height={properties.window.height}
+              tabIndex={1}
+            ></Gamecanvas>
+            <Gamecanvas
+              id="endScreenCanvas"
+              ref={gameCanvas.endScreen}
+              width={properties.window.width}
+              height={properties.window.height}
+              tabIndex={1}
+            ></Gamecanvas>
+          </div>
+        </Centerdiv>
+        <Centerdiv>
+          <StyledButton
+            onClick={() => {
+              navigate("/home");
+            }}
+          >
+            Leave Game
+          </StyledButton>
+        </Centerdiv>
+      </StyledDiv>
     </>
   );
 };
