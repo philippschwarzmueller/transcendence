@@ -1,8 +1,8 @@
 import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import { AuthContext, IAuthContext, IUser } from "../context/auth";
-import NameChangeSection from '../components/changename';
-import TwoFactorAuthSection from '../components/twoFaSection';
+import NameChangeSection from "../components/changename";
+import TwoFactorAuthSection from "../components/twoFaSection";
 import { BACKEND } from "./SetUser";
 import Button from "../components/button/Button";
 
@@ -41,7 +41,7 @@ const ProfileSettings: React.FC = () => {
           setNewName("");
         }
       } catch {
-        console.log("error");
+        console.error("error");
       }
     }
   };
@@ -73,7 +73,7 @@ const ProfileSettings: React.FC = () => {
           setTwoFaCode("");
         }
       } catch {
-        console.log("error");
+        console.error("error");
       }
     }
   };
@@ -107,7 +107,6 @@ const ProfileSettings: React.FC = () => {
     }
   };
 
-
   return (
     <>
       <h1>Profile Settings</h1>
@@ -134,4 +133,3 @@ const ProfileSettings: React.FC = () => {
 };
 
 export default ProfileSettings;
-
