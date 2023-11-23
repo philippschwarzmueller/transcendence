@@ -42,7 +42,10 @@ const Moveablewindow: React.FC<IMoveableWindow> = ({
   display,
   children,
 }) => {
-  const [position, setPosition] = useState({ x: (positionX ? positionX : 200), y: (positionY ? positionY : 100) });
+  const [position, setPosition] = useState({
+    x: positionX ? positionX : 200,
+    y: positionY ? positionY : 100,
+  });
   const [offset, setOffset] = useState({ x: 0, y: 0 });
 
   const startDrag = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {

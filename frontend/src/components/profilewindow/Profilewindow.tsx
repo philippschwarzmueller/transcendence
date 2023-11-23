@@ -84,13 +84,35 @@ const Profilewindow: React.FC<IProfileWindow> = ({ $display }) => {
           </UserData>
           <Tabs>
             <Tabbar>
-              <Tab $active={displayMatch} onClick={() => {setDisplayMatch(true); setDisplayElo(false)}}>Match History</Tab>
-              <Tab $active={displayElo} onClick={() => {setDisplayElo(true); setDisplayMatch(false)}}>Elo History</Tab>
+              <Tab
+                $active={displayMatch}
+                onClick={() => {
+                  setDisplayMatch(true);
+                  setDisplayElo(false);
+                }}
+              >
+                Match History
+              </Tab>
+              <Tab
+                $active={displayElo}
+                onClick={() => {
+                  setDisplayElo(true);
+                  setDisplayMatch(false);
+                }}
+              >
+                Elo History
+              </Tab>
               <Filler />
             </Tabbar>
             <Tabcontent>
-              <MatchHistory intraname={auth.user.name ? auth.user.name : ""} display={displayMatch} />
-              <Elograph intraname={auth.user.name ? auth.user.name : ""} display={displayElo} />
+              <MatchHistory
+                intraname={auth.user.name ? auth.user.name : ""}
+                display={displayMatch}
+              />
+              <Elograph
+                intraname={auth.user.name ? auth.user.name : ""}
+                display={displayElo}
+              />
             </Tabcontent>
           </Tabs>
         </ProfileArea>

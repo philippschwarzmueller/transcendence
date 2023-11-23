@@ -13,7 +13,6 @@ const InputFields = styled.div`
   flex-direction: column;
 `;
 
-
 const StyledWindow = styled.div`
   position: absolute;
   top: 50%;
@@ -40,7 +39,6 @@ const Windowbar = styled.div`
 `;
 
 const Loginwindow: React.FC = () => {
-
   const handleIntraLogin = async () => {
     window.location.replace(`${BACKEND}/auth/intra-login`);
   };
@@ -58,10 +56,15 @@ const Loginwindow: React.FC = () => {
           Welcome to Trancendence95
         </Windowbar>
         <LoginBox>
-          <img src={require("../../images/key.png")} alt="keys" width="64px" height="64px" />
+          <img
+            src={require("../../images/key.png")}
+            alt="keys"
+            width="64px"
+            height="64px"
+          />
           <InputFields>
-            <p style={{cursor: "default"}}>Just press the button to log in</p>
-            <Button onClick={ () => handleIntraLogin() }>Ok</Button>
+            <p style={{ cursor: "default" }}>Just press the button to log in</p>
+            <Button onClick={() => handleIntraLogin()}>Ok</Button>
           </InputFields>
         </LoginBox>
       </StyledWindow>
