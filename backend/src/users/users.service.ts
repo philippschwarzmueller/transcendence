@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { User } from './user.entity';
+import { setDefaultHighWaterMark } from 'stream';
 
 export enum FriendState {
   noFriend,
@@ -98,12 +99,12 @@ export class UsersService {
     ).friend_requests_received;
   }
 
-  async addFriend(user: User, friend: User): Promise<void> {
-    const sender = await this.usersRepository.findOne({
+  async addFriend(user: User, friend: User): Promise<boolean> {
+    const sender: User = await this.usersRepository.findOne({
       where: { name: user.name },
       relations: ['friend_requested'],
     });
-    const receiver = await this.usersRepository.findOne({
+    const receiver: User = await this.usersRepository.findOne({
       where: { name: friend.name },
       relations: ['friend_requests_received'],
     });
@@ -112,14 +113,24 @@ export class UsersService {
       throw new Error('User or friend not found');
     }
 
+    const friendState: FriendState = await this.getFriendState(
+      sender.name,
+      receiver.name,
+    );
+
+    if (friendState !== FriendState.noFriend || user.name === friend.name) {
+      return false;
+    }
+
     sender.friend_requested.push(receiver);
     receiver.friend_requests_received.push(user);
 
     await this.usersRepository.save(sender);
     await this.usersRepository.save(receiver);
+    return true;
   }
 
-  async acceptFriendRequest(user: User, friend: User) {
+  async acceptFriendRequest(user: User, friend: User): Promise<boolean> {
     const receiver: User = await this.usersRepository.findOne({
       where: { name: user.name },
       relations: ['friend_requests_received', 'friends', 'friend_requested'],
@@ -129,6 +140,18 @@ export class UsersService {
       where: { name: friend.name },
       relations: ['friend_requested', 'friends', 'friend_requests_received'],
     });
+
+    const friendState: FriendState = await this.getFriendState(
+      receiver.name,
+      sender.name,
+    );
+
+    if (
+      friendState !== FriendState.pendingFriend ||
+      receiver.name === sender.name
+    ) {
+      return false;
+    }
 
     sender.friends.push(receiver);
     receiver.friends.push(sender);
@@ -143,9 +166,10 @@ export class UsersService {
     await this.usersRepository.save(sender);
     await this.usersRepository.save(receiver);
     await this.usersRepository.save([user, friend]);
+    return true;
   }
 
-  async removeFriend(user: User, friend: User) {
+  async removeFriend(user: User, friend: User): Promise<boolean> {
     const remover: User = await this.usersRepository.findOne({
       where: { name: user.name },
       relations: ['friends'],
@@ -155,6 +179,18 @@ export class UsersService {
       where: { name: friend.name },
       relations: ['friends'],
     });
+
+    const friendState: FriendState = await this.getFriendState(
+      remover.name,
+      removeFriend.name,
+    );
+
+    if (
+      friendState !== FriendState.friend ||
+      remover.name === removeFriend.name
+    ) {
+      return false;
+    }
 
     remover.friends = remover.friends.filter(
       (friend) => friend.name !== removeFriend.name,
@@ -166,6 +202,7 @@ export class UsersService {
     await this.usersRepository.save(remover);
     await this.usersRepository.save(removeFriend);
     await this.usersRepository.save([remover, removeFriend]);
+    return true;
   }
 
   async getFriendList(userId: string): Promise<User[]> {
@@ -195,8 +232,7 @@ export class UsersService {
   }
 
   async userIsRequestedFriend(user: string, friend: string): Promise<boolean> {
-    const RequestedFriends: User[] =
-      await this.getFriendRequestList(user);
+    const RequestedFriends: User[] = await this.getFriendRequestList(user);
     const isRequestedFriend: boolean = RequestedFriends.some(
       (friendUser) => friendUser.name === friend,
     );
@@ -205,8 +241,14 @@ export class UsersService {
 
   async getFriendState(user: string, friend: string): Promise<FriendState> {
     const isFriend: boolean = await this.userIsFriend(user, friend);
-    const isPendingFriend: boolean = await this.userIsPendingFriend(user, friend);
-    const isRequestedFriend: boolean = await this.userIsRequestedFriend(user, friend);
+    const isPendingFriend: boolean = await this.userIsPendingFriend(
+      user,
+      friend,
+    );
+    const isRequestedFriend: boolean = await this.userIsRequestedFriend(
+      user,
+      friend,
+    );
 
     if (isFriend) {
       return FriendState.friend;
