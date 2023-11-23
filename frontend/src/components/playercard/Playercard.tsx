@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import Avatar from "../avatar";
 import ContextMenu from "../contextmenu/ContextMenu";
-import { BACKEND } from "../../routes/SetUser";
 
 const StyledDiv = styled.div`
   text-align: center;
@@ -39,12 +38,6 @@ interface PlayerCardProps {
   triggerReload: () => void;
 }
 
-export enum FriendState {
-  noFriend,
-  pendingFriend,
-  friend,
-}
-
 const PlayerCard: React.FC<PlayerCardProps> = ({
   name,
   profilePictureUrl,
@@ -53,50 +46,10 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
   let [showContext, setShowContext] = useState<boolean>(false);
   let [x, setX] = useState<number>(0);
   let [y, setY] = useState<number>(0);
-  let [isFriend, setIsFriend] = useState<boolean>(false);
-  let [isPendingFriend, setIsPendingFriend] = useState<boolean>(false);
-  let [isLoading, setIsLoading] = useState<boolean>(true);
   function openContextMenu(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
     setX(e.pageX);
     setY(e.pageY);
     setShowContext(!showContext);
-  }
-
-  const fetchFriendData = async () => {
-    try {
-      const res: Response = await fetch(`${BACKEND}/users/get-friend-state`, {
-        method: "Post",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({ name }),
-      });
-      if (!res.ok) {
-        throw new Error("Network response was not ok");
-      }
-      const friendState: FriendState = await res.json();
-      if (friendState === FriendState.friend) {
-        setIsFriend(true);
-      }
-      if (friendState === FriendState.pendingFriend) {
-        setIsPendingFriend(true);
-      }
-    } catch (error) {
-      console.error("Error fetching pendingFriendRequests:", error);
-    }
-  };
-
-  useEffect(() => {
-    const fetchData = async () => {
-      await fetchFriendData();
-      setIsLoading(false);
-    };
-    fetchData();
-  }, []);
-
-  if (isLoading) {
-    return <div>Loading...</div>;
   }
 
   return (
@@ -112,9 +65,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
         display={showContext}
         positionX={x}
         positionY={y}
-        link={name}
-        isPendingFriendIncoming={isPendingFriend}
-        isFriendIncoming={isFriend}
+        name={name}
         triggerReload={triggerReload}
       />
     </>

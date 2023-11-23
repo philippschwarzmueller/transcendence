@@ -42,7 +42,7 @@ const ProfileSettings: React.FC = () => {
           setNewName("");
         }
       } catch {
-        console.log("error");
+        console.error("error");
       }
     }
   };
@@ -74,7 +74,7 @@ const ProfileSettings: React.FC = () => {
           setTwoFaCode("");
         }
       } catch {
-        console.log("error");
+        console.error("error");
       }
     }
   };
