@@ -11,6 +11,7 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EGamemode } from './properties';
 import { GamesService } from './games.service';
+import { Game } from './game.entity';
 
 interface IMatch {
   winnerNickname: string;
@@ -31,6 +32,8 @@ export class GamesController {
     private gamesService: GamesService,
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    @InjectRepository(Game)
+    private gamesRepository: Repository<Game>,
   ) {}
 
   @Get('getwongamesamount/:intraname')
@@ -160,6 +163,13 @@ export class GamesController {
         this.gamesService.runningGames.get(gameId).leftPlayer.user.name,
         this.gamesService.runningGames.get(gameId).rightPlayer.user.name,
       ];
-    return ['me', 'you'];
+    else {
+      const game: Game = await this.gamesRepository.findOne({
+        where: { gameId: gameId },
+        relations: ['winner', 'looser'],
+      });
+      if (game) return [game.winner.name, game.looser.name];
+    }
+    return ['', ''];
   }
 }
