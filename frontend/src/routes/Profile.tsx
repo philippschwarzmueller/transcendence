@@ -117,6 +117,7 @@ const Profile: React.FC = () => {
         name={user?.name}
         profilePictureUrl={user?.profilePictureUrl}
       />
+
       {ownProfile && (
         <Link to="/profile/settings">
           <Button>Profile Settings</Button>

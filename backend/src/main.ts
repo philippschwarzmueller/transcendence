@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import * as cookieParser from 'cookie-parser';
 import { ConfigService } from '@nestjs/config';
 import { INestApplication } from '@nestjs/common';
+import * as bodyParser from 'body-parser';
 
 async function bootstrap() {
   const app: INestApplication<any> = await NestFactory.create(AppModule);
@@ -13,6 +14,8 @@ async function bootstrap() {
     credentials: true,
   });
   app.use(cookieParser());
+  app.use(bodyParser.json({ limit: '5mb' }));
+  app.use(bodyParser.urlencoded({ limit: '5mb', extended: true }));
   await app.listen(4000);
 }
 bootstrap();

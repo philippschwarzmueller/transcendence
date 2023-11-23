@@ -5,6 +5,7 @@ import NameChangeSection from "../components/changename";
 import TwoFactorAuthSection from "../components/twoFaSection";
 import { BACKEND } from "./SetUser";
 import Button from "../components/button/Button";
+import AvatarChangeSection from "../components/changeavatar/ChangeAvatar";
 
 const ProfileSettings: React.FC = () => {
   const auth: IAuthContext = useContext(AuthContext);
@@ -116,6 +117,7 @@ const ProfileSettings: React.FC = () => {
         handleNameChange={handleNameChange}
       />
       <h3>Change Avatar</h3>
+      <AvatarChangeSection />
       <TwoFactorAuthSection
         twoFaCode={twoFaCode}
         setTwoFaCode={setTwoFaCode}
