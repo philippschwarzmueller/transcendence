@@ -25,7 +25,7 @@ const Profile: React.FC = () => {
     fetchIncomingFriends();
     fetchFriends();
     fetchUser();
-  }, [userId, auth.user.name, reloadTrigger]);
+  }, [userId, auth.user.name, reloadTrigger]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchUser = async () => {
     if (userId) {

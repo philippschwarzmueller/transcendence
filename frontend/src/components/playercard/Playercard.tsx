@@ -93,7 +93,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
       setIsLoading(false);
     };
     fetchData();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (isLoading) {
     return <div>Loading...</div>;
