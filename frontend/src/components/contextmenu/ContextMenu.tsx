@@ -90,6 +90,8 @@ const ContextMenu: React.FC<IContextMenu> = ({
           setFriendState(FriendState.friend);
           if (triggerReload) triggerReload();
           refreshContextMenu();
+        } else {
+          alert("An Error occured, please reload the page to update data");
         }
       } catch (error) {
         console.error("Error accepting friend request:", error);
@@ -118,6 +120,8 @@ const ContextMenu: React.FC<IContextMenu> = ({
           setFriendState(FriendState.noFriend);
           if (triggerReload) triggerReload();
           refreshContextMenu();
+        } else {
+          alert("An Error occured, please reload the page to update data");
         }
       } catch (error) {
         console.error("Error accepting friend request:", error);
@@ -146,6 +150,8 @@ const ContextMenu: React.FC<IContextMenu> = ({
           setFriendState(FriendState.pendingFriend);
           if (triggerReload) triggerReload();
           refreshContextMenu();
+        } else {
+          alert("An Error occured, please reload the page to update data");
         }
       } catch (error) {
         console.error("Error sending friend request", error);
