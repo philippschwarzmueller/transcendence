@@ -48,7 +48,14 @@ function App() {
         <Route path="profile/settings" element={<ProfileSettings />} />
         <Route path="queue" element={<Queue />} />
         <Route path="set-user" element={<SetUser />} />
-        <Route path="test" element={<Test />} />
+        <Route
+          path="test"
+          element={
+            <PrivateRoute>
+              <Test />
+            </PrivateRoute>
+          }
+        />
       </Route>
     </Routes>
   );

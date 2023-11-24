@@ -1,5 +1,8 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
+import { Link } from "react-router-dom";
 import { styled } from "styled-components";
+import { AuthContext } from "../../context/auth";
+import { BACKEND } from "../../routes/SetUser";
 import Chatwindow from "../chatwindow/Chatwindow";
 import Leaderboard from "../leaderboard/leaderboard";
 import Moveablewindow from "../moveablewindow/Moveablewindow";
@@ -127,8 +130,14 @@ enum Windows {
   Users = 4,
   Leaderboard = 5,
 }
+  
+const RoutesLi = styled.li`
+  padding: 10px;
+`;
+
 
 const Taskbar: React.FC = () => {
+  let auth = useContext(AuthContext);
   const [displayChat, setDisplayChat] = useState<boolean>(false);
   const [displayUsers, setDisplayUsers] = useState<boolean>(false);
   const [displayStart, setDisplayStart] = useState<boolean>(false);
@@ -140,6 +149,16 @@ const Taskbar: React.FC = () => {
   const [displayOrder, setDisplayOrder] = useState<number[]>([
     0, 10, 20, 30, 40, 50,
   ]);
+
+  const handleLogout = async () => {
+    auth.logOut();
+    fetch(`${BACKEND}/auth/logout`, {
+      method: "GET",
+      credentials: "include",
+    })
+      .then((response) => response.text())
+      .catch((error) => console.error("Error:", error));
+  };
 
   function changeOrder(pos: number) {
     setDisplayOrder([
@@ -161,7 +180,7 @@ const Taskbar: React.FC = () => {
         <img src={require("../../images/pong.png")} alt="pong" height="64px" />
         Pong
       </Icon>
-      <a onClick={() => changeOrder(Windows.Queue)}>
+      <div onClick={() => changeOrder(Windows.Queue)}>
         <Moveablewindow
           title="Queue"
           positionX={900}
@@ -171,31 +190,31 @@ const Taskbar: React.FC = () => {
         >
           <Queuebox />
         </Moveablewindow>
-      </a>
-      <a onClick={() => changeOrder(Windows.Profile)}>
+      </div>
+      <div onClick={() => changeOrder(Windows.Profile)}>
         <Profilewindow
           $display={displayProfile}
           z={displayOrder[Windows.Profile]}
         />
-      </a>
-      <a onClick={() => changeOrder(Windows.Settings)}>
+      </div>
+      <div onClick={() => changeOrder(Windows.Settings)}>
         <Profilesettings
           $display={displayProfileSettings}
           z={displayOrder[Windows.Settings]}
         />
-      </a>
-      <a onClick={() => changeOrder(Windows.Chat)}>
+      </div>
+      <div onClick={() => changeOrder(Windows.Chat)}>
         <Chatwindow $display={displayChat} z={displayOrder[Windows.Chat]} />
-      </a>
-      <a onClick={() => changeOrder(Windows.Users)}>
+      </div>
+      <div onClick={() => changeOrder(Windows.Users)}>
         <Userbrowser $display={displayUsers} z={displayOrder[Windows.Users]} />
-      </a>
-      <a onClick={() => changeOrder(Windows.Leaderboard)}>
+      </div>
+      <div onClick={() => changeOrder(Windows.Leaderboard)}>
         <Leaderboard
           $display={displayLeaderboard}
           z={displayOrder[Windows.Leaderboard]}
         />
-      </a>
+      </div>
       <StartMenu $display={displayStart}>
         <TextBar>Transcendence95</TextBar>
         <StyledUl>
@@ -276,7 +295,7 @@ const Taskbar: React.FC = () => {
             Leaderboard
           </StyledLi>
           <Seperator />
-          <StyledLi>
+          <StyledLi onClick={() => handleLogout()}>
             <img
               src={require("../../images/door.png")}
               height="16"
@@ -315,6 +334,21 @@ const Taskbar: React.FC = () => {
           />
           Chat
         </TaskButton>
+        <ul style={{ listStyle: "none", display: "inline-flex" }}>
+          <RoutesLi style={{}}>Links to old Routes : </RoutesLi>
+          <RoutesLi style={{ padding: 10 }}>
+            <Link to={"/home"}>Home</Link>
+          </RoutesLi>
+          <RoutesLi style={{ padding: 10 }}>
+            <Link to={"/chat"}>Chat</Link>
+          </RoutesLi>
+          <RoutesLi style={{ padding: 10 }}>
+            <Link to={"/login"}>Login</Link>
+          </RoutesLi >
+          {auth.user.intraname !== undefined && <RoutesLi>
+            <Link to={`/profile/${auth.user.name}`}>My Profile</Link>
+          </RoutesLi>}
+        </ul>
       </StyledNavbar>
     </>
   );
