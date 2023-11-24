@@ -4,6 +4,8 @@ import { AuthContext, IUser } from "../context/auth";
 import Input from "../components/input/Input";
 import Button from "../components/button";
 
+export const BACKEND: string = `http://${window.location.hostname}:${4000}`;
+
 const SetUser: React.FC = () => {
   const nav = useNavigate();
   const location = useLocation();
@@ -11,7 +13,6 @@ const SetUser: React.FC = () => {
   const [twoFaCode, setTwoFaCode] = useState("");
   const [user, setUser] = useState<IUser>();
   const auth = useContext(AuthContext);
-  const BACKEND: string = `http://${window.location.hostname}:${4000}`;
 
   const handleTwoFaCodeSubmit = async (): Promise<void> => {
     try {
@@ -34,7 +35,7 @@ const SetUser: React.FC = () => {
           name: user.name,
           intraname: user.name,
           twoFAenabled: user.twoFAenabled,
-          image: user.image,
+          profilePictureUrl: user.profilePictureUrl,
           activeChats: user.activeChats,
         });
         setRedirect(true);
@@ -42,7 +43,7 @@ const SetUser: React.FC = () => {
         alert("Wrong 2FA Code");
       }
     } catch {
-      console.log("error");
+      console.error("error");
     }
   };
 
@@ -66,18 +67,18 @@ const SetUser: React.FC = () => {
               name: resUser.name,
               intraname: resUser.name,
               twoFAenabled: resUser.twoFAenabled,
-              image: resUser.profilePictureUrl,
+              profilePictureUrl: resUser.profilePictureUrl,
               activeChats: resUser.activeChats,
             });
             setRedirect(true);
           }
         });
     }
-  }, [location.search, auth]);
+  }, [location.search, auth]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (redirect) {
-      nav(`/profile/${user?.name}`);
+      nav(`/test`); //TODO change later for login redirect
     }
   }, [nav, redirect, user?.name]);
 

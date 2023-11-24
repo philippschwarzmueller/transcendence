@@ -8,21 +8,23 @@ import properties, {
 import Centerdiv from "../centerdiv";
 import Gamecanvas from "../gamecanvas/Gamecanvas";
 import {
+  clearAllCanvas,
   drawErrorScreen,
   drawGame,
   fetchAndDrawFinishedGame,
 } from "./drawFunctions";
 import { useParams } from "react-router-dom";
-import { EGamemode } from "../queue/Queue";
+import { EGamemode } from "../queuebutton/Queuebutton";
 import { SocketContext } from "../../context/socket";
 import { Socket } from "socket.io-client";
-import { AuthContext, IUser } from "../../context/auth";
+import { AuthContext, IAuthContext } from "../../context/auth";
 import { setKeyEventListener } from "./keyboardinput";
 import {
   calculateWindowproperties,
   getWindowDimensions,
   resizeCanvas,
 } from "./windowresizing";
+import { validateToken } from "../../routes/PrivateRoute";
 
 export interface IGameCanvas {
   background: React.MutableRefObject<HTMLCanvasElement>;
@@ -58,7 +60,7 @@ const GameWindow: React.FC = () => {
   const gameInterval: React.MutableRefObject<
     ReturnType<typeof setInterval> | undefined
   > = useRef<ReturnType<typeof setInterval>>();
-  const localUser: IUser = useContext(AuthContext).user;
+  const auth: IAuthContext = useContext(AuthContext);
   const socket: Socket = useContext(SocketContext);
   const gamemode: React.MutableRefObject<EGamemode> = useRef(
     EGamemode.standard
@@ -86,7 +88,7 @@ const GameWindow: React.FC = () => {
       side: params.side !== undefined ? params.side : "viewer",
       keystate: keystateRef.current,
       gameId: gameId,
-      user: localUser,
+      user: auth.user,
     };
 
     if (socket.connected) {
@@ -101,7 +103,9 @@ const GameWindow: React.FC = () => {
   };
 
   useEffect(() => {
+    validateToken(auth);
     handleWindowResize();
+    clearAllCanvas(gameCanvas);
 
     socket.emit("isGameRunning", gameId, (isGameRunning: boolean) => {
       if (!isGameRunning) {
@@ -121,13 +125,15 @@ const GameWindow: React.FC = () => {
       gamemode.current = gamemodeRemote;
     });
 
-    socket.on("endgame", () => {
-      finishGame(gameInterval.current);
-      socket.emit("getGameData", gameId, (res: IGame) => {
-        gameStateRef.current = res;
-        navigateToEndScreen.current = true;
-      });
-      fetchAndDrawFinishedGame(socket, gameId, gameCanvas.endScreen);
+    socket.on("endgame", (res: string) => {
+      if (res === gameId) {
+        finishGame(gameInterval.current);
+        socket.emit("getGameData", gameId, (res: IGame) => {
+          gameStateRef.current = res;
+          navigateToEndScreen.current = true;
+        });
+        fetchAndDrawFinishedGame(socket, gameId, gameCanvas.endScreen);
+      }
     });
 
     setKeyEventListener(keystateRef);
@@ -139,7 +145,7 @@ const GameWindow: React.FC = () => {
       window.removeEventListener("resize", handleWindowResize);
       finishGame(gameInterval.current);
     };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [params, auth]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <>

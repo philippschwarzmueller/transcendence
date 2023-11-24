@@ -44,16 +44,45 @@ export interface IGame {
   pointsRight: number;
   keyStateLeft: IKeyState;
   keyStateRight: IKeyState;
-  winner?: IUser;
-  looser?: IUser;
   isFinished: boolean;
 }
 
 export interface IUser {
-  id: number | undefined;
+  id?: number | undefined;
+  name?: string | undefined;
+  intraname?: string | undefined;
+  twoFAenabled?: boolean;
+  image?: string | undefined;
+  token?: string | undefined;
+  activeChats?: string[];
+}
+
+export interface IGameUserAuth {
+  user: IUserAuth;
+  socket: Gamesocket;
+}
+
+export interface IUserAuth {
+  id?: number | undefined;
   name: string | undefined;
+  intraname: string | undefined;
   image: string | undefined;
-  token: string | undefined;
+  token?: string | undefined;
+  activeChats: string[];
+}
+
+export interface IGameUserAuth {
+  user: IUserAuth;
+  socket: Gamesocket;
+}
+
+export interface IUserAuth {
+  id?: number | undefined;
+  name: string | undefined;
+  intraname: string | undefined;
+  image: string | undefined;
+  token?: string | undefined;
+  activeChats: string[];
 }
 
 export interface IBall {

@@ -6,7 +6,7 @@ const Chat: React.FC = () => {
   return (
     <>
       <Pagetitle>Chat</Pagetitle>
-      <Chatwindow />
+      <Chatwindow $display={true} />
     </>
   );
 };

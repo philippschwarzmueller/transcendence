@@ -28,16 +28,15 @@ const Form = styled.form`
 `;
 
 export interface FormProps {
-  children: React.ReactNode
+  children: React.ReactNode;
 }
 
-const StyledForm: React.FC<FormProps> = (props : FormProps) => {
-
+const StyledForm: React.FC<FormProps> = (props: FormProps) => {
   return (
     <>
-      <Form> { props.children } </Form>
+      <Form> {props.children} </Form>
     </>
-  )
-}
+  );
+};
 
 export default StyledForm;

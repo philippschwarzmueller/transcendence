@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Get,
   HttpException,
@@ -6,9 +7,13 @@ import {
   Param,
   Query,
   Put,
+  Post,
+  Req,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from './user.entity';
+import { Request } from 'express';
+import { FriendState } from './users.service';
 
 @Controller('users')
 export class UsersController {
@@ -16,6 +21,11 @@ export class UsersController {
   @Get()
   findAll(): Promise<User[]> {
     return this.usersService.findAll();
+  }
+
+  @Get('names')
+  findAllNames(): Promise<string[]> {
+    return this.usersService.findAllNames();
   }
 
   @Get(':userId')
@@ -30,7 +40,124 @@ export class UsersController {
   }
 
   @Put()
-  async block(@Query('blocking') blocking: string, @Query('blocked') blocked: string): Promise<void> {
+  async block(
+    @Query('blocking') blocking: string,
+    @Query('blocked') blocked: string,
+  ): Promise<void> {
     return this.usersService.addToBlockList(blocking, blocked);
+  }
+
+  @Post('send-friend-request')
+  async sendFriendRequest(
+    @Body() body: { friend: string },
+    @Req() req: Request,
+  ): Promise<boolean> {
+    const token: string = req.cookies.token;
+    const user: User | null =
+      await this.usersService.exchangeTokenforUser(token);
+    const friend: User | null = await this.usersService.findOneByName(
+      body.friend,
+    );
+    if (user === null || friend === null) {
+      return false;
+    }
+    return await this.usersService.addFriend(user, friend);
+  }
+
+  @Post('get-pending-friend-requests')
+  async getPendingFriendRequests(@Req() req: Request): Promise<User[]> {
+    const token: string = req.cookies.token;
+    const user: User | null =
+      await this.usersService.exchangeTokenforUser(token);
+    const pendingUsers: User[] = await this.usersService.getFriendRequestList(
+      user.name,
+    );
+    return pendingUsers;
+  }
+
+  @Post('get-received-friend-requests')
+  async getReceivedFriendRequests(@Req() req: Request): Promise<User[]> {
+    const token: string = req.cookies.token;
+    const user: User | null =
+      await this.usersService.exchangeTokenforUser(token);
+    const ReceivedFriendRequestsFromUsers: User[] =
+      await this.usersService.getReceivedFriendRequestList(user.name);
+    return ReceivedFriendRequestsFromUsers;
+  }
+
+  @Post('accept-friend-request')
+  async acceptFriendRequest(
+    @Body() body: { friend: string },
+    @Req() req: Request,
+  ): Promise<boolean> {
+    const token: string = req.cookies.token;
+    const user: User | null =
+      await this.usersService.exchangeTokenforUser(token);
+    const friend: User | null = await this.usersService.findOneByName(
+      body.friend,
+    );
+    if (user === null || friend === null) {
+      return false;
+    }
+    return await this.usersService.acceptFriendRequest(user, friend);
+  }
+
+  @Post('get-friends')
+  async getFriends(@Req() req: Request): Promise<User[]> {
+    const token: string = req.cookies.token;
+    const user: User | null =
+      await this.usersService.exchangeTokenforUser(token);
+    const friendList: User[] = await this.usersService.getFriendList(user.name);
+    return friendList;
+  }
+
+  @Post('remove-friend')
+  async removeFriend(
+    @Body() body: { friend: string },
+    @Req() req: Request,
+  ): Promise<boolean> {
+    const token: string = req.cookies.token;
+    const user: User | null =
+      await this.usersService.exchangeTokenforUser(token);
+    const friend: User | null = await this.usersService.findOneByName(
+      body.friend,
+    );
+    if (user === null || friend === null) {
+      return false;
+    }
+    return await this.usersService.removeFriend(user, friend);
+  }
+
+  @Post('get-friend-state')
+  async getFriendState(
+    @Body() body: { name: string },
+    @Req() req: Request,
+  ): Promise<FriendState> {
+    const token: string = req.cookies.token;
+    const user: User | null =
+      await this.usersService.exchangeTokenforUser(token);
+    const friend: User | null = await this.usersService.findOneByName(
+      body.name,
+    );
+    return await this.usersService.getFriendState(user.name, friend.name);
+  }
+
+  @Post('change-avatar')
+  async changeAvatar(
+    @Body() body: { avatar: string },
+    @Req() req: Request,
+  ): Promise<boolean> {
+    const token: string = req.cookies.token;
+    const user: User | null =
+      await this.usersService.exchangeTokenforUser(token);
+    return await this.usersService.changeAvatar(user.name, body.avatar);
+  }
+
+  @Post('get-custom-avatar')
+  async getCustomAvatar(@Req() req: Request): Promise<string> {
+    const token: string = req.cookies.token;
+    const user: User | null =
+      await this.usersService.exchangeTokenforUser(token);
+    return await this.usersService.getCustomAvatar(user.name);
   }
 }

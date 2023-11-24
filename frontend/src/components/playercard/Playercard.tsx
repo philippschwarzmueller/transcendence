@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import Avatar from "../avatar";
 import ContextMenu from "../contextmenu/ContextMenu";
-import { IUser } from "../../routes/Profile";
 
 const StyledDiv = styled.div`
   text-align: center;
@@ -32,9 +31,18 @@ const StyledDiv = styled.div`
     box-shadow: inset 0 0 0 1px rgb(134, 138, 142), 0 0 0 1px rgb(0, 0, 0);
   }
 `;
+interface PlayerCardProps {
+  name: string | undefined;
+  id: number | undefined;
+  profilePictureUrl: string | undefined;
+  triggerReload: () => void;
+}
 
-
-const PlayerCard: React.FC<IUser> = ({ name, profilePictureUrl }) => {
+const PlayerCard: React.FC<PlayerCardProps> = ({
+  name,
+  profilePictureUrl,
+  triggerReload,
+}) => {
   let [showContext, setShowContext] = useState<boolean>(false);
   let [x, setX] = useState<number>(0);
   let [y, setY] = useState<number>(0);
@@ -43,6 +51,7 @@ const PlayerCard: React.FC<IUser> = ({ name, profilePictureUrl }) => {
     setY(e.pageY);
     setShowContext(!showContext);
   }
+
   return (
     <>
       <StyledDiv onClick={(e) => openContextMenu(e)}>
@@ -57,7 +66,8 @@ const PlayerCard: React.FC<IUser> = ({ name, profilePictureUrl }) => {
         display={showContext}
         positionX={x}
         positionY={y}
-        link={name}
+        name={name}
+        triggerReload={triggerReload}
       />
     </>
   );

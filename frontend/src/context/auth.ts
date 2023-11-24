@@ -5,9 +5,10 @@ export interface IUser {
   name: string | undefined;
   intraname: string | undefined;
   twoFAenabled: boolean;
-  image: string | undefined;
+  profilePictureUrl: string | undefined;
   token?: string | undefined;
   activeChats: string[];
+  hasCustomAvatar?: boolean;
 }
 
 let default_user: IUser = {
@@ -15,9 +16,10 @@ let default_user: IUser = {
   name: undefined,
   intraname: undefined,
   twoFAenabled: false,
-  image: undefined,
+  profilePictureUrl: undefined,
   token: undefined,
   activeChats: [],
+  hasCustomAvatar: false,
 };
 
 export interface IAuthContext {

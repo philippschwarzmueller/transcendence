@@ -12,6 +12,7 @@ import Profile from "./routes/Profile";
 import ProfileSettings from "./routes/ProfileSettings";
 import SetUser from "./routes/SetUser";
 import PrivateRoute from "./routes/PrivateRoute";
+import Test from "./routes/test";
 
 function App() {
   return (
@@ -19,14 +20,7 @@ function App() {
       <Route path="/" element={<Root />} errorElement={<ErrorPage />}>
         <Route index element={<Home />} />
         <Route path="home" element={<Home />} />
-        <Route
-          path="play"
-          element={
-            <PrivateRoute>
-              <Game />
-            </PrivateRoute>
-          }
-        >
+        <Route path="play" element={<Game />}>
           <Route path=":gameId" element={<Game />}>
             <Route path=":side" element={<Game />} />
           </Route>
@@ -41,12 +35,27 @@ function App() {
         />
         <Route path="signup" element={<SignUp />} />
         <Route path="login" element={<Login />} />
-        <Route path="profile" element={<Profile />}>
+        <Route
+          path="profile"
+          element={
+            <PrivateRoute>
+              <Profile />
+            </PrivateRoute>
+          }
+        >
           <Route path=":userId" element={<Profile />} />
         </Route>
         <Route path="profile/settings" element={<ProfileSettings />} />
         <Route path="queue" element={<Queue />} />
         <Route path="set-user" element={<SetUser />} />
+        <Route
+          path="test"
+          element={
+            <PrivateRoute>
+              <Test />
+            </PrivateRoute>
+          }
+        />
       </Route>
     </Routes>
   );

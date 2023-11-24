@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
+import { AuthContext } from "../../context/auth";
+import { BACKEND } from "../../routes/SetUser";
 
 interface IProfilePicture {
   name?: string;
@@ -17,11 +19,51 @@ const ProfilePicture: React.FC<IProfilePicture> = ({
   profilePictureUrl,
   name,
 }) => {
-  return (
-    <div>
-      <StyledProfilePicture src={profilePictureUrl} alt={`${name}'s avatar`} />
-    </div>
-  );
+  const [customAvatar, setCustomAvatar] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const auth = useContext(AuthContext);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!auth.user.hasCustomAvatar) {
+        setIsLoading(false);
+      } else {
+        try {
+          const res: Response = await fetch(
+            `${BACKEND}/users/get-custom-avatar`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              credentials: "include",
+            }
+          );
+          if (!res.ok) {
+            throw new Error(`HTTP error! Status: ${res.status}`);
+          }
+          setCustomAvatar(await res.text());
+          setIsLoading(false);
+        } catch (error) {
+          console.error("fetching avatar failed", error);
+        }
+      }
+    };
+    fetchData();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  } else {
+    return (
+      <div>
+        <StyledProfilePicture
+          src={customAvatar || profilePictureUrl}
+          alt={`${name}'s avatar`}
+        />
+      </div>
+    );
+  }
 };
 
 export default ProfilePicture;
