@@ -7,6 +7,7 @@ import { AuthContext, IAuthContext } from "../../context/auth";
 const StyledUl = styled.ul<{ $display: boolean; $posX: number; $posY: number }>`
   display: ${(props) => (props.$display ? "" : "none")};
   position: absolute;
+  z-index: 600;
   left: ${(props) => props.$posX + "px"};
   top: ${(props) => props.$posY + "px"};
   list-style-type: none;
@@ -15,8 +16,10 @@ const StyledUl = styled.ul<{ $display: boolean; $posX: number; $posY: number }>`
   margin-block-start: 0px;
   margin-inline-start: 0px;
   padding-inline-start: 0px;
-  box-shadow: rgb(255, 255, 255) 1px 1px 0px 1px inset,
-    rgb(134, 138, 142) 0px 0px 0px 1px inset, rgb(0, 0, 0) 1px 1px 0px 1px;
+  box-shadow:
+    rgb(255, 255, 255) 1px 1px 0px 1px inset,
+    rgb(134, 138, 142) 0px 0px 0px 1px inset,
+    rgb(0, 0, 0) 1px 1px 0px 1px;
 `;
 
 const LineLi = styled.li`
@@ -41,7 +44,7 @@ export interface IContextMenu {
   positionX: number;
   positionY: number;
   name: string | undefined;
-  triggerReload: () => void;
+  triggerReload?: () => void;
 }
 
 export enum FriendState {
@@ -59,12 +62,13 @@ const ContextMenu: React.FC<IContextMenu> = ({
   triggerReload,
 }) => {
   const [friendState, setFriendState] = useState<FriendState>(
-    FriendState.noFriend
+    FriendState.noFriend,
   );
   const [ownProfile, setOwnProfile] = useState<boolean>(false);
   let [isLoading, setIsLoading] = useState<boolean>(true);
   const auth: IAuthContext = useContext(AuthContext);
   const [, setRefreshFlag] = useState(false);
+
   const handleFriendAccept = async (friend: string | undefined) => {
     if (friend !== undefined) {
       try {
@@ -84,7 +88,7 @@ const ContextMenu: React.FC<IContextMenu> = ({
         const success: boolean = await res.json();
         if (success) {
           setFriendState(FriendState.friend);
-          triggerReload();
+          if (triggerReload) triggerReload();
           refreshContextMenu();
         } else {
           alert("An Error occured, please reload the page to update data");
@@ -114,7 +118,7 @@ const ContextMenu: React.FC<IContextMenu> = ({
         const success: boolean = await res.json();
         if (success) {
           setFriendState(FriendState.noFriend);
-          triggerReload();
+          if (triggerReload) triggerReload();
           refreshContextMenu();
         } else {
           alert("An Error occured, please reload the page to update data");
@@ -144,7 +148,7 @@ const ContextMenu: React.FC<IContextMenu> = ({
         const success: boolean = await res.json();
         if (success) {
           setFriendState(FriendState.pendingFriend);
-          triggerReload();
+          if (triggerReload) triggerReload();
           refreshContextMenu();
         } else {
           alert("An Error occured, please reload the page to update data");

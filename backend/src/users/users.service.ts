@@ -35,6 +35,13 @@ export class UsersService {
     }
   }
 
+  async findAllNames(): Promise<string[]> {
+    const res: User[] = await this.usersRepository.find();
+    return res.map((item) => {
+      return item.name;
+    });
+  }
+
   //User for Token
 
   async exchangeTokenforUser(frontendToken: string): Promise<User | null> {

@@ -1,6 +1,5 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
-import Nav from "../components/nav";
 import GlobalStyle from "./GlobalStyle";
 import { AuthContext, IUser } from "../context/auth";
 import { SocketContext, awSocket } from "../context/socket";
@@ -37,7 +36,6 @@ const Root: React.FC = () => {
         <SocketContext.Provider value={awSocket}>
           <RefreshProvider>
             <GlobalStyle />
-            <Nav />
             <Outlet />
           </RefreshProvider>
         </SocketContext.Provider>

@@ -85,7 +85,10 @@ const StyledUl = styled.ul`
   list-style: none;
 `;
 
-const Chatwindow: React.FC = () => {
+const Chatwindow: React.FC<{ $display: boolean, z?: number }> = ({
+  $display,
+  z,
+}) => {
   const [messages, setMessages] = useState<string[]>([]);
   const [input, setInput] = useState<string>("");
   const user: IUser = useContext(AuthContext).user;
@@ -115,9 +118,10 @@ const Chatwindow: React.FC = () => {
         }
         return response.json();
       })
-      .then((res: string[]) => setTabs(res)).catch(error => console.log(error));
+      .then((res: string[]) => setTabs(res))
+      .catch((error) => console.log(error));
     setRoom(tabs[tabs.length - 1]);
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     socket.emit(
@@ -135,7 +139,7 @@ const Chatwindow: React.FC = () => {
         inline: "nearest",
       }),
     [messages],
-  );
+  ); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     setTabs(tabs);
@@ -164,7 +168,13 @@ const Chatwindow: React.FC = () => {
       >
         Create
       </Popup>
-      <Moveablewindow>
+      <Moveablewindow
+        title="Chat"
+        positionX={200}
+        positionY={200}
+        positionZ={z}
+        display={$display}
+      >
         <Tabbar>
           {tabs.map((tab) => {
             return (
