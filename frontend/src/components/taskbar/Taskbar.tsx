@@ -10,6 +10,7 @@ import Profilesettings from "../profilesettings/Profilesettings";
 import Profilewindow from "../profilewindow/Profilewindow";
 import Queuebox from "../queuebox/Queuebox";
 import Userbrowser from "../userbrowser";
+import Queuepopwindow from "../queuepopwindow";
 
 const StyledNavbar = styled.nav`
   width: 100vw;
@@ -19,12 +20,8 @@ const StyledNavbar = styled.nav`
   position: absolute;
   bottom: 0;
   background-color: rgb(195, 199, 203);
-  box-shadow:
-    inset 0.5px 0.5px 0px 0.5px #ffffff,
-    inset 0 0 0 1px #868a8e,
-    1px 0px 0 0px #000000,
-    0px 1px 0 0px #000000,
-    1px 1px 0 0px #000000;
+  box-shadow: inset 0.5px 0.5px 0px 0.5px #ffffff, inset 0 0 0 1px #868a8e,
+    1px 0px 0 0px #000000, 0px 1px 0 0px #000000, 1px 1px 0 0px #000000;
   align-items: center;
 `;
 
@@ -48,9 +45,7 @@ const TaskButton = styled.button<{ $active: boolean }>`
     padding: 8 20 4;
     background-color: rgb(215, 216, 220);
 
-    box-shadow:
-      inset 0 0 0 1px rgb(134, 138, 142),
-      0 0 0 1px rgb(0, 0, 0);
+    box-shadow: inset 0 0 0 1px rgb(134, 138, 142), 0 0 0 1px rgb(0, 0, 0);
   }
   box-shadow: ${(props) =>
     props.$active
@@ -66,12 +61,8 @@ const StartMenu = styled.div<{ $display: boolean }>`
   left: 2px;
   z-index: 4;
   background-color: rgb(195, 199, 203);
-  box-shadow:
-    inset 0.5px 0.5px 0px 0.5px #ffffff,
-    inset 0 0 0 1px #868a8e,
-    1px 0px 0 0px #000000,
-    0px 1px 0 0px #000000,
-    1px 1px 0 0px #000000;
+  box-shadow: inset 0.5px 0.5px 0px 0.5px #ffffff, inset 0 0 0 1px #868a8e,
+    1px 0px 0 0px #000000, 0px 1px 0 0px #000000, 1px 1px 0 0px #000000;
   user-select: none;
 `;
 
@@ -129,12 +120,12 @@ enum Windows {
   Chat = 3,
   Users = 4,
   Leaderboard = 5,
+  Queuepopwindow = 6,
 }
-  
+
 const RoutesLi = styled.li`
   padding: 10px;
 `;
-
 
 const Taskbar: React.FC = () => {
   let auth = useContext(AuthContext);
@@ -146,8 +137,10 @@ const Taskbar: React.FC = () => {
   const [displayProfile, setDisplayProfile] = useState<boolean>(false);
   const [displayProfileSettings, setDisplayProfileSettings] =
     useState<boolean>(false);
+  const [displayQueuepopwindow, setDiplayQueuepopwindow] =
+    useState<boolean>(true);
   const [displayOrder, setDisplayOrder] = useState<number[]>([
-    0, 10, 20, 30, 40, 50,
+    0, 10, 20, 30, 40, 50, 60,
   ]);
 
   const handleLogout = async () => {
@@ -168,6 +161,9 @@ const Taskbar: React.FC = () => {
       pos === Windows.Chat ? 50 : displayOrder[Windows.Chat] - 10,
       pos === Windows.Users ? 50 : displayOrder[Windows.Users] - 10,
       pos === Windows.Leaderboard ? 50 : displayOrder[Windows.Leaderboard] - 10,
+      pos === Windows.Queuepopwindow
+        ? 50
+        : displayOrder[Windows.Queuepopwindow] - 10,
     ]);
   }
 
@@ -214,6 +210,9 @@ const Taskbar: React.FC = () => {
           $display={displayLeaderboard}
           z={displayOrder[Windows.Leaderboard]}
         />
+      </div>
+      <div onClick={() => changeOrder(Windows.Queuepopwindow)}>
+        <Queuepopwindow></Queuepopwindow>
       </div>
       <StartMenu $display={displayStart}>
         <TextBar>Transcendence95</TextBar>
@@ -344,10 +343,12 @@ const Taskbar: React.FC = () => {
           </RoutesLi>
           <RoutesLi style={{ padding: 10 }}>
             <Link to={"/login"}>Login</Link>
-          </RoutesLi >
-          {auth.user.intraname !== undefined && <RoutesLi>
-            <Link to={`/profile/${auth.user.name}`}>My Profile</Link>
-          </RoutesLi>}
+          </RoutesLi>
+          {auth.user.intraname !== undefined && (
+            <RoutesLi>
+              <Link to={`/profile/${auth.user.name}`}>My Profile</Link>
+            </RoutesLi>
+          )}
         </ul>
       </StyledNavbar>
     </>
