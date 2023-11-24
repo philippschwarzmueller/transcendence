@@ -38,14 +38,14 @@ export class UsersController {
   }
   @Post('send-friend-request')
   async sendFriendRequest(
-    @Body() body: { requestedFriend: string },
+    @Body() body: { friend: string },
     @Req() req: Request,
   ): Promise<boolean> {
     const token: string = req.cookies.token;
     const user: User | null =
       await this.usersService.exchangeTokenforUser(token);
     const friend: User | null = await this.usersService.findOneByName(
-      body.requestedFriend,
+      body.friend,
     );
     if (user === null || friend === null) {
       return false;
@@ -132,5 +132,24 @@ export class UsersController {
       body.name,
     );
     return await this.usersService.getFriendState(user.name, friend.name);
+  }
+
+  @Post('change-avatar')
+  async changeAvatar(
+    @Body() body: { avatar: string },
+    @Req() req: Request,
+  ): Promise<boolean> {
+    const token: string = req.cookies.token;
+    const user: User | null =
+      await this.usersService.exchangeTokenforUser(token);
+    return await this.usersService.changeAvatar(user.name, body.avatar);
+  }
+
+  @Post('get-custom-avatar')
+  async getCustomAvatar(@Req() req: Request): Promise<string> {
+    const token: string = req.cookies.token;
+    const user: User | null =
+      await this.usersService.exchangeTokenforUser(token);
+    return await this.usersService.getCustomAvatar(user.name);
   }
 }

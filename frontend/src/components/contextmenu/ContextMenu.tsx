@@ -1,8 +1,8 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import { Link, useNavigate } from "react-router-dom";
 import { BACKEND } from "../../routes/SetUser";
-import { AuthContext, IUser } from "../../context/auth";
+import { AuthContext, IUser, IAuthContext } from "../../context/auth";
 import { EChannelType, IChannel } from "../chatwindow/properties";
 import { SocketContext } from "../../context/socket";
 
@@ -45,44 +45,47 @@ export interface IContextMenu {
   display: boolean;
   positionX: number;
   positionY: number;
-  link: string | undefined;
-  isFriendIncoming: boolean;
-  isPendingFriendIncoming: boolean;
+  name: string | undefined;
   triggerReload: () => void;
+}
+
+export enum FriendState {
+  noFriend,
+  requestedFriend,
+  pendingFriend,
+  friend,
 }
 
 const ContextMenu: React.FC<IContextMenu> = ({
   display,
   positionX,
   positionY,
-  link,
-  isFriendIncoming,
-  isPendingFriendIncoming,
+  name,
   triggerReload,
 }) => {
-  const [isFriend, setIsFriend] = useState<boolean>(isFriendIncoming);
-  const [isPendingFriend, setIsPendingFriend] = useState<boolean>(
-    isPendingFriendIncoming,
+  const [friendState, setFriendState] = useState<FriendState>(
+    FriendState.noFriend,
   );
-  const auth = useContext(AuthContext).user;
+  const [ownProfile, setOwnProfile] = useState<boolean>(false);
+  let [isLoading, setIsLoading] = useState<boolean>(true);
+  const auth: IAuthContext = useContext(AuthContext);
+  const [, setRefreshFlag] = useState(false);
+  const user = useContext(AuthContext).user;
   const navigate = useNavigate();
   const socket = useContext(SocketContext);
 
   const startChat = () => {
     const body: IChannel = {
-      user: auth,
+      user: user,
       type: EChannelType.CHAT,
       id: 0,
-      title: link,
+      title: name,
     };
     socket.emit("create", body);
     navigate("/chat");
   };
 
-  const handleFriendAccept = async (
-    friend: string | undefined,
-    isPendingFriend: boolean | undefined,
-  ) => {
+  const handleFriendAccept = async (friend: string | undefined) => {
     if (friend !== undefined) {
       try {
         const res = await fetch(`${BACKEND}/users/accept-friend-request`, {
@@ -100,8 +103,9 @@ const ContextMenu: React.FC<IContextMenu> = ({
 
         const success: boolean = await res.json();
         if (success) {
-          setIsPendingFriend(false);
+          setFriendState(FriendState.friend);
           triggerReload();
+          refreshContextMenu();
         }
       } catch (error) {
         console.error("Error accepting friend request:", error);
@@ -109,10 +113,7 @@ const ContextMenu: React.FC<IContextMenu> = ({
     }
   };
 
-  const handleFriendRemove = async (
-    friend: string | undefined,
-    isFriend: boolean,
-  ) => {
+  const handleFriendRemove = async (friend: string | undefined) => {
     if (friend !== undefined) {
       try {
         const res = await fetch(`${BACKEND}/users/remove-friend`, {
@@ -130,8 +131,9 @@ const ContextMenu: React.FC<IContextMenu> = ({
 
         const success: boolean = await res.json();
         if (success) {
-          setIsFriend(false);
+          setFriendState(FriendState.noFriend);
           triggerReload();
+          refreshContextMenu();
         }
       } catch (error) {
         console.error("Error accepting friend request:", error);
@@ -139,33 +141,117 @@ const ContextMenu: React.FC<IContextMenu> = ({
     }
   };
 
+  const handleFriendAdd = async (friend: string | undefined) => {
+    if (friend !== undefined) {
+      try {
+        const res = await fetch(`${BACKEND}/users/send-friend-request`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ friend }),
+          credentials: "include",
+        });
+
+        if (!res.ok) {
+          throw new Error("Network response was not ok");
+        }
+
+        const success: boolean = await res.json();
+        if (success) {
+          setFriendState(FriendState.pendingFriend);
+          triggerReload();
+          refreshContextMenu();
+        }
+      } catch (error) {
+        console.error("Error sending friend request", error);
+      }
+    }
+  };
+
+  const fetchFriendData = async () => {
+    try {
+      const res: Response = await fetch(`${BACKEND}/users/get-friend-state`, {
+        method: "Post",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ name }),
+      });
+      if (!res.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const friendState: FriendState = await res.json();
+      setFriendState(friendState);
+      if (auth.user.name === name) {
+        setOwnProfile(true);
+      }
+    } catch (error) {
+      console.error("Error fetching pendingFriendRequests:", error);
+    }
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      await fetchFriendData();
+      setIsLoading(false);
+    };
+    fetchData();
+  }, [friendState]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const refreshContextMenu = () => {
+    setRefreshFlag((prev) => !prev);
+  };
+
+  if (isLoading) {
+    return <div></div>;
+  }
+
   return (
     <>
       <StyledUl $display={display} $posX={positionX} $posY={positionY}>
-        {isPendingFriend && (
-          <OptionLi onClick={() => handleFriendAccept(link, isPendingFriend)}>
+        {/* PENDING FRIEND */}
+        {friendState === FriendState.pendingFriend && (
+          <OptionLi onClick={() => handleFriendAccept(name)}>
             👥 Accept friend request
           </OptionLi>
         )}
-        {isPendingFriend && <LineLi />}
-        {link !== undefined && (
-          <Link to={`/profile/${link}`}>
+        {friendState === FriendState.pendingFriend && <LineLi />}
+        {/* NO FRIEND */}
+        {friendState === FriendState.noFriend && !ownProfile && (
+          <OptionLi onClick={() => handleFriendAdd(name)}>
+            👨‍❤️‍💋‍👨 Add as friend
+          </OptionLi>
+        )}
+        {friendState === FriendState.noFriend && <LineLi />}
+        {/* REQUESTED FRIEND */}
+        {friendState === FriendState.requestedFriend && !ownProfile && (
+          <OptionLi>👀 Friend request pending</OptionLi>
+        )}
+        {friendState === FriendState.requestedFriend && <LineLi />}
+        {name !== undefined && (
+          <Link to={`/profile/${name}`}>
             <OptionLi>👤 Visit Profile</OptionLi>
           </Link>
         )}
         <LineLi />
-        <OptionLi>🏓 Challenge to Game</OptionLi>
-        <LineLi />
-        <OptionLi onClick={() => startChat()}>💬 Start Chat</OptionLi>
-        <LineLi />
-        {isFriend && (
-          <OptionLi onClick={() => handleFriendRemove(link, isFriend)}>
+        {!ownProfile && <OptionLi>🏓 Challenge to Game</OptionLi>}
+        {!ownProfile && <LineLi />}
+        {!ownProfile && (
+          <OptionLi onClick={() => startChat()}>💬 Start Chat</OptionLi>
+        )}
+        {!ownProfile && <LineLi />}
+        {/* FRIEND */}
+        {friendState === FriendState.friend && (
+          <OptionLi onClick={() => handleFriendRemove(name)}>
             ❌ Remove friend
           </OptionLi>
         )}
-        {isFriend && <LineLi />}
-        <OptionLi>🚫 Block User</OptionLi>
-        <LineLi />
+        {friendState === FriendState.friend && <LineLi />}
+        {!ownProfile && <OptionLi>🚫 Block User</OptionLi>}
+        {!ownProfile && <LineLi />}
       </StyledUl>
     </>
   );

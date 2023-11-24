@@ -120,4 +120,7 @@ export class User {
     default: [1000, 1000, 1000, 1000, 1000],
   })
   elo: number[];
+
+  @Column('text', { nullable: true })
+  upladedAvatar: string;
 }
