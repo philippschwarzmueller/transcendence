@@ -160,7 +160,6 @@ export class AuthService {
 
     if (response instanceof Response && response.ok) {
       const data: TokenResponse = await response.json();
-      console.log(data);
       return data;
     } else {
       throw new Error('Failed to fetch');
