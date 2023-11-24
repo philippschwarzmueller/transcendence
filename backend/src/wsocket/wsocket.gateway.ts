@@ -15,9 +15,10 @@ import {
   IGameUser,
   IGameUserAuth,
   IQueuePayload,
+  IUser,
 } from '../games/properties';
 
-import { IChannel, IMessage, ITab } from '../chat/properties';
+import { EChannelType, IChannel, IMessage, ITab } from '../chat/properties';
 import { Socket, Server } from 'socket.io';
 import { GamesService } from '../games/games.service';
 import { ChatService } from 'src/chat/chat.service';
@@ -44,6 +45,19 @@ export class WSocketGateway implements OnGatewayInit {
   @WebSocketServer()
   server: Server;
 
+  @SubscribeMessage('contact')
+  initConnect(
+    @MessageBody() data: IChannel,
+    @ConnectedSocket() client: Socket,
+  ) {
+    this.chatService.updateActiveClients(data, client);
+  }
+
+  @SubscribeMessage('layoff')
+  breakConnection(@MessageBody() name: string) {
+    this;
+  }
+
   @SubscribeMessage('message')
   async message(@MessageBody() data: IMessage): Promise<void> {
     this.chatService.handleMessage(data, this.server, this.gamesService);
@@ -59,7 +73,10 @@ export class WSocketGateway implements OnGatewayInit {
 
   @SubscribeMessage('create')
   async addChat(@MessageBody() data: IChannel): Promise<ITab[]> {
-    return await this.chatService.addChat(data);
+    if (data.type !== EChannelType.CHAT)
+      return await this.chatService.addChat(data);
+    console.log(data);
+    return await this.chatService.addU2UChat(data, this.server);
   }
 
   @SubscribeMessage('alterGameData')

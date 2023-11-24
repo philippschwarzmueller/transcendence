@@ -100,6 +100,12 @@ const Chatwindow: React.FC = () => {
   const msgField: any = useRef<HTMLCanvasElement | null>(null);
   const roomRef: any = useRef<typeof Popup | null>(null);
 
+  socket.on("connect", () => {
+    socket.emit("contact", { user: user, type: 0, id: 0, title: "" });
+  });
+  socket.on("disconnect", () => {
+    socket.emit("layoff", user.name);
+  });
   socket.on("message", (res: string) => setMessages([...messages, res]));
   socket.on("invite", (res: ITab[]) => setTabs(res));
   socket.on("game", (body: IGameStart) => {
@@ -116,14 +122,21 @@ const Chatwindow: React.FC = () => {
         }
         return response.json();
       })
-      .then((res: ITab[]) => setTabs(res)).catch(error => console.log(error));
+      .then((res: ITab[]) => setTabs(res))
+      .catch((error) => console.log(error));
     if (tabs.length > 0) setRoom(tabs[tabs.length - 1]);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     socket.emit(
       "join",
-      { user: user, type: 0, id: room?.id, title: room?.title, prev: prevRoom?.id },
+      {
+        user: user,
+        type: 0,
+        id: room?.id,
+        title: room?.title,
+        prev: prevRoom?.id,
+      },
       (res: string[]) => setMessages(res),
     );
   }, [room, prevRoom]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -140,8 +153,7 @@ const Chatwindow: React.FC = () => {
 
   useEffect(() => {
     setTabs(tabs);
-    if (tabs.length > 0)
-      setActive(tabs[tabs.length - 1]);
+    if (tabs.length > 0) setActive(tabs[tabs.length - 1]);
   }, [tabs]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function send(event: React.MouseEvent | React.KeyboardEvent) {
@@ -173,12 +185,12 @@ const Chatwindow: React.FC = () => {
         positionY={200}
         positionZ={0}
         display={true}
-        >
+      >
         <Tabbar>
           {tabs.map((tab) => {
             return (
               <StyledLi
-                onClick= {() => setActive(tab)}
+                onClick={() => setActive(tab)}
                 key={tab.title}
                 $active={tab.title === activeTab ? "true" : "false"}
               >
@@ -204,7 +216,7 @@ const Chatwindow: React.FC = () => {
                   return e.title !== activeTab;
                 }),
               );
-              if (tabs.length > 0 ) setActive(tabs[tabs.length - 1]);
+              if (tabs.length > 0) setActive(tabs[tabs.length - 1]);
             }}
             $position="absolute"
             $top="35px"

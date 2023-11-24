@@ -55,6 +55,7 @@ export class ChatDAO {
     const channel: Channels = await this.getChannel(id);
     if (channel.type === EChannelType.CHAT && channel.users.length === 2)
       return;
+    console.log('user kommt bis hier');
     const newUser: User = await this.userService.findOneByName(user);
     const queryRunner = this.dataSource.createQueryRunner();
     queryRunner.connect();
@@ -66,7 +67,10 @@ export class ChatDAO {
     queryRunner.release();
   }
 
-  public async removeUserFromChannel(id: number, userId: string): Promise<void> {
+  public async removeUserFromChannel(
+    id: number,
+    userId: string,
+  ): Promise<void> {
     const channel: Channels = await this.getChannel(id);
     const user: User = await this.userService.findOneByName(userId);
     channel.users = channel.users.filter((u) => u.id !== user.id);
@@ -74,7 +78,10 @@ export class ChatDAO {
   }
 
   public async getChannel(id: number): Promise<Channels> {
-    return await this.channelRepo.findOne({ where: {id: id}, relations: ['users']});
+    return await this.channelRepo.findOne({
+      where: { id: id },
+      relations: ['users'],
+    });
   }
 
   public async getChannelMessages(channelId: number): Promise<Messages[]> {
@@ -108,8 +115,7 @@ export class ChatDAO {
   }
 
   public async getTitle(channel: Channels, userId: number): Promise<string> {
-    if (channel.type !== EChannelType.CHAT)
-      return channel.title;
+    if (channel.type !== EChannelType.CHAT) return channel.title;
     const queryRunner = this.dataSource.createQueryRunner();
     queryRunner.connect();
     const res = await queryRunner.manager.query(
@@ -117,21 +123,24 @@ export class ChatDAO {
       FROM users
       INNER JOIN channel_subscription ON users.id = channel_subscription.user
       WHERE channel_subscription.channel = ${channel.id}
-      AND users.id != ${userId}`
+      AND users.id != ${userId}`,
     );
     queryRunner.release();
-    return res[0].name;
+    if (res && res[0] && res[0].name) return res[0].name;
+    return channel.title;
   }
 
   public async getRawUserChannels(userId: number): Promise<ITab[]> {
     const tmp: Channels[] = await this.getUserChannels(userId);
-    return (await Promise.all(tmp.map(async (item) => {
-      return {
-        type: item.type,
-        id: item.id,
-        title: await this.getTitle(item, userId),
-      };
-    })));
+    return await Promise.all(
+      tmp.map(async (item) => {
+        return {
+          type: item.type,
+          id: item.id,
+          title: await this.getTitle(item, userId),
+        };
+      }),
+    );
   }
 
   public async getChannelOwner(id: number): Promise<User> {

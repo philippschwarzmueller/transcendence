@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { BACKEND } from "../../routes/SetUser";
 import { AuthContext, IUser } from "../../context/auth";
 import { EChannelType, IChannel } from "../chatwindow/properties";
+import { SocketContext } from "../../context/socket";
 
 const StyledUl = styled.ul<{ $display: boolean; $posX: number; $posY: number }>`
   display: ${(props) => (props.$display ? "" : "none")};
@@ -17,8 +18,10 @@ const StyledUl = styled.ul<{ $display: boolean; $posX: number; $posY: number }>`
   margin-block-start: 0px;
   margin-inline-start: 0px;
   padding-inline-start: 0px;
-  box-shadow: rgb(255, 255, 255) 1px 1px 0px 1px inset,
-    rgb(134, 138, 142) 0px 0px 0px 1px inset, rgb(0, 0, 0) 1px 1px 0px 1px;
+  box-shadow:
+    rgb(255, 255, 255) 1px 1px 0px 1px inset,
+    rgb(134, 138, 142) 0px 0px 0px 1px inset,
+    rgb(0, 0, 0) 1px 1px 0px 1px;
 `;
 
 const LineLi = styled.li`
@@ -37,23 +40,6 @@ const OptionLi = styled.li`
     cursor: pointer;
   }
 `;
-
-const startChat = (user: IUser, target?: string) => {
-  const body: IChannel = {
-    user: user,
-    type: EChannelType.CHAT,
-    id: 0,
-    title: target,
-  }
-  console.log('ehre');
-  fetch(`http://${window.location.hostname}:4000/chat`, {
-    method: "POST",
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(body),
-  })
-}
 
 export interface IContextMenu {
   display: boolean;
@@ -76,14 +62,26 @@ const ContextMenu: React.FC<IContextMenu> = ({
 }) => {
   const [isFriend, setIsFriend] = useState<boolean>(isFriendIncoming);
   const [isPendingFriend, setIsPendingFriend] = useState<boolean>(
-    isPendingFriendIncoming
+    isPendingFriendIncoming,
   );
   const auth = useContext(AuthContext).user;
   const navigate = useNavigate();
+  const socket = useContext(SocketContext);
+
+  const startChat = () => {
+    const body: IChannel = {
+      user: auth,
+      type: EChannelType.CHAT,
+      id: 0,
+      title: link,
+    };
+    socket.emit("create", body);
+    navigate("/chat");
+  };
 
   const handleFriendAccept = async (
     friend: string | undefined,
-    isPendingFriend: boolean | undefined
+    isPendingFriend: boolean | undefined,
   ) => {
     if (friend !== undefined) {
       try {
@@ -113,7 +111,7 @@ const ContextMenu: React.FC<IContextMenu> = ({
 
   const handleFriendRemove = async (
     friend: string | undefined,
-    isFriend: boolean
+    isFriend: boolean,
   ) => {
     if (friend !== undefined) {
       try {
@@ -158,7 +156,7 @@ const ContextMenu: React.FC<IContextMenu> = ({
         <LineLi />
         <OptionLi>🏓 Challenge to Game</OptionLi>
         <LineLi />
-        <OptionLi onClick={() => {startChat(auth, link); navigate('/chat');}}>💬 Start Chat</OptionLi>
+        <OptionLi onClick={() => startChat()}>💬 Start Chat</OptionLi>
         <LineLi />
         {isFriend && (
           <OptionLi onClick={() => handleFriendRemove(link, isFriend)}>

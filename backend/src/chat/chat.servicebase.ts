@@ -26,17 +26,14 @@ export class ChatServiceBase {
     });
   }
 
-  protected updateActiveClients(data: IChannel, client: Socket) {
-    if (!data.title) data.title = '';
+  public updateActiveClients(data: IChannel, client: Socket) {
+    if (!data.user || !data.user.name) return;
     for (const [key, value] of this.activeClients) {
       const tmp = value.filter((c) => c.user.name !== data.user.name);
       this.activeClients.set(key, tmp);
     }
-    if (!this.activeClients.has(data.id))
-      this.activeClients.set(data.id, []);
-    this.activeClients
-      .get(data.id)
-      .push({ user: data.user, socket: client });
+    if (!this.activeClients.has(data.id)) this.activeClients.set(data.id, []);
+    this.activeClients.get(data.id).push({ user: data.user, socket: client });
   }
 
   protected getUserInChannel(name: string, room: number): IGameUser {
@@ -51,12 +48,19 @@ export class ChatServiceBase {
     return null;
   }
 
+  public removeUser(name: string) {
+    for (const [key, value] of this.activeClients) {
+      const tmp = value.filter((u) => u.user.name !== name);
+      this.activeClients.set(key, tmp);
+    }
+  }
+
   public async getChats(userId: string): Promise<ITab[]> {
     let res: ITab[] = [];
+
     try {
       const user = await this.userService.findOneByName(userId);
       res = await this.chatDao.getRawUserChannels(user.id);
-      console.log(res);
     } catch (error) {
       console.log(`SYSTEM: ${error.message.split('\n')[0]}`);
     }
@@ -68,6 +72,7 @@ export class ChatServiceBase {
     try {
       const user = await this.userService.findOneByName(chat.user.name);
       await this.chatDao.saveChannel(chat, chat.user.name);
+      console.log(chat);
       return await this.chatDao.getRawUserChannels(user.id);
     } catch (error) {
       console.log(`SYSTEM: ${error.message.split('\n')[0]}`);
@@ -75,15 +80,25 @@ export class ChatServiceBase {
     return res;
   }
 
-  public async addU2UChat(chat: IChannel): Promise<void> {
+  public async addU2UChat(chat: IChannel, server: Server): Promise<ITab[]> {
     try {
+      const send = async (name: string) => {
+        const u = this.getUser(name);
+        server
+          .to(u.socket.id)
+          .emit('invite', await this.chatDao.getRawUserChannels(u.user.id));
+      };
       const user = await this.userService.findOneByName(chat.user.name);
       const user2 = await this.userService.findOneByName(chat.title);
       const cha = await this.chatDao.saveChannel(chat, chat.user.name);
       await this.chatDao.addUserToChannel(cha.id, chat.title);
+      send(user.name);
+      send(user2.name);
+      return await this.chatDao.getRawUserChannels(user.id);
     } catch (error) {
       console.log(`SYSTEM: ${error.message.split('\n')[0]}`);
     }
+    return [];
   }
 
   public async removeChat(userId: string, chat: number): Promise<void> {
@@ -105,7 +120,9 @@ export class ChatServiceBase {
       const channel = await this.chatDao.getChannel(data.id);
       client.leave(data.prev.toString());
       client.join(channel.id.toString());
-      server.to(channel.id.toString()).emit('message', `${data.user.name}: joined room`);
+      server
+        .to(channel.id.toString())
+        .emit('message', `${data.user.name}: joined room`);
       res = await this.chatDao.getRawChannelMessages(channel.id);
     } catch (error) {
       console.log(`SYSTEM: ${error.message.split('\n')[0]}`);
