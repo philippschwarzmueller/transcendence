@@ -139,7 +139,7 @@ export class AuthService {
     res.redirect(url);
   }
 
-  async exchangeCodeForToken(code: string): Promise<TokenResponse> {
+  async exchangeCodeForToken(code: string): Promise<TokenResponse | null> {
     const response: Response | void = await fetch(
       'https://api.intra.42.fr/oauth/token',
       {
@@ -155,11 +155,12 @@ export class AuthService {
       },
     ).catch((e) => console.error(e));
     if (response instanceof Response && !response.ok) {
-      throw new Error('Failed to exchange code for token');
+      return null;
     }
 
     if (response instanceof Response && response.ok) {
       const data: TokenResponse = await response.json();
+      console.log(data);
       return data;
     } else {
       throw new Error('Failed to fetch');
@@ -193,7 +194,7 @@ export class AuthService {
     return currentTime < expirationTime;
   }
 
-  async nameExists(newName: string, intraName: string): Promise<boolean> {
+  async nameExists(newName: string): Promise<boolean> {
     const userExists: boolean = await this.usersRepository.exist({
       where: { name: newName },
     });
@@ -206,7 +207,7 @@ export class AuthService {
   ): Promise<User | null> {
     const user: User = await this.checkToken(hashedtoken);
     const token: string = user.token;
-    let userExists: boolean = await this.nameExists(newName, user.name);
+    let userExists: boolean = await this.nameExists(newName);
     if (userExists) {
       return user;
     }
