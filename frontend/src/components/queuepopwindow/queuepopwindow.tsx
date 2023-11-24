@@ -9,12 +9,13 @@ import { SocketContext } from "../../context/socket";
 import { useCookies } from "react-cookie";
 import styled from "styled-components";
 import Moveablewindow from "../moveablewindow";
+import Progressbar from "../progressbar";
 
 interface IQueuepopwindowProps {}
 
 const Wrapper = styled.div`
   width: 400px;
-  height: 180px;
+  height: 150px;
   border: 1px solid black;
 `;
 
@@ -22,14 +23,18 @@ const ButtonDiv = styled.div`
   justify-content: space-around;
   align-items: center;
   display: flex;
+  margin: 15px;
 `;
 
-const TextDiv = styled.div``;
+const TextDiv = styled.div`
+  margin: 15px;
+`;
 
 const LoadingDiv = styled.div`
   justify-content: center;
   align-items: center;
   display: flex;
+  margin: 15px;
 `;
 
 const Queuepopwindow: React.FC<IQueuepopwindowProps> = (
@@ -49,7 +54,7 @@ const Queuepopwindow: React.FC<IQueuepopwindowProps> = (
             <p>A match has been found, do you want to accept or decline</p>
           </TextDiv>
           <LoadingDiv>
-            <p>LOADING BAR</p>
+            <Progressbar totalTime={5}></Progressbar>
           </LoadingDiv>
           <ButtonDiv>
             <Button onClick={() => console.log("accpet")}>Accept</Button>
