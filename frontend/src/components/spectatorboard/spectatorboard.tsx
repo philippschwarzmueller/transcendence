@@ -1,12 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import { BACKEND } from "../../routes/SetUser";
 import Moveablewindow from "../moveablewindow";
+import { NavigateFunction, useNavigate } from "react-router-dom";
+import { AuthContext } from "../../context/auth";
 
 const Wrapper = styled.div`
   width: 400px;
   height: 400px;
-  border: 2px solid black;
+  overflow-y: auto;
 `;
 
 interface SpectatorboardProps {
@@ -24,10 +26,22 @@ interface ISpectateGame {
 }
 
 const StyledItem = styled.li`
-  box-shadow: 1px 1px 0px inset white, 1px 1px 0px white;
-  border: 1px solid #808080;
   margin: 10px;
+  padding: 15px;
+  display: flex;
+  justify-content: space-between;
   align-items: center;
+  border-radius: 0px;
+  background-color: rgb(195, 199, 203);
+  box-shadow: inset 1px 1px 0px 1px rgb(255, 255, 255),
+    inset 0 0 0 1px rgb(134, 138, 142), 1px 1px 0px 1px rgb(0, 0, 0),
+    2px 2px 5px 0px rgba(0, 0, 0, 0.5);
+
+  &:hover {
+    outline-offset: -5px;
+    box-shadow: inset 1px 1px 0px 1px rgb(255, 255, 255),
+      inset 0 0 0 1px rgb(134, 138, 142), 1px 1px 0 0px rgb(0, 0, 0);
+  }
 `;
 
 const StyledList = styled.ul`
@@ -36,10 +50,28 @@ const StyledList = styled.ul`
   margin: 0;
 `;
 
+const StyledParagraph = styled.p`
+  font-size: large;
+`;
+
+const getGameUrl = (
+  selfIntraname: string | null | undefined,
+  spectateGame: ISpectateGame
+): string => {
+  if (!selfIntraname) return `/play/${spectateGame.gameId}`;
+  else if (selfIntraname === spectateGame.leftPlayerIntraname)
+    return `/play/${spectateGame.gameId}/left`;
+  else if (selfIntraname === spectateGame.rightPlayerIntraname)
+    return `/play/${spectateGame.gameId}/right`;
+  else return `/play/${spectateGame.gameId}`;
+};
+
 const Spectatorboard: React.FC<SpectatorboardProps> = (
   props: SpectatorboardProps
 ) => {
   const [spectateGames, setSpectateGames] = useState<ISpectateGame[]>([]);
+  const navigate: NavigateFunction = useNavigate();
+  const auth = useContext(AuthContext);
 
   useEffect(() => {
     if (props.intraname) {
@@ -72,16 +104,16 @@ const Spectatorboard: React.FC<SpectatorboardProps> = (
               <StyledItem
                 key={key}
                 onClick={() => {
-                  console.log(game);
+                  navigate(getGameUrl(auth?.user?.intraname, game));
                 }}
               >
                 <>
-                  <p>
+                  <StyledParagraph>
                     {game.leftPlayerNickname} vs {game.rightPlayerNickname}
-                  </p>
-                  <p>
+                  </StyledParagraph>
+                  <StyledParagraph>
                     {game.leftPlayerPoints} - {game.rightPlayerPoints}
-                  </p>
+                  </StyledParagraph>
                 </>
               </StyledItem>
             ))}
