@@ -133,7 +133,7 @@ const Taskbar: React.FC = () => {
   const [displayProfileSettings, setDisplayProfileSettings] =
     useState<boolean>(false);
   const [displayOrder, setDisplayOrder] = useState<number[]>([
-    0, 10, 20, 30, 40,
+    0, 10, 20, 30, 40, 50
   ]);
 
   const handleLogout = async () => {
