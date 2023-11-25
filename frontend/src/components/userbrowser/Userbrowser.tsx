@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
 import { styled } from "styled-components";
+import { IUser } from "../../context/auth";
 import Moveablewindow from "../moveablewindow";
+import Playercard from "../playercard";
 
 const Browser = styled.div`
-  width: 220px;
-  height: 300px;
+  user-select: none;
+  width: 300px;
+  height: 400px;
   padding: 10px;
   margin: 0px;
   overflow: auto;
@@ -34,27 +37,17 @@ const StyledUl = styled.ul`
   margin: 0px;
   padding: 2px;
   list-style: none;
-  width: 200px;
-`;
-
-const StyledLi = styled.li`
-  padding: 2px 6px 2px 26px;
-  border-top: 1px solid rgb(134, 138, 142);
-  border-bottom: 1px solid rgb(255, 255, 255);
-  &:hover {
-    background-color: rgb(0, 14, 122);
-    color: white;
-  }
+  width: auto;
 `;
 
 const Userbrowser: React.FC<{ $display: boolean; z?: number }> = ({
   $display,
   z,
 }) => {
-  let [users, setUsers] = useState<string[]>([]);
+  let [users, setUsers] = useState<IUser[]>([]);
 
   useEffect(() => {
-    fetch(`http://${window.location.hostname}:4000/users/names`, {
+    fetch(`http://${window.location.hostname}:4000/users`, {
       method: "GET",
     })
       .then((response) => {
@@ -63,13 +56,13 @@ const Userbrowser: React.FC<{ $display: boolean; z?: number }> = ({
         }
         return response.json();
       })
-      .then((res: string[]) => setUsers(res));
+      .then((res: IUser[]) => setUsers(res));
   }, []);
 
   return (
     <>
       <Moveablewindow
-        title="Browser"
+        title="Userbrowser"
         positionX={500}
         positionY={600}
         positionZ={z}
@@ -79,9 +72,12 @@ const Userbrowser: React.FC<{ $display: boolean; z?: number }> = ({
           <StyledUl>
             {users.map((user) => {
               return (
-                <StyledLi key={user}>
-                  {user}
-                </StyledLi>
+                <Playercard
+                  key={user.name}
+                  name={user.name}
+                  id={user.id}
+                  profilePictureUrl={user.profilePictureUrl}
+                />
               );
             })}
           </StyledUl>

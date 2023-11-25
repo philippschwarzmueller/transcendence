@@ -3,6 +3,7 @@ import Button from "../button/Button";
 import { BACKEND } from "../../routes/SetUser";
 
 const LoginBox = styled.div`
+  user-select: none;
   display: flex;
   margin: 10px;
 `;
