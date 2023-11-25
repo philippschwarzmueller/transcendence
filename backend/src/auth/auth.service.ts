@@ -94,7 +94,10 @@ export class AuthService {
     const userExists = await this.usersRepository.exist({
       where: { intraname: intraname },
     });
-    let signIn: IntraSignInEvent;
+    const signIn: IntraSignInEvent = {
+      user: null,
+      firstLogin: true,
+    };
     if (userExists) {
       signIn.firstLogin = true;
       await this.setUserData(data, intraname, hashedToken);

@@ -11,6 +11,7 @@ const SetUser: React.FC = () => {
   const location = useLocation();
   const [redirect, setRedirect] = useState(false);
   const [twoFaCode, setTwoFaCode] = useState("");
+  const [isFirstLogin, setIsFirstLogin] = useState(false);
   const [user, setUser] = useState<IUser>();
   const auth = useContext(AuthContext);
 
@@ -56,6 +57,7 @@ const SetUser: React.FC = () => {
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
     const userName: string | null = urlParams.get("user");
+    setIsFirstLogin(urlParams.get("firstSignIn") === 'true');
     if (userName) {
       fetch(`${BACKEND}/users/${userName}`)
         .then((res) => res.json())
@@ -70,7 +72,9 @@ const SetUser: React.FC = () => {
               profilePictureUrl: resUser.profilePictureUrl,
               activeChats: resUser.activeChats,
             });
-            setRedirect(true);
+            if(!isFirstLogin){
+              setRedirect(true);
+            }
           }
         });
     }
@@ -99,6 +103,7 @@ const SetUser: React.FC = () => {
           </div>
         </div>
       )}
+      {}
     </>
   );
 };
