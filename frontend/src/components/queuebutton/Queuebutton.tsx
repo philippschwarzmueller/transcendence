@@ -80,7 +80,7 @@ const Queuebutton: React.FC<IQueueProps> = (
       <Centerdiv>
         <LocalQueueButton
           onClick={() => {
-            queueUp(socket, user, props.gamemode);
+            if (!queue.queueFound) queueUp(socket, user, props.gamemode);
           }}
         >
           {gameModeNames.get(props.gamemode)}
