@@ -61,7 +61,6 @@ const Queuebutton: React.FC<IQueueProps> = (
 
     socket.on("game denied", (body: IGameStart) => {
       removeCookie("queue");
-      console.log("denied game");
     });
   }, [navigate, removeCookie, socket]);
 

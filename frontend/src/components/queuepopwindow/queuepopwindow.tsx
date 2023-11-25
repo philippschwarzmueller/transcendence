@@ -7,6 +7,7 @@ import styled from "styled-components";
 import Moveablewindow from "../moveablewindow";
 import Progressbar from "../progressbar";
 import { IQueueContext, QueueContext } from "../../context/queue";
+import { queueTimeout } from "../gamewindow/properties";
 
 interface IQueuepopwindowProps {}
 
@@ -89,7 +90,9 @@ const Queuepopwindow: React.FC<IQueuepopwindowProps> = (
               <p>{windowText}</p>
             </TextDiv>
             <LoadingDiv>
-              {!queue.denied ? <Progressbar totalTime={5}></Progressbar> : null}
+              {!queue.denied ? (
+                <Progressbar totalTime={queueTimeout}></Progressbar>
+              ) : null}
             </LoadingDiv>
             <ButtonDiv>{windowButtons}</ButtonDiv>
           </Wrapper>

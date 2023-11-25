@@ -8,10 +8,10 @@ import properties, {
   IGame,
   IGameBackend,
   IGameUser,
-  IGameUserAuth,
   IKeyState,
   IPaddle,
   IUser,
+  queueTimeout,
 } from './properties';
 import {
   advanceBall,
@@ -32,7 +32,7 @@ import { Repository } from 'typeorm';
 import { IChangeSocketPayload } from 'src/wsocket/wsocket.gateway';
 import { getWinnerLooserNames, isGameFinished } from './games.utils';
 import { User } from 'src/users/user.entity';
-import { first } from 'rxjs';
+import { setInternalBufferSize } from 'typeorm/driver/mongodb/bson.typings';
 
 const newGameCopy = (): IGame => {
   return JSON.parse(JSON.stringify(gameSpawn));
@@ -43,6 +43,7 @@ interface IQueuePop {
   secondPlayer: IGameUser;
   firstPlayerAccept: boolean;
   secondPlayerAccept: boolean;
+  timestamp: number;
 }
 
 @Injectable()
@@ -59,11 +60,15 @@ export class GamesService {
       [EGamemode.roomMovement, new Map()],
     ]);
     this.queuePop = new Map<number, IQueuePop>();
+    this.queueCleanup = setInterval(() => {
+      this.queueCleanupLoop();
+    }, 1000);
   }
 
   public runningGames: Map<string, IGameBackend>;
   public queuedClients: Map<EGamemode, Map<string, IGameUser>>;
   public queuePop: Map<number, IQueuePop>;
+  public queueCleanup: any;
 
   private async generateGameId(gamemode: EGamemode): Promise<string> {
     const newGame = this.gamesRepository.create({
@@ -291,6 +296,7 @@ export class GamesService {
         secondPlayer: secondClientName,
         firstPlayerAccept: false,
         secondPlayerAccept: false,
+        timestamp: Date.now(),
       };
       // const newGameId: string = await this.startGameLoop(
       //   firstClientName,
@@ -426,7 +432,6 @@ export class GamesService {
     secondUser: IGameUser,
     key: number,
   ): Promise<void> {
-    console.log('emit and start game');
     const newGameId: string = await this.startGameLoop(
       firstUser,
       secondUser,
@@ -443,14 +448,12 @@ export class GamesService {
     try {
       this.queuePop.forEach((pop, key) => {
         if (pop.firstPlayer.user.intraname === intraname) {
-          console.log('accepting first');
           pop.firstPlayerAccept = true;
           if (pop.secondPlayerAccept === true) {
             this.emitAndStartGame(pop.firstPlayer, pop.secondPlayer, key);
             throw key;
           }
         } else if (pop.secondPlayer.user.intraname === intraname) {
-          console.log('accepting second');
           pop.secondPlayerAccept = true;
           if (pop.firstPlayerAccept === true) {
             this.emitAndStartGame(pop.firstPlayer, pop.secondPlayer, key);
@@ -461,7 +464,20 @@ export class GamesService {
     } catch (key) {
       this.queuePop.delete(key);
     }
-    console.log('accept ', intraname);
+  }
+
+  private queueCleanupLoop(): void {
+    let toDelete: number[] = [];
+    this.queuePop.forEach((pop, key) => {
+      if (pop.timestamp + (queueTimeout + 1) * 1000 < Date.now()) {
+        toDelete.push(key);
+      }
+    });
+    toDelete.forEach((key) => {
+      this.queuePop.get(key).firstPlayer.socket.emit('game denied');
+      this.queuePop.get(key).secondPlayer.socket.emit('game denied');
+      this.queuePop.delete(key);
+    });
   }
 
   public handleDecline(intraname: string): void {
@@ -478,6 +494,5 @@ export class GamesService {
     } catch (key) {
       this.queuePop.delete(key);
     }
-    console.log('decline ', intraname);
   }
 }
