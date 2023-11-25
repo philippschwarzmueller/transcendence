@@ -413,4 +413,12 @@ export class GamesService {
       });
     });
   }
+
+  public handleAccept(intraname: string): void {
+    console.log('accept ', intraname);
+  }
+
+  public handleDecline(intraname: string): void {
+    console.log('decline ', intraname);
+  }
 }

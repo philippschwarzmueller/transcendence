@@ -37,9 +37,20 @@ const LoadingDiv = styled.div`
   margin: 15px;
 `;
 
+const handleAccept = (socket: Socket, intraname: string | undefined): void => {
+  if (intraname) socket.emit("accept", intraname);
+};
+
+const handleDecline = (socket: Socket, intraname: string | undefined): void => {
+  if (intraname) socket.emit("decline", intraname);
+};
+
 const Queuepopwindow: React.FC<IQueuepopwindowProps> = (
   props: IQueuepopwindowProps
 ) => {
+  const socket = useContext(SocketContext);
+  const auth = useContext(AuthContext);
+
   return (
     <>
       <Moveablewindow
@@ -57,8 +68,12 @@ const Queuepopwindow: React.FC<IQueuepopwindowProps> = (
             <Progressbar totalTime={5}></Progressbar>
           </LoadingDiv>
           <ButtonDiv>
-            <Button onClick={() => console.log("accpet")}>Accept</Button>
-            <Button onClick={() => console.log("decline")}>Decline</Button>
+            <Button onClick={() => handleAccept(socket, auth.user.intraname)}>
+              Accept
+            </Button>
+            <Button onClick={() => handleDecline(socket, auth.user.intraname)}>
+              Decline
+            </Button>
           </ButtonDiv>
         </Wrapper>
       </Moveablewindow>
