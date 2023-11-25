@@ -6,6 +6,7 @@ import CenterDiv from "../components/centerdiv";
 import ProfilePicture from "../components/profilepicture/ProfilePicture";
 import { IUser, AuthContext, IAuthContext } from "../context/auth";
 import { BACKEND } from "./SetUser";
+import Taskbar from "../components/taskbar/Taskbar";
 
 const Profile: React.FC = () => {
   const auth: IAuthContext = useContext(AuthContext);
@@ -112,6 +113,7 @@ const Profile: React.FC = () => {
 
   return (
     <>
+      <Taskbar />
       <h1>{user?.name}'s Profile</h1>
       <ProfilePicture
         name={user?.name}
