@@ -8,6 +8,7 @@ import { useContext, useEffect } from "react";
 import { SocketContext } from "../../context/socket";
 import { useCookies } from "react-cookie";
 import styled from "styled-components";
+import { IQueueContext, QueueContext } from "../../context/queue";
 
 const LocalQueueButton = styled(Button)`
   padding: 8px;
@@ -44,11 +45,14 @@ const Queuebutton: React.FC<IQueueProps> = (
   const user: IUser = useContext(AuthContext).user;
   const navigate: NavigateFunction = useNavigate();
   const [, setCookie, removeCookie] = useCookies(["queue"]);
+  const queue: IQueueContext = useContext(QueueContext);
 
   useEffect(() => {
     socket.on("queue found", (body: IGameStart) => {
       removeCookie("queue");
-      navigate(`/play/${body.gameId}/${body.side}`);
+      queue.setQueueFound(true);
+      console.log("found game");
+      // navigate(`/play/${body.gameId}/${body.side}`);
     });
   }, [navigate, removeCookie, socket]);
 

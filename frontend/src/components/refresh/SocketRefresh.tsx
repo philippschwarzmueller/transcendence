@@ -6,6 +6,7 @@ import { IGameStart } from "../gamewindow/properties";
 import { NavigateFunction, useNavigate } from "react-router-dom";
 import { AuthContext, IAuthContext } from "../../context/auth";
 import { validateToken } from "../../routes/PrivateRoute";
+import { IQueueContext, QueueContext } from "../../context/queue";
 
 interface RefreshProviderProps {
   children: JSX.Element[];
@@ -20,11 +21,15 @@ const SocketRefresh: React.FC<RefreshProviderProps> = ({ children }) => {
   const socket: Socket = useContext(SocketContext);
   const navigate: NavigateFunction = useNavigate();
   const auth: IAuthContext = useContext(AuthContext);
+  const queue: IQueueContext = useContext(QueueContext);
 
   useEffect(() => {
     socket.on("queue found", (body: IGameStart) => {
       removeCookie("queue");
-      navigate(`/play/${body.gameId}/${body.side}`);
+      queue.setQueueFound(true);
+      console.log("found game");
+
+      // navigate(`/play/${body.gameId}/${body.side}`);
     });
 
     const emitChangeSocket = (): void => {
