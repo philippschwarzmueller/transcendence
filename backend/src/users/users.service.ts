@@ -86,7 +86,22 @@ export class UsersService {
     }
   }
 
-  async addToBlockList(userId: string, blockedId: string): Promise<void> {
+  async isBlocked(userId: string, blockedId: string): Promise<boolean> {
+    const user: User = await this.findOneByName(userId);
+    if (user.blocked.find((u) => { return u.name === blockedId}))
+      return true;
+    return false;
+  }
+
+  async removeFromBlockList(userId: string, blockedId: string): Promise<boolean> {
+    const user: User = await this.findOneByName(userId);
+    const blocked: User = await this.findOneByName(blockedId);
+    user.blocked = user.blocked.filter((u) => u.id !== user.id);
+    this.usersRepository.save(user);
+    return false;
+  }
+
+  async addToBlockList(userId: string, blockedId: string): Promise<boolean> {
     const user = await this.findOneByName(userId);
     const block = await this.findOneByName(blockedId);
     const queryRunner = this.dataSource.createQueryRunner();
@@ -98,6 +113,7 @@ export class UsersService {
         ON CONFLICT (blocking, "blocked") DO NOTHING;`,
     );
     queryRunner.release();
+    return true;
   }
 
   // Friends
