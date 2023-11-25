@@ -4,6 +4,7 @@ import GlobalStyle from "./GlobalStyle";
 import { AuthContext, IUser } from "../context/auth";
 import { SocketContext, awSocket } from "../context/socket";
 import RefreshProvider from "../components/refresh/RefreshProvider";
+import Nav from "../components/nav";
 
 const Root: React.FC = () => {
   const [user, setUser] = React.useState<IUser>({
@@ -36,6 +37,7 @@ const Root: React.FC = () => {
         <SocketContext.Provider value={awSocket}>
           <RefreshProvider>
             <GlobalStyle />
+            <Nav/>
             <Outlet />
           </RefreshProvider>
         </SocketContext.Provider>
