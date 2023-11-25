@@ -27,9 +27,18 @@ const SocketRefresh: React.FC<RefreshProviderProps> = ({ children }) => {
     socket.on("queue found", (body: IGameStart) => {
       removeCookie("queue");
       queue.setQueueFound(true);
-      console.log("found game");
+      queue.setDenied(false);
+    });
 
-      // navigate(`/play/${body.gameId}/${body.side}`);
+    socket.on("game found", (body: IGameStart) => {
+      removeCookie("queue");
+      queue.setQueueFound(false);
+      navigate(`/play/${body.gameId}/${body.side}`);
+    });
+
+    socket.on("game denied", (body: IGameStart) => {
+      removeCookie("queue");
+      queue.setDenied(true);
     });
 
     const emitChangeSocket = (): void => {

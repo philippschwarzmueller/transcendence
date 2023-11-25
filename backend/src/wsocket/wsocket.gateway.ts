@@ -132,13 +132,13 @@ export class WSocketGateway implements OnGatewayInit {
   }
 
   @SubscribeMessage('accept')
-  public handleAccept(@MessageBody() intraname: string): void {
-    return this.gamesService.handleAccept(intraname)
+  public async handleAccept(@MessageBody() intraname: string): Promise<void> {
+    return await this.gamesService.handleAccept(intraname);
   }
 
   @SubscribeMessage('decline')
   public handleDecline(@MessageBody() intraname: string): void {
-    return this.gamesService.handleDecline(intraname)
+    return this.gamesService.handleDecline(intraname);
   }
 
   afterInit(server: any): any {}

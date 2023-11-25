@@ -51,8 +51,17 @@ const Queuebutton: React.FC<IQueueProps> = (
     socket.on("queue found", (body: IGameStart) => {
       removeCookie("queue");
       queue.setQueueFound(true);
-      console.log("found game");
-      // navigate(`/play/${body.gameId}/${body.side}`);
+    });
+
+    socket.on("game found", (body: IGameStart) => {
+      removeCookie("queue");
+      queue.setQueueFound(false);
+      navigate(`/play/${body.gameId}/${body.side}`);
+    });
+
+    socket.on("game denied", (body: IGameStart) => {
+      removeCookie("queue");
+      console.log("denied game");
     });
   }, [navigate, removeCookie, socket]);
 

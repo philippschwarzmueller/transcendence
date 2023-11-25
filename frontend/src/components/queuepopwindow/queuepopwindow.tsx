@@ -1,7 +1,7 @@
 import Button from "../button";
 import { Socket } from "socket.io-client";
 import { AuthContext, IUser } from "../../context/auth";
-import { useContext} from "react";
+import { useContext, useEffect, useState } from "react";
 import { SocketContext } from "../../context/socket";
 import styled from "styled-components";
 import Moveablewindow from "../moveablewindow";
@@ -34,21 +34,46 @@ const LoadingDiv = styled.div`
   margin: 15px;
 `;
 
-const handleAccept = (socket: Socket, intraname: string | undefined): void => {
-  if (intraname) socket.emit("accept", intraname);
-};
-
-const handleDecline = (socket: Socket, intraname: string | undefined): void => {
-  if (intraname) socket.emit("decline", intraname);
-};
-
 const Queuepopwindow: React.FC<IQueuepopwindowProps> = (
   props: IQueuepopwindowProps
 ) => {
   const socket = useContext(SocketContext);
   const auth = useContext(AuthContext);
   const queue: IQueueContext = useContext(QueueContext);
+  const [windowText, setWindowText] = useState<string>(
+    "A match has been found, do you want to accept or decline?"
+  );
+  const [windowButtons, setWindowButtons] = useState(<></>);
 
+  const handleAccept = (): void => {
+    if (auth.user.intraname) socket.emit("accept", auth.user.intraname);
+    setWindowText("waiting for the other player");
+    setWindowButtons(<></>);
+  };
+
+  const handleDecline = (): void => {
+    if (auth.user.intraname) socket.emit("decline", auth.user.intraname);
+    queue.setQueueFound(false);
+  };
+
+  useEffect(() => {
+    if (queue.denied === true) {
+      setWindowButtons(
+        <Button onClick={() => queue.setQueueFound(false)}>go back</Button>
+      );
+      setWindowText("Your opponent denied");
+    } else {
+      setWindowButtons(
+        <>
+          <Button onClick={handleAccept}>Accept</Button>
+          <Button onClick={handleDecline}>Decline</Button>
+        </>
+      );
+      setWindowText(
+        "A match has been found, do you want to accept or decline?"
+      );
+    }
+  }, [queue]);
   return (
     <>
       {queue.queueFound ? (
@@ -61,29 +86,12 @@ const Queuepopwindow: React.FC<IQueuepopwindowProps> = (
         >
           <Wrapper>
             <TextDiv>
-              <p>A match has been found, do you want to accept or decline?</p>
+              <p>{windowText}</p>
             </TextDiv>
             <LoadingDiv>
-              <Progressbar totalTime={5}></Progressbar>
+              {!queue.denied ? <Progressbar totalTime={5}></Progressbar> : null}
             </LoadingDiv>
-            <ButtonDiv>
-              <Button
-                onClick={() => {
-                  handleAccept(socket, auth.user.intraname);
-                  queue.setQueueFound(false);
-                }}
-              >
-                Accept
-              </Button>
-              <Button
-                onClick={() => {
-                  handleDecline(socket, auth.user.intraname);
-                  queue.setQueueFound(false);
-                }}
-              >
-                Decline
-              </Button>
-            </ButtonDiv>
+            <ButtonDiv>{windowButtons}</ButtonDiv>
           </Wrapper>
         </Moveablewindow>
       ) : null}
