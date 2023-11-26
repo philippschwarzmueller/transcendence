@@ -158,7 +158,7 @@ const GameWindow: React.FC = () => {
       }
     });
 
-    setKeyEventListener(keystateRef);
+    setKeyEventListener(keystateRef, navigate);
 
     gameInterval.current = setInterval(GameLoop, 1000 / properties.framerate);
 
