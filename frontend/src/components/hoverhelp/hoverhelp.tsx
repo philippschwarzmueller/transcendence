@@ -9,7 +9,7 @@ export interface HoverHelpProps {
 const Wrapper = styled.div`
   background-color: rgb(195, 199, 203);
   position: relative;
-  z-index: 5;
+  z-index: 50;
   border-top: 1px solid white;
   border-left: 1px solid white;
   border-bottom: 1px solid black;
@@ -25,7 +25,7 @@ const PopupWrapper = styled.div<{ position: { top: number; left: number } }>`
   background-color: rgb(195, 199, 203);
   top: ${(props) => props.position.top + 10}px;
   left: ${(props) => props.position.left + 10}px;
-  z-index: 10;
+  z-index: 100;
   border-top: 1px solid white;
   border-left: 1px solid white;
   border-bottom: 1px solid black;
