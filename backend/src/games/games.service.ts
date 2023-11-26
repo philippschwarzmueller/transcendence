@@ -44,6 +44,7 @@ interface IQueuePop {
   firstPlayerAccept: boolean;
   secondPlayerAccept: boolean;
   timestamp: number;
+  gamemode: EGamemode;
 }
 
 @Injectable()
@@ -297,12 +298,8 @@ export class GamesService {
         firstPlayerAccept: false,
         secondPlayerAccept: false,
         timestamp: Date.now(),
+        gamemode: gamemode,
       };
-      // const newGameId: string = await this.startGameLoop(
-      //   firstClientName,
-      //   secondClientName,
-      //   gamemode,
-      // );
       this.queuePop.set(currentSize, newQueuePop);
       firstClientName.socket.emit('queue found', currentSize);
       secondClientName.socket.emit('queue found', currentSize);
@@ -430,12 +427,12 @@ export class GamesService {
   private async emitAndStartGame(
     firstUser: IGameUser,
     secondUser: IGameUser,
-    key: number,
+    gamemode: EGamemode,
   ): Promise<void> {
     const newGameId: string = await this.startGameLoop(
       firstUser,
       secondUser,
-      EGamemode.standard,
+      gamemode,
     );
     firstUser.socket.emit('game found', {
       gameId: newGameId,
@@ -450,13 +447,21 @@ export class GamesService {
         if (pop.firstPlayer.user.intraname === intraname) {
           pop.firstPlayerAccept = true;
           if (pop.secondPlayerAccept === true) {
-            this.emitAndStartGame(pop.firstPlayer, pop.secondPlayer, key);
+            this.emitAndStartGame(
+              pop.firstPlayer,
+              pop.secondPlayer,
+              pop.gamemode,
+            );
             throw key;
           }
         } else if (pop.secondPlayer.user.intraname === intraname) {
           pop.secondPlayerAccept = true;
           if (pop.firstPlayerAccept === true) {
-            this.emitAndStartGame(pop.firstPlayer, pop.secondPlayer, key);
+            this.emitAndStartGame(
+              pop.firstPlayer,
+              pop.secondPlayer,
+              pop.gamemode,
+            );
             throw key;
           }
         }
