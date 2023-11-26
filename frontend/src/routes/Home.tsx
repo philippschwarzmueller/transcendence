@@ -4,12 +4,14 @@ import { AuthContext } from "../context/auth";
 import MatchHistory from "../components/matchhistory/Matchhistory";
 import StatsWindow from "../components/stats/StatsWindow";
 import GraphComponent from "../components/elograph/elograph";
+import Taskbar from "../components/taskbar/Taskbar";
 
 const Home: React.FC = () => {
   const auth = useContext(AuthContext);
 
   return (
     <>
+      <Taskbar />
       <div
         style={{
           display: "flex",

@@ -6,6 +6,7 @@ import TwoFactorAuthSection from "../components/twoFaSection";
 import { BACKEND } from "./SetUser";
 import Button from "../components/button/Button";
 import AvatarChangeSection from "../components/changeavatar/ChangeAvatar";
+import Taskbar from "../components/taskbar/Taskbar";
 
 const ProfileSettings: React.FC = () => {
   const auth: IAuthContext = useContext(AuthContext);
@@ -110,6 +111,7 @@ const ProfileSettings: React.FC = () => {
 
   return (
     <>
+      <Taskbar />
       <h1>Profile Settings</h1>
       <NameChangeSection
         newName={newName}

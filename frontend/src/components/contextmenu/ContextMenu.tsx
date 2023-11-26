@@ -7,9 +7,9 @@ import { AuthContext, IAuthContext } from "../../context/auth";
 const StyledUl = styled.ul<{ $display: boolean; $posX: number; $posY: number }>`
   display: ${(props) => (props.$display ? "" : "none")};
   position: absolute;
-  z-index: 600;
-  left: ${(props) => props.$posX + "px"};
-  top: ${(props) => props.$posY + "px"};
+  z-index: 200;
+  left: ${(props) => props.$posX};
+  top: ${(props) => props.$posY};
   list-style-type: none;
   background-color: rgb(195, 199, 203);
   min-width: 100px;
