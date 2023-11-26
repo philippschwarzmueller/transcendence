@@ -5,6 +5,7 @@ import Leaderboard from "../components/leaderboard/leaderboard";
 import MatchHistory from "../components/matchhistory/Matchhistory";
 import StatsWindow from "../components/stats/StatsWindow";
 import GraphComponent from "../components/elograph/elograph";
+import HoverHelp from "../components/hoverhelp/hoverhelp";
 
 const Home: React.FC = () => {
   const auth = useContext(AuthContext);
@@ -23,10 +24,11 @@ const Home: React.FC = () => {
         <Pagetitle>Welcome to WinPong, {auth.user.name}</Pagetitle>
         {auth?.user?.intraname ? (
           <>
-            <StatsWindow intraname={auth.user.intraname}></StatsWindow>
+            <HoverHelp></HoverHelp>
+            {/* <StatsWindow intraname={auth.user.intraname}></StatsWindow>
             <MatchHistory intraname={auth.user.intraname}></MatchHistory>
             <GraphComponent intraname={auth.user.intraname}></GraphComponent>
-            <Leaderboard></Leaderboard>
+            <Leaderboard></Leaderboard> */}
           </>
         ) : (
           <></>
