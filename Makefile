@@ -2,8 +2,8 @@
 COMPOSE = docker-compose.yml
 
 #build and run
-all: docker run
-#setup_ip
+all: docker run setup_ip
+
 #build and run
 up: $(REDIRECT) docker
 	docker-compose -f $(COMPOSE) up  --build
@@ -56,6 +56,6 @@ docker:
 	@echo "Docker is up and running"
 
 #setup_ip:
-	#./setup_ip.sh
+	./setup_ip.sh
 
 .PHONY: docker redirect kill_all fclean clean dow run re up all
