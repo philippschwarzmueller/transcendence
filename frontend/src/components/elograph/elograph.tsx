@@ -56,11 +56,17 @@ const CustomTooltip: React.FC<any> = ({ active, payload }) => {
   return null;
 };
 
+interface IData {
+  index: number;
+  value: number;
+}
+
 const GraphComponent: React.FC<{ intraname: string; display?: boolean }> = ({
   intraname,
   display,
 }) => {
   const [eloValues, setEloValues] = useState<number[]>([]);
+  const [data, setData] = useState<IData[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -73,13 +79,20 @@ const GraphComponent: React.FC<{ intraname: string; display?: boolean }> = ({
       }
     };
 
-    if (intraname) fetchData();
-  }, [intraname]);
-
-  const data = eloValues.map((value, index) => ({
-    index: index + 1,
-    elo: value,
-  }));
+    if (intraname)
+      fetchData().then(() => {
+        eloValues.map((value, index) => ({
+          index: index + 1,
+          value: value,
+        }));
+        setData(
+          eloValues.map((value, index) => ({
+            index: index + 1,
+            value: value,
+          }))
+        );
+      });
+  }, [intraname]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const domainMin = Math.floor(Math.min(...eloValues) / 100 - 0.5) * 100;
   const domainMax = Math.ceil(Math.max(...eloValues) / 100 + 0.5) * 100;
