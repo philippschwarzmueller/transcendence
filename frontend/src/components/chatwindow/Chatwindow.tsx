@@ -199,7 +199,7 @@ const Chatwindow: React.FC<{ $display: boolean, z?: number }> = ({
               fetch(
                 `http://${window.location.hostname}:4000/chat/rooms?userId=${user.name}&chat=${activeTab}`,
                 { method: "DELETE" },
-              );
+              ).catch(err=>console.error(err));
               setTabs(
                 tabs.filter(function (e) {
                   return e !== activeTab;

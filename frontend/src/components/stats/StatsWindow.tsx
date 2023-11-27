@@ -79,7 +79,7 @@ const StatsWindow: React.FC<StatsWindowProps> = ({ intraname }) => {
       }
     };
 
-    fetchData();
+    if (intraname) fetchData();
   }, [intraname]);
 
   return (

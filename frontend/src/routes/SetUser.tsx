@@ -79,7 +79,8 @@ const SetUser: React.FC = () => {
               setRedirect(true);
             }
           }
-        });
+        })
+        .catch((err) => console.error(err));
       setIsLoading(false);
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -112,9 +113,9 @@ const SetUser: React.FC = () => {
         </div>
       )}
       {isFirstLogin && (
-          <PrivateRoute>
-            <FirstLogin auth={auth} />
-          </PrivateRoute>
+        <PrivateRoute>
+          <FirstLogin auth={auth} />
+        </PrivateRoute>
       )}
     </>
   );
