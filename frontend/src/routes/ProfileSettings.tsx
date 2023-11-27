@@ -15,7 +15,7 @@ const ProfileSettings: React.FC = () => {
     <>
       <Taskbar />
       <h1>Profile Settings</h1>
-      <NameChangeSection auth={auth} setProfileLink={setProfileLink} />
+      <NameChangeSection setProfileLink={setProfileLink} />
       <h3>Change Avatar</h3>
       <AvatarChangeSection />
       <TwoFactorAuthSection />

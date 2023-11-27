@@ -112,11 +112,7 @@ const SetUser: React.FC = () => {
           </div>
         </div>
       )}
-      {isFirstLogin && (
-        <PrivateRoute>
-          <FirstLogin auth={auth} />
-        </PrivateRoute>
-      )}
+      {isFirstLogin && <FirstLogin/>}
     </>
   );
 };
