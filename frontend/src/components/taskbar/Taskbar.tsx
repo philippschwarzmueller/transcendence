@@ -4,11 +4,10 @@ import { styled } from "styled-components";
 import { AuthContext } from "../../context/auth";
 import { BACKEND } from "../../routes/SetUser";
 import Chatwindow from "../chatwindow/Chatwindow";
+import Friendbrowser from "../friendbrowser/Friendbrowser";
 import Leaderboard from "../leaderboard/leaderboard";
-import Moveablewindow from "../moveablewindow/Moveablewindow";
 import Profilesettings from "../profilesettings/Profilesettings";
 import Profilewindow from "../profilewindow/Profilewindow";
-import Queuebox from "../queuebox/Queuebox";
 import Userbrowser from "../userbrowser";
 import Queuepopwindow from "../queuepopwindow";
 
@@ -101,25 +100,13 @@ const TextBar = styled.div`
   user-select: none;
 `;
 
-const Icon = styled.div<{ $active: boolean }>`
-  width: 64px;
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  position: relative;
-  color: white;
-  outline-offset: -4px;
-  background-color: ${(props) => (props.$active ? "rgb(0, 14, 122)" : "")};
-  outline: ${(props) => (props.$active ? "white dotted 1px" : "")};
-`;
-
 enum Windows {
-  Queue = 0,
-  Profile = 1,
-  Settings = 2,
-  Chat = 3,
-  Users = 4,
-  Leaderboard = 5,
+  Profile = 0,
+  Settings = 1,
+  Chat = 2,
+  Users = 3,
+  Leaderboard = 4,
+  Friends = 5,
   Queuepopwindow = 6,
 }
 
@@ -132,9 +119,9 @@ const Taskbar: React.FC = () => {
   const [displayChat, setDisplayChat] = useState<boolean>(false);
   const [displayUsers, setDisplayUsers] = useState<boolean>(false);
   const [displayStart, setDisplayStart] = useState<boolean>(false);
-  const [displayQueue, setDisplayQueue] = useState<boolean>(false);
   const [displayLeaderboard, setDisplayLeaderboard] = useState<boolean>(false);
   const [displayProfile, setDisplayProfile] = useState<boolean>(false);
+  const [displayFriends, setDisplayFriends] = useState<boolean>(false);
   const [displayProfileSettings, setDisplayProfileSettings] =
     useState<boolean>(false);
   const [displayQueuepopwindow, setDiplayQueuepopwindow] =
@@ -155,7 +142,6 @@ const Taskbar: React.FC = () => {
 
   function changeOrder(pos: number) {
     setDisplayOrder([
-      pos === Windows.Queue ? 50 : displayOrder[Windows.Queue] - 10,
       pos === Windows.Profile ? 50 : displayOrder[Windows.Profile] - 10,
       pos === Windows.Settings ? 50 : displayOrder[Windows.Settings] - 10,
       pos === Windows.Chat ? 50 : displayOrder[Windows.Chat] - 10,
@@ -164,33 +150,22 @@ const Taskbar: React.FC = () => {
       pos === Windows.Queuepopwindow
         ? 50
         : displayOrder[Windows.Queuepopwindow] - 10,
+      pos === Windows.Friends ? 50 : displayOrder[Windows.Friends] - 10,
     ]);
   }
 
   return (
     <>
-      <Icon
-        onClick={() => setDisplayQueue(!displayQueue)}
-        $active={displayQueue}
-      >
-        <img src={require("../../images/pong.png")} alt="pong" height="64px" />
-        Pong
-      </Icon>
-      <div onClick={() => changeOrder(Windows.Queue)}>
-        <Moveablewindow
-          title="Queue"
-          positionX={900}
-          positionY={200}
-          positionZ={displayOrder[Windows.Queue]}
-          display={displayQueue}
-        >
-          <Queuebox />
-        </Moveablewindow>
-      </div>
       <div onClick={() => changeOrder(Windows.Profile)}>
         <Profilewindow
           $display={displayProfile}
           z={displayOrder[Windows.Profile]}
+        />
+      </div>
+      <div onClick={() => changeOrder(Windows.Friends)}>
+        <Friendbrowser
+          $display={displayFriends}
+          z={displayOrder[Windows.Friends]}
         />
       </div>
       <div onClick={() => changeOrder(Windows.Settings)}>
@@ -269,7 +244,12 @@ const Taskbar: React.FC = () => {
             />
             Blocklist
           </StyledLi>
-          <StyledLi>
+          <StyledLi
+            onClick={() => {
+              setDisplayFriends(!displayFriends);
+              changeOrder(Windows.Friends);
+            }}
+          >
             <img
               src={require("../../images/buddy.png")}
               height="16"

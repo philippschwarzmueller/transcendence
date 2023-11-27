@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import properties, {
-  ballSpawn,
   EGamemode,
   gameSpawn,
   IBall,
@@ -34,8 +33,28 @@ import { getWinnerLooserNames, isGameFinished } from './games.utils';
 import { User } from 'src/users/user.entity';
 import { setInternalBufferSize } from 'typeorm/driver/mongodb/bson.typings';
 
+export const randomBallSpawn = (): IBall => {
+  const ballSpeed: number = 8;
+
+  const ySpeed: number =
+    ((Math.random() * 10 + 10) / 10) * Math.sign(Math.random() - 0.5);
+
+  const xSpeed: number =
+    Math.sqrt(ballSpeed ** 2 - ySpeed ** 2) * Math.sign(Math.random() - 0.5);
+
+  const newBall: IBall = {
+    x: properties.window.width / 2,
+    y: properties.window.height / 2,
+    speed_x: xSpeed,
+    speed_y: ySpeed,
+  };
+  return newBall;
+};
+
 const newGameCopy = (): IGame => {
-  return JSON.parse(JSON.stringify(gameSpawn));
+  const newGame: IGame = JSON.parse(JSON.stringify(gameSpawn));
+  newGame.ball = randomBallSpawn();
+  return newGame;
 };
 
 interface IQueuePop {
@@ -154,11 +173,11 @@ export class GamesService {
       bounceOnPaddle(localGame.gameState.ball, localGame.gameState.leftPaddle);
     } else if (newBall.x > properties.window.width) {
       // missed right paddle
-      localGame.gameState.ball = ballSpawn;
+      localGame.gameState.ball = randomBallSpawn();
       localGame.gameState.pointsLeft++;
     } else if (newBall.x < 0) {
       // missed left paddle
-      localGame.gameState.ball = ballSpawn;
+      localGame.gameState.ball = randomBallSpawn();
       localGame.gameState.pointsRight++;
     } else if (newBall.y > properties.window.height || newBall.y < 0) {
       //collision on top/botton
@@ -211,10 +230,10 @@ export class GamesService {
     ) {
       bounceOnPaddle(localGame.gameState.ball, localGame.gameState.leftPaddle);
     } else if (ballHitGoal(newBall) === 'right') {
-      localGame.gameState.ball = ballSpawn;
+      localGame.gameState.ball = randomBallSpawn();
       localGame.gameState.pointsLeft++;
     } else if (ballHitGoal(newBall) === 'left') {
-      localGame.gameState.ball = ballSpawn;
+      localGame.gameState.ball = randomBallSpawn();
       localGame.gameState.pointsRight++;
     } else if (ballhitSide2D(newBall)) {
       bounceOnSide(localGame.gameState.ball);

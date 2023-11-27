@@ -117,7 +117,7 @@ const properties: IProperties = {
     color: "white",
   },
   ballProperties: {
-    radius: 10,
+    radius: 15,
     color: "white",
     acceleration: 1.1,
     maxBounceAngle: 20,
