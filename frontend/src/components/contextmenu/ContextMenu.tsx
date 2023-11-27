@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import { BACKEND } from "../../routes/SetUser";
-import { AuthContext, IAuthContext, IUser } from "../../context/auth";
+import { AuthContext, IUser } from "../../context/auth";
 import { ProfileContext } from "../../context/profile";
 
 const StyledUl = styled.ul<{ $display: boolean; $posX: number; $posY: number }>`
@@ -65,9 +65,9 @@ const ContextMenu: React.FC<IContextMenu> = ({
   const [friendState, setFriendState] = useState<FriendState>(
     FriendState.noFriend,
   );
-  const [ownProfile, setOwnProfile] = useState<boolean>(false);
   let [isLoading, setIsLoading] = useState<boolean>(true);
-  const auth: IAuthContext = useContext(AuthContext);
+  const auth = useContext(AuthContext);
+  const [ownProfile, setOwnProfile] = useState<boolean>(false);
   const [, setRefreshFlag] = useState(false);
 
   const handleFriendAccept = async (friend: string | undefined) => {
@@ -168,7 +168,7 @@ const ContextMenu: React.FC<IContextMenu> = ({
           "Content-Type": "application/json",
         },
         credentials: "include",
-        body: JSON.stringify( user.name ),
+        body: JSON.stringify( {name: user.name} ),
       });
       if (!res.ok) {
         throw new Error("Network response was not ok");
@@ -227,6 +227,7 @@ const ContextMenu: React.FC<IContextMenu> = ({
             profile.name = user.name ? user.name : ""
             profile.intraname = user.intraname ? user.intraname : ""
             profile.profilePictureUrl = user.profilePictureUrl ? user.profilePictureUrl: ""
+            profile.display = true
           }}>👤 Visit Profile</OptionLi>
         )}
         <LineLi />

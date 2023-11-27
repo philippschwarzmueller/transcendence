@@ -33,15 +33,22 @@ const Root: React.FC = () => {
 
   return (
     <>
-      <ProfileContext.Provider value={{intraname: "", name: "", profilePictureUrl: "",}}> 
-      <AuthContext.Provider value={{ user, logIn, logOut }}>
-        <SocketContext.Provider value={awSocket}>
-          <RefreshProvider>
-            <GlobalStyle />
-            <Outlet />
-          </RefreshProvider>
-        </SocketContext.Provider>
-      </AuthContext.Provider>
+      <ProfileContext.Provider
+        value={{
+          intraname: "",
+          name: "",
+          profilePictureUrl: "",
+          display: false,
+        }}
+      >
+        <AuthContext.Provider value={{ user, logIn, logOut }}>
+          <SocketContext.Provider value={awSocket}>
+            <RefreshProvider>
+              <GlobalStyle />
+              <Outlet />
+            </RefreshProvider>
+          </SocketContext.Provider>
+        </AuthContext.Provider>
       </ProfileContext.Provider>
     </>
   );

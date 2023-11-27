@@ -132,6 +132,7 @@ const Friendbrowser: React.FC<{ $display: boolean; z?: number }> = ({
               <Playercard
                 user={friend}
                 triggerReload={triggerReload}
+                key={friend.name}
               />
             );
           })}
@@ -155,6 +156,7 @@ const Friendbrowser: React.FC<{ $display: boolean; z?: number }> = ({
                   <Playercard
                     user={users}
                     triggerReload={triggerReload}
+                    key={users.name}
                   />
                 </li>
               );

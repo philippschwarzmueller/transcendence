@@ -130,7 +130,6 @@ const Taskbar: React.FC = () => {
   const [displayUsers, setDisplayUsers] = useState<boolean>(false);
   const [displayStart, setDisplayStart] = useState<boolean>(false);
   const [displayLeaderboard, setDisplayLeaderboard] = useState<boolean>(false);
-  const [displayProfile, setDisplayProfile] = useState<boolean>(false);
   const [displayFriends, setDisplayFriends] = useState<boolean>(false);
   const [displayProfileSettings, setDisplayProfileSettings] =
     useState<boolean>(false);
@@ -163,7 +162,7 @@ const Taskbar: React.FC = () => {
     <>
       <div onClick={() => changeOrder(Windows.Profile)}>
         <Profilewindow
-          $display={displayProfile}
+          $display={profile.display}
           z={displayOrder[Windows.Profile]}
         />
       </div>
@@ -199,7 +198,7 @@ const Taskbar: React.FC = () => {
               profile.intraname = auth.user.intraname ? auth.user.intraname : "";
               profile.name = auth.user.name ? auth.user.name : "";
               profile.profilePictureUrl = auth.user.profilePictureUrl ? auth.user.profilePictureUrl : "";
-              setDisplayProfile(!displayProfile);
+              profile.display = !profile.display
               changeOrder(Windows.Profile);
             }}
           >
