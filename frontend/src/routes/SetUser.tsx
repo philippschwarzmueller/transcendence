@@ -72,7 +72,8 @@ const SetUser: React.FC = () => {
             });
             setRedirect(true);
           }
-        });
+        })
+        .catch((err) => console.error(err));
     }
   }, [location.search, auth]); // eslint-disable-line react-hooks/exhaustive-deps
 
