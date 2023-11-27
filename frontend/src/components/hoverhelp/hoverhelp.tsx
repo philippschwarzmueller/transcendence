@@ -1,22 +1,11 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import icon from "./book.png";
+import { ButtonWrapper } from "../homebutton/homebutton";
 
 export interface HoverHelpProps {
   children?: React.ReactNode;
 }
-
-const Wrapper = styled.div`
-  background-color: rgb(195, 199, 203);
-  position: relative;
-  z-index: 50;
-  border-top: 1px solid white;
-  border-left: 1px solid white;
-  border-bottom: 1px solid black;
-  border-right: 1px solid black;
-  box-shadow: inset 0.5px 0.5px 0px 0.5px #ffffff, inset 0 0 0 1px #868a8e,
-    1px 0px 0 0px #000000, 0px 1px 0 0px #000000, 1px 1px 0 0px #000000;
-`;
 
 const PopupWrapper = styled.div<{ position: { top: number; left: number } }>`
   padding-left: 10px;
@@ -67,14 +56,14 @@ const HoverHelp: React.FC<HoverHelpProps> = (props: HoverHelpProps) => {
   return (
     <>
       {isHovered ? <Popup /> : null}
-      <Wrapper
+      <ButtonWrapper
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => {
           setIsHovered(false);
         }}
       >
         <img src={icon} alt="icon" />
-      </Wrapper>
+      </ButtonWrapper>
     </>
   );
 };

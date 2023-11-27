@@ -4,6 +4,7 @@ import Pagetitle from "../components/pagetitle/Pagetitle";
 import GameWindow from "../components/gamewindow/";
 import { useParams } from "react-router-dom";
 import { BACKEND } from "./SetUser";
+import styled from "styled-components";
 
 const fetchPlayers = async (gameId: string | undefined): Promise<string> => {
   const res = await fetch(`${BACKEND}/games/players/${gameId}`);
@@ -11,6 +12,9 @@ const fetchPlayers = async (gameId: string | undefined): Promise<string> => {
   const players: string[] = await res.json();
   return `${players[0]} vs ${players[1]}`;
 };
+const StyledDiv = styled.div`
+  padding-bottom: 30px;
+`;
 
 const Game: React.FC = () => {
   const params = useParams();
@@ -25,7 +29,9 @@ const Game: React.FC = () => {
   }, [params.gameId]);
   return (
     <>
-      <Pagetitle>{gameTitle}</Pagetitle>
+      <StyledDiv>
+        <Pagetitle>{gameTitle}</Pagetitle>
+      </StyledDiv>
       <GameWindow></GameWindow>
     </>
   );

@@ -28,6 +28,7 @@ import { validateToken } from "../../routes/PrivateRoute";
 import Button from "../button";
 import styled from "styled-components";
 import Hoverhelp from "../hoverhelp";
+import Homebutton from "../homebutton";
 
 export interface IGameCanvas {
   background: React.MutableRefObject<HTMLCanvasElement>;
@@ -44,15 +45,12 @@ const StyledDiv = styled.div`
   align-items: center;
 `;
 
-const StyledButton = styled(Button)`
-  z-index: 5;
-  margin-top: -22px;
-`;
-
-const HoverDiv = styled.div<{ top: number; left: number }>`
-  position: absolute;
-  top: ${(props) => props.top}px;
-  left: ${(props) => props.left}px;
+const ButtonDiv = styled.div`
+  margin-top: -50px;
+  width: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 `;
 
 const finishGame = (
@@ -171,9 +169,6 @@ const GameWindow: React.FC = () => {
 
   return (
     <>
-      <HoverDiv top={0} left={0}>
-        <Hoverhelp />
-      </HoverDiv>
       <StyledDiv>
         <Centerdiv>
           <div>
@@ -221,13 +216,10 @@ const GameWindow: React.FC = () => {
           </div>
         </Centerdiv>
         <Centerdiv>
-          <StyledButton
-            onClick={() => {
-              navigate("/home");
-            }}
-          >
-            Leave Game
-          </StyledButton>
+          <ButtonDiv>
+            <Homebutton />
+            <Hoverhelp />
+          </ButtonDiv>
         </Centerdiv>
       </StyledDiv>
     </>
