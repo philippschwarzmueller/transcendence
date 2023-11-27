@@ -22,7 +22,7 @@ interface MatchHistoryProps {
 }
 
 const Container = styled.div<{ $display?: boolean }>`
-  display: ${(props) => props.$display ? "" : "none"};
+  display: ${(props) => (props.$display ? "" : "none")};
   position: relative;
   text-align: center;
   width: 100%;
@@ -149,7 +149,7 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({ intraname, display }) => {
       }
     };
 
-    fetchData();
+    if (intraname) fetchData();
   }, [intraname]);
 
   const handleMatchClick = (enemyIntra: string) => {
