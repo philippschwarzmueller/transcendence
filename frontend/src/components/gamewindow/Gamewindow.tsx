@@ -178,8 +178,6 @@ const GameWindow: React.FC = () => {
               height={properties.window.height}
               tabIndex={0}
             ></Gamecanvas>
-          </div>
-          <div>
             <Gamecanvas
               id="scoreCanvas"
               ref={gameCanvas.score}
@@ -187,8 +185,6 @@ const GameWindow: React.FC = () => {
               height={properties.window.height}
               tabIndex={0}
             ></Gamecanvas>
-          </div>
-          <div>
             <Gamecanvas
               id="paddleCanvas"
               ref={gameCanvas.paddle}
@@ -196,8 +192,6 @@ const GameWindow: React.FC = () => {
               height={properties.window.height}
               tabIndex={0}
             ></Gamecanvas>
-          </div>
-          <div>
             <Gamecanvas
               id="ballCanvas"
               ref={gameCanvas.ball}
