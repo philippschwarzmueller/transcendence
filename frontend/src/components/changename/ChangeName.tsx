@@ -5,10 +5,14 @@ import { BACKEND } from "../../routes/SetUser";
 import { AuthContext, IAuthContext, IUser } from "../../context/auth";
 
 interface NameChangeProps {
-  auth: IAuthContext
+  auth: IAuthContext;
+  setProfileLink: (profileLink: string) => void;
 }
 
-const NameChangeSection: React.FC<NameChangeProps> = ({auth}) => {
+const NameChangeSection: React.FC<NameChangeProps> = ({
+  auth,
+  setProfileLink,
+}) => {
   const [newName, setNewName] = useState("");
 
   const isWhitespaceOrEmpty = (input: string): boolean => {
@@ -27,12 +31,14 @@ const NameChangeSection: React.FC<NameChangeProps> = ({auth}) => {
           credentials: "include",
         });
         const updatedUser: IUser = await res.json();
-        if (updatedUser.name !== auth.user.name) {
+        if (
+          updatedUser.name !== auth.user.name &&
+          updatedUser.name != undefined
+        ) {
           auth.logIn(updatedUser);
-          if (updatedUser.name !== undefined) {
-            setNewName("");
-            alert(`Name changed to '${newName}'`);
-          }
+          setProfileLink(updatedUser.name);
+          setNewName("");
+          alert(`Name changed to '${newName}'`);
         } else {
           alert("Name already exists, pick another one");
           setNewName("");

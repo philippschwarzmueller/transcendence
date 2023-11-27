@@ -89,7 +89,6 @@ export class AuthController {
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
-    console.log(signIn.user);
     res.redirect(
       `http://${this.hostIP}:3000/set-user?user=${signIn.user.name}&firstSignIn=${signIn.firstLogin}`,
     );

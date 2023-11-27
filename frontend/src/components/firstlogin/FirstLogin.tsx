@@ -19,7 +19,7 @@ interface FirstLoginProps {
 }
 
 const FirstLogin: React.FC<FirstLoginProps> = ({auth}) => {
-  const [profileLink] = useState(`${auth.user.name}`);
+  const [profileLink, setProfileLink] = useState(`${auth.user.name}`);
 
   return (
     <>
@@ -33,7 +33,7 @@ const FirstLogin: React.FC<FirstLoginProps> = ({auth}) => {
           this stuff later as well
         </p>
       </div>
-      <NameChangeSection auth={auth}/>
+      <NameChangeSection auth={auth} setProfileLink={setProfileLink}/>
       <AvatarChangeSection />
       <TwoFactorAuthSection />
       <Link to={`/profile/${profileLink}`}>

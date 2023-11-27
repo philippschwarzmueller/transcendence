@@ -9,13 +9,13 @@ import Taskbar from "../components/taskbar/Taskbar";
 
 const ProfileSettings: React.FC = () => {
   const auth: IAuthContext = useContext(AuthContext);
-  const [profileLink] = useState(`${auth.user.name}`);
+  const [profileLink, setProfileLink] = useState<string>(`${auth.user.name}`);
 
   return (
     <>
       <Taskbar />
       <h1>Profile Settings</h1>
-      <NameChangeSection auth={auth} />
+      <NameChangeSection auth={auth} setProfileLink={setProfileLink} />
       <h3>Change Avatar</h3>
       <AvatarChangeSection />
       <TwoFactorAuthSection />
