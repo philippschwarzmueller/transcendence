@@ -3,7 +3,6 @@ import { styled } from "styled-components";
 import { IUser } from "../../context/auth";
 import Moveablewindow from "../moveablewindow";
 import Playercard from "../playercard";
-import { error } from "console";
 
 const Browser = styled.div`
   user-select: none;
