@@ -15,7 +15,7 @@ const StyledImg = styled.img`
 `;
 
 const FirstLogin: React.FC = () => {
-  const auth = useContext(AuthContext);
+  const auth: IAuthContext = useContext(AuthContext);
   const [profileLink, setProfileLink] = useState(`${auth.user.name}`);
 
   return (
