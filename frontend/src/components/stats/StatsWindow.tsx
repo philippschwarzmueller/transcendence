@@ -22,20 +22,6 @@ const ContentContainer = styled.div`
   gap: 20px;
 `;
 
-const Title = styled.div`
-  background-color: #5a7b8c;
-  color: white;
-  padding: 10px;
-  font-weight: bold;
-  border-top-left-radius: 5px;
-  border-top-right-radius: 5px;
-  width: 102%;
-  box-shadow: rgb(255, 255, 255) 1px 1px 0px 1px inset,
-    rgb(134, 138, 142) 0px 0px 0px 1px inset, rgb(0, 0, 0) 1px 1px 0px 1px;
-  margin-bottom: 10px;
-  margin-top: -13px;
-`;
-
 const StatItem = styled.div`
   display: flex;
   justify-content: space-between;
@@ -99,7 +85,6 @@ const StatsWindow: React.FC<StatsWindowProps> = ({ intraname }) => {
   return (
     <StyledStatsWindow>
       <ContentContainer>
-        <Title>{intraname}'s Stats</Title>
         <StatItem>
           <StatLabel>Won:</StatLabel>
           <StatValue>{wonGames}</StatValue>

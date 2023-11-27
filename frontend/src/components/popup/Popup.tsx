@@ -11,6 +11,8 @@ import Input from "../input/Input";
 import styled from "styled-components";
 import { IUser } from "../../context/auth";
 import { SocketContext } from "../../context/socket";
+import Button from "../button/Button";
+import Userbrowser from "../userbrowser/Userbrowser";
 import { EChannelType } from "../chatwindow/properties";
 
 const InputField = styled.div<{
@@ -49,14 +51,15 @@ function Popup(
   { placeholder, children, user, setTabs }: props,
   ref: Ref<refs>,
 ) {
-  const [input, setInput] = useState<string>("");
   const socket = useContext(SocketContext);
+  const [input, setInput] = useState<string>("");
+  const [display, setDisplay] = useState<boolean>(false);
+  const [positionX, setPositionX] = useState<number>(0);
+  const [positionY, setPositionY] = useState<number>(0);
+  const [visable, setVisable] = useState<boolean>(false);
   const [channelType, setChanneltype] = useState<EChannelType>(
     EChannelType.PUBLIC,
   );
-  let [display, setDisplay] = useState<boolean>(false);
-  let [positionX, setPositionX] = useState<number>(0);
-  let [positionY, setPositionY] = useState<number>(0);
 
   useImperativeHandle(ref, () => ({
     openRoom,
@@ -71,6 +74,9 @@ function Popup(
 
   return (
     <>
+      <Userbrowser
+        $display={visable}
+        ></Userbrowser>
       <InputField $display={display} $posX={positionX} $posY={positionY}>
         {children}
         <Input
@@ -91,6 +97,8 @@ function Popup(
             }
           }}
         ></Input>
+        <Button onClick={() => setVisable(!visable)}
+          >User Chat</Button>
         <form>
           <label>
             <input

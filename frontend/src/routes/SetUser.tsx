@@ -74,11 +74,11 @@ const SetUser: React.FC = () => {
           }
         });
     }
-  }, [location.search, auth]);
+  }, [location.search, auth]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (redirect) {
-      nav(`/profile/${user?.name}`);
+      nav(`/test`); //TODO change later for login redirect
     }
   }, [nav, redirect, user?.name]);
 

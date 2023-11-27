@@ -1,4 +1,4 @@
-import { Controller, Delete, HttpCode, Post, Get, Query } from '@nestjs/common';
+import { Controller, Delete, HttpCode, Get, Query } from '@nestjs/common';
 import { ChatService } from './chat.service';
 
 @Controller('chat')
