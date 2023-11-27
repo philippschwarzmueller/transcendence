@@ -1,6 +1,5 @@
 import Button from "../button";
-import { Socket } from "socket.io-client";
-import { AuthContext, IUser } from "../../context/auth";
+import { AuthContext } from "../../context/auth";
 import { useContext, useEffect, useState } from "react";
 import { SocketContext } from "../../context/socket";
 import styled from "styled-components";
@@ -74,7 +73,7 @@ const Queuepopwindow: React.FC<IQueuepopwindowProps> = (
         "A match has been found, do you want to accept or decline?"
       );
     }
-  }, [queue]);
+  }, [queue]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <>
       {queue.queueFound ? (
