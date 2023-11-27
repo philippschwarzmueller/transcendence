@@ -77,10 +77,12 @@ const Profilewindow: React.FC<{ $display: boolean; z?: number }> = ({
         <ProfileArea>
           <UserData>
             <ProfilePicture
-              name={auth.user.name}
+              name={auth.user.intraname}
               profilePictureUrl={auth.user.profilePictureUrl}
             />
-            <StatsWindow intraname={auth.user.name ? auth.user.name : ""} />
+            <StatsWindow
+              intraname={auth.user.intraname ? auth.user.intraname : ""}
+            />
           </UserData>
           <Tabs>
             <Tabbar>
@@ -106,11 +108,11 @@ const Profilewindow: React.FC<{ $display: boolean; z?: number }> = ({
             </Tabbar>
             <Tabcontent>
               <MatchHistory
-                intraname={auth.user.name ? auth.user.name : ""}
+                intraname={auth.user.intraname ? auth.user.intraname : ""}
                 display={displayMatch}
               />
               <Elograph
-                intraname={auth.user.name ? auth.user.name : ""}
+                intraname={auth.user.intraname ? auth.user.intraname : ""}
                 display={displayElo}
               />
             </Tabcontent>
