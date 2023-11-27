@@ -1,6 +1,6 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { styled } from "styled-components";
-import { AuthContext } from "../../context/auth";
+import { ProfileContext } from "../../context/profile";
 import Elograph from "../elograph";
 import MatchHistory from "../matchhistory/Matchhistory";
 import Moveablewindow from "../moveablewindow/Moveablewindow";
@@ -64,23 +64,26 @@ const Profilewindow: React.FC<{ $display: boolean; z?: number }> = ({
   $display,
   z,
 }) => {
-  const auth = useContext(AuthContext);
+  const user = useContext(ProfileContext);
   const [displayMatch, setDisplayMatch] = useState<boolean>(true);
   const [displayElo, setDisplayElo] = useState<boolean>(false);
+
+  useEffect(() => {}, [user]);
+
   return (
     <>
       <Moveablewindow
-        title={auth.user.name ? auth.user.name + "'s profile" : "profile"}
+        title={user.name ? user.name + "'s profile" : "profile"}
         display={$display}
         positionZ={z}
       >
         <ProfileArea>
           <UserData>
             <ProfilePicture
-              name={auth.user.name}
-              profilePictureUrl={auth.user.profilePictureUrl}
+              name={user.name}
+              profilePictureUrl={user.profilePictureUrl}
             />
-            <StatsWindow intraname={auth.user.name ? auth.user.name : ""} />
+            <StatsWindow intraname={user.name ? user.name : ""} />
           </UserData>
           <Tabs>
             <Tabbar>
@@ -106,11 +109,11 @@ const Profilewindow: React.FC<{ $display: boolean; z?: number }> = ({
             </Tabbar>
             <Tabcontent>
               <MatchHistory
-                intraname={auth.user.name ? auth.user.name : ""}
+                intraname={user.name ? user.name : ""}
                 display={displayMatch}
               />
               <Elograph
-                intraname={auth.user.name ? auth.user.name : ""}
+                intraname={user.name ? user.name : ""}
                 display={displayElo}
               />
             </Tabcontent>

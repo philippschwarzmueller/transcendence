@@ -78,7 +78,7 @@ const SetUser: React.FC = () => {
 
   useEffect(() => {
     if (redirect) {
-      nav(`/test`); //TODO change later for login redirect
+      nav(`/Home`); //TODO change later for login redirect
     }
   }, [nav, redirect, user?.name]);
 

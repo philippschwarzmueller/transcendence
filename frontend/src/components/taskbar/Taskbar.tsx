@@ -1,7 +1,7 @@
 import { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import { styled } from "styled-components";
-import { AuthContext } from "../../context/auth";
+import { AuthContext, IUser } from "../../context/auth";
 import { BACKEND } from "../../routes/SetUser";
 import Chatwindow from "../chatwindow/Chatwindow";
 import Friendbrowser from "../friendbrowser/Friendbrowser";

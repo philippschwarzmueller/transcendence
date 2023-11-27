@@ -73,10 +73,7 @@ const Userbrowser: React.FC<{ $display: boolean; z?: number }> = ({
             {users.map((user) => {
               return (
                 <Playercard
-                  key={user.name}
-                  name={user.name}
-                  id={user.id}
-                  profilePictureUrl={user.profilePictureUrl}
+                  user={user}
                 />
               );
             })}
