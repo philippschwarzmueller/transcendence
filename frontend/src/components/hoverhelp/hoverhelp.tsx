@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import icon from "./book.png";
+import icon from "../../images/questionbook.png";
 import { ButtonWrapper } from "../homebutton/homebutton";
 
 export interface HoverHelpProps {

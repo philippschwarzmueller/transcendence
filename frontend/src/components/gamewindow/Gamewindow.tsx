@@ -25,7 +25,6 @@ import {
   resizeCanvas,
 } from "./windowresizing";
 import { validateToken } from "../../routes/PrivateRoute";
-import Button from "../button";
 import styled from "styled-components";
 import Hoverhelp from "../hoverhelp";
 import Homebutton from "../homebutton";

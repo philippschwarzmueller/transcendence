@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import styled from "styled-components";
-import icon from "./errorbutton.png";
+import icon from "../../images/errorbutton.png";
 import { NavigateFunction, useNavigate } from "react-router-dom";
 
 export interface HoverHelpProps {
