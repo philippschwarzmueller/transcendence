@@ -33,7 +33,7 @@ const SetUser: React.FC = () => {
         auth.logIn({
           id: Number(user.id),
           name: user.name,
-          intraname: user.name,
+          intraname: user.intraname,
           twoFAenabled: user.twoFAenabled,
           profilePictureUrl: user.profilePictureUrl,
           activeChats: user.activeChats,
@@ -65,7 +65,7 @@ const SetUser: React.FC = () => {
             auth.logIn({
               id: Number(resUser.id),
               name: resUser.name,
-              intraname: resUser.name,
+              intraname: resUser.intraname,
               twoFAenabled: resUser.twoFAenabled,
               profilePictureUrl: resUser.profilePictureUrl,
               activeChats: resUser.activeChats,
