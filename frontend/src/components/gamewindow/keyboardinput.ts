@@ -1,7 +1,9 @@
+import { NavigateFunction } from "react-router-dom";
 import { IKeyState } from "./properties";
 
 export const setKeyEventListener = (
-  keystateRef: React.MutableRefObject<IKeyState>
+  keystateRef: React.MutableRefObject<IKeyState>,
+  navigate: NavigateFunction
 ): void => {
   window.addEventListener(
     "keydown",
@@ -10,6 +12,7 @@ export const setKeyEventListener = (
       if (e.key === "ArrowDown") keystateRef.current.down = true;
       if (e.key === "ArrowLeft") keystateRef.current.left = true;
       if (e.key === "ArrowRight") keystateRef.current.right = true;
+      if (e.key === "Escape") navigate("/home");
     },
     true
   );
