@@ -50,6 +50,7 @@ const StatsWindow: React.FC<StatsWindowProps> = ({ intraname }) => {
   const [totalGames, setTotalGames] = useState<number>(0);
   const [elo, setElo] = useState<number>(0);
   const [winRate, setWinRate] = useState<number>(0);
+  const [winrateDisplay, setWinrateDisplay] = useState<string>("0");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -79,7 +80,10 @@ const StatsWindow: React.FC<StatsWindowProps> = ({ intraname }) => {
       }
     };
 
-    if (intraname) fetchData();
+    if (intraname)
+      fetchData().then(() => {
+        setWinrateDisplay(winRate.toFixed(2));
+      });
   }, [intraname]);
 
   return (
@@ -91,7 +95,7 @@ const StatsWindow: React.FC<StatsWindowProps> = ({ intraname }) => {
         </StatItem>
         <StatItem>
           <StatLabel>Win Rate:</StatLabel>
-          <StatValue>{winRate.toFixed(2)}%</StatValue>
+          <StatValue>{winrateDisplay}%</StatValue>
         </StatItem>
         <StatItem>
           <StatLabel>Total Games:</StatLabel>
