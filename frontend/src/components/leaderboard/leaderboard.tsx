@@ -66,7 +66,8 @@ const StyledTableContainer = styled.div`
     background: rgb(195, 199, 203);
     color: rgb(0, 0, 0);
     border: 0px;
-    box-shadow: rgb(0, 0, 0) -1px -1px 0px 0px inset,
+    box-shadow:
+      rgb(0, 0, 0) -1px -1px 0px 0px inset,
       rgb(210, 210, 210) 1px 1px 0px 0px inset,
       rgb(134, 138, 142) -2px -2px 0px 0px inset,
       rgb(255, 255, 255) 2px 2px 0px 0px inset;
@@ -89,7 +90,10 @@ const StyledTableHead = styled.thead`
 
 const StyledTableBody = styled.tbody``;
 
-const Leaderboard: React.FC = () => {
+const Leaderboard: React.FC<{ $display: boolean, z?: number}> = ({
+  $display,
+  z
+}) => {
   const [data, setData] = useState<ILeaderboardLine[]>([]);
   const [gamemode, setGamemode] = useState<string>("0");
   const [sortedBy, setSortedBy] = useState<ESortedBy>(ESortedBy.Elo);
@@ -125,7 +129,11 @@ const Leaderboard: React.FC = () => {
 
   return (
     <>
-      <Moveablewindow>
+      <Moveablewindow
+        title="Leaderboard"
+        positionZ={z}
+        display={$display}
+      >
         <WindowWrapper title="sortBy">
           <HorizontalContainer>
             <p></p>

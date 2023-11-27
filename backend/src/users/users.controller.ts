@@ -20,6 +20,12 @@ export class UsersController {
   findAll(): Promise<User[]> {
     return this.usersService.findAll();
   }
+
+  @Get('names')
+  findAllNames(): Promise<string[]> {
+    return this.usersService.findAllNames();
+  }
+
   @Get(':userId')
   async findOne(@Param('userId') name: string): Promise<User> {
     try {
