@@ -1,20 +1,22 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import React, { useEffect, useState, useContext } from "react";
-import { AuthContext, IUser } from "../context/auth";
+import { AuthContext, IAuthContext, IUser } from "../context/auth";
 import Input from "../components/input/Input";
 import Button from "../components/button";
 import FirstLogin from "../components/firstlogin/FirstLogin";
+import PrivateRoute from "./PrivateRoute";
 
 export const BACKEND: string = `http://${window.location.hostname}:${4000}`;
 
 const SetUser: React.FC = () => {
   const nav = useNavigate();
   const location = useLocation();
-  const [redirect, setRedirect] = useState(false);
-  const [twoFaCode, setTwoFaCode] = useState("");
-  const [isFirstLogin, setIsFirstLogin] = useState(true);
+  const [redirect, setRedirect] = useState<boolean>(false);
+  const [twoFaCode, setTwoFaCode] = useState<string>("");
+  const [isFirstLogin, setIsFirstLogin] = useState<boolean>(true);
   const [user, setUser] = useState<IUser>();
-  const auth = useContext(AuthContext);
+  const auth = useContext<IAuthContext>(AuthContext);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const handleTwoFaCodeSubmit = async (): Promise<void> => {
     try {
@@ -58,7 +60,7 @@ const SetUser: React.FC = () => {
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
     const userName: string | null = urlParams.get("user");
-    setIsFirstLogin(urlParams.get("firstSignIn") === 'true');
+    setIsFirstLogin(urlParams.get("firstSignIn") === "true");
     if (userName) {
       fetch(`${BACKEND}/users/${userName}`)
         .then((res) => res.json())
@@ -73,20 +75,24 @@ const SetUser: React.FC = () => {
               profilePictureUrl: resUser.profilePictureUrl,
               activeChats: resUser.activeChats,
             });
-            if(!isFirstLogin){
+            if (!isFirstLogin) {
               setRedirect(true);
             }
           }
         });
+      setIsLoading(false);
     }
-  }, [location.search, auth]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (redirect) {
-      console.log(isFirstLogin);
       nav(`/test`); //TODO change later for login redirect
     }
-  }, [nav, redirect, user?.name]);
+  }, [redirect]);
+
+  if (isLoading) {
+    return <div></div>;
+  }
 
   return (
     <>
@@ -105,7 +111,11 @@ const SetUser: React.FC = () => {
           </div>
         </div>
       )}
-      {isFirstLogin && <FirstLogin/>}
+      {isFirstLogin && (
+          <PrivateRoute>
+            <FirstLogin auth={auth} />
+          </PrivateRoute>
+      )}
     </>
   );
 };

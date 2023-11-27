@@ -1,7 +1,45 @@
-import React from 'react';
+import React, { useContext, useState } from "react";
+import NameChangeSection from "../changename/ChangeName";
+import TwoFactorAuthSection from "../twoFaSection/TwoFaSection";
+import styled from "styled-components";
+import AvatarChangeSection from "../changeavatar/ChangeAvatar";
+import { IAuthContext } from "../../context/auth";
+import { Link } from "react-router-dom";
+import Button from "../button/Button";
 
-const FirstLogin: React.FC = () => (
-  <h1>TEST</h1>
-);
+const StyledImg = styled.img`
+  max-height: 300px;
+  max-width: 300px;
+  box-shadow: rgb(255, 255, 255) 1px 1px 0px 1px inset,
+    rgb(134, 138, 142) 0px 0px 0px 1px inset, rgb(0, 0, 0) 1px 2px 1px 1px;
+`;
 
+interface FirstLoginProps {
+  auth: IAuthContext;
+}
+
+const FirstLogin: React.FC<FirstLoginProps> = ({auth}) => {
+  const [profileLink] = useState(`${auth.user.name}`);
+
+  return (
+    <>
+      <div>
+        <StyledImg src="https://i.kym-cdn.com/editorials/icons/mobile/000/004/391/Hello_there.jpg" />
+      </div>
+      <div>
+        <p>
+          It looks like it's your first time here You can now change your name,
+          set a new profile picture or enabled 2FA Don't worry, you can set up
+          this stuff later as well
+        </p>
+      </div>
+      <NameChangeSection auth={auth}/>
+      <AvatarChangeSection />
+      <TwoFactorAuthSection />
+      <Link to={`/profile/${profileLink}`}>
+        <Button>Continue to your profile</Button>
+      </Link>
+    </>
+  );
+};
 export default FirstLogin;
