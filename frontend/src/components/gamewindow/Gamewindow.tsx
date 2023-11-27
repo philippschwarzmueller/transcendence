@@ -158,8 +158,6 @@ const GameWindow: React.FC = () => {
             height={properties.window.height}
             tabIndex={0}
           ></Gamecanvas>
-        </div>
-        <div>
           <Gamecanvas
             id="scoreCanvas"
             ref={gameCanvas.score}
@@ -167,8 +165,6 @@ const GameWindow: React.FC = () => {
             height={properties.window.height}
             tabIndex={0}
           ></Gamecanvas>
-        </div>
-        <div>
           <Gamecanvas
             id="paddleCanvas"
             ref={gameCanvas.paddle}
@@ -176,15 +172,14 @@ const GameWindow: React.FC = () => {
             height={properties.window.height}
             tabIndex={0}
           ></Gamecanvas>
-        </div>
-        <div>
           <Gamecanvas
-            id="ballCanvas"
+            id="ballCanvas1"
             ref={gameCanvas.ball}
             width={properties.window.width}
             height={properties.window.height}
             tabIndex={1}
           ></Gamecanvas>
+
           <Gamecanvas
             id="endScreenCanvas"
             ref={gameCanvas.endScreen}
