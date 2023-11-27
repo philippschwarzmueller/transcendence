@@ -1,7 +1,8 @@
 import { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import { styled } from "styled-components";
-import { AuthContext, IUser } from "../../context/auth";
+import { AuthContext } from "../../context/auth";
+import { ProfileContext } from "../../context/profile";
 import { BACKEND } from "../../routes/SetUser";
 import Chatwindow from "../chatwindow/Chatwindow";
 import Friendbrowser from "../friendbrowser/Friendbrowser";
@@ -124,6 +125,7 @@ const RoutesLi = styled.li`
 
 const Taskbar: React.FC = () => {
   let auth = useContext(AuthContext);
+  const profile = useContext(ProfileContext);
   const [displayChat, setDisplayChat] = useState<boolean>(false);
   const [displayUsers, setDisplayUsers] = useState<boolean>(false);
   const [displayStart, setDisplayStart] = useState<boolean>(false);
@@ -194,6 +196,9 @@ const Taskbar: React.FC = () => {
         <StyledUl>
           <StyledLi
             onClick={() => {
+              profile.intraname = auth.user.intraname ? auth.user.intraname : "";
+              profile.name = auth.user.name ? auth.user.name : "";
+              profile.profilePictureUrl = auth.user.profilePictureUrl ? auth.user.profilePictureUrl : "";
               setDisplayProfile(!displayProfile);
               changeOrder(Windows.Profile);
             }}

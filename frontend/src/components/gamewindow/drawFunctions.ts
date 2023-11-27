@@ -106,19 +106,16 @@ export const drawBall = (
   context: CanvasRenderingContext2D | undefined | null,
   ball: IBall
 ): void => {
-  if (context === undefined || context === null) return;
+  if (!context ) return;
   const scale: number = getScale();
   context.clearRect(0, 0, properties.window.width, properties.window.height);
   context.fillStyle = properties.ballProperties.color;
-  context.beginPath();
-  context.arc(
-    ball.x * scale,
-    ball.y * scale,
+  context.fillRect(
+    (ball.x - properties.ballProperties.radius / 2) * scale,
+    (ball.y - properties.ballProperties.radius / 2) * scale,
     properties.ballProperties.radius * scale,
-    0,
-    2 * Math.PI
+    properties.ballProperties.radius * scale
   );
-  context.fill();
 };
 
 export const drawBackground = (
