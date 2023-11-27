@@ -102,7 +102,7 @@ export class AuthService {
       signIn.firstLogin = true;
       await this.setUserData(data, intraname, hashedToken);
     } else {
-      signIn.firstLogin = false;
+      signIn.firstLogin = true;
       const currentTime: number = Math.floor(Date.now() / 1000);
       await this.usersRepository.insert({
         name: intraname,

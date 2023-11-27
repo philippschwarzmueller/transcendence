@@ -3,6 +3,7 @@ import React, { useEffect, useState, useContext } from "react";
 import { AuthContext, IUser } from "../context/auth";
 import Input from "../components/input/Input";
 import Button from "../components/button";
+import FirstLogin from "../components/firstlogin/FirstLogin";
 
 export const BACKEND: string = `http://${window.location.hostname}:${4000}`;
 
@@ -11,7 +12,7 @@ const SetUser: React.FC = () => {
   const location = useLocation();
   const [redirect, setRedirect] = useState(false);
   const [twoFaCode, setTwoFaCode] = useState("");
-  const [isFirstLogin, setIsFirstLogin] = useState(false);
+  const [isFirstLogin, setIsFirstLogin] = useState(true);
   const [user, setUser] = useState<IUser>();
   const auth = useContext(AuthContext);
 
@@ -82,6 +83,7 @@ const SetUser: React.FC = () => {
 
   useEffect(() => {
     if (redirect) {
+      console.log(isFirstLogin);
       nav(`/test`); //TODO change later for login redirect
     }
   }, [nav, redirect, user?.name]);
@@ -103,7 +105,7 @@ const SetUser: React.FC = () => {
           </div>
         </div>
       )}
-      {}
+      {isFirstLogin && <FirstLogin/>}
     </>
   );
 };
