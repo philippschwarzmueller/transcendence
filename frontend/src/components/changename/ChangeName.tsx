@@ -5,15 +5,14 @@ import { BACKEND } from "../../routes/SetUser";
 import { AuthContext, IAuthContext, IUser } from "../../context/auth";
 
 interface NameChangeProps {
-  auth: IAuthContext;
   setProfileLink: (profileLink: string) => void;
 }
 
 const NameChangeSection: React.FC<NameChangeProps> = ({
-  auth,
   setProfileLink,
 }) => {
   const [newName, setNewName] = useState("");
+  const auth: IAuthContext  = useContext(AuthContext);
 
   const isWhitespaceOrEmpty = (input: string): boolean => {
     return /^\s*$/.test(input);

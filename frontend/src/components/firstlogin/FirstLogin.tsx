@@ -3,7 +3,7 @@ import NameChangeSection from "../changename/ChangeName";
 import TwoFactorAuthSection from "../twoFaSection/TwoFaSection";
 import styled from "styled-components";
 import AvatarChangeSection from "../changeavatar/ChangeAvatar";
-import { IAuthContext } from "../../context/auth";
+import { AuthContext, IAuthContext } from "../../context/auth";
 import { Link } from "react-router-dom";
 import Button from "../button/Button";
 
@@ -14,11 +14,8 @@ const StyledImg = styled.img`
     rgb(134, 138, 142) 0px 0px 0px 1px inset, rgb(0, 0, 0) 1px 2px 1px 1px;
 `;
 
-interface FirstLoginProps {
-  auth: IAuthContext;
-}
-
-const FirstLogin: React.FC<FirstLoginProps> = ({auth}) => {
+const FirstLogin: React.FC = () => {
+  const auth = useContext(AuthContext);
   const [profileLink, setProfileLink] = useState(`${auth.user.name}`);
 
   return (
@@ -33,7 +30,7 @@ const FirstLogin: React.FC<FirstLoginProps> = ({auth}) => {
           this stuff later as well
         </p>
       </div>
-      <NameChangeSection auth={auth} setProfileLink={setProfileLink}/>
+      <NameChangeSection setProfileLink={setProfileLink}/>
       <AvatarChangeSection />
       <TwoFactorAuthSection />
       <Link to={`/profile/${profileLink}`}>
