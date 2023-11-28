@@ -14,6 +14,7 @@ const Wrapper = styled.div`
 interface SpectatorboardProps {
   intraname?: string;
   display: boolean;
+  z: number;
 }
 
 interface ISpectateGame {
@@ -94,11 +95,15 @@ const Spectatorboard: React.FC<SpectatorboardProps> = (
           console.error(error);
         });
     }
-  }, [props.intraname]);
+  }, [props.intraname, props.display]);
 
   return (
     <>
-      <Moveablewindow title="Running Games" display={props.display}>
+      <Moveablewindow
+        title="Running Games"
+        display={props.display}
+        positionZ={props.z}
+      >
         <Wrapper>
           <StyledList>
             {spectateGames.map((game, key) => (
