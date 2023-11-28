@@ -56,19 +56,12 @@ const CustomTooltip: React.FC<any> = ({ active, payload }) => {
   return null;
 };
 
-interface IData {
-  index: number;
-  value: number;
-}
-
 const GraphComponent: React.FC<{ intraname: string; display?: boolean }> = ({
   intraname,
   display,
 }) => {
   const [eloValues, setEloValues] = useState<number[]>([]);
-  const [data, setData] = useState<IData[]>([]);
-  const [domainMin, setDomainMin] = useState<number>(900);
-  const [domainMax, setDomainMax] = useState<number>(1100);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -80,25 +73,16 @@ const GraphComponent: React.FC<{ intraname: string; display?: boolean }> = ({
       }
     };
 
-    if (intraname)
-      fetchData()
-        .then(() => {
-          eloValues.map((value, index) => ({
-            index: index + 1,
-            value: value,
-          }));
-          setData(
-            eloValues.map((value, index) => ({
-              index: index + 1,
-              value: value,
-            }))
-          );
-        })
-        .then(() => {
-          setDomainMin(Math.floor(Math.min(...eloValues) / 100 - 0.5) * 100);
-          setDomainMax(Math.ceil(Math.max(...eloValues) / 100 + 0.5) * 100);
-        });
-  }, [intraname]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (intraname) fetchData();
+  }, [intraname]);
+
+  const data = eloValues.map((value, index) => ({
+    index: index + 1,
+    elo: value,
+  }));
+
+  const domainMin = Math.floor(Math.min(...eloValues) / 100 - 0.5) * 100;
+  const domainMax = Math.ceil(Math.max(...eloValues) / 100 + 0.5) * 100;
 
   const ticks = Array.from(
     { length: (domainMax - domainMin) / 100 + 1 },
