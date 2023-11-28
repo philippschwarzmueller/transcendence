@@ -16,6 +16,11 @@ export interface TokenResponse {
   secret_valid_until: number;
 }
 
+export interface IntraSignInEvent {
+  user: User;
+  firstLogin: boolean;
+}
+
 export function logTime(timestamp: number, msg: string) {
   const date = new Date(timestamp * 1000);
   console.log(`${msg}: ${date.toUTCString()}`);
@@ -71,10 +76,10 @@ export class AuthService {
     }
   }
 
-  async createIntraUser(
+  async IntraSignIn(
     data: TokenResponse,
     hashedToken: string,
-  ): Promise<User> {
+  ): Promise<IntraSignInEvent> {
     const response: Response | void = await fetch(
       'https://api.intra.42.fr/v2/me',
       {
@@ -89,9 +94,15 @@ export class AuthService {
     const userExists = await this.usersRepository.exist({
       where: { intraname: intraname },
     });
+    const signIn: IntraSignInEvent = {
+      user: null,
+      firstLogin: true,
+    };
     if (userExists) {
+      signIn.firstLogin = false;
       await this.setUserData(data, intraname, hashedToken);
     } else {
+      signIn.firstLogin = true;
       const currentTime: number = Math.floor(Date.now() / 1000);
       await this.usersRepository.insert({
         name: intraname,
@@ -113,7 +124,10 @@ export class AuthService {
     if (userWithDefaultProfilePicture) {
       await this.usersRepository.save({ profilePictureUrl: imageLink });
     }
-    return this.usersRepository.findOne({ where: { intraname: intraname } });
+    signIn.user = await this.usersRepository.findOne({
+      where: { intraname: intraname },
+    });
+    return signIn;
   }
 
   async setUserData(
@@ -193,7 +207,7 @@ export class AuthService {
     return currentTime < expirationTime;
   }
 
-  async nameExists(newName: string, intraName: string): Promise<boolean> {
+  async nameExists(newName: string): Promise<boolean> {
     const userExists: boolean = await this.usersRepository.exist({
       where: { name: newName },
     });
@@ -206,7 +220,7 @@ export class AuthService {
   ): Promise<User | null> {
     const user: User = await this.checkToken(hashedtoken);
     const token: string = user.token;
-    let userExists: boolean = await this.nameExists(newName, user.name);
+    let userExists: boolean = await this.nameExists(newName);
     if (userExists) {
       return user;
     }
