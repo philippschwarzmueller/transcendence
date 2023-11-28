@@ -9,6 +9,8 @@ import Leaderboard from "../leaderboard/leaderboard";
 import Profilesettings from "../profilesettings/Profilesettings";
 import Profilewindow from "../profilewindow/Profilewindow";
 import Userbrowser from "../userbrowser";
+import Queuepopwindow from "../queuepopwindow";
+import Spectatorboard from "../spectatorboard";
 
 const StyledNavbar = styled.nav`
   width: 100vw;
@@ -18,12 +20,8 @@ const StyledNavbar = styled.nav`
   position: absolute;
   bottom: 0;
   background-color: rgb(195, 199, 203);
-  box-shadow:
-    inset 0.5px 0.5px 0px 0.5px #ffffff,
-    inset 0 0 0 1px #868a8e,
-    1px 0px 0 0px #000000,
-    0px 1px 0 0px #000000,
-    1px 1px 0 0px #000000;
+  box-shadow: inset 0.5px 0.5px 0px 0.5px #ffffff, inset 0 0 0 1px #868a8e,
+    1px 0px 0 0px #000000, 0px 1px 0 0px #000000, 1px 1px 0 0px #000000;
   align-items: center;
 `;
 
@@ -47,9 +45,7 @@ const TaskButton = styled.button<{ $active: boolean }>`
     padding: 8 20 4;
     background-color: rgb(215, 216, 220);
 
-    box-shadow:
-      inset 0 0 0 1px rgb(134, 138, 142),
-      0 0 0 1px rgb(0, 0, 0);
+    box-shadow: inset 0 0 0 1px rgb(134, 138, 142), 0 0 0 1px rgb(0, 0, 0);
   }
   box-shadow: ${(props) =>
     props.$active
@@ -65,12 +61,8 @@ const StartMenu = styled.div<{ $display: boolean }>`
   left: 2px;
   z-index: 4;
   background-color: rgb(195, 199, 203);
-  box-shadow:
-    inset 0.5px 0.5px 0px 0.5px #ffffff,
-    inset 0 0 0 1px #868a8e,
-    1px 0px 0 0px #000000,
-    0px 1px 0 0px #000000,
-    1px 1px 0 0px #000000;
+  box-shadow: inset 0.5px 0.5px 0px 0.5px #ffffff, inset 0 0 0 1px #868a8e,
+    1px 0px 0 0px #000000, 0px 1px 0 0px #000000, 1px 1px 0 0px #000000;
   user-select: none;
 `;
 
@@ -116,6 +108,8 @@ enum Windows {
   Users = 3,
   Leaderboard = 4,
   Friends = 5,
+  Queuepopwindow = 6,
+  Spectatorboard = 7,
 }
 
 const RoutesLi = styled.li`
@@ -132,8 +126,10 @@ const Taskbar: React.FC = () => {
   const [displayFriends, setDisplayFriends] = useState<boolean>(false);
   const [displayProfileSettings, setDisplayProfileSettings] =
     useState<boolean>(false);
+  const [displaySpectatorboard, setDisplaySpectatorboard] =
+    useState<boolean>(false);
   const [displayOrder, setDisplayOrder] = useState<number[]>([
-    0, 10, 20, 30, 40, 50
+    0, 10, 20, 30, 40, 50, 60, 70,
   ]);
 
   const handleLogout = async () => {
@@ -148,12 +144,18 @@ const Taskbar: React.FC = () => {
 
   function changeOrder(pos: number) {
     setDisplayOrder([
-      pos === Windows.Profile ? 50 : displayOrder[Windows.Profile] - 10,
-      pos === Windows.Settings ? 50 : displayOrder[Windows.Settings] - 10,
-      pos === Windows.Chat ? 50 : displayOrder[Windows.Chat] - 10,
-      pos === Windows.Users ? 50 : displayOrder[Windows.Users] - 10,
-      pos === Windows.Leaderboard ? 50 : displayOrder[Windows.Leaderboard] - 10,
-      pos === Windows.Friends ? 50 : displayOrder[Windows.Friends] - 10,
+      pos === Windows.Profile ? 70 : displayOrder[Windows.Profile] - 10,
+      pos === Windows.Settings ? 70 : displayOrder[Windows.Settings] - 10,
+      pos === Windows.Chat ? 70 : displayOrder[Windows.Chat] - 10,
+      pos === Windows.Users ? 70 : displayOrder[Windows.Users] - 10,
+      pos === Windows.Leaderboard ? 70 : displayOrder[Windows.Leaderboard] - 10,
+      pos === Windows.Queuepopwindow
+        ? 70
+        : displayOrder[Windows.Queuepopwindow] - 10,
+      pos === Windows.Friends ? 70 : displayOrder[Windows.Friends] - 10,
+      pos === Windows.Spectatorboard
+        ? 70
+        : displayOrder[Windows.Spectatorboard] - 10,
     ]);
   }
 
@@ -187,6 +189,15 @@ const Taskbar: React.FC = () => {
         <Leaderboard
           $display={displayLeaderboard}
           z={displayOrder[Windows.Leaderboard]}
+        />
+      </div>
+      <div onClick={() => changeOrder(Windows.Queuepopwindow)}>
+        <Queuepopwindow></Queuepopwindow>
+      </div>
+      <div onClick={() => changeOrder(Windows.Spectatorboard)}>
+        <Spectatorboard
+          display={displaySpectatorboard}
+          z={displayOrder[Windows.Spectatorboard]}
         />
       </div>
       <StartMenu $display={displayStart}>
@@ -272,6 +283,20 @@ const Taskbar: React.FC = () => {
               alt="leaderboard"
             />
             Leaderboard
+          </StyledLi>
+          <StyledLi
+            onClick={() => {
+              setDisplaySpectatorboard(!displaySpectatorboard);
+              changeOrder(Windows.Spectatorboard);
+            }}
+          >
+            <img
+              src={require("../../images/joystick.png")}
+              height="16"
+              width="16"
+              alt="running games"
+            />
+            Running Games
           </StyledLi>
           <Seperator />
           <StyledLi onClick={() => handleLogout()}>
