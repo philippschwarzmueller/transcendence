@@ -1,8 +1,8 @@
 import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
-import { Link } from "react-router-dom";
 import { BACKEND } from "../../routes/SetUser";
-import { AuthContext, IAuthContext } from "../../context/auth";
+import { AuthContext, IUser } from "../../context/auth";
+import { ProfileContext } from "../../context/profile";
 
 const StyledUl = styled.ul<{ $display: boolean; $posX: number; $posY: number }>`
   display: ${(props) => (props.$display ? "" : "none")};
@@ -43,7 +43,7 @@ export interface IContextMenu {
   display: boolean;
   positionX: number;
   positionY: number;
-  name: string | undefined;
+  user: IUser;
   triggerReload?: () => void;
 }
 
@@ -58,15 +58,16 @@ const ContextMenu: React.FC<IContextMenu> = ({
   display,
   positionX,
   positionY,
-  name,
+  user,
   triggerReload,
 }) => {
+  const profile = useContext(ProfileContext)
   const [friendState, setFriendState] = useState<FriendState>(
     FriendState.noFriend,
   );
-  const [ownProfile, setOwnProfile] = useState<boolean>(false);
   let [isLoading, setIsLoading] = useState<boolean>(true);
-  const auth: IAuthContext = useContext(AuthContext);
+  const auth = useContext(AuthContext);
+  const [ownProfile, setOwnProfile] = useState<boolean>(false);
   const [, setRefreshFlag] = useState(false);
 
   const handleFriendAccept = async (friend: string | undefined) => {
@@ -167,14 +168,14 @@ const ContextMenu: React.FC<IContextMenu> = ({
           "Content-Type": "application/json",
         },
         credentials: "include",
-        body: JSON.stringify({ name }),
+        body: JSON.stringify( {name: user.name} ),
       });
       if (!res.ok) {
         throw new Error("Network response was not ok");
       }
       const friendState: FriendState = await res.json();
       setFriendState(friendState);
-      if (auth.user.name === name) {
+      if (auth.user.name === user.name) {
         setOwnProfile(true);
       }
     } catch (error) {
@@ -204,14 +205,14 @@ const ContextMenu: React.FC<IContextMenu> = ({
       <StyledUl $display={display} $posX={positionX} $posY={positionY}>
         {/* PENDING FRIEND */}
         {friendState === FriendState.pendingFriend && (
-          <OptionLi onClick={() => handleFriendAccept(name)}>
+          <OptionLi onClick={() => handleFriendAccept(user.name)}>
             👥 Accept friend request
           </OptionLi>
         )}
         {friendState === FriendState.pendingFriend && <LineLi />}
         {/* NO FRIEND */}
         {friendState === FriendState.noFriend && !ownProfile && (
-          <OptionLi onClick={() => handleFriendAdd(name)}>
+          <OptionLi onClick={() => handleFriendAdd(user.name)}>
             👨‍❤️‍💋‍👨 Add as friend
           </OptionLi>
         )}
@@ -221,10 +222,13 @@ const ContextMenu: React.FC<IContextMenu> = ({
           <OptionLi>👀 Friend request pending</OptionLi>
         )}
         {friendState === FriendState.requestedFriend && <LineLi />}
-        {name !== undefined && (
-          <Link to={`/profile/${name}`}>
-            <OptionLi>👤 Visit Profile</OptionLi>
-          </Link>
+        {user.name !== undefined && (
+          <OptionLi onClick={() => {
+            profile.name = user.name ? user.name : ""
+            profile.intraname = user.intraname ? user.intraname : ""
+            profile.profilePictureUrl = user.profilePictureUrl ? user.profilePictureUrl: ""
+            profile.display = true
+          }}>👤 Visit Profile</OptionLi>
         )}
         <LineLi />
         {!ownProfile && <OptionLi>🏓 Challenge to Game</OptionLi>}
@@ -233,7 +237,7 @@ const ContextMenu: React.FC<IContextMenu> = ({
         {!ownProfile && <LineLi />}
         {/* FRIEND */}
         {friendState === FriendState.friend && (
-          <OptionLi onClick={() => handleFriendRemove(name)}>
+          <OptionLi onClick={() => handleFriendRemove(user.name)}>
             ❌ Remove friend
           </OptionLi>
         )}

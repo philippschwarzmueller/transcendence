@@ -28,7 +28,7 @@ const Homebutton: React.FC<HoverHelpProps> = (props: HoverHelpProps) => {
   const navigate: NavigateFunction = useNavigate();
   return (
     <>
-      <ButtonWrapper onClick={() => navigate("/test")}>
+      <ButtonWrapper onClick={() => navigate("/Home")}>
         <img src={icon} alt="icon" />
       </ButtonWrapper>
     </>

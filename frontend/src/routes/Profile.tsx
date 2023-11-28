@@ -142,9 +142,7 @@ const Profile: React.FC = () => {
             return (
               <li key={users.name}>
                 <Playercard
-                  name={users?.name}
-                  profilePictureUrl={users?.profilePictureUrl}
-                  id={users.id}
+                  user={users}
                   triggerReload={triggerReload}
                 />
               </li>
@@ -169,9 +167,7 @@ const Profile: React.FC = () => {
               return (
                 <li key={users.name}>
                   <Playercard
-                    name={users?.name}
-                    profilePictureUrl={users?.profilePictureUrl}
-                    id={users.id}
+                    user={users}
                     triggerReload={triggerReload}
                   />
                 </li>
@@ -195,9 +191,7 @@ const Profile: React.FC = () => {
               return (
                 <li key={users.name}>
                   <Playercard
-                    name={users?.name}
-                    profilePictureUrl={users?.profilePictureUrl}
-                    id={users.id}
+                    user={users}
                     triggerReload={triggerReload}
                   />
                 </li>

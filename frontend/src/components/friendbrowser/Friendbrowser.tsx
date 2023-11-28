@@ -130,11 +130,9 @@ const Friendbrowser: React.FC<{ $display: boolean; z?: number }> = ({
           {friends.map((friend) => {
             return (
               <Playercard
-                key={friend.name}
-                name={friend.name}
-                id={friend.id}
-                profilePictureUrl={friend.profilePictureUrl}
+                user={friend}
                 triggerReload={triggerReload}
+                key={friend.name}
               />
             );
           })}
@@ -156,10 +154,9 @@ const Friendbrowser: React.FC<{ $display: boolean; z?: number }> = ({
               return (
                 <li key={users.name}>
                   <Playercard
-                    name={users?.name}
-                    profilePictureUrl={users?.profilePictureUrl}
-                    id={users.id}
+                    user={users}
                     triggerReload={triggerReload}
+                    key={users.name}
                   />
                 </li>
               );
