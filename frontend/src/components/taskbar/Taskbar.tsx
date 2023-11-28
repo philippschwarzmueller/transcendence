@@ -194,7 +194,7 @@ const Taskbar: React.FC = () => {
       <div onClick={() => changeOrder(Windows.Queuepopwindow)}>
         <Queuepopwindow></Queuepopwindow>
       </div>
-      <div onClick={() => changeOrder(Windows.Queuepopwindow)}>
+      <div onClick={() => changeOrder(Windows.Spectatorboard)}>
         <Spectatorboard
           display={displaySpectatorboard}
           z={displayOrder[Windows.Spectatorboard]}
