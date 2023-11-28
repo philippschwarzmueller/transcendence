@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
-import { AuthContext, IAuthContext, IUser } from "../context/auth";
+import { AuthContext, IAuthContext } from "../context/auth";
 import NameChangeSection from "../components/changename";
 import TwoFactorAuthSection from "../components/twoFaSection";
 import Button from "../components/button/Button";

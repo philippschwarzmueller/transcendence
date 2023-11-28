@@ -30,7 +30,7 @@ const NameChangeSection: React.FC<NameChangeProps> = ({ setProfileLink }) => {
         const updatedUser: IUser = await res.json();
         if (
           updatedUser.name !== auth.user.name &&
-          updatedUser.name != undefined
+          updatedUser.name !== undefined
         ) {
           auth.logIn(updatedUser);
           setProfileLink(updatedUser.name);
