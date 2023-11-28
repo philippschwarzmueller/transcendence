@@ -8,11 +8,9 @@ interface NameChangeProps {
   setProfileLink: (profileLink: string) => void;
 }
 
-const NameChangeSection: React.FC<NameChangeProps> = ({
-  setProfileLink,
-}) => {
+const NameChangeSection: React.FC<NameChangeProps> = ({ setProfileLink }) => {
   const [newName, setNewName] = useState("");
-  const auth: IAuthContext  = useContext(AuthContext);
+  const auth: IAuthContext = useContext(AuthContext);
 
   const isWhitespaceOrEmpty = (input: string): boolean => {
     return /^\s*$/.test(input);
