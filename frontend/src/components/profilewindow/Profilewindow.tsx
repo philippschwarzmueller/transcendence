@@ -67,6 +67,7 @@ const Profilewindow: React.FC<{ $display: boolean; z?: number }> = ({
   const auth = useContext(AuthContext);
   const [displayMatch, setDisplayMatch] = useState<boolean>(true);
   const [displayElo, setDisplayElo] = useState<boolean>(false);
+  console.log(auth.user.intraname);
   return (
     <>
       <Moveablewindow
