@@ -49,7 +49,6 @@ const StatsWindow: React.FC<StatsWindowProps> = ({ intraname }) => {
   const [wonGames, setWonGames] = useState<number>(0);
   const [totalGames, setTotalGames] = useState<number>(0);
   const [elo, setElo] = useState<number>(0);
-  const [winRate, setWinRate] = useState<number>(0);
   const [winrateDisplay, setWinrateDisplay] = useState<string>("0");
 
   useEffect(() => {
@@ -74,16 +73,13 @@ const StatsWindow: React.FC<StatsWindowProps> = ({ intraname }) => {
         setWonGames(won);
         setTotalGames(total);
         setElo(playerElo);
-        setWinRate(rate);
+        setWinrateDisplay(rate.toFixed(2));
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
 
-    if (intraname)
-      fetchData().then(() => {
-        setWinrateDisplay(winRate.toFixed(2));
-      });
+    if (intraname) fetchData();
   }, [intraname]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (

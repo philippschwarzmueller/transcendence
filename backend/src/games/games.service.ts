@@ -119,7 +119,7 @@ export class GamesService {
       relations: ['winner', 'looser'],
     });
     const returnGame: IFinishedGame = { gameExists: true };
-    if (!databaseGame) {
+    if (!databaseGame || !databaseGame.isFinished) {
       returnGame.gameExists = false;
       return returnGame;
     }

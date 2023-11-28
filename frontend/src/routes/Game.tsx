@@ -8,6 +8,7 @@ import { BACKEND } from "./SetUser";
 import styled from "styled-components";
 
 const fetchPlayers = async (gameId: string | undefined): Promise<string> => {
+  if (!gameId) return "";
   const res = await fetch(`${BACKEND}/games/players/${gameId}`);
   if (!res.ok) throw new Error("Failed to fetch players");
   const players: string[] = await res.json();

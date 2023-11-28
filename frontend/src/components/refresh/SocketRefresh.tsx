@@ -24,36 +24,37 @@ const SocketRefresh: React.FC<RefreshProviderProps> = ({ children }) => {
   const queue: IQueueContext = useContext(QueueContext);
 
   useEffect(() => {
-    socket.on("queue found", (body: IGameStart) => {
-      removeCookie("queue");
-      queue.setQueueFound(true);
-      queue.setDenied(false);
-    });
+    try {
+      socket.on("queue found", (body: IGameStart) => {
+        removeCookie("queue");
+        queue.setQueueFound(true);
+        queue.setDenied(false);
+      });
 
-    socket.on("game found", (body: IGameStart) => {
-      removeCookie("queue");
-      queue.setQueueFound(false);
-      navigate(`/play/${body.gameId}/${body.side}`);
-    });
+      socket.on("game found", (body: IGameStart) => {
+        removeCookie("queue");
+        queue.setQueueFound(false);
+        navigate(`/play/${body.gameId}/${body.side}`);
+      });
 
-    socket.on("game denied", (body: IGameStart) => {
-      removeCookie("queue");
-      queue.setDenied(true);
-    });
+      socket.on("game denied", (body: IGameStart) => {
+        removeCookie("queue");
+        queue.setDenied(true);
+      });
 
-    const emitChangeSocket = (): void => {
-      if (auth.user.intraname) {
-        const payload: IChangeSocketPayload = {
-          intraname: auth.user.intraname,
-        };
-        socket.emit("changesocket", payload);
-      }
-    };
+      const emitChangeSocket = (): void => {
+        if (auth.user.intraname) {
+          const payload: IChangeSocketPayload = {
+            intraname: auth.user.intraname,
+          };
+          socket.emit("changesocket", payload);
+        }
+      };
 
-    validateToken(auth).then(() => {
-      emitChangeSocket();
-    });
-
+      validateToken(auth).then(() => {
+        emitChangeSocket();
+      });
+    } catch (err) {}
     return () => {
       socket.off("queue found");
     };
