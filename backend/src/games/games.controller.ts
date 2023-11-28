@@ -159,6 +159,7 @@ export class GamesController {
   public async getallgames(
     @Param('intraname') intraname: string,
   ): Promise<IMatch[]> {
+    console.log(intraname);
     const user: User = await this.userRepository.findOne({
       where: { intraname: intraname },
       relations: [
@@ -180,10 +181,10 @@ export class GamesController {
         looserNickname: game.looser.intraname,
         winnerPoints: game.winnerPoints,
         looserPoints: game.looserPoints,
-        wonGame: game.winner.name === intraname,
+        wonGame: game.winner.intraname === intraname,
         timestamp: game.createdAt,
         enemyIntra:
-          game.winner.name === intraname
+          game.winner.intraname === intraname
             ? game.looser.intraname
             : game.winner.intraname,
         gamemode: game.gamemode,
@@ -196,10 +197,10 @@ export class GamesController {
         looserNickname: game.looser.intraname,
         winnerPoints: game.winnerPoints,
         looserPoints: game.looserPoints,
-        wonGame: game.winner.name === intraname,
+        wonGame: game.winner.intraname === intraname,
         timestamp: game.createdAt,
         enemyIntra:
-          game.winner.name === intraname
+          game.winner.intraname === intraname
             ? game.looser.intraname
             : game.winner.intraname,
         gamemode: game.gamemode,
