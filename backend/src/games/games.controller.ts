@@ -130,9 +130,11 @@ export class GamesController {
     @Param('intraname') intraname: string,
   ): Promise<number> {
     const totalGames: number = await this.getTotalGamesAmount(intraname);
-    return totalGames > 0
-      ? ((await this.getWonGamesAmount(intraname)) / totalGames) * 100
-      : 0;
+    const winrate =
+      totalGames > 0
+        ? ((await this.getWonGamesAmount(intraname)) / totalGames) * 100
+        : 0;
+    return winrate;
   }
 
   @Get('getelo/:intraname')
@@ -159,7 +161,6 @@ export class GamesController {
   public async getallgames(
     @Param('intraname') intraname: string,
   ): Promise<IMatch[]> {
-    console.log(intraname);
     const user: User = await this.userRepository.findOne({
       where: { intraname: intraname },
       relations: [
