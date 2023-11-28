@@ -4,7 +4,6 @@ import { AuthContext, IAuthContext, IUser } from "../context/auth";
 import Input from "../components/input/Input";
 import Button from "../components/button";
 import FirstLogin from "../components/firstlogin/FirstLogin";
-import PrivateRoute from "./PrivateRoute";
 
 export const BACKEND: string = `http://${window.location.hostname}:${4000}`;
 
@@ -89,7 +88,7 @@ const SetUser: React.FC = () => {
     if (redirect) {
       nav(`/test`); //TODO change later for login redirect
     }
-  }, [redirect]);
+  }, [redirect]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (isLoading) {
     return <div></div>;
