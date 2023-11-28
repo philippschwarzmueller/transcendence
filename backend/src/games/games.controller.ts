@@ -24,6 +24,16 @@ interface IMatch {
   gamemode: EGamemode;
 }
 
+interface ISpectateGame {
+  gameId: string;
+  leftPlayerNickname: string;
+  leftPlayerIntraname: string;
+  leftPlayerPoints: number;
+  rightPlayerNickname: string;
+  rightPlayerIntraname: string;
+  rightPlayerPoints: number;
+}
+
 @Injectable()
 @Controller('games')
 export class GamesController {
@@ -32,9 +42,54 @@ export class GamesController {
     private gamesService: GamesService,
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    @Inject(GamesService)
+    private gammesService: GamesService,
     @InjectRepository(Game)
     private gamesRepository: Repository<Game>,
   ) {}
+
+  @Get('runninggames')
+  public getRunningGames(): ISpectateGame[] {
+    const spectateGames: ISpectateGame[] = [];
+    this.gammesService.runningGames.forEach((game) => {
+      const newSpectateGame: ISpectateGame = {
+        gameId: game.gameId,
+        leftPlayerNickname: game.leftPlayer.user.name,
+        leftPlayerIntraname: game.leftPlayer.user.intraname,
+        leftPlayerPoints: game.gameState.pointsLeft,
+        rightPlayerNickname: game.rightPlayer.user.name,
+        rightPlayerIntraname: game.rightPlayer.user.intraname,
+        rightPlayerPoints: game.gameState.pointsRight,
+      };
+      spectateGames.push(newSpectateGame);
+    });
+    return spectateGames;
+  }
+
+  @Get('runninggames/:intraname')
+  public getRunningGamesPlayer(
+    @Param('intraname') intraname: string,
+  ): ISpectateGame[] {
+    const spectateGames: ISpectateGame[] = [];
+    this.gammesService.runningGames.forEach((game) => {
+      if (
+        game.leftPlayer.user.name === intraname ||
+        game.rightPlayer.user.name === intraname
+      ) {
+        const newSpectateGame: ISpectateGame = {
+          gameId: game.gameId,
+          leftPlayerNickname: game.leftPlayer.user.name,
+          leftPlayerIntraname: game.leftPlayer.user.intraname,
+          leftPlayerPoints: game.gameState.pointsLeft,
+          rightPlayerNickname: game.rightPlayer.user.name,
+          rightPlayerIntraname: game.rightPlayer.user.intraname,
+          rightPlayerPoints: game.gameState.pointsRight,
+        };
+        spectateGames.push(newSpectateGame);
+      }
+    });
+    return spectateGames;
+  }
 
   @Get('getwongamesamount/:intraname')
   public async getWonGamesAmount(
