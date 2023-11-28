@@ -2,6 +2,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import React, { useEffect, useState, useContext } from "react";
 import { AuthContext, IUser } from "../context/auth";
 import TwoFaLogin from "../components/twofalogin/TwoFaLogin";
+import FirstLogin from "../components/firstlogin/FirstLogin";
 
 export const BACKEND: string = `http://${window.location.hostname}:${4000}`;
 
@@ -12,10 +13,12 @@ const SetUser: React.FC = () => {
   const [user, setUser] = useState<IUser>();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const auth = useContext(AuthContext);
+  const [isFirstLogin, setIsFirstLogin] = useState<boolean>(false);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
     const userName: string | null = urlParams.get("user");
+    setIsFirstLogin(urlParams.get("firstSignIn") === "true");
     if (userName) {
       fetch(`${BACKEND}/users/${userName}`)
         .then((res) => res.json())
@@ -30,13 +33,15 @@ const SetUser: React.FC = () => {
               profilePictureUrl: resUser.profilePictureUrl,
               activeChats: resUser.activeChats,
             });
-            setRedirect(true);
+            if (!isFirstLogin) {
+              setRedirect(true);
+            }
           }
         })
         .catch((err) => console.error(err));
     }
     setIsLoading(false);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [auth]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (redirect) {
@@ -44,15 +49,16 @@ const SetUser: React.FC = () => {
     }
   }, [redirect]);
 
-  if(isLoading){
-    return(
-      <div>Loading</div>
-    )
+  if (isLoading) {
+    return <div>Loading</div>;
   }
 
   return (
     <>
-      {user?.twoFAenabled && <TwoFaLogin setRedirect={setRedirect} user={user}/>}
+      {user?.twoFAenabled && (
+        <TwoFaLogin setRedirect={setRedirect} user={user} />
+      )}
+      {isFirstLogin && <FirstLogin />}
     </>
   );
 };

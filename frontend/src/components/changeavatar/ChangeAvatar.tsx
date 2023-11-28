@@ -43,7 +43,6 @@ const AvatarChangeSection: React.FC = () => {
         if (uploadSuccessful) {
           auth.user.hasCustomAvatar = true;
         }
-        console.log(uploadSuccessful);
       } catch (error) {
         console.error("Avatar upload failed", error);
       }
