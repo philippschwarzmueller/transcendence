@@ -3,6 +3,12 @@ import Input from "../input";
 import Button from "../button";
 import { BACKEND } from "../../routes/SetUser";
 import { AuthContext, IAuthContext, IUser } from "../../context/auth";
+import { styled } from "styled-components";
+
+const Container = styled.div`
+  padding: 5px;
+  margin: 5px;
+`;
 
 const NameChangeSection: React.FC = () => {
   const [newName, setNewName] = useState("");
@@ -43,13 +49,14 @@ const NameChangeSection: React.FC = () => {
 
   return (
     <>
-      <Input
-        label="New profile name"
-        placeholder="new name goes here"
-        value={newName}
-        onChange={(e) => setNewName(e.target.value)}
-      />
-      <Button onClick={handleNameChange}>Change Name</Button>
+      <Container>
+        <Input
+          placeholder="new name goes here"
+          value={newName}
+          onChange={(e) => setNewName(e.target.value)}
+        />
+        <Button onClick={handleNameChange}>Change Name</Button>
+      </Container>
     </>
   );
 };

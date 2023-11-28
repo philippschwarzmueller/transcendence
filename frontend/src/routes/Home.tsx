@@ -3,11 +3,11 @@ import Gameicon from "../components/gameicon/Gameicon";
 
 const Home: React.FC = () => {
   return (
-      <>
-        <Gameicon />
-        <Taskbar />
-      </>
-      )
-  }
+    <>
+      <Gameicon />
+      <Taskbar />
+    </>
+  );
+};
 
 export default Home;

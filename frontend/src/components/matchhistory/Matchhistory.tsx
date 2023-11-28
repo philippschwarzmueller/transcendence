@@ -165,41 +165,47 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({ intraname, display }) => {
       <Win98Box>
         <ContentContainer>
           <MatchListContainer>
-            <MatchList>
-              {matches.slice(0, 10).map((match, index) => (
-                <MatchItem
-                  key={index}
-                  won={match.wonGame.toString()}
-                  onClick={() => handleMatchClick(match.enemyIntra)}
-                >
-                  <MatchDetails>
-                    <MatchStatus won={match.wonGame.toString()}>
-                      {match.wonGame ? "🏆" : "😞"}
-                    </MatchStatus>
-                    <MatchTimestamp>
-                      {new Date(match.timestamp).toLocaleString("en-GB", {
-                        year: "numeric",
-                        month: "2-digit",
-                        day: "2-digit",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </MatchTimestamp>
-                  </MatchDetails>
-                  <MatchPlayers>
-                    <MatchPlayer>{match.winnerNickname}</MatchPlayer>
-                    <VsSign>vs</VsSign>
-                    <MatchPlayer>{match.looserNickname}</MatchPlayer>
-                  </MatchPlayers>
-                  <MatchScores>
-                    <MatchScore>{match.winnerPoints}</MatchScore>
-                    <ScoreSeparator>-</ScoreSeparator>
-                    <MatchScore>{match.looserPoints}</MatchScore>
-                  </MatchScores>
-                  <GameModeName>{getGameModeName(match.gamemode)}</GameModeName>
-                </MatchItem>
-              ))}
-            </MatchList>
+            {matches.length > 0 ? (
+              <MatchList>
+                {matches.slice(0, 10).map((match, index) => (
+                  <MatchItem
+                    key={index}
+                    won={match.wonGame.toString()}
+                    onClick={() => handleMatchClick(match.enemyIntra)}
+                  >
+                    <MatchDetails>
+                      <MatchStatus won={match.wonGame.toString()}>
+                        {match.wonGame ? "🏆" : "😞"}
+                      </MatchStatus>
+                      <MatchTimestamp>
+                        {new Date(match.timestamp).toLocaleString("en-GB", {
+                          year: "numeric",
+                          month: "2-digit",
+                          day: "2-digit",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </MatchTimestamp>
+                    </MatchDetails>
+                    <MatchPlayers>
+                      <MatchPlayer>{match.winnerNickname}</MatchPlayer>
+                      <VsSign>vs</VsSign>
+                      <MatchPlayer>{match.looserNickname}</MatchPlayer>
+                    </MatchPlayers>
+                    <MatchScores>
+                      <MatchScore>{match.winnerPoints}</MatchScore>
+                      <ScoreSeparator>-</ScoreSeparator>
+                      <MatchScore>{match.looserPoints}</MatchScore>
+                    </MatchScores>
+                    <GameModeName>
+                      {getGameModeName(match.gamemode)}
+                    </GameModeName>
+                  </MatchItem>
+                ))}
+              </MatchList>
+            ) : (
+              <p>no matches found</p>
+            )}
           </MatchListContainer>
         </ContentContainer>
       </Win98Box>

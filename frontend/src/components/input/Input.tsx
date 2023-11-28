@@ -41,7 +41,7 @@ export interface IInputProps extends InputHTMLAttributes<HTMLInputElement>{
 const Input: React.FC<IInputProps> = ({label, ...inherited}) => {
   return (
     <div>
-      <StyledLabel htmlFor={label}>{label}:</StyledLabel>
+      <StyledLabel htmlFor={label}>{label}</StyledLabel>
       <StyledInput id={label} {...inherited}></StyledInput>
     </div>
   )

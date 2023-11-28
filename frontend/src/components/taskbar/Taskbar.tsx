@@ -10,6 +10,8 @@ import Leaderboard from "../leaderboard/leaderboard";
 import Profilesettings from "../profilesettings/Profilesettings";
 import Profilewindow from "../profilewindow/Profilewindow";
 import Userbrowser from "../userbrowser";
+import Queuepopwindow from "../queuepopwindow/queuepopwindow"
+import Spectatorboard from "../spectatorboard";
 
 const StyledNavbar = styled.nav`
   width: 100vw;
@@ -117,6 +119,8 @@ enum Windows {
   Users = 3,
   Leaderboard = 4,
   Friends = 5,
+  Queuepopwindow = 6,
+  Spectatorboard = 7,
 }
 
 const RoutesLi = styled.li`
@@ -133,8 +137,10 @@ const Taskbar: React.FC = () => {
   const [displayFriends, setDisplayFriends] = useState<boolean>(false);
   const [displayProfileSettings, setDisplayProfileSettings] =
     useState<boolean>(false);
+  const [displaySpectatorboard, setDisplaySpectatorboard] =
+    useState<boolean>(false);
   const [displayOrder, setDisplayOrder] = useState<number[]>([
-    0, 10, 20, 30, 40, 50
+    0, 10, 20, 30, 40, 50, 60, 70,
   ]);
 
   const handleLogout = async () => {
@@ -149,12 +155,18 @@ const Taskbar: React.FC = () => {
 
   function changeOrder(pos: number) {
     setDisplayOrder([
-      pos === Windows.Profile ? 50 : displayOrder[Windows.Profile] - 10,
-      pos === Windows.Settings ? 50 : displayOrder[Windows.Settings] - 10,
-      pos === Windows.Chat ? 50 : displayOrder[Windows.Chat] - 10,
-      pos === Windows.Users ? 50 : displayOrder[Windows.Users] - 10,
-      pos === Windows.Leaderboard ? 50 : displayOrder[Windows.Leaderboard] - 10,
-      pos === Windows.Friends ? 50 : displayOrder[Windows.Friends] - 10,
+      pos === Windows.Profile ? 70 : displayOrder[Windows.Profile] - 10,
+      pos === Windows.Settings ? 70 : displayOrder[Windows.Settings] - 10,
+      pos === Windows.Chat ? 70 : displayOrder[Windows.Chat] - 10,
+      pos === Windows.Users ? 70 : displayOrder[Windows.Users] - 10,
+      pos === Windows.Leaderboard ? 70 : displayOrder[Windows.Leaderboard] - 10,
+      pos === Windows.Queuepopwindow
+        ? 70
+        : displayOrder[Windows.Queuepopwindow] - 10,
+      pos === Windows.Friends ? 70 : displayOrder[Windows.Friends] - 10,
+      pos === Windows.Spectatorboard
+        ? 70
+        : displayOrder[Windows.Spectatorboard] - 10,
     ]);
   }
 
@@ -190,15 +202,28 @@ const Taskbar: React.FC = () => {
           z={displayOrder[Windows.Leaderboard]}
         />
       </div>
+      <div onClick={() => changeOrder(Windows.Queuepopwindow)}>
+        <Queuepopwindow></Queuepopwindow>
+      </div>
+      <div onClick={() => changeOrder(Windows.Spectatorboard)}>
+        <Spectatorboard
+          display={displaySpectatorboard}
+          z={displayOrder[Windows.Spectatorboard]}
+        />
+      </div>
       <StartMenu $display={displayStart}>
         <TextBar>Transcendence95</TextBar>
         <StyledUl>
           <StyledLi
             onClick={() => {
-              profile.intraname = auth.user.intraname ? auth.user.intraname : "";
+              profile.intraname = auth.user.intraname
+                ? auth.user.intraname
+                : "";
               profile.name = auth.user.name ? auth.user.name : "";
-              profile.profilePictureUrl = auth.user.profilePictureUrl ? auth.user.profilePictureUrl : "";
-              profile.display = !profile.display
+              profile.profilePictureUrl = auth.user.profilePictureUrl
+                ? auth.user.profilePictureUrl
+                : "";
+              profile.display = !profile.display;
               changeOrder(Windows.Profile);
             }}
           >
@@ -276,6 +301,20 @@ const Taskbar: React.FC = () => {
               alt="leaderboard"
             />
             Leaderboard
+          </StyledLi>
+          <StyledLi
+            onClick={() => {
+              setDisplaySpectatorboard(!displaySpectatorboard);
+              changeOrder(Windows.Spectatorboard);
+            }}
+          >
+            <img
+              src={require("../../images/joystick.png")}
+              height="16"
+              width="16"
+              alt="running games"
+            />
+            Running Games
           </StyledLi>
           <Seperator />
           <StyledLi onClick={() => handleLogout()}>

@@ -5,15 +5,7 @@ import styled from "styled-components";
 import AvatarChangeSection from "../changeavatar/ChangeAvatar";
 import { Link } from "react-router-dom";
 import Button from "../button/Button";
-
-const StyledImg = styled.img`
-  max-height: 300px;
-  max-width: 300px;
-  box-shadow:
-    rgb(255, 255, 255) 1px 1px 0px 1px inset,
-    rgb(134, 138, 142) 0px 0px 0px 1px inset,
-    rgb(0, 0, 0) 1px 2px 1px 1px;
-`;
+import WindowWrapper from "../outlinecontainer/outlinecontainer";
 
 const StyledWindow = styled.div`
   position: absolute;
@@ -25,6 +17,12 @@ const StyledWindow = styled.div`
   --x-shadow: inset 0.5px 0.5px 0px 0.5px #ffffff, inset 0 0 0 1px #868a8e,
     1px 0px 0 0px #000000, 0px 1px 0 0px #000000, 1px 1px 0 0px #000000;
   box-shadow: var(--x-ring-shadow, 0 0 #0000), var(--x-shadow);
+`;
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 `;
 
 const Windowbar = styled.div`
@@ -45,23 +43,32 @@ const FirstLogin: React.FC = () => {
     <>
       <StyledWindow>
         <Windowbar>
-          <div>
-            <StyledImg src="https://i.kym-cdn.com/editorials/icons/mobile/000/004/391/Hello_there.jpg" />
-          </div>
-          <div>
-            <p>
-              It looks like it's your first time here You can now change your
-              name, set a new profile picture or enabled 2FA Don't worry, you
-              can set up this stuff later as well
-            </p>
-          </div>
-          <NameChangeSection />
-          <AvatarChangeSection />
+          <img
+            width="16"
+            height="16"
+            src={require("../../images/monitor.png")}
+            alt="Monitor"
+          />
+          Welcome to Trancendence95
+        </Windowbar>
+        <Container>
+        <p>
+          Looks like its you first time here.<br /><br />
+          You can setup you own name and own Avatar.<br />
+          Default will be you intraname and intra Picture.
+        </p>
+          <WindowWrapper title="change name" titlebottom="62px">
+            <NameChangeSection />
+          </WindowWrapper>
+          <WindowWrapper title="change avatar" titlebottom="65px">
+            <AvatarChangeSection />
+          </WindowWrapper>
           <TwoFactorAuthSection />
+        <p>You can also set it up later.</p>
           <Link to={"/Home"}>
             <Button>Continue</Button>
           </Link>
-        </Windowbar>
+        </Container>
       </StyledWindow>
     </>
   );
