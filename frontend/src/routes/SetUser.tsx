@@ -82,7 +82,7 @@ const SetUser: React.FC = () => {
         .catch((err) => console.error(err));
       setIsLoading(false);
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [auth]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (redirect) {
