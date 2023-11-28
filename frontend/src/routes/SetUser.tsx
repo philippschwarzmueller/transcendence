@@ -47,7 +47,7 @@ const SetUser: React.FC = () => {
     if (redirect) {
       nav(`/test`); //TODO change later for login redirect
     }
-  }, [redirect]);
+  }, [redirect]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (isLoading) {
     return <div>Loading</div>;
