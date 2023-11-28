@@ -1,5 +1,4 @@
 import { useContext, useState } from "react";
-import { Link } from "react-router-dom";
 import { styled } from "styled-components";
 import { AuthContext } from "../../context/auth";
 import { ProfileContext } from "../../context/profile";
@@ -122,10 +121,6 @@ enum Windows {
   Queuepopwindow = 6,
   Spectatorboard = 7,
 }
-
-const RoutesLi = styled.li`
-  padding: 10px;
-`;
 
 const Taskbar: React.FC = () => {
   let auth = useContext(AuthContext);
@@ -356,23 +351,6 @@ const Taskbar: React.FC = () => {
           />
           Chat
         </TaskButton>
-        <ul style={{ listStyle: "none", display: "inline-flex" }}>
-          <RoutesLi style={{}}>Links to old Routes : </RoutesLi>
-          <RoutesLi style={{ padding: 10 }}>
-            <Link to={"/home"}>Home</Link>
-          </RoutesLi>
-          <RoutesLi style={{ padding: 10 }}>
-            <Link to={"/chat"}>Chat</Link>
-          </RoutesLi>
-          <RoutesLi style={{ padding: 10 }}>
-            <Link to={"/login"}>Login</Link>
-          </RoutesLi>
-          {auth.user.intraname !== undefined && (
-            <RoutesLi>
-              <Link to={`/profile/${auth.user.name}`}>My Profile</Link>
-            </RoutesLi>
-          )}
-        </ul>
       </StyledNavbar>
     </>
   );
