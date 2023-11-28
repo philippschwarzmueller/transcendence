@@ -213,18 +213,22 @@ export class GamesController {
 
   @Get('players/:gameId')
   public async getPlayers(@Param('gameId') gameId: string): Promise<string[]> {
-    if (this.gamesService.isGameRunning(gameId))
-      return [
-        this.gamesService.runningGames.get(gameId).leftPlayer.user.name,
-        this.gamesService.runningGames.get(gameId).rightPlayer.user.name,
-      ];
-    else {
-      const game: Game = await this.gamesRepository.findOne({
-        where: { gameId: gameId },
-        relations: ['winner', 'looser'],
-      });
-      if (game) return [game.winner.name, game.looser.name];
+    try {
+      if (this.gamesService.isGameRunning(gameId))
+        return [
+          this.gamesService.runningGames.get(gameId).leftPlayer.user.name,
+          this.gamesService.runningGames.get(gameId).rightPlayer.user.name,
+        ];
+      else {
+        const game: Game = await this.gamesRepository.findOne({
+          where: { gameId: gameId },
+          relations: ['winner', 'looser'],
+        });
+        if (game && game.isFinished)
+          return [game.winner.name, game.looser.name];
+      }
+    } catch (error) {
+      return ['', ''];
     }
-    return ['', ''];
   }
 }

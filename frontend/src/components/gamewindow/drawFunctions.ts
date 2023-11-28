@@ -106,7 +106,7 @@ export const drawBall = (
   context: CanvasRenderingContext2D | undefined | null,
   ball: IBall
 ): void => {
-  if (!context ) return;
+  if (!context) return;
   const scale: number = getScale();
   context.clearRect(0, 0, properties.window.width, properties.window.height);
   context.fillStyle = properties.ballProperties.color;
@@ -254,12 +254,14 @@ export const fetchAndDrawFinishedGame = (
     "getGameFromDatabase",
     gameId,
     (finishedGameRemote: IFinishedGame) => {
-      drawWinScreen(
-        finishedGameRemote.winner,
-        finishedGameRemote.winnerPoints,
-        finishedGameRemote.looserPoints,
-        gameCanvas.current?.getContext("2d")
-      );
+      if (finishedGameRemote.gameExists)
+        drawWinScreen(
+          finishedGameRemote.winner,
+          finishedGameRemote.winnerPoints,
+          finishedGameRemote.looserPoints,
+          gameCanvas.current?.getContext("2d")
+        );
+      else drawErrorScreen(gameCanvas.current.getContext("2d"));
     }
   );
 };
