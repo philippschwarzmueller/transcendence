@@ -44,7 +44,7 @@ export class GamesController {
       where: { intraname: intraname },
       relations: ['wonGames'],
     });
-    if (!user) throw new BadRequestException('user not found');
+    if (!user) return 0;
     return user.wonGames.length;
   }
 
@@ -56,7 +56,7 @@ export class GamesController {
       where: { intraname: intraname },
       relations: ['lostGames'],
     });
-    if (!user) throw new BadRequestException('user not found');
+    if (!user) return 0;
     return user.lostGames.length;
   }
 
@@ -85,7 +85,7 @@ export class GamesController {
     const user: User = await this.userRepository.findOne({
       where: { intraname: intraname },
     });
-    if (!user) throw new BadRequestException('user not found');
+    if (!user) return 1000;
     return user.elo[user.elo.length - 1];
   }
 
@@ -96,7 +96,7 @@ export class GamesController {
     const user: User = await this.userRepository.findOne({
       where: { intraname: intraname },
     });
-    if (!user) throw new BadRequestException('user not found');
+    if (!user) return [];
     return user.elo;
   }
 
@@ -115,7 +115,7 @@ export class GamesController {
         'lostGames.looser',
       ],
     });
-    if (!user) throw new BadRequestException('user not found');
+    if (!user) return [];
     const Matches: IMatch[] = [];
 
     user.wonGames.forEach((game) => {
