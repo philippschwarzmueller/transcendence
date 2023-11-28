@@ -99,7 +99,7 @@ export class AuthService {
       firstLogin: true,
     };
     if (userExists) {
-      signIn.firstLogin = true;
+      signIn.firstLogin = false;
       await this.setUserData(data, intraname, hashedToken);
     } else {
       signIn.firstLogin = true;
