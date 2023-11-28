@@ -3,12 +3,14 @@ import Input from "../input";
 import Button from "../button";
 import { BACKEND } from "../../routes/SetUser";
 import { AuthContext, IAuthContext, IUser } from "../../context/auth";
+import { styled } from "styled-components";
 
-interface NameChangeProps {
-  setProfileLink: (profileLink: string) => void;
-}
+const Container = styled.div`
+  padding: 5px;
+  margin: 5px;
+`;
 
-const NameChangeSection: React.FC<NameChangeProps> = ({ setProfileLink }) => {
+const NameChangeSection: React.FC = () => {
   const [newName, setNewName] = useState("");
   const auth: IAuthContext = useContext(AuthContext);
 
@@ -33,7 +35,6 @@ const NameChangeSection: React.FC<NameChangeProps> = ({ setProfileLink }) => {
           updatedUser.name !== undefined
         ) {
           auth.logIn(updatedUser);
-          setProfileLink(updatedUser.name);
           setNewName("");
           alert(`Name changed to '${newName}'`);
         } else {
@@ -48,13 +49,14 @@ const NameChangeSection: React.FC<NameChangeProps> = ({ setProfileLink }) => {
 
   return (
     <>
-      <Input
-        label="New profile name"
-        placeholder="new name goes here"
-        value={newName}
-        onChange={(e) => setNewName(e.target.value)}
-      />
-      <Button onClick={handleNameChange}>Change Name</Button>
+      <Container>
+        <Input
+          placeholder="new name goes here"
+          value={newName}
+          onChange={(e) => setNewName(e.target.value)}
+        />
+        <Button onClick={handleNameChange}>Change Name</Button>
+      </Container>
     </>
   );
 };

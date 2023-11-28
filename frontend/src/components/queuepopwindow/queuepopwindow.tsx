@@ -3,12 +3,37 @@ import { AuthContext } from "../../context/auth";
 import { useContext, useEffect, useState } from "react";
 import { SocketContext } from "../../context/socket";
 import styled from "styled-components";
-import Moveablewindow from "../moveablewindow";
 import Progressbar from "../progressbar";
 import { IQueueContext, QueueContext } from "../../context/queue";
 import { queueTimeout } from "../gamewindow/properties";
 
 interface IQueuepopwindowProps {}
+
+const StyledWindow = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 5px;
+  background-color: rgb(195, 199, 203);
+  --x-shadow: inset 0.5px 0.5px 0px 0.5px #ffffff, inset 0 0 0 1px #868a8e,
+    1px 0px 0 0px #000000, 0px 1px 0 0px #000000, 1px 1px 0 0px #000000;
+  box-shadow: var(--x-ring-shadow, 0 0 #0000), var(--x-shadow);
+  z-index: 2000;
+`;
+
+const Windowbar = styled.div`
+  height: 18px;
+  margin-bottom: 2px;
+  padding: 2px;
+  display: flex;
+  gap: 10px;
+  box-shadow: none;
+  background: rgb(0, 14, 122);
+  color: White;
+  font-size: 1em;
+  cursor: default;
+`;
 
 const Wrapper = styled.div`
   width: 400px;
@@ -74,16 +99,12 @@ const Queuepopwindow: React.FC<IQueuepopwindowProps> = (
       );
     }
   }, [queue]); // eslint-disable-line react-hooks/exhaustive-deps
+
   return (
     <>
       {queue.queueFound ? (
-        <Moveablewindow
-          title="Match Found"
-          display={true}
-          positionZ={100000}
-          positionX={800}
-          positionY={800}
-        >
+        <StyledWindow>
+        <Windowbar>Match Found</Windowbar>
           <Wrapper>
             <TextDiv>
               <p>{windowText}</p>
@@ -95,7 +116,7 @@ const Queuepopwindow: React.FC<IQueuepopwindowProps> = (
             </LoadingDiv>
             <ButtonDiv>{windowButtons}</ButtonDiv>
           </Wrapper>
-        </Moveablewindow>
+        </StyledWindow>
       ) : null}
     </>
   );

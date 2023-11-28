@@ -1,7 +1,7 @@
 import { useContext, useState } from "react";
-import { Link } from "react-router-dom";
 import { styled } from "styled-components";
 import { AuthContext } from "../../context/auth";
+import { ProfileContext } from "../../context/profile";
 import { BACKEND } from "../../routes/SetUser";
 import Chatwindow from "../chatwindow/Chatwindow";
 import Friendbrowser from "../friendbrowser/Friendbrowser";
@@ -9,7 +9,7 @@ import Leaderboard from "../leaderboard/leaderboard";
 import Profilesettings from "../profilesettings/Profilesettings";
 import Profilewindow from "../profilewindow/Profilewindow";
 import Userbrowser from "../userbrowser";
-import Queuepopwindow from "../queuepopwindow";
+import Queuepopwindow from "../queuepopwindow/queuepopwindow"
 import Spectatorboard from "../spectatorboard";
 
 const StyledNavbar = styled.nav`
@@ -20,8 +20,12 @@ const StyledNavbar = styled.nav`
   position: absolute;
   bottom: 0;
   background-color: rgb(195, 199, 203);
-  box-shadow: inset 0.5px 0.5px 0px 0.5px #ffffff, inset 0 0 0 1px #868a8e,
-    1px 0px 0 0px #000000, 0px 1px 0 0px #000000, 1px 1px 0 0px #000000;
+  box-shadow:
+    inset 0.5px 0.5px 0px 0.5px #ffffff,
+    inset 0 0 0 1px #868a8e,
+    1px 0px 0 0px #000000,
+    0px 1px 0 0px #000000,
+    1px 1px 0 0px #000000;
   align-items: center;
 `;
 
@@ -45,7 +49,9 @@ const TaskButton = styled.button<{ $active: boolean }>`
     padding: 8 20 4;
     background-color: rgb(215, 216, 220);
 
-    box-shadow: inset 0 0 0 1px rgb(134, 138, 142), 0 0 0 1px rgb(0, 0, 0);
+    box-shadow:
+      inset 0 0 0 1px rgb(134, 138, 142),
+      0 0 0 1px rgb(0, 0, 0);
   }
   box-shadow: ${(props) =>
     props.$active
@@ -61,8 +67,12 @@ const StartMenu = styled.div<{ $display: boolean }>`
   left: 2px;
   z-index: 4;
   background-color: rgb(195, 199, 203);
-  box-shadow: inset 0.5px 0.5px 0px 0.5px #ffffff, inset 0 0 0 1px #868a8e,
-    1px 0px 0 0px #000000, 0px 1px 0 0px #000000, 1px 1px 0 0px #000000;
+  box-shadow:
+    inset 0.5px 0.5px 0px 0.5px #ffffff,
+    inset 0 0 0 1px #868a8e,
+    1px 0px 0 0px #000000,
+    0px 1px 0 0px #000000,
+    1px 1px 0 0px #000000;
   user-select: none;
 `;
 
@@ -112,17 +122,13 @@ enum Windows {
   Spectatorboard = 7,
 }
 
-const RoutesLi = styled.li`
-  padding: 10px;
-`;
-
 const Taskbar: React.FC = () => {
   let auth = useContext(AuthContext);
+  const profile = useContext(ProfileContext);
   const [displayChat, setDisplayChat] = useState<boolean>(false);
   const [displayUsers, setDisplayUsers] = useState<boolean>(false);
   const [displayStart, setDisplayStart] = useState<boolean>(false);
   const [displayLeaderboard, setDisplayLeaderboard] = useState<boolean>(false);
-  const [displayProfile, setDisplayProfile] = useState<boolean>(false);
   const [displayFriends, setDisplayFriends] = useState<boolean>(false);
   const [displayProfileSettings, setDisplayProfileSettings] =
     useState<boolean>(false);
@@ -163,7 +169,7 @@ const Taskbar: React.FC = () => {
     <>
       <div onClick={() => changeOrder(Windows.Profile)}>
         <Profilewindow
-          $display={displayProfile}
+          $display={profile.display}
           z={displayOrder[Windows.Profile]}
         />
       </div>
@@ -205,7 +211,14 @@ const Taskbar: React.FC = () => {
         <StyledUl>
           <StyledLi
             onClick={() => {
-              setDisplayProfile(!displayProfile);
+              profile.intraname = auth.user.intraname
+                ? auth.user.intraname
+                : "";
+              profile.name = auth.user.name ? auth.user.name : "";
+              profile.profilePictureUrl = auth.user.profilePictureUrl
+                ? auth.user.profilePictureUrl
+                : "";
+              profile.display = !profile.display;
               changeOrder(Windows.Profile);
             }}
           >
@@ -338,23 +351,6 @@ const Taskbar: React.FC = () => {
           />
           Chat
         </TaskButton>
-        <ul style={{ listStyle: "none", display: "inline-flex" }}>
-          <RoutesLi style={{}}>Links to old Routes : </RoutesLi>
-          <RoutesLi style={{ padding: 10 }}>
-            <Link to={"/home"}>Home</Link>
-          </RoutesLi>
-          <RoutesLi style={{ padding: 10 }}>
-            <Link to={"/chat"}>Chat</Link>
-          </RoutesLi>
-          <RoutesLi style={{ padding: 10 }}>
-            <Link to={"/login"}>Login</Link>
-          </RoutesLi>
-          {auth.user.intraname !== undefined && (
-            <RoutesLi>
-              <Link to={`/profile/${auth.user.name}`}>My Profile</Link>
-            </RoutesLi>
-          )}
-        </ul>
       </StyledNavbar>
     </>
   );

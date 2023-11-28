@@ -3,10 +3,18 @@ import Input from "../input";
 import Button from "../button";
 import { BACKEND } from "../../routes/SetUser";
 import { AuthContext } from "../../context/auth";
+import { ProfileContext } from "../../context/profile";
+import { styled } from "styled-components";
+
+const Container = styled.div`
+  padding: 5px;
+  margin: 5px;
+`;
 
 const AvatarChangeSection: React.FC = () => {
   const [avatar, setAvatar] = useState<string>("");
   const auth = useContext(AuthContext);
+  const profile = useContext(ProfileContext);
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -42,6 +50,7 @@ const AvatarChangeSection: React.FC = () => {
         const uploadSuccessful: boolean = await res.json();
         if (uploadSuccessful) {
           auth.user.hasCustomAvatar = true;
+          profile.profilePictureUrl = avatar;
         }
       } catch (error) {
         console.error("Avatar upload failed", error);
@@ -55,8 +64,8 @@ const AvatarChangeSection: React.FC = () => {
 
   return (
     <>
+      <Container>
       <Input
-        label="Change Avatar"
         type="file"
         accept="image/*"
         onChange={handleAvatarChange}
@@ -69,6 +78,7 @@ const AvatarChangeSection: React.FC = () => {
           </Button>
         </div>
       )}
+      </Container>
     </>
   );
 };

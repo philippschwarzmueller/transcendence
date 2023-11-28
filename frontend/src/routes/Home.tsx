@@ -1,25 +1,11 @@
-import React, { useContext } from "react";
-import Pagetitle from "../components/pagetitle/";
-import { AuthContext } from "../context/auth";
 import Taskbar from "../components/taskbar/Taskbar";
+import Gameicon from "../components/gameicon/Gameicon";
 
 const Home: React.FC = () => {
-  const auth = useContext(AuthContext);
-
   return (
     <>
+      <Gameicon />
       <Taskbar />
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "space-evenly",
-          alignItems: "center",
-          height: "95vh",
-        }}
-      >
-        <Pagetitle>Welcome to WinPong, {auth.user.name}</Pagetitle>
-      </div>
     </>
   );
 };

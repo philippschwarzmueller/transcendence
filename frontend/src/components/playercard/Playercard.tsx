@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
+import { IUser } from "../../context/auth";
 import Avatar from "../avatar";
 import ContextMenu from "../contextmenu/ContextMenu";
 
@@ -38,16 +39,13 @@ const StyledDiv = styled.div`
   }
 `;
 interface PlayerCardProps {
-  name: string | undefined;
-  id: number | undefined;
-  profilePictureUrl: string | undefined;
-  triggerReload?: () => void;
+  user: IUser;
+ triggerReload?: () => void;
 }
 
 const PlayerCard: React.FC<PlayerCardProps> = ({
-  name,
-  profilePictureUrl,
-  triggerReload,
+  user,
+  triggerReload
 }) => {
   let [showContext, setShowContext] = useState<boolean>(false);
   let [x, setX] = useState<number>(0);
@@ -62,9 +60,9 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
   return (
     <>
       <StyledDiv onClick={(e) => openContextMenu(e)}>
-        <Avatar name={name} src={profilePictureUrl} />
+        <Avatar name={user.name} src={user.profilePictureUrl} />
         <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
-          <p style={{ margin: "3px", fontWeight: "800" }}>{name}</p>
+          <p style={{ margin: "3px", fontWeight: "800" }}>{user.name}</p>
           <p style={{ margin: "3px" }}>W/L%: 40</p>
         </div>
       </StyledDiv>
@@ -72,7 +70,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
         display={showContext}
         positionX={x}
         positionY={y}
-        name={name}
+        user={user}
         triggerReload={triggerReload}
       />
     </>
