@@ -84,7 +84,7 @@ const StatsWindow: React.FC<StatsWindowProps> = ({ intraname }) => {
       fetchData().then(() => {
         setWinrateDisplay(winRate.toFixed(2));
       });
-  }, [intraname]);
+  }, [intraname]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <StyledStatsWindow>
