@@ -105,25 +105,29 @@ const Spectatorboard: React.FC<SpectatorboardProps> = (
         positionZ={props.z}
       >
         <Wrapper>
-          <StyledList>
-            {spectateGames.map((game, key) => (
-              <StyledItem
-                key={key}
-                onClick={() => {
-                  navigate(getGameUrl(auth?.user?.intraname, game));
-                }}
-              >
-                <>
-                  <StyledParagraph>
-                    {game.leftPlayerNickname} vs {game.rightPlayerNickname}
-                  </StyledParagraph>
-                  <StyledParagraph>
-                    {game.leftPlayerPoints} - {game.rightPlayerPoints}
-                  </StyledParagraph>
-                </>
-              </StyledItem>
-            ))}
-          </StyledList>
+          {spectateGames.length > 0 ? (
+            <StyledList>
+              {spectateGames.map((game, key) => (
+                <StyledItem
+                  key={key}
+                  onClick={() => {
+                    navigate(getGameUrl(auth?.user?.intraname, game));
+                  }}
+                >
+                  <>
+                    <StyledParagraph>
+                      {game.leftPlayerNickname} vs {game.rightPlayerNickname}
+                    </StyledParagraph>
+                    <StyledParagraph>
+                      {game.leftPlayerPoints} - {game.rightPlayerPoints}
+                    </StyledParagraph>
+                  </>
+                </StyledItem>
+              ))}
+            </StyledList>
+          ) : (
+            <p>There are no games running currently</p>
+          )}
         </Wrapper>
       </Moveablewindow>
     </>

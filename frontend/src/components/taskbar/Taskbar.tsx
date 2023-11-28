@@ -150,7 +150,7 @@ const Taskbar: React.FC = () => {
       pos === Windows.Users ? 70 : displayOrder[Windows.Users] - 10,
       pos === Windows.Leaderboard ? 70 : displayOrder[Windows.Leaderboard] - 10,
       pos === Windows.Queuepopwindow
-        ? 50
+        ? 70
         : displayOrder[Windows.Queuepopwindow] - 10,
       pos === Windows.Friends ? 70 : displayOrder[Windows.Friends] - 10,
       pos === Windows.Spectatorboard
