@@ -4,11 +4,7 @@ import Button from "../button";
 import { BACKEND } from "../../routes/SetUser";
 import { AuthContext, IAuthContext, IUser } from "../../context/auth";
 
-interface NameChangeProps {
-  setProfileLink: (profileLink: string) => void;
-}
-
-const NameChangeSection: React.FC<NameChangeProps> = ({ setProfileLink }) => {
+const NameChangeSection: React.FC = () => {
   const [newName, setNewName] = useState("");
   const auth: IAuthContext = useContext(AuthContext);
 
@@ -33,7 +29,6 @@ const NameChangeSection: React.FC<NameChangeProps> = ({ setProfileLink }) => {
           updatedUser.name !== undefined
         ) {
           auth.logIn(updatedUser);
-          setProfileLink(updatedUser.name);
           setNewName("");
           alert(`Name changed to '${newName}'`);
         } else {
