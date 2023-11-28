@@ -12,6 +12,7 @@ import Profile from "./routes/Profile";
 import ProfileSettings from "./routes/ProfileSettings";
 import SetUser from "./routes/SetUser";
 import PrivateRoute from "./routes/PrivateRoute";
+import Test from "./routes/test";
 
 function App() {
   return (
@@ -47,6 +48,14 @@ function App() {
         <Route path="profile/settings" element={<ProfileSettings />} />
         <Route path="queue" element={<Queue />} />
         <Route path="set-user" element={<SetUser />} />
+        <Route
+          path="test"
+          element={
+            <PrivateRoute>
+              <Test />
+            </PrivateRoute>
+          }
+        />
       </Route>
     </Routes>
   );

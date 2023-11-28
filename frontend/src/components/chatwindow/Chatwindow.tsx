@@ -85,7 +85,10 @@ const StyledUl = styled.ul`
   list-style: none;
 `;
 
-const Chatwindow: React.FC = () => {
+const Chatwindow: React.FC<{ $display: boolean, z?: number }> = ({
+  $display,
+  z,
+}) => {
   const [messages, setMessages] = useState<string[]>([]);
   const [input, setInput] = useState<string>("");
   const user: IUser = useContext(AuthContext).user;
@@ -183,8 +186,8 @@ const Chatwindow: React.FC = () => {
         title="Chat"
         positionX={200}
         positionY={200}
-        positionZ={0}
-        display={true}
+        positionZ={z}
+        display={$display}
       >
         <Tabbar>
           {tabs.map((tab) => {
@@ -210,7 +213,7 @@ const Chatwindow: React.FC = () => {
               fetch(
                 `http://${window.location.hostname}:4000/chat/rooms?userId=${user.name}&chat=${activeTab}`,
                 { method: "DELETE" },
-              );
+              ).catch(err=>console.error(err));
               setTabs(
                 tabs.filter(function (e) {
                   return e.title !== activeTab;

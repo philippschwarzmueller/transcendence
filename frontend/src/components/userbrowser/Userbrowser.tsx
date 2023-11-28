@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { styled } from "styled-components";
-import ContextMenu from "../contextmenu/ContextMenu";
+import { IUser } from "../../context/auth";
 import Moveablewindow from "../moveablewindow";
+import Playercard from "../playercard";
 
 const Browser = styled.div`
-  width: 220px;
-  height: 300px;
+  user-select: none;
+  width: 300px;
+  height: 400px;
   padding: 10px;
   margin: 0px;
   overflow: auto;
@@ -22,8 +24,7 @@ const Browser = styled.div`
     background: rgb(195, 199, 203);
     color: rgb(0, 0, 0);
     border: 0px;
-    box-shadow:
-      rgb(0, 0, 0) -1px -1px 0px 0px inset,
+    box-shadow: rgb(0, 0, 0) -1px -1px 0px 0px inset,
       rgb(210, 210, 210) 1px 1px 0px 0px inset,
       rgb(134, 138, 142) -2px -2px 0px 0px inset,
       rgb(255, 255, 255) 2px 2px 0px 0px inset;
@@ -35,79 +36,55 @@ const StyledUl = styled.ul`
   margin: 0px;
   padding: 2px;
   list-style: none;
-  width: 200px;
+  width: auto;
 `;
 
+const Userbrowser: React.FC<{ $display: boolean; z?: number }> = ({
+  $display,
+  z,
+}) => {
+  let [users, setUsers] = useState<IUser[]>([]);
 
-const StyledLi = styled.li`
-  padding: 2px 6px 2px 26px;
-  border-top: 1px solid rgb(134, 138, 142);
-  border-bottom: 1px solid rgb(255, 255, 255);
-  &:hover {
-    background-color: rgb(0, 14, 122);
-    color: white;
-  }
-`;
-
-interface IUserBrowser {
-    $display: boolean;
-  }
-
-const Userbrowser: React.FC<IUserBrowser> = ({
-    $display,
-  })=> {
-      let [showContext, setShowContext] = useState<boolean>(false);
-      let [currentUser, setCurrentUser] = useState<string>("");
-      let [x, setX] = useState<number>(0);
-      let [y, setY] = useState<number>(0);
-      let [users, setUsers] = useState<string[]>([]);
-      let listKey = -1;
-
-    useEffect(() => {
-      fetch(`http://${window.location.hostname}:4000/users/names`, {
-          method: "GET",
-      }).then((response) => {
-          if(!response.ok) {
-              throw new Error("Network response was not ok");
-          }
-          return response.json();
-      }).then((res: string[]) => setUsers(res));
-    }, []);
-    function openContextMenu(e: React.MouseEvent<HTMLLIElement, MouseEvent>, user: string) {
-      setX(e.pageX);
-      setY(e.pageY);
-      setCurrentUser(user);
-      setShowContext(!showContext);
-    }
+  useEffect(() => {
+    fetch(`http://${window.location.hostname}:4000/users`, {
+      method: "GET",
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((res: IUser[]) => setUsers(res))
+      .catch((err) => console.error(err));
+  }, []);
 
   return (
     <>
-      <ContextMenu
-      display={showContext}
-      positionX={x}
-      positionY={y}
-      link={currentUser}
-      isFriendIncoming={false}
-      isPendingFriendIncoming={false}
-      triggerReload={() => console.log()}
-      />
       <Moveablewindow
-      title="Browser"
-      positionX={500}
-      positionY={600}
-      positionZ={500}
-      display={$display}
-      ><Browser>
-      <StyledUl>
-        {users.map((user) => {
-          return (
-          <StyledLi key={listKey--} onClick={(e) => openContextMenu(e, user)}>{user}</StyledLi>
-          );
-        })}
-      </StyledUl></Browser>
+        title="Userbrowser"
+        positionX={500}
+        positionY={600}
+        positionZ={z}
+        display={$display}
+      >
+        <Browser>
+          <StyledUl>
+            {users.map((user) => {
+              return (
+                <Playercard
+                  key={user.name}
+                  name={user.name}
+                  id={user.id}
+                  profilePictureUrl={user.profilePictureUrl}
+                />
+              );
+            })}
+          </StyledUl>
+        </Browser>
       </Moveablewindow>
     </>
   );
-}
+};
 
 export default Userbrowser;

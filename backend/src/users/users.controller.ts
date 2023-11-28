@@ -50,8 +50,7 @@ export class UsersController {
     if (user === null || friend === null) {
       return false;
     }
-    await this.usersService.addFriend(user, friend);
-    return true;
+    return await this.usersService.addFriend(user, friend);
   }
 
   @Post('get-pending-friend-requests')
@@ -89,8 +88,7 @@ export class UsersController {
     if (user === null || friend === null) {
       return false;
     }
-    await this.usersService.acceptFriendRequest(user, friend);
-    return true;
+    return await this.usersService.acceptFriendRequest(user, friend);
   }
 
   @Post('get-friends')
@@ -116,8 +114,7 @@ export class UsersController {
     if (user === null || friend === null) {
       return false;
     }
-    await this.usersService.removeFriend(user, friend);
-    return true;
+    return await this.usersService.removeFriend(user, friend);
   }
 
   @Post('get-friend-state')

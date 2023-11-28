@@ -9,9 +9,15 @@ import { SocketContext } from "../../context/socket";
 const StyledUl = styled.ul<{ $display: boolean; $posX: number; $posY: number }>`
   display: ${(props) => (props.$display ? "" : "none")};
   position: absolute;
+<<<<<<< HEAD
   z-index: 600;
   left: ${(props) => props.$posX + "px"};
   top: ${(props) => props.$posY + "px"};
+=======
+  z-index: 200;
+  left: ${(props) => props.$posX};
+  top: ${(props) => props.$posY};
+>>>>>>> master
   list-style-type: none;
   background-color: rgb(195, 199, 203);
   min-width: 100px;
@@ -46,7 +52,7 @@ export interface IContextMenu {
   positionX: number;
   positionY: number;
   name: string | undefined;
-  triggerReload: () => void;
+  triggerReload?: () => void;
 }
 
 export enum FriendState {
@@ -104,8 +110,10 @@ const ContextMenu: React.FC<IContextMenu> = ({
         const success: boolean = await res.json();
         if (success) {
           setFriendState(FriendState.friend);
-          triggerReload();
+          if (triggerReload) triggerReload();
           refreshContextMenu();
+        } else {
+          alert("An Error occured, please reload the page to update data");
         }
       } catch (error) {
         console.error("Error accepting friend request:", error);
@@ -132,8 +140,10 @@ const ContextMenu: React.FC<IContextMenu> = ({
         const success: boolean = await res.json();
         if (success) {
           setFriendState(FriendState.noFriend);
-          triggerReload();
+          if (triggerReload) triggerReload();
           refreshContextMenu();
+        } else {
+          alert("An Error occured, please reload the page to update data");
         }
       } catch (error) {
         console.error("Error accepting friend request:", error);
@@ -160,8 +170,10 @@ const ContextMenu: React.FC<IContextMenu> = ({
         const success: boolean = await res.json();
         if (success) {
           setFriendState(FriendState.pendingFriend);
-          triggerReload();
+          if (triggerReload) triggerReload();
           refreshContextMenu();
+        } else {
+          alert("An Error occured, please reload the page to update data");
         }
       } catch (error) {
         console.error("Error sending friend request", error);

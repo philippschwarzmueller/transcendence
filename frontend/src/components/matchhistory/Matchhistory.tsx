@@ -18,9 +18,11 @@ interface IMatch {
 
 interface MatchHistoryProps {
   intraname: string;
+  display?: boolean;
 }
 
-const Container = styled.div`
+const Container = styled.div<{ $display?: boolean }>`
+  display: ${(props) => (props.$display ? "" : "none")};
   position: relative;
   text-align: center;
   width: 100%;
@@ -34,10 +36,6 @@ export const Win98Box = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
-  background-color: rgb(195, 199, 203);
-  box-shadow: inset 1px 1px 0px 1px rgb(255, 255, 255),
-    inset 0 0 0 1px rgb(134, 138, 142), 1px 1px 0px 1px rgb(0, 0, 0),
-    2px 2px 5px 0px rgba(0, 0, 0, 0.5);
   cursor: pointer;
   height: 100%;
 `;
@@ -46,19 +44,6 @@ const ContentContainer = styled.div`
   display: flex;
   flex-direction: column;
   height: 100%;
-`;
-
-const Title = styled.div`
-  background-color: #5a7b8c;
-  color: white;
-  padding: 5px;
-  font-weight: bold;
-  border-top-left-radius: 5px;
-  border-top-right-radius: 5px;
-  width: 96.5%;
-  box-shadow: rgb(255, 255, 255) 1px 1px 0px 1px inset,
-    rgb(134, 138, 142) 0px 0px 0px 1px inset, rgb(0, 0, 0) 1px 1px 0px 1px;
-  margin-bottom: 10px;
 `;
 
 const MatchListContainer = styled.div`
@@ -147,7 +132,7 @@ const GameModeName = styled.div`
   font-weight: bold;
 `;
 
-const MatchHistory: React.FC<MatchHistoryProps> = ({ intraname }) => {
+const MatchHistory: React.FC<MatchHistoryProps> = ({ intraname, display }) => {
   const [matches, setMatches] = useState<IMatch[]>([]);
   const navigate = useNavigate();
 
@@ -164,7 +149,7 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({ intraname }) => {
       }
     };
 
-    fetchData();
+    if (intraname) fetchData();
   }, [intraname]);
 
   const handleMatchClick = (enemyIntra: string) => {
@@ -176,10 +161,9 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({ intraname }) => {
   };
 
   return (
-    <Container>
+    <Container $display={display}>
       <Win98Box>
         <ContentContainer>
-          <Title>Match History</Title>
           <MatchListContainer>
             <MatchList>
               {matches.slice(0, 10).map((match, index) => (
