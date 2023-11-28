@@ -117,7 +117,7 @@ const properties: IProperties = {
     color: "white",
   },
   ballProperties: {
-    radius: 10,
+    radius: 15,
     color: "white",
     acceleration: 1.1,
     maxBounceAngle: 20,
@@ -166,5 +166,7 @@ export const gameSpawn: IGame = {
 };
 
 export const goalSizePercent: number = 50;
+
+export const queueTimeout: number = 7;
 
 export default properties;

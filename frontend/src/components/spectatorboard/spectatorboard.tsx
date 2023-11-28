@@ -13,6 +13,7 @@ const Wrapper = styled.div`
 
 interface SpectatorboardProps {
   intraname?: string;
+  display: boolean;
 }
 
 interface ISpectateGame {
@@ -97,7 +98,7 @@ const Spectatorboard: React.FC<SpectatorboardProps> = (
 
   return (
     <>
-      <Moveablewindow>
+      <Moveablewindow title="Running Games" display={props.display}>
         <Wrapper>
           <StyledList>
             {spectateGames.map((game, key) => (

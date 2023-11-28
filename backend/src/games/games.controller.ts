@@ -11,6 +11,7 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EGamemode } from './properties';
 import { GamesService } from './games.service';
+import { Game } from './game.entity';
 
 interface IMatch {
   winnerNickname: string;
@@ -37,10 +38,14 @@ interface ISpectateGame {
 @Controller('games')
 export class GamesController {
   constructor(
+    @Inject(GamesService)
+    private gamesService: GamesService,
     @InjectRepository(User)
     private userRepository: Repository<User>,
     @Inject(GamesService)
     private gammesService: GamesService,
+    @InjectRepository(Game)
+    private gamesRepository: Repository<Game>,
   ) {}
 
   @Get('runninggames')
@@ -204,5 +209,22 @@ export class GamesController {
     return Matches.sort(
       (a, b) => b.timestamp.getTime() - a.timestamp.getTime(),
     );
+  }
+
+  @Get('players/:gameId')
+  public async getPlayers(@Param('gameId') gameId: string): Promise<string[]> {
+    if (this.gamesService.isGameRunning(gameId))
+      return [
+        this.gamesService.runningGames.get(gameId).leftPlayer.user.name,
+        this.gamesService.runningGames.get(gameId).rightPlayer.user.name,
+      ];
+    else {
+      const game: Game = await this.gamesRepository.findOne({
+        where: { gameId: gameId },
+        relations: ['winner', 'looser'],
+      });
+      if (game) return [game.winner.name, game.looser.name];
+    }
+    return ['', ''];
   }
 }

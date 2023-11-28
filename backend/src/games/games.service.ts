@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import properties, {
-  ballSpawn,
   EGamemode,
   gameSpawn,
   IBall,
@@ -8,10 +7,10 @@ import properties, {
   IGame,
   IGameBackend,
   IGameUser,
-  IGameUserAuth,
   IKeyState,
   IPaddle,
   IUser,
+  queueTimeout,
 } from './properties';
 import {
   advanceBall,
@@ -32,10 +31,40 @@ import { Repository } from 'typeorm';
 import { IChangeSocketPayload } from 'src/wsocket/wsocket.gateway';
 import { getWinnerLooserNames, isGameFinished } from './games.utils';
 import { User } from 'src/users/user.entity';
+import { setInternalBufferSize } from 'typeorm/driver/mongodb/bson.typings';
+
+export const randomBallSpawn = (): IBall => {
+  const ballSpeed: number = 8;
+
+  const ySpeed: number =
+    ((Math.random() * 10 + 10) / 10) * Math.sign(Math.random() - 0.5);
+
+  const xSpeed: number =
+    Math.sqrt(ballSpeed ** 2 - ySpeed ** 2) * Math.sign(Math.random() - 0.5);
+
+  const newBall: IBall = {
+    x: properties.window.width / 2,
+    y: properties.window.height / 2,
+    speed_x: xSpeed,
+    speed_y: ySpeed,
+  };
+  return newBall;
+};
 
 const newGameCopy = (): IGame => {
-  return JSON.parse(JSON.stringify(gameSpawn));
+  const newGame: IGame = JSON.parse(JSON.stringify(gameSpawn));
+  newGame.ball = randomBallSpawn();
+  return newGame;
 };
+
+interface IQueuePop {
+  firstPlayer: IGameUser;
+  secondPlayer: IGameUser;
+  firstPlayerAccept: boolean;
+  secondPlayerAccept: boolean;
+  timestamp: number;
+  gamemode: EGamemode;
+}
 
 @Injectable()
 export class GamesService {
@@ -50,10 +79,16 @@ export class GamesService {
       [EGamemode.standard, new Map()],
       [EGamemode.roomMovement, new Map()],
     ]);
+    this.queuePop = new Map<number, IQueuePop>();
+    this.queueCleanup = setInterval(() => {
+      this.queueCleanupLoop();
+    }, 1000);
   }
 
   public runningGames: Map<string, IGameBackend>;
   public queuedClients: Map<EGamemode, Map<string, IGameUser>>;
+  public queuePop: Map<number, IQueuePop>;
+  public queueCleanup: any;
 
   private async generateGameId(gamemode: EGamemode): Promise<string> {
     const newGame = this.gamesRepository.create({
@@ -138,11 +173,11 @@ export class GamesService {
       bounceOnPaddle(localGame.gameState.ball, localGame.gameState.leftPaddle);
     } else if (newBall.x > properties.window.width) {
       // missed right paddle
-      localGame.gameState.ball = ballSpawn;
+      localGame.gameState.ball = randomBallSpawn();
       localGame.gameState.pointsLeft++;
     } else if (newBall.x < 0) {
       // missed left paddle
-      localGame.gameState.ball = ballSpawn;
+      localGame.gameState.ball = randomBallSpawn();
       localGame.gameState.pointsRight++;
     } else if (newBall.y > properties.window.height || newBall.y < 0) {
       //collision on top/botton
@@ -195,10 +230,10 @@ export class GamesService {
     ) {
       bounceOnPaddle(localGame.gameState.ball, localGame.gameState.leftPaddle);
     } else if (ballHitGoal(newBall) === 'right') {
-      localGame.gameState.ball = ballSpawn;
+      localGame.gameState.ball = randomBallSpawn();
       localGame.gameState.pointsLeft++;
     } else if (ballHitGoal(newBall) === 'left') {
-      localGame.gameState.ball = ballSpawn;
+      localGame.gameState.ball = randomBallSpawn();
       localGame.gameState.pointsRight++;
     } else if (ballhitSide2D(newBall)) {
       bounceOnSide(localGame.gameState.ball);
@@ -268,31 +303,25 @@ export class GamesService {
   ): Promise<void> {
     this.addClientToQueue(user, gamemode, client);
     if (this.queuedClients.get(gamemode).size >= 2) {
-      const [firstClient, firstClientName] = this.queuedClients
-        .get(gamemode)
-        .entries()
-        .next().value;
+      const [firstClient, firstClientName]: [string, IGameUser] =
+        this.queuedClients.get(gamemode).entries().next().value;
       this.queuedClients.get(gamemode).delete(firstClient);
-      const [secondClient, secondClientName] = this.queuedClients
-        .get(gamemode)
-        .entries()
-        .next().value;
+      const [secondClient, secondClientName]: [string, IGameUser] =
+        this.queuedClients.get(gamemode).entries().next().value;
       this.queuedClients.get(gamemode).delete(secondClient);
 
-      const newGameId: string = await this.startGameLoop(
-        firstClientName,
-        secondClientName,
-        gamemode,
-      );
-
-      firstClientName.socket.emit('queue found', {
-        gameId: newGameId,
-        side: 'left',
-      });
-      secondClientName.socket.emit('queue found', {
-        gameId: newGameId,
-        side: 'right',
-      });
+      const currentSize: number = this.queuePop.size;
+      const newQueuePop: IQueuePop = {
+        firstPlayer: firstClientName,
+        secondPlayer: secondClientName,
+        firstPlayerAccept: false,
+        secondPlayerAccept: false,
+        timestamp: Date.now(),
+        gamemode: gamemode,
+      };
+      this.queuePop.set(currentSize, newQueuePop);
+      firstClientName.socket.emit('queue found', currentSize);
+      secondClientName.socket.emit('queue found', currentSize);
     }
   }
 
@@ -412,5 +441,82 @@ export class GamesService {
         }
       });
     });
+  }
+
+  private async emitAndStartGame(
+    firstUser: IGameUser,
+    secondUser: IGameUser,
+    gamemode: EGamemode,
+  ): Promise<void> {
+    const newGameId: string = await this.startGameLoop(
+      firstUser,
+      secondUser,
+      gamemode,
+    );
+    firstUser.socket.emit('game found', {
+      gameId: newGameId,
+      side: 'left',
+    });
+    secondUser.socket.emit('game found', { gameId: newGameId, side: 'right' });
+  }
+
+  public async handleAccept(intraname: string): Promise<void> {
+    try {
+      this.queuePop.forEach((pop, key) => {
+        if (pop.firstPlayer.user.intraname === intraname) {
+          pop.firstPlayerAccept = true;
+          if (pop.secondPlayerAccept === true) {
+            this.emitAndStartGame(
+              pop.firstPlayer,
+              pop.secondPlayer,
+              pop.gamemode,
+            );
+            throw key;
+          }
+        } else if (pop.secondPlayer.user.intraname === intraname) {
+          pop.secondPlayerAccept = true;
+          if (pop.firstPlayerAccept === true) {
+            this.emitAndStartGame(
+              pop.firstPlayer,
+              pop.secondPlayer,
+              pop.gamemode,
+            );
+            throw key;
+          }
+        }
+      });
+    } catch (key) {
+      this.queuePop.delete(key);
+    }
+  }
+
+  private queueCleanupLoop(): void {
+    let toDelete: number[] = [];
+    this.queuePop.forEach((pop, key) => {
+      if (pop.timestamp + (queueTimeout + 1) * 1000 < Date.now()) {
+        toDelete.push(key);
+      }
+    });
+    toDelete.forEach((key) => {
+      this.queuePop.get(key).firstPlayer.socket.emit('game denied');
+      this.queuePop.get(key).secondPlayer.socket.emit('game denied');
+      this.queuePop.delete(key);
+    });
+  }
+
+  public handleDecline(intraname: string): void {
+    try {
+      this.queuePop.forEach((pop, key) => {
+        if (pop.firstPlayer.user.intraname === intraname) {
+          pop.secondPlayer.socket.emit('game denied');
+          throw key;
+        } else if (pop.secondPlayer.user.intraname === intraname) {
+          pop.firstPlayer.socket.emit('game denied');
+          throw key;
+        }
+      });
+    } catch (key) {
+      this.queuePop.delete(key);
+    }
   }
 }

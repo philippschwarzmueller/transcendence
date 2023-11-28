@@ -22,20 +22,6 @@ const ContentContainer = styled.div`
   gap: 20px;
 `;
 
-const Title = styled.div`
-  background-color: #5a7b8c;
-  color: white;
-  padding: 10px;
-  font-weight: bold;
-  border-top-left-radius: 5px;
-  border-top-right-radius: 5px;
-  width: 102%;
-  box-shadow: rgb(255, 255, 255) 1px 1px 0px 1px inset,
-    rgb(134, 138, 142) 0px 0px 0px 1px inset, rgb(0, 0, 0) 1px 1px 0px 1px;
-  margin-bottom: 10px;
-  margin-top: -13px;
-`;
-
 const StatItem = styled.div`
   display: flex;
   justify-content: space-between;
@@ -64,6 +50,7 @@ const StatsWindow: React.FC<StatsWindowProps> = ({ intraname }) => {
   const [totalGames, setTotalGames] = useState<number>(0);
   const [elo, setElo] = useState<number>(0);
   const [winRate, setWinRate] = useState<number>(0);
+  const [winrateDisplay, setWinrateDisplay] = useState<string>("0");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -93,20 +80,22 @@ const StatsWindow: React.FC<StatsWindowProps> = ({ intraname }) => {
       }
     };
 
-    fetchData();
-  }, [intraname]);
+    if (intraname)
+      fetchData().then(() => {
+        setWinrateDisplay(winRate.toFixed(2));
+      });
+  }, [intraname]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <StyledStatsWindow>
       <ContentContainer>
-        <Title>{intraname}'s Stats</Title>
         <StatItem>
           <StatLabel>Won:</StatLabel>
           <StatValue>{wonGames}</StatValue>
         </StatItem>
         <StatItem>
           <StatLabel>Win Rate:</StatLabel>
-          <StatValue>{winRate.toFixed(2)}%</StatValue>
+          <StatValue>{winrateDisplay}%</StatValue>
         </StatItem>
         <StatItem>
           <StatLabel>Total Games:</StatLabel>

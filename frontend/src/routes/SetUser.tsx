@@ -1,18 +1,21 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import React, { useEffect, useState, useContext } from "react";
-import { AuthContext, IUser } from "../context/auth";
+import { AuthContext, IAuthContext, IUser } from "../context/auth";
 import Input from "../components/input/Input";
 import Button from "../components/button";
+import FirstLogin from "../components/firstlogin/FirstLogin";
 
 export const BACKEND: string = `http://${window.location.hostname}:${4000}`;
 
 const SetUser: React.FC = () => {
   const nav = useNavigate();
   const location = useLocation();
-  const [redirect, setRedirect] = useState(false);
-  const [twoFaCode, setTwoFaCode] = useState("");
+  const [redirect, setRedirect] = useState<boolean>(false);
+  const [twoFaCode, setTwoFaCode] = useState<string>("");
+  const [isFirstLogin, setIsFirstLogin] = useState<boolean>(true);
   const [user, setUser] = useState<IUser>();
-  const auth = useContext(AuthContext);
+  const auth = useContext<IAuthContext>(AuthContext);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const handleTwoFaCodeSubmit = async (): Promise<void> => {
     try {
@@ -33,7 +36,7 @@ const SetUser: React.FC = () => {
         auth.logIn({
           id: Number(user.id),
           name: user.name,
-          intraname: user.name,
+          intraname: user.intraname,
           twoFAenabled: user.twoFAenabled,
           profilePictureUrl: user.profilePictureUrl,
           activeChats: user.activeChats,
@@ -56,6 +59,7 @@ const SetUser: React.FC = () => {
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
     const userName: string | null = urlParams.get("user");
+    setIsFirstLogin(urlParams.get("firstSignIn") === "true");
     if (userName) {
       fetch(`${BACKEND}/users/${userName}`)
         .then((res) => res.json())
@@ -65,22 +69,30 @@ const SetUser: React.FC = () => {
             auth.logIn({
               id: Number(resUser.id),
               name: resUser.name,
-              intraname: resUser.name,
+              intraname: resUser.intraname,
               twoFAenabled: resUser.twoFAenabled,
               profilePictureUrl: resUser.profilePictureUrl,
               activeChats: resUser.activeChats,
             });
-            setRedirect(true);
+            if (!isFirstLogin) {
+              setRedirect(true);
+            }
           }
-        });
+        })
+        .catch((err) => console.error(err));
+      setIsLoading(false);
     }
-  }, [location.search, auth]);
+  }, [auth]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (redirect) {
-      nav(`/profile/${user?.name}`);
+      nav(`/test`); //TODO change later for login redirect
     }
-  }, [nav, redirect, user?.name]);
+  }, [redirect]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  if (isLoading) {
+    return <div></div>;
+  }
 
   return (
     <>
@@ -99,6 +111,7 @@ const SetUser: React.FC = () => {
           </div>
         </div>
       )}
+      {isFirstLogin && <FirstLogin />}
     </>
   );
 };

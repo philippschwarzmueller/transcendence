@@ -50,7 +50,7 @@ const ProfilePicture: React.FC<IProfilePicture> = ({
       }
     };
     fetchData();
-  }, []); // eslint-disable-next-line
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (isLoading) {
     return <div>Loading...</div>;
