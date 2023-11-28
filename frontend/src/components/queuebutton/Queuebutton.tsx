@@ -62,7 +62,7 @@ const Queuebutton: React.FC<IQueueProps> = (
     socket.on("game denied", (body: IGameStart) => {
       removeCookie("queue");
     });
-  }, [navigate, removeCookie, socket]);
+  }, [navigate, removeCookie, socket]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const queueUp = (socket: Socket, user: IUser, gamemode: EGamemode): void => {
     if (user.intraname !== undefined) {

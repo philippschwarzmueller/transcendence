@@ -57,7 +57,7 @@ const SocketRefresh: React.FC<RefreshProviderProps> = ({ children }) => {
     return () => {
       socket.off("queue found");
     };
-  }, [auth, navigate, socket, removeCookie]);
+  }, [auth, navigate, socket, removeCookie]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return <>{children}</>;
 };

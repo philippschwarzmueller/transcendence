@@ -124,8 +124,8 @@ const Taskbar: React.FC = () => {
   const [displayFriends, setDisplayFriends] = useState<boolean>(false);
   const [displayProfileSettings, setDisplayProfileSettings] =
     useState<boolean>(false);
-  const [displayQueuepopwindow, setDiplayQueuepopwindow] =
-    useState<boolean>(true);
+  // const [displayQueuepopwindow, setDiplayQueuepopwindow] =
+  //   useState<boolean>(true);
   const [displayOrder, setDisplayOrder] = useState<number[]>([
     0, 10, 20, 30, 40, 50, 60,
   ]);
