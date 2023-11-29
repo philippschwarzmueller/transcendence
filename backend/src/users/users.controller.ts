@@ -13,11 +13,20 @@ import { User } from './user.entity';
 import { Request } from 'express';
 import { FriendState } from './users.service';
 
+ interface PublicUser {
+  name: string;
+  intraname: string;
+  id?: number;
+  profilePictureUrl?: string;
+  upladedAvatar?: string;
+  hasCustomAvatar?: boolean;
+}
+
 @Controller('users')
 export class UsersController {
   constructor(private usersService: UsersService) {}
   @Get()
-  findAll(): Promise<User[]> {
+  findAll(): Promise<PublicUser[]> {
     return this.usersService.findAll();
   }
 
@@ -27,7 +36,7 @@ export class UsersController {
   }
 
   @Get(':userId')
-  async findOne(@Param('userId') name: string): Promise<User> {
+  async findOne(@Param('userId') name: string): Promise<PublicUser> {
     try {
       return await this.usersService.findOneByName(name);
     } catch (e) {
