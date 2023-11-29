@@ -17,7 +17,7 @@ import {
   IQueuePayload,
 } from '../games/properties';
 
-import { IChannel, IMessage } from '../chat/properties';
+import { IChannel, IMessage, ISendMessage } from '../chat/properties';
 import { Socket, Server } from 'socket.io';
 import { GamesService } from '../games/games.service';
 import { ChatService } from 'src/chat/chat.service';
@@ -53,7 +53,7 @@ export class WSocketGateway implements OnGatewayInit {
   async join(
     @MessageBody() data: IChannel,
     @ConnectedSocket() client: Socket,
-  ): Promise<string[]> {
+  ): Promise<ISendMessage[]> {
     return await this.chatService.joinRoom(data, client, this.server);
   }
 

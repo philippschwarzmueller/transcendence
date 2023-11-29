@@ -69,7 +69,7 @@ export class User {
   @Column({ default: 0 })
   tokenExpiry: number;
 
-  @ManyToMany(() => User)
+  @ManyToMany(() => User, user => user.blocking)
   @JoinTable({
     name: 'block_list',
     joinColumn: {
@@ -82,6 +82,9 @@ export class User {
     },
   })
   blocked: User[];
+
+  @ManyToMany(() => User, user => user.blocked) // This defines the reverse relationship
+  blocking: User[];
 
   @ManyToMany(() => User)
   @JoinTable({

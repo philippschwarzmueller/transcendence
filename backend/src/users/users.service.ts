@@ -56,6 +56,16 @@ export class UsersService {
     ).blocked;
   }
 
+  async getBlocking(userId: string): Promise<User[]> {
+    console.log(userId)
+    return (
+      await this.usersRepository.findOne({
+        where: { name: userId },
+        relations: ['blocking'],
+      })
+    ).blocking;
+  }
+
   async findAllNames(): Promise<string[]> {
     const res: User[] = await this.usersRepository.find();
     return res.map((item) => {

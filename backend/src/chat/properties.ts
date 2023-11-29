@@ -28,3 +28,8 @@ export interface DMessage {
   content: string;
   sender: number;
 }
+
+export interface ISendMessage {
+  message: string;
+  block: string[];
+}
