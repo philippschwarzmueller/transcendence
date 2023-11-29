@@ -10,4 +10,6 @@ export class CreateUserDto {
   twoFAenabled: boolean;
   twoFAsecret?: string;
   tempTwoFAsecret?: string;
+  upladedAvatar?: string;
+  hasCustomAvatar?: boolean;
 }

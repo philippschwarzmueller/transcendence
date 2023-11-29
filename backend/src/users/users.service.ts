@@ -276,7 +276,8 @@ export class UsersService {
         name: user,
       },
       {
-        upladedAvatar: avatar,
+        customAvatar: avatar,
+        hasCustomAvatar: true,
       },
     );
     if (result.affected && result.affected > 0) {
@@ -290,6 +291,28 @@ export class UsersService {
     const res: User = await this.usersRepository.findOne({
       where: { name: user },
     });
-    return res.upladedAvatar;
+    return res.customAvatar;
+  }
+
+  async hasCustomAvatar(user: string): Promise<boolean> {
+    const res: User = await this.usersRepository.findOne({
+      where: { name: user },
+    });
+    return res.hasCustomAvatar;
+  }
+
+  async backToFallbackProfilePicture(user: string): Promise<boolean> {
+    const result = await this.usersRepository.update(
+      {
+        name: user,
+      },
+      {
+        hasCustomAvatar: false,
+      },
+    );
+    if (result.affected && result.affected > 0) {
+      return true;
+    }
+    return false;
   }
 }

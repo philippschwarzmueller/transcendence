@@ -9,7 +9,7 @@ import Leaderboard from "../leaderboard/leaderboard";
 import Profilesettings from "../profilesettings/Profilesettings";
 import Profilewindow from "../profilewindow/Profilewindow";
 import Userbrowser from "../userbrowser";
-import Queuepopwindow from "../queuepopwindow/queuepopwindow"
+import Queuepopwindow from "../queuepopwindow/queuepopwindow";
 import Spectatorboard from "../spectatorboard";
 
 const StyledNavbar = styled.nav`
@@ -20,12 +20,8 @@ const StyledNavbar = styled.nav`
   position: absolute;
   bottom: 0;
   background-color: rgb(195, 199, 203);
-  box-shadow:
-    inset 0.5px 0.5px 0px 0.5px #ffffff,
-    inset 0 0 0 1px #868a8e,
-    1px 0px 0 0px #000000,
-    0px 1px 0 0px #000000,
-    1px 1px 0 0px #000000;
+  box-shadow: inset 0.5px 0.5px 0px 0.5px #ffffff, inset 0 0 0 1px #868a8e,
+    1px 0px 0 0px #000000, 0px 1px 0 0px #000000, 1px 1px 0 0px #000000;
   align-items: center;
 `;
 
@@ -49,9 +45,7 @@ const TaskButton = styled.button<{ $active: boolean }>`
     padding: 8 20 4;
     background-color: rgb(215, 216, 220);
 
-    box-shadow:
-      inset 0 0 0 1px rgb(134, 138, 142),
-      0 0 0 1px rgb(0, 0, 0);
+    box-shadow: inset 0 0 0 1px rgb(134, 138, 142), 0 0 0 1px rgb(0, 0, 0);
   }
   box-shadow: ${(props) =>
     props.$active
@@ -67,12 +61,8 @@ const StartMenu = styled.div<{ $display: boolean }>`
   left: 2px;
   z-index: 4;
   background-color: rgb(195, 199, 203);
-  box-shadow:
-    inset 0.5px 0.5px 0px 0.5px #ffffff,
-    inset 0 0 0 1px #868a8e,
-    1px 0px 0 0px #000000,
-    0px 1px 0 0px #000000,
-    1px 1px 0 0px #000000;
+  box-shadow: inset 0.5px 0.5px 0px 0.5px #ffffff, inset 0 0 0 1px #868a8e,
+    1px 0px 0 0px #000000, 0px 1px 0 0px #000000, 1px 1px 0 0px #000000;
   user-select: none;
 `;
 
