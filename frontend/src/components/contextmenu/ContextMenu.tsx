@@ -4,12 +4,10 @@ import { BACKEND } from "../../routes/SetUser";
 import { AuthContext, IUser } from "../../context/auth";
 import { ProfileContext } from "../../context/profile";
 
-const StyledUl = styled.ul<{ $display: boolean; $posX: number; $posY: number }>`
+const StyledUl = styled.ul<{ $display: boolean }>`
   display: ${(props) => (props.$display ? "" : "none")};
   position: absolute;
   z-index: 200;
-  left: ${(props) => props.$posX};
-  top: ${(props) => props.$posY};
   list-style-type: none;
   background-color: rgb(195, 199, 203);
   min-width: 100px;
@@ -41,8 +39,6 @@ const OptionLi = styled.li`
 
 export interface IContextMenu {
   display: boolean;
-  positionX: number;
-  positionY: number;
   user: IUser;
   triggerReload?: () => void;
 }
@@ -56,11 +52,10 @@ export enum FriendState {
 
 const ContextMenu: React.FC<IContextMenu> = ({
   display,
-  positionX,
-  positionY,
   user,
   triggerReload,
 }) => {
+
   const profile = useContext(ProfileContext)
   const [friendState, setFriendState] = useState<FriendState>(
     FriendState.noFriend,
@@ -202,7 +197,7 @@ const ContextMenu: React.FC<IContextMenu> = ({
 
   return (
     <>
-      <StyledUl $display={display} $posX={positionX} $posY={positionY}>
+      <StyledUl $display={display}>
         {/* PENDING FRIEND */}
         {friendState === FriendState.pendingFriend && (
           <OptionLi onClick={() => handleFriendAccept(user.name)}>
