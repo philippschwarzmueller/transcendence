@@ -8,8 +8,6 @@ const StyledUl = styled.ul<{ $display: boolean; $posX: number; $posY: number }>`
   display: ${(props) => (props.$display ? "" : "none")};
   position: absolute;
   z-index: 200;
-  left: ${(props) => props.$posX};
-  top: ${(props) => props.$posY};
   list-style-type: none;
   background-color: rgb(195, 199, 203);
   min-width: 100px;
@@ -61,6 +59,7 @@ const ContextMenu: React.FC<IContextMenu> = ({
   user,
   triggerReload,
 }) => {
+
   const profile = useContext(ProfileContext)
   const [friendState, setFriendState] = useState<FriendState>(
     FriendState.noFriend,
