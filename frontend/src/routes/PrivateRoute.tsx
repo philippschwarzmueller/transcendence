@@ -47,7 +47,7 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
   }, [auth]);
 
   if (isValid === null) {
-    return <div>Loading...</div>;
+    return <div></div>;
   } else if (!isValid) {
     return <Navigate to="/login" />;
   } else {
