@@ -300,4 +300,19 @@ export class UsersService {
     });
     return res.hasCustomAvatar;
   }
+
+  async backToFallbackProfilePicture(user: string): Promise<boolean> {
+    const result = await this.usersRepository.update(
+      {
+        name: user,
+      },
+      {
+        hasCustomAvatar: false,
+      },
+    );
+    if (result.affected && result.affected > 0) {
+      return true;
+    }
+    return false;
+  }
 }
