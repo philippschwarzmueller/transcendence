@@ -8,9 +8,18 @@ interface IProfilePicture {
   profilePictureUrl?: string;
 }
 
+const StyledFrame = styled.div`
+  width: 250px;
+  height: 250px;
+  align-content: center;
+`
+
 const StyledProfilePicture = styled.img`
-  max-height: 300px;
-  max-width: 300px;
+  display: flex;
+  justify-content: center;
+  max-height: 250px;
+  max-width: 250px;
+  margin: auto;
   box-shadow: rgb(255, 255, 255) 1px 1px 0px 1px inset,
     rgb(134, 138, 142) 0px 0px 0px 1px inset, rgb(0, 0, 0) 1px 2px 1px 1px;
 `;
@@ -56,12 +65,12 @@ const ProfilePicture: React.FC<IProfilePicture> = ({
     return <div>Loading...</div>;
   } else {
     return (
-      <div>
+      <StyledFrame>
         <StyledProfilePicture
           src={customAvatar || profilePictureUrl}
           alt={`${name}'s avatar`}
         />
-      </div>
+      </StyledFrame>
     );
   }
 };
