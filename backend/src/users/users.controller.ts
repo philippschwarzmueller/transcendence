@@ -64,6 +64,17 @@ export class UsersController {
     return this.usersService.removeFromBlockList(user, blocked);
   }
 
+  @Get('/intra/:userId')
+  async findIntra(@Param('userId') name: string): Promise<User> {
+    try {
+      return await this.usersService.findOneByIntraName(name);
+    } catch (e) {
+      throw new HttpException('user not found', HttpStatus.NOT_FOUND, {
+        cause: e,
+      });
+    }
+  }
+
   @Post('send-friend-request')
   async sendFriendRequest(
     @Body() body: { friend: string },

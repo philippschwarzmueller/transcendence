@@ -2,7 +2,6 @@ import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { User } from './user.entity';
-import { setDefaultHighWaterMark } from 'stream';
 
 export enum FriendState {
   noFriend,
@@ -35,10 +34,9 @@ export class UsersService {
     }
   }
 
-
-  async findOneByIntraName(userId: string): Promise<User> {
+  async findOneByIntraName(intraname: string): Promise<User> {
     const res: User = await this.usersRepository.findOne({
-      where: { intraname: userId },
+      where: { intraname: intraname },
     });
     if (res) {
       return res;
@@ -135,6 +133,14 @@ export class UsersService {
     const res = await queryRunner.manager.query(
       `DELETE FROM block_list
       WHERE blocking = ${user.id} AND blocked = ${blocked.id}`,
+    );
+    await queryRunner.manager.query(
+      `DELETE FROM friends 
+      WHERE blocking = ${user.id} AND blocked = ${blocked.id}`,
+    );
+    await queryRunner.manager.query(
+      `DELETE FROM friends 
+      WHERE blocking = ${blocked.id} AND blocked = ${user.id}`,
     );
     queryRunner.release();
     return false;

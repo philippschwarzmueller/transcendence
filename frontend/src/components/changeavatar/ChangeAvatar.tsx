@@ -3,7 +3,6 @@ import Input from "../input";
 import Button from "../button";
 import { BACKEND } from "../../routes/SetUser";
 import { AuthContext } from "../../context/auth";
-import { ProfileContext } from "../../context/profile";
 import { styled } from "styled-components";
 
 const Container = styled.div`
@@ -14,7 +13,6 @@ const Container = styled.div`
 const AvatarChangeSection: React.FC = () => {
   const [avatar, setAvatar] = useState<string>("");
   const auth = useContext(AuthContext);
-  const profile = useContext(ProfileContext);
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {

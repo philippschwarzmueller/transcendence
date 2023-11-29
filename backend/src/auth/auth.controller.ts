@@ -90,7 +90,7 @@ export class AuthController {
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
     res.redirect(
-      `http://${this.hostIP}:3000/set-user?user=${signIn.user.name}&firstSignIn=${signIn.firstLogin}`,
+      `http://${this.hostIP}:3000/set-user?intraname=${signIn.user.intraname}&firstSignIn=${signIn.firstLogin}`,
     );
   }
 
