@@ -9,6 +9,7 @@ import SignUp from "./routes/SignUp";
 import Login from "./routes/Login";
 import SetUser from "./routes/SetUser";
 import PrivateRoute from "./routes/PrivateRoute";
+import NotFound from "./routes/404";
 
 function App() {
   return (
@@ -32,7 +33,9 @@ function App() {
         <Route path="login" element={<Login />} />
         <Route path="queue" element={<Queue />} />
         <Route path="set-user" element={<SetUser />} />
+        <Route path="404" element={<NotFound />} />
       </Route>
+      <Route path="*" element={<Navigate to="/404" />} />
     </Routes>
   );
 }
