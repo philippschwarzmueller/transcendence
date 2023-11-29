@@ -17,7 +17,7 @@ const GraphContainer = styled.div<{ $display?: boolean }>`
   max-height: 300px;
   margin: auto;
   overflow: hidden;
-  display: ${(props) => props.$display ? "" : "none"};
+  display: ${(props) => (props.$display ? "" : "none")};
 `;
 
 const Win98Box = styled.div`
@@ -56,7 +56,10 @@ const CustomTooltip: React.FC<any> = ({ active, payload }) => {
   return null;
 };
 
-const GraphComponent: React.FC<{ intraname: string, display?: boolean}> = ({ intraname, display }) => {
+const GraphComponent: React.FC<{ intraname: string; display?: boolean }> = ({
+  intraname,
+  display,
+}) => {
   const [eloValues, setEloValues] = useState<number[]>([]);
 
   useEffect(() => {
@@ -70,7 +73,7 @@ const GraphComponent: React.FC<{ intraname: string, display?: boolean}> = ({ int
       }
     };
 
-    fetchData();
+    if (intraname) fetchData();
   }, [intraname]);
 
   const data = eloValues.map((value, index) => ({
@@ -83,7 +86,7 @@ const GraphComponent: React.FC<{ intraname: string, display?: boolean}> = ({ int
 
   const ticks = Array.from(
     { length: (domainMax - domainMin) / 100 + 1 },
-    (_, i) => domainMin + i * 100,
+    (_, i) => domainMin + i * 100
   );
 
   return (

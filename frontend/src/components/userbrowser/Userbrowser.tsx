@@ -56,7 +56,8 @@ const Userbrowser: React.FC<{ $display: boolean; z?: number }> = ({
         }
         return response.json();
       })
-      .then((res: IUser[]) => setUsers(res));
+      .then((res: IUser[]) => setUsers(res))
+      .catch((err) => console.error(err));
   }, []);
 
   return (
@@ -71,14 +72,7 @@ const Userbrowser: React.FC<{ $display: boolean; z?: number }> = ({
         <Browser>
           <StyledUl>
             {users.map((user) => {
-              return (
-                <Playercard
-                  key={user.name}
-                  name={user.name}
-                  id={user.id}
-                  profilePictureUrl={user.profilePictureUrl}
-                />
-              );
+              return <Playercard user={user} key={user.name} />;
             })}
           </StyledUl>
         </Browser>

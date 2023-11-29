@@ -159,7 +159,7 @@ export const ballSpawn: IBall = {
   speed_y: 0,
 };
 
-export const maxScore: number = 2;
+export const maxScore: number = 5;
 
 export enum EGamemode {
   standard = 1,
@@ -192,5 +192,7 @@ export const gameSpawn: IGame = {
 };
 
 export const goalSizePercent: number = 50;
+
+export const queueTimeout: number = 7;
 
 export default properties;
