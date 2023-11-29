@@ -50,7 +50,7 @@ const AvatarChangeSection: React.FC = () => {
         const uploadSuccessful: boolean = await res.json();
         if (uploadSuccessful) {
           auth.user.hasCustomAvatar = true;
-          profile.profilePictureUrl = avatar;
+          auth.user.customAvatar = avatar;
         }
       } catch (error) {
         console.error("Avatar upload failed", error);

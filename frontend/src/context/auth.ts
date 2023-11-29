@@ -8,6 +8,7 @@ export interface IUser {
   profilePictureUrl: string | undefined;
   token?: string | undefined;
   activeChats: string[];
+  customAvatar?: string | undefined;
   hasCustomAvatar?: boolean;
 }
 
@@ -19,6 +20,7 @@ let default_user: IUser = {
   profilePictureUrl: undefined,
   token: undefined,
   activeChats: [],
+  customAvatar: undefined,
   hasCustomAvatar: false,
 };
 

@@ -276,7 +276,7 @@ export class UsersService {
         name: user,
       },
       {
-        upladedAvatar: avatar,
+        customAvatar: avatar,
         hasCustomAvatar: true,
       },
     );
@@ -291,7 +291,7 @@ export class UsersService {
     const res: User = await this.usersRepository.findOne({
       where: { name: user },
     });
-    return res.upladedAvatar;
+    return res.customAvatar;
   }
 
   async hasCustomAvatar(user: string): Promise<boolean> {

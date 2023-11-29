@@ -32,22 +32,23 @@ const ProfilePicture: React.FC<IProfilePicture> = ({ name }) => {
         }
         setUser(await res.json());
         setIsLoading(false);
-        console.log(user);
       } catch (error) {
         console.error("fetching user for avatar/profilepicture failed", error);
       }
     };
     fetchData();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [name]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (isLoading /* || user === undefined */) {
+  if (isLoading) {
     return <div>Loading...</div>;
   }
   return (
     <div>
       <StyledProfilePicture
-        src={user?.hasCustomAvatar ? user.customAvatar : user?.profilePictureUrl}
-        alt={`${name}'s avatar`}
+        src={
+          user?.hasCustomAvatar ? user.customAvatar : user?.profilePictureUrl
+        }
+        alt={`${user?.name}'s avatar`}
       />
     </div>
   );

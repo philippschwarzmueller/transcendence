@@ -33,6 +33,7 @@ const SetUser: React.FC = () => {
               profilePictureUrl: resUser.profilePictureUrl,
               activeChats: resUser.activeChats,
               hasCustomAvatar: resUser.hasCustomAvatar,
+              customAvatar: resUser.customAvatar,
             });
             if (!isFirstLogin) {
               setRedirect(true);

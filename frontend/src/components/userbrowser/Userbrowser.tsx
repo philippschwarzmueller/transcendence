@@ -24,8 +24,7 @@ const Browser = styled.div`
     background: rgb(195, 199, 203);
     color: rgb(0, 0, 0);
     border: 0px;
-    box-shadow:
-      rgb(0, 0, 0) -1px -1px 0px 0px inset,
+    box-shadow: rgb(0, 0, 0) -1px -1px 0px 0px inset,
       rgb(210, 210, 210) 1px 1px 0px 0px inset,
       rgb(134, 138, 142) -2px -2px 0px 0px inset,
       rgb(255, 255, 255) 2px 2px 0px 0px inset;
