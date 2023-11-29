@@ -35,6 +35,18 @@ export class UsersService {
     }
   }
 
+
+  async findOneByIntraName(userId: string): Promise<User> {
+    const res: User = await this.usersRepository.findOne({
+      where: { intraname: userId },
+    });
+    if (res) {
+      return res;
+    } else {
+      throw new Error('User not found');
+    }
+  }
+  
   async getBlockList(userId: string): Promise<User[]> {
     return (
       await this.usersRepository.findOne({
@@ -87,8 +99,8 @@ export class UsersService {
   }
 
   async isBlocked(userId: string, blockedId: string): Promise<boolean> {
-    const user = await this.findOneByName(userId);
-    const blocked = await this.findOneByName(blockedId);
+    const user = await this.findOneByIntraName(userId);
+    const blocked = await this.findOneByIntraName(blockedId);
     const queryRunner = this.dataSource.createQueryRunner();
     queryRunner.connect();
     const res = await queryRunner.manager.query(
@@ -106,8 +118,8 @@ export class UsersService {
   }
 
   async removeFromBlockList(userId: string, blockedId: string): Promise<boolean> {
-    const user: User = await this.findOneByName(userId);
-    const blocked: User = await this.findOneByName(blockedId);
+    const user: User = await this.findOneByIntraName(userId);
+    const blocked: User = await this.findOneByIntraName(blockedId);
     const queryRunner = this.dataSource.createQueryRunner();
     queryRunner.connect();
     const res = await queryRunner.manager.query(
@@ -119,10 +131,9 @@ export class UsersService {
   }
 
   async addToBlockList(userId: string, blockedId: string): Promise<boolean> {
-    const user = await this.findOneByName(userId);
-    const block = await this.findOneByName(blockedId);
+    const user = await this.findOneByIntraName(userId);
+    const block = await this.findOneByIntraName(blockedId);
     const queryRunner = this.dataSource.createQueryRunner();
-    console.log(`${userId} ${blockedId}`);
     queryRunner.connect();
     await queryRunner.manager.query(
       `INSERT INTO block_list (blocking, "blocked")

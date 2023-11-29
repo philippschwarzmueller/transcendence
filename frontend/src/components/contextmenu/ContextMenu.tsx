@@ -76,7 +76,7 @@ const ContextMenu: React.FC<IContextMenu> = ({
 
   const blockProfile = (method: string) => {
     fetch(
-      `${BACKEND}/users/block/?blocking=${auth.user.name}&blocked=${user.name}`,
+      `${BACKEND}/users/block/?blocking=${auth.user.intraname}&blocked=${user.intraname}`,
       {
         method: method,
       },
@@ -209,7 +209,7 @@ const ContextMenu: React.FC<IContextMenu> = ({
   
   useEffect(() => {
     fetch(
-    `${BACKEND}/users/block/?blocking=${auth.user.name}&blocked=${user.name}`,
+    `${BACKEND}/users/block/?blocking=${auth.user.intraname}&blocked=${user.intraname}`,
     {
       method: "POST",
     },
