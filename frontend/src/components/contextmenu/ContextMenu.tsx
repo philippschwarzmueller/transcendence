@@ -211,6 +211,7 @@ const ContextMenu: React.FC<IContextMenu> = ({
     ).then((res) => {return res.json()})
     .then((res: boolean) => setIsBlocked(res))
     .catch((error) => console.log(error));
+    console.log(isBlocked);
   }, [isBlocked]);
 
   const refreshContextMenu = () => {
@@ -232,7 +233,7 @@ const ContextMenu: React.FC<IContextMenu> = ({
         )}
         {friendState === FriendState.pendingFriend  && !isBlocked && <LineLi />}
         {/* NO FRIEND */}
-        {friendState === FriendState.noFriend && !ownProfile && (
+        {friendState === FriendState.noFriend && !isBlocked &&!ownProfile && (
           <OptionLi onClick={() => handleFriendAdd(user.name)}>
             👨‍❤️‍💋‍👨 Add as friend
           </OptionLi>
