@@ -58,26 +58,43 @@ const AvatarChangeSection: React.FC = () => {
     }
   };
 
-  const handleBacktoDefaultAvatar = () => {
-    auth.user.hasCustomAvatar = false;
+  const handleBacktoDefaultAvatar = async () => {
+    try {
+      const res = await fetch(
+        `${BACKEND}/users/back-to-fallback-profilepicture`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ avatar }),
+          credentials: "include",
+        }
+      );
+      if (!res.ok) {
+        throw new Error(`HTTP error! Status: ${res.status}`);
+      }
+      const success: boolean = await res.json();
+      if (success) {
+        auth.user.hasCustomAvatar = false;
+      }
+    } catch (error) {
+      console.error("Back to fallback profile picture failed", error);
+    }
   };
 
   return (
     <>
       <Container>
-      <Input
-        type="file"
-        accept="image/*"
-        onChange={handleAvatarChange}
-      />
-      <Button onClick={handleAvatarUpload}>Upload new Avatar</Button>
-      {auth.user.hasCustomAvatar && (
-        <div>
-          <Button onClick={handleBacktoDefaultAvatar}>
-            Change back to default Avatar
-          </Button>
-        </div>
-      )}
+        <Input type="file" accept="image/*" onChange={handleAvatarChange} />
+        <Button onClick={handleAvatarUpload}>Upload new Avatar</Button>
+        {auth.user.hasCustomAvatar && (
+          <div>
+            <Button onClick={handleBacktoDefaultAvatar}>
+              Change back to default Avatar
+            </Button>
+          </div>
+        )}
       </Container>
     </>
   );
