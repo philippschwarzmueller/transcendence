@@ -56,12 +56,10 @@ export class ChatService extends ChatServiceBase {
     }
     try {
       const mess = `${data.user.name}: ${data.input}`;
-      console.log(mess);
       const blocking: User[] = await this.userService.getBlocking(data.user.name);
       const blockNames: string[] = blocking.map((u) => {
         return u.intraname;
       })
-      console.log('I#m not here');
       server.to(data.room).emit('message', {message: mess, block: blockNames });
       await this.chatDao.saveMessageToChannel(data);
     } catch (error) {

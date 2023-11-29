@@ -101,7 +101,7 @@ export class ChatServiceBase {
       res = await this.chatDao.getRawChannelMessages(channel.id, data.user.name);
       server.to(data.title).emit('message', {message: mess, block: blockNames} );
     } catch (error) {
-      console.log(`SYSTEM: ${error.message.split('\n')[0]}`);
+      (`SYSTEM: ${error.message.split('\n')[0]}`);
     }
     return res.map((m) => {
       return { message: m, block: []};

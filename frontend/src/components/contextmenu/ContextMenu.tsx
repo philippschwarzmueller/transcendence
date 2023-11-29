@@ -211,7 +211,6 @@ const ContextMenu: React.FC<IContextMenu> = ({
     ).then((res) => {return res.json()})
     .then((res: boolean) => setIsBlocked(res))
     .catch((error) => console.log(error));
-    console.log(isBlocked);
   }, [isBlocked]);
 
   const refreshContextMenu = () => {
