@@ -44,6 +44,25 @@ export class UsersService {
       throw new Error('User not found');
     }
   }
+  
+  async getBlockList(userId: string): Promise<User[]> {
+    return (
+      await this.usersRepository.findOne({
+        where: { name: userId },
+        relations: ['blocked'],
+      })
+    ).blocked;
+  }
+
+  async getBlocking(userId: string): Promise<User[]> {
+    console.log(userId)
+    return (
+      await this.usersRepository.findOne({
+        where: { name: userId },
+        relations: ['blocking'],
+      })
+    ).blocking;
+  }
 
   async findAllNames(): Promise<string[]> {
     const res: User[] = await this.usersRepository.find();
@@ -87,13 +106,58 @@ export class UsersService {
     }
   }
 
-  async clearActiveChats(user: User): Promise<User> {
-    if (user) {
-      user.activeChats.splice(0, user.activeChats.length);
-      return await this.usersRepository.save(user);
-    } else {
-      return undefined;
-    }
+  async isBlocked(userId: string, blockedId: string): Promise<boolean> {
+    const user = await this.findOneByIntraName(userId);
+    const blocked = await this.findOneByIntraName(blockedId);
+    const queryRunner = this.dataSource.createQueryRunner();
+    queryRunner.connect();
+    const res = await queryRunner.manager.query(
+      `SELECT EXISTS (
+        SELECT 1
+        FROM users
+        INNER JOIN block_list 
+        ON users.id = block_list.blocking
+        WHERE users.id = ${user.id}
+        AND block_list.blocked = ${blocked.id}
+      ) AS is_blocked;`,
+    );
+    queryRunner.release();
+    return res[0].is_blocked;
+  }
+
+  async removeFromBlockList(userId: string, blockedId: string): Promise<boolean> {
+    const user: User = await this.findOneByIntraName(userId);
+    const blocked: User = await this.findOneByIntraName(blockedId);
+    const queryRunner = this.dataSource.createQueryRunner();
+    queryRunner.connect();
+    const res = await queryRunner.manager.query(
+      `DELETE FROM block_list
+      WHERE blocking = ${user.id} AND blocked = ${blocked.id}`,
+    );
+    await queryRunner.manager.query(
+      `DELETE FROM friends 
+      WHERE blocking = ${user.id} AND blocked = ${blocked.id}`,
+    );
+    await queryRunner.manager.query(
+      `DELETE FROM friends 
+      WHERE blocking = ${blocked.id} AND blocked = ${user.id}`,
+    );
+    queryRunner.release();
+    return false;
+  }
+
+  async addToBlockList(userId: string, blockedId: string): Promise<boolean> {
+    const user = await this.findOneByIntraName(userId);
+    const block = await this.findOneByIntraName(blockedId);
+    const queryRunner = this.dataSource.createQueryRunner();
+    queryRunner.connect();
+    await queryRunner.manager.query(
+      `INSERT INTO block_list (blocking, "blocked")
+        VALUES (${user.id}, ${block.id})
+        ON CONFLICT (blocking, "blocked") DO NOTHING;`,
+    );
+    queryRunner.release();
+    return true;
   }
 
   // Friends

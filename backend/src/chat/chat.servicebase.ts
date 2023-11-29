@@ -1,9 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
-import { EChannelType, IChannel, ITab } from './properties';
+import { EChannelType, IChannel, ISendMessage, ITab } from './properties';
 import { ChatDAO } from './chat.dao';
 import { Socket, Server } from 'socket.io';
 import { IGameUser } from 'src/games/properties';
+import { User } from 'src/users/user.entity';
 
 @Injectable()
 export class ChatServiceBase {
@@ -113,20 +114,28 @@ export class ChatServiceBase {
     data: IChannel,
     client: Socket,
     server: Server,
-  ): Promise<string[]> {
+  ): Promise<ISendMessage[]> {
     let res: string[] = [];
     try {
       this.updateActiveClients(data, client);
       const channel = await this.chatDao.getChannel(data.id);
+      client.join(channel.title);
+      const mess = `${data.user.name}: joined room`;
+      const blocking: User[] = await this.userService.getBlocking(data.user.name);
+      const blockNames: string[] = blocking.map((u) => {
+        return u.intraname;
+      })
       client.leave(data.prev.toString());
       client.join(channel.id.toString());
       server
         .to(channel.id.toString())
-        .emit('message', `${data.user.name}: joined room`);
-      res = await this.chatDao.getRawChannelMessages(channel.id);
+        .emit('message', {message: mess, block: blockNames});
+      res = await this.chatDao.getRawChannelMessages(channel.id, data.user.name);
     } catch (error) {
       console.log(`SYSTEM: ${error.message.split('\n')[0]}`);
     }
-    return res;
+    return res.map((m) => {
+      return { message: m, block: []};
+    });
   }
 }

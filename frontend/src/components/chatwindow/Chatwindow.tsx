@@ -9,7 +9,7 @@ import { AuthContext, IUser } from "../../context/auth";
 import Popup from "../popup/Popup";
 import { IGameStart } from "../gamewindow/properties";
 import { useNavigate } from "react-router-dom";
-import { EChannelType, ITab } from "./properties";
+import { EChannelType, IMessage, ITab } from "./properties";
 
 const Msgfield = styled.div`
   width: 320px;
@@ -89,7 +89,7 @@ const Chatwindow: React.FC<{ $display: boolean, z?: number }> = ({
   $display,
   z,
 }) => {
-  const [messages, setMessages] = useState<string[]>([]);
+  const [messages, setMessages] = useState<IMessage[]>([]);
   const [input, setInput] = useState<string>("");
   const user: IUser = useContext(AuthContext).user;
   const [tabs, setTabs] = useState<ITab[]>([]);
@@ -110,7 +110,7 @@ const Chatwindow: React.FC<{ $display: boolean, z?: number }> = ({
   socket.on("disconnect", () => {
     socket.emit("layoff", user.name);
   });
-  socket.on("message", (res: string) => setMessages([...messages, res]));
+  socket.on("message", (res: IMessage) => setMessages([...messages, res]));
   socket.on("invite", (res: ITab[]) => setTabs(res));
   socket.on("game", (body: IGameStart) => {
     navigate(`/play/${body.gameId}/${body.side}`);
@@ -141,7 +141,7 @@ const Chatwindow: React.FC<{ $display: boolean, z?: number }> = ({
         title: room?.title,
         prev: prevRoom?.id,
       },
-      (res: string[]) => setMessages(res),
+      (res: IMessage[]) => setMessages(res),
     );
   }, [room, prevRoom]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -232,7 +232,8 @@ const Chatwindow: React.FC<{ $display: boolean, z?: number }> = ({
         <Textfield>
           <StyledUl ref={msgField} id="msgField">
             {messages.map((mes) => {
-              return <li key={listKey++}>{mes}</li>;
+              if (mes.block.filter((m) => m === user.intraname).length === 0)
+                return <li key={listKey++}>{mes.message}</li>;
             })}
           </StyledUl>
         </Textfield>
@@ -249,7 +250,7 @@ const Chatwindow: React.FC<{ $display: boolean, z?: number }> = ({
           <Button onClick={(e: React.MouseEvent) => send(e)}>Send</Button>
           <Button
             onClick={() =>
-              socket.emit("clear", room, (res: string[]) => setMessages(res))
+              socket.emit("clear", room, (res: IMessage[]) => setMessages(res))
             }
           >
             Clear

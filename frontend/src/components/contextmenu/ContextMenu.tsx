@@ -53,6 +53,9 @@ export enum FriendState {
   friend,
 }
 
+
+
+
 const ContextMenu: React.FC<IContextMenu> = ({
   display,
   user,
@@ -67,6 +70,7 @@ const ContextMenu: React.FC<IContextMenu> = ({
   const auth = useContext(AuthContext);
   const [ownProfile, setOwnProfile] = useState<boolean>(false);
   const [, setRefreshFlag] = useState(false);
+  const [isBlocked, setIsBlocked] = useState<boolean>(false);
   const navigate = useNavigate();
   const socket = useContext(SocketContext);
 
@@ -79,6 +83,17 @@ const ContextMenu: React.FC<IContextMenu> = ({
     };
     socket.emit("create", body);
     navigate("/chat");
+  }
+
+  const blockProfile = (method: string) => {
+    fetch(
+      `${BACKEND}/users/block/?blocking=${auth.user.intraname}&blocked=${user.intraname}`,
+      {
+        method: method,
+      },
+    ).then((res) => {return res.json()})
+    .then((res: boolean) => setIsBlocked(res))
+    .catch((error) => console.log(error));
   };
 
   const handleFriendAccept = async (friend: string | undefined) => {
@@ -202,6 +217,17 @@ const ContextMenu: React.FC<IContextMenu> = ({
     };
     fetchData();
   }, [friendState]); // eslint-disable-line react-hooks/exhaustive-deps
+  
+  useEffect(() => {
+    fetch(
+    `${BACKEND}/users/block/?blocking=${auth.user.intraname}&blocked=${user.intraname}`,
+    {
+      method: "POST",
+    },
+    ).then((res) => {return res.json()})
+    .then((res: boolean) => setIsBlocked(res))
+    .catch((error) => console.log(error));
+  }, [isBlocked]);
 
   const refreshContextMenu = () => {
     setRefreshFlag((prev) => !prev);
@@ -215,12 +241,12 @@ const ContextMenu: React.FC<IContextMenu> = ({
     <>
       <StyledUl $display={display}>
         {/* PENDING FRIEND */}
-        {friendState === FriendState.pendingFriend && (
+        {friendState === FriendState.pendingFriend && !isBlocked && (
           <OptionLi onClick={() => handleFriendAccept(user.name)}>
             👥 Accept friend request
           </OptionLi>
         )}
-        {friendState === FriendState.pendingFriend && <LineLi />}
+        {friendState === FriendState.pendingFriend  && !isBlocked && <LineLi />}
         {/* NO FRIEND */}
         {friendState === FriendState.noFriend && !ownProfile && (
           <OptionLi onClick={() => handleFriendAdd(user.name)}>
@@ -232,7 +258,7 @@ const ContextMenu: React.FC<IContextMenu> = ({
         {friendState === FriendState.requestedFriend && !ownProfile && (
           <OptionLi>👀 Friend request pending</OptionLi>
         )}
-        {friendState === FriendState.requestedFriend && <LineLi />}
+        {friendState === FriendState.requestedFriend  && !isBlocked && <LineLi />}
         {user.name !== undefined && (
           <OptionLi onClick={() => {
             profile.name = user.name ? user.name : ""
@@ -244,10 +270,8 @@ const ContextMenu: React.FC<IContextMenu> = ({
         <LineLi />
         {!ownProfile && <OptionLi>🏓 Challenge to Game</OptionLi>}
         {!ownProfile && <LineLi />}
-        {!ownProfile && (
-          <OptionLi onClick={() => startChat()}>💬 Start Chat</OptionLi>
-        )}
-        {!ownProfile && <LineLi />}
+        {!ownProfile && !isBlocked && <OptionLi onClick={() => startChat()}>💬 Start Chat</OptionLi>}
+        {!ownProfile && !isBlocked && <LineLi />}
         {/* FRIEND */}
         {friendState === FriendState.friend && (
           <OptionLi onClick={() => handleFriendRemove(user.name)}>
@@ -255,7 +279,16 @@ const ContextMenu: React.FC<IContextMenu> = ({
           </OptionLi>
         )}
         {friendState === FriendState.friend && <LineLi />}
-        {!ownProfile && <OptionLi>🚫 Block User</OptionLi>}
+        {!ownProfile && !isBlocked && (
+          <OptionLi onClick={() => blockProfile("PUT")}>
+            🚫 Block User
+          </OptionLi>
+        )}
+        {!ownProfile && isBlocked && (
+          <OptionLi onClick={() => blockProfile("DELETE")}>
+            💢 Unblock User
+          </OptionLi>
+        )}
         {!ownProfile && <LineLi />}
       </StyledUl>
     </>

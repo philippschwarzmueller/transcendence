@@ -3,10 +3,13 @@ import { User } from 'src/users/user.entity';
 import { DataSource, Repository } from 'typeorm';
 import { Injectable, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EChannelType, IChannel, IMessage, ITab } from './properties';
+import { DMessage, EChannelType, IChannel, IMessage, ITab } from './properties';
 import { UsersService } from 'src/users/users.service';
-import { channel } from 'diagnostics_channel';
 
+interface test {
+  content: string;
+  sender: string;
+}
 @Injectable()
 export class ChatDAO {
   constructor(
@@ -14,6 +17,8 @@ export class ChatDAO {
     private channelRepo: Repository<Channels>,
     @InjectRepository(Messages)
     private messsageRepo: Repository<Messages>,
+    @InjectRepository(User)
+    private userRepo: Repository<User>,
     @Inject(UsersService)
     private userService: UsersService,
     @Inject('DATA_SOURCE')
@@ -93,9 +98,9 @@ export class ChatDAO {
       .getMany();
   }
 
-  public async getRawChannelMessages(channelId: number): Promise<string[]> {
-    return (await this.getChannelMessages(channelId)).map((item) => {
-      return `${item.sender.name}: ${item.content}`;
+  public async getRawChannelMessages(channelId: number, user: string): Promise<string[]> {
+    return (await this.getMessagesFiltert(channelId, user)).map((item) => {
+      return `${item.sender}: ${item.content}`;
     });
   }
 
@@ -151,6 +156,24 @@ export class ChatDAO {
       })
     ).owner;
   }
-  //updateUserRole
-  //getMessagesFiltert
+
+  public async getMessagesFiltert(channelId: number, user: string): Promise<test[]> {
+    const userId: number = (await this.userService.findOneByName(user)).id;
+    const queryRunner = this.dataSource.createQueryRunner();
+    queryRunner.connect();
+    const res: test[]  =  await queryRunner.manager.query(
+      `SELECT messages.content, users.name as sender
+      FROM messages
+      LEFT JOIN users ON messages.sender = users.id
+      WHERE messages.channel = ${channelId}
+      AND messages.sender NOT IN (
+        SELECT blocked
+        FROM block_list
+        WHERE blocking = ${userId}
+      )
+      ORDER BY messages.id;`
+    );
+    queryRunner.release();
+    return res;
+  }
 }

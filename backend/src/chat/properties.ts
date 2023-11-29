@@ -32,3 +32,13 @@ export interface ITab {
   id: number;
   title: string;
 }
+
+export interface DMessage {
+  content: string;
+  sender: number;
+}
+
+export interface ISendMessage {
+  message: string;
+  block: string[];
+}
