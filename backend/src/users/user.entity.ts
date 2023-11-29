@@ -122,7 +122,7 @@ export class User {
   elo: number[];
 
   @Column('text', { nullable: true })
-  upladedAvatar: string;
+  customAvatar: string;
 
   @Column({ default: false })
   hasCustomAvatar: boolean;
