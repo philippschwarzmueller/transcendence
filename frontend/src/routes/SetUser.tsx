@@ -32,6 +32,7 @@ const SetUser: React.FC = () => {
               twoFAenabled: resUser.twoFAenabled,
               profilePictureUrl: resUser.profilePictureUrl,
               activeChats: resUser.activeChats,
+              hasCustomAvatar: resUser.hasCustomAvatar,
             });
             if (!isFirstLogin) {
               setRedirect(true);
