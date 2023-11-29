@@ -5,7 +5,10 @@ import {
   HttpException,
   HttpStatus,
   Param,
+  Query,
+  Put,
   Post,
+  Delete,
   Req,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
@@ -35,6 +38,30 @@ export class UsersController {
         cause: e,
       });
     }
+  }
+
+  @Put('block')
+  async block(
+    @Query('blocking') blocking: string,
+    @Query('blocked') blocked: string,
+  ): Promise<boolean> {
+    return this.usersService.addToBlockList(blocking, blocked);
+  }
+
+  @Post('block')
+  async getIsBlocked(
+    @Query('blocking') user: string,
+    @Query('blocked') blocked: string,
+  ): Promise<boolean> {
+    return this.usersService.isBlocked(user, blocked);
+  }
+
+  @Delete('block')
+  async unblock(
+    @Query('blocking') user: string,
+    @Query('blocked') blocked: string,
+  ): Promise<boolean> {
+    return this.usersService.removeFromBlockList(user, blocked);
   }
 
   @Get('/intra/:userId')
