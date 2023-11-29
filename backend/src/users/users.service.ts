@@ -135,11 +135,11 @@ export class UsersService {
     );
     await queryRunner.manager.query(
       `DELETE FROM friends 
-      WHERE blocking = ${user.id} AND blocked = ${blocked.id}`,
+      WHERE user_id = ${user.id} AND friend_id = ${blocked.id}`,
     );
     await queryRunner.manager.query(
       `DELETE FROM friends 
-      WHERE blocking = ${blocked.id} AND blocked = ${user.id}`,
+      WHERE user_id = ${blocked.id} AND friend_id = ${user.id}`,
     );
     queryRunner.release();
     return false;
