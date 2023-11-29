@@ -114,7 +114,7 @@ const Friendbrowser: React.FC<{ $display: boolean; z?: number }> = ({
   };
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div></div>;
   }
 
   return (
