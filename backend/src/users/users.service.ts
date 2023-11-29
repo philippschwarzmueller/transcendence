@@ -55,7 +55,6 @@ export class UsersService {
   }
 
   async getBlocking(userId: string): Promise<User[]> {
-    console.log(userId)
     return (
       await this.usersRepository.findOne({
         where: { name: userId },
