@@ -123,4 +123,7 @@ export class User {
 
   @Column('text', { nullable: true })
   upladedAvatar: string;
+
+  @Column({ default: false })
+  hasCustomAvatar: boolean;
 }
