@@ -57,10 +57,10 @@ const FirstLogin: React.FC = () => {
           You can setup you own name and own Avatar.<br />
           Default will be you intraname and intra Picture.
         </p>
-          <WindowWrapper title="change name" titlebottom="62px">
+          <WindowWrapper title="change name">
             <NameChangeSection />
           </WindowWrapper>
-          <WindowWrapper title="change avatar" titlebottom="65px">
+          <WindowWrapper title="change avatar">
             <AvatarChangeSection />
           </WindowWrapper>
           <TwoFactorAuthSection />

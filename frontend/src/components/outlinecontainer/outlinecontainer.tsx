@@ -14,11 +14,11 @@ const StyledWindow = styled.div`
   display: inline-block;
 `;
 
-const Title = styled.div<{ bottom: string }>`
+const Title = styled.div`
   font-size: 14px;
   color: #000;
   position: absolute;
-  bottom: ${(props) => props.bottom};
+  top: -6px;
   padding-left: 3px;
   padding-right: 3px;
   padding-bottom: 3px;
@@ -27,14 +27,13 @@ const Title = styled.div<{ bottom: string }>`
 
 interface WindowWrapperProps {
   title: string;
-  titlebottom: string;
   children: ReactNode;
 }
 
-const WindowWrapper: React.FC<WindowWrapperProps> = ({ title, titlebottom, children }) => {
+const WindowWrapper: React.FC<WindowWrapperProps> = ({ title, children }) => {
   return (
     <StyledWindow>
-      <Title bottom={titlebottom}>{title}</Title>
+      <Title>{title}</Title>
       {children}
     </StyledWindow>
   );

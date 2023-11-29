@@ -7,11 +7,22 @@ interface IProfilePicture {
   name?: string;
 }
 
+const StyledFrame = styled.div`
+  width: 250px;
+  height: 250px;
+  align-content: center;
+`;
+
 const StyledProfilePicture = styled.img`
-  max-height: 300px;
-  max-width: 300px;
-  box-shadow: rgb(255, 255, 255) 1px 1px 0px 1px inset,
-    rgb(134, 138, 142) 0px 0px 0px 1px inset, rgb(0, 0, 0) 1px 2px 1px 1px;
+  display: flex;
+  justify-content: center;
+  max-height: 250px;
+  max-width: 250px;
+  margin: auto;
+  box-shadow:
+    rgb(255, 255, 255) 1px 1px 0px 1px inset,
+    rgb(134, 138, 142) 0px 0px 0px 1px inset,
+    rgb(0, 0, 0) 1px 2px 1px 1px;
 `;
 
 const ProfilePicture: React.FC<IProfilePicture> = ({ name }) => {
@@ -43,14 +54,14 @@ const ProfilePicture: React.FC<IProfilePicture> = ({ name }) => {
     return <div>Loading...</div>;
   }
   return (
-    <div>
+    <StyledFrame>
       <StyledProfilePicture
         src={
           user?.hasCustomAvatar ? user.customAvatar : user?.profilePictureUrl
         }
         alt={`${user?.name}'s avatar`}
       />
-    </div>
+    </StyledFrame>
   );
 };
 

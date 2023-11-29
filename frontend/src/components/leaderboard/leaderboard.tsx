@@ -134,7 +134,7 @@ const Leaderboard: React.FC<{ $display: boolean, z?: number}> = ({
         positionZ={z}
         display={$display}
       >
-        <WindowWrapper title="sortBy" titlebottom="35px">
+        <WindowWrapper title="sortBy">
           <HorizontalContainer>
             <p></p>
             <Checkbox
