@@ -73,7 +73,6 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
         display={showContext}
         positionX={x}
         positionY={y}
-        name={name}
         triggerReload={triggerReload}
       />
     </>

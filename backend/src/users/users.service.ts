@@ -87,17 +87,34 @@ export class UsersService {
   }
 
   async isBlocked(userId: string, blockedId: string): Promise<boolean> {
-    const user: User = await this.findOneByName(userId);
-    if (user.blocked.find((u) => { return u.name === blockedId}))
-      return true;
-    return false;
+    const user = await this.findOneByName(userId);
+    const blocked = await this.findOneByName(blockedId);
+    const queryRunner = this.dataSource.createQueryRunner();
+    queryRunner.connect();
+    const res = await queryRunner.manager.query(
+      `SELECT EXISTS (
+        SELECT 1
+        FROM users
+        INNER JOIN block_list 
+        ON users.id = block_list.blocking
+        WHERE users.id = ${user.id}
+        AND block_list.blocked = ${blocked.id}
+      ) AS is_blocked;`,
+    );
+    queryRunner.release();
+    return res[0].is_blocked;
   }
 
   async removeFromBlockList(userId: string, blockedId: string): Promise<boolean> {
     const user: User = await this.findOneByName(userId);
     const blocked: User = await this.findOneByName(blockedId);
-    user.blocked = user.blocked.filter((u) => u.id !== user.id);
-    this.usersRepository.save(user);
+    const queryRunner = this.dataSource.createQueryRunner();
+    queryRunner.connect();
+    const res = await queryRunner.manager.query(
+      `DELETE FROM block_list
+      WHERE blocking = ${user.id} AND blocked = ${blocked.id}`,
+    );
+    queryRunner.release();
     return false;
   }
 

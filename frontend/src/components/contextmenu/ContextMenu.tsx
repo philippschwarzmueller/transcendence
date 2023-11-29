@@ -73,20 +73,9 @@ const ContextMenu: React.FC<IContextMenu> = ({
   const [, setRefreshFlag] = useState(false);
   const [isBlocked, setIsBlocked] = useState<boolean>(false);
 
-  const fetchBlockData = async () => {
-    fetch(
-    `http://${BACKEND}/users/block/?blocking=${auth.user.name}&blocked=${name}`,
-    {
-      method: "GET",
-    },
-    ).then((res) => {return res.json()})
-    .then((res: boolean) => setIsBlocked(res))
-    .catch((error) => console.log(error));
-  }
-
   const blockProfile = (method: string) => {
     fetch(
-      `http://${BACKEND}/users/block/?blocking=${auth.user.name}&blocked=${name}`,
+      `${BACKEND}/users/block/?blocking=${auth.user.name}&blocked=${name}`,
       {
         method: method,
       },
@@ -212,11 +201,21 @@ const ContextMenu: React.FC<IContextMenu> = ({
     const fetchData = async () => {
       setIsLoading(true);
       await fetchFriendData();
-      await fetchBlockData();
       setIsLoading(false);
     };
     fetchData();
   }, [friendState]); // eslint-disable-line react-hooks/exhaustive-deps
+  
+  useEffect(() => {
+    fetch(
+    `${BACKEND}/users/block/?blocking=${auth.user.name}&blocked=${name}`,
+    {
+      method: "POST",
+    },
+    ).then((res) => {return res.json()})
+    .then((res: boolean) => setIsBlocked(res))
+    .catch((error) => console.log(error));
+  }, [isBlocked]);
 
   const refreshContextMenu = () => {
     setRefreshFlag((prev) => !prev);

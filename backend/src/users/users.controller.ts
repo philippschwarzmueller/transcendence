@@ -45,12 +45,13 @@ export class UsersController {
     @Query('blocking') blocking: string,
     @Query('blocked') blocked: string,
   ): Promise<boolean> {
+    console.log('here');
     return this.usersService.addToBlockList(blocking, blocked);
   }
 
-  @Get('block')
+  @Post('block')
   async getIsBlocked(
-    @Query('user') user: string,
+    @Query('blocking') user: string,
     @Query('blocked') blocked: string,
   ): Promise<boolean> {
     return this.usersService.isBlocked(user, blocked);
@@ -58,7 +59,7 @@ export class UsersController {
 
   @Delete('block')
   async unblock(
-    @Query('user') user: string,
+    @Query('blocking') user: string,
     @Query('blocked') blocked: string,
   ): Promise<boolean> {
     return this.usersService.removeFromBlockList(user, blocked);
