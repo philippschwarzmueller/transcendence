@@ -45,7 +45,6 @@ export class UsersController {
     @Query('blocking') blocking: string,
     @Query('blocked') blocked: string,
   ): Promise<boolean> {
-    console.log('here');
     return this.usersService.addToBlockList(blocking, blocked);
   }
 

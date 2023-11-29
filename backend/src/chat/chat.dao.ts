@@ -128,7 +128,6 @@ export class ChatDAO {
 
   public async getMessagesFiltert(channelId: number, user: string): Promise<test[]> {
     const userId: number = (await this.userService.findOneByName(user)).id;
-    console.log(channelId, userId);
     const queryRunner = this.dataSource.createQueryRunner();
     queryRunner.connect();
     const res: test[]  =  await queryRunner.manager.query(
@@ -144,7 +143,6 @@ export class ChatDAO {
       ORDER BY messages.id;`
     );
     queryRunner.release();
-    console.log(res);
     return res;
   }
 }
