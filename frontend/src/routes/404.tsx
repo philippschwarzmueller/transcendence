@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import Button from "../components/button/Button";
 import { styled } from "styled-components";
+import Centerdiv from "../components/centerdiv/Centerdiv";
 
 const StyledWindow = styled.div`
   position: absolute;
@@ -40,10 +41,12 @@ const NotFound: React.FC = () => {
           />
           404
         </Windowbar>
-        <h1> You seem to be lost, this button will help you. </h1>
+        <p> You seem to be lost, this button will help you. </p>
+        <Centerdiv>
         <Link to={"/Home"}>
           <Button>Continue</Button>
         </Link>
+        </Centerdiv>
       </StyledWindow>
     </>
   );
