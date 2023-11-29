@@ -71,14 +71,7 @@ const Userbrowser: React.FC<{ $display: boolean; z?: number }> = ({
         <Browser>
           <StyledUl>
             {users.map((user) => {
-              return (
-                <Playercard
-                  key={user.name}
-                  name={user.name}
-                  id={user.id}
-                  profilePictureUrl={user.profilePictureUrl}
-                />
-              );
+              return <Playercard user={user} key={user.name} />;
             })}
           </StyledUl>
         </Browser>

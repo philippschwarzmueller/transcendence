@@ -12,14 +12,11 @@ import Profile from "./routes/Profile";
 import ProfileSettings from "./routes/ProfileSettings";
 import SetUser from "./routes/SetUser";
 import PrivateRoute from "./routes/PrivateRoute";
-import Test from "./routes/test";
 
 function App() {
   return (
     <Routes>
       <Route path="/" element={<Root />} errorElement={<ErrorPage />}>
-        <Route index element={<Home />} />
-        <Route path="home" element={<Home />} />
         <Route path="play" element={<Game />}>
           <Route path=":gameId" element={<Game />}>
             <Route path=":side" element={<Game />} />
@@ -49,10 +46,10 @@ function App() {
         <Route path="queue" element={<Queue />} />
         <Route path="set-user" element={<SetUser />} />
         <Route
-          path="test"
+          path="home"
           element={
             <PrivateRoute>
-              <Test />
+              <Home/>
             </PrivateRoute>
           }
         />

@@ -10,7 +10,7 @@ import {
   Res,
   Req,
 } from '@nestjs/common';
-import { AuthService } from './auth.service';
+import { AuthService, IntraSignInEvent } from './auth.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { User } from '../users/user.entity';
 import { Response, Request } from 'express';
@@ -80,7 +80,7 @@ export class AuthController {
     const hashedToken: string = await this.authService.hashToken(
       data.access_token,
     );
-    const user: User = await this.authService.createIntraUser(
+    const signIn: IntraSignInEvent = await this.authService.IntraSignIn(
       data,
       hashedToken,
     );
@@ -89,7 +89,9 @@ export class AuthController {
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
-    res.redirect(`http://${this.hostIP}:3000/set-user?user=${user.name}`);
+    res.redirect(
+      `http://${this.hostIP}:3000/set-user?intraname=${signIn.user.intraname}&firstSignIn=${signIn.firstLogin}`,
+    );
   }
 
   @Post('validate-token')

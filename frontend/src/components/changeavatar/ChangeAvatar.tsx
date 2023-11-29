@@ -3,6 +3,12 @@ import Input from "../input";
 import Button from "../button";
 import { BACKEND } from "../../routes/SetUser";
 import { AuthContext } from "../../context/auth";
+import { styled } from "styled-components";
+
+const Container = styled.div`
+  padding: 5px;
+  margin: 5px;
+`;
 
 const AvatarChangeSection: React.FC = () => {
   const [avatar, setAvatar] = useState<string>("");
@@ -42,34 +48,52 @@ const AvatarChangeSection: React.FC = () => {
         const uploadSuccessful: boolean = await res.json();
         if (uploadSuccessful) {
           auth.user.hasCustomAvatar = true;
+          auth.user.customAvatar = avatar;
         }
-        console.log(uploadSuccessful);
       } catch (error) {
         console.error("Avatar upload failed", error);
       }
     }
   };
 
-  const handleBacktoDefaultAvatar = () => {
-    auth.user.hasCustomAvatar = false;
+  const handleBacktoDefaultAvatar = async () => {
+    try {
+      const res = await fetch(
+        `${BACKEND}/users/back-to-fallback-profilepicture`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ avatar }),
+          credentials: "include",
+        }
+      );
+      if (!res.ok) {
+        throw new Error(`HTTP error! Status: ${res.status}`);
+      }
+      const success: boolean = await res.json();
+      if (success) {
+        auth.user.hasCustomAvatar = false;
+      }
+    } catch (error) {
+      console.error("Back to fallback profile picture failed", error);
+    }
   };
 
   return (
     <>
-      <Input
-        label="Change Avatar"
-        type="file"
-        accept="image/*"
-        onChange={handleAvatarChange}
-      />
-      <Button onClick={handleAvatarUpload}>Upload new Avatar</Button>
-      {auth.user.hasCustomAvatar && (
-        <div>
-          <Button onClick={handleBacktoDefaultAvatar}>
-            Change back to default Avatar
-          </Button>
-        </div>
-      )}
+      <Container>
+        <Input type="file" accept="image/*" onChange={handleAvatarChange} />
+        <Button onClick={handleAvatarUpload}>Upload new Avatar</Button>
+        {auth.user.hasCustomAvatar && (
+          <div>
+            <Button onClick={handleBacktoDefaultAvatar}>
+              Change back to default Avatar
+            </Button>
+          </div>
+        )}
+      </Container>
     </>
   );
 };

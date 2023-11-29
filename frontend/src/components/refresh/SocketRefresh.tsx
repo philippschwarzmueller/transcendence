@@ -6,6 +6,7 @@ import { IGameStart } from "../gamewindow/properties";
 import { NavigateFunction, useNavigate } from "react-router-dom";
 import { AuthContext, IAuthContext } from "../../context/auth";
 import { validateToken } from "../../routes/PrivateRoute";
+import { IQueueContext, QueueContext } from "../../context/queue";
 
 interface RefreshProviderProps {
   children: JSX.Element[];
@@ -20,30 +21,44 @@ const SocketRefresh: React.FC<RefreshProviderProps> = ({ children }) => {
   const socket: Socket = useContext(SocketContext);
   const navigate: NavigateFunction = useNavigate();
   const auth: IAuthContext = useContext(AuthContext);
+  const queue: IQueueContext = useContext(QueueContext);
 
   useEffect(() => {
-    socket.on("queue found", (body: IGameStart) => {
-      removeCookie("queue");
-      navigate(`/play/${body.gameId}/${body.side}`);
-    });
+    try {
+      socket.on("queue found", (body: IGameStart) => {
+        removeCookie("queue");
+        queue.setQueueFound(true);
+        queue.setDenied(false);
+      });
 
-    const emitChangeSocket = (): void => {
-      if (auth.user.intraname) {
-        const payload: IChangeSocketPayload = {
-          intraname: auth.user.intraname,
-        };
-        socket.emit("changesocket", payload);
-      }
-    };
+      socket.on("game found", (body: IGameStart) => {
+        removeCookie("queue");
+        queue.setQueueFound(false);
+        navigate(`/play/${body.gameId}/${body.side}`);
+      });
 
-    validateToken(auth).then(() => {
-      emitChangeSocket();
-    });
+      socket.on("game denied", (body: IGameStart) => {
+        removeCookie("queue");
+        queue.setDenied(true);
+      });
 
+      const emitChangeSocket = (): void => {
+        if (auth.user.intraname) {
+          const payload: IChangeSocketPayload = {
+            intraname: auth.user.intraname,
+          };
+          socket.emit("changesocket", payload);
+        }
+      };
+
+      validateToken(auth).then(() => {
+        emitChangeSocket();
+      });
+    } catch (err) {}
     return () => {
       socket.off("queue found");
     };
-  }, [auth, navigate, socket, removeCookie]);
+  }, [auth, navigate, socket, removeCookie]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return <>{children}</>;
 };

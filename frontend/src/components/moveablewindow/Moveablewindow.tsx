@@ -76,7 +76,12 @@ const Moveablewindow: React.FC<IMoveableWindow> = ({
   };
 
   const endDrag = (event: React.DragEvent<HTMLDivElement>) => {
-    if (event.clientX >= 0 && event.clientY >= 0) {
+    if (
+      event.clientX <= window.innerWidth &&
+      event.clientX >= 0 &&
+      event.clientY <= window.innerHeight &&
+      event.clientY >= 0
+    ) {
       setPosition({
         x: event.clientX - offset.x,
         y: event.clientY - offset.y,
