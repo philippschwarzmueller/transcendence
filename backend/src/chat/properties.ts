@@ -23,3 +23,13 @@ export interface IChannel {
   type: EChannelType;
   title: string;
 }
+
+export interface DMessage {
+  content: string;
+  sender: number;
+}
+
+export interface ISendMessage {
+  message: string;
+  block: string[];
+}
