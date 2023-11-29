@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { styled } from "styled-components";
-import { ProfileContext } from "../../context/profile";
+import { IProfileContext, ProfileContext } from "../../context/profile";
 import Elograph from "../elograph";
 import MatchHistory from "../matchhistory/Matchhistory";
 import Moveablewindow from "../moveablewindow/Moveablewindow";
@@ -64,7 +64,7 @@ const Profilewindow: React.FC<{ $display: boolean; z?: number }> = ({
   $display,
   z,
 }) => {
-  const user = useContext(ProfileContext);
+  const user: IProfileContext = useContext(ProfileContext);
   const [displayMatch, setDisplayMatch] = useState<boolean>(true);
   const [displayElo, setDisplayElo] = useState<boolean>(false);
 
@@ -79,10 +79,7 @@ const Profilewindow: React.FC<{ $display: boolean; z?: number }> = ({
       >
         <ProfileArea>
           <UserData>
-            <ProfilePicture
-              name={user.name}
-              profilePictureUrl={user.profilePictureUrl}
-            />
+            <ProfilePicture name={user.name} />
             <StatsWindow intraname={user.intraname ? user.intraname : ""} />
           </UserData>
           <Tabs>

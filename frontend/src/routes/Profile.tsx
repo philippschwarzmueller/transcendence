@@ -115,11 +115,7 @@ const Profile: React.FC = () => {
     <>
       <Taskbar />
       <h1>{user?.name}'s Profile</h1>
-      <ProfilePicture
-        name={user?.name}
-        profilePictureUrl={user?.profilePictureUrl}
-      />
-
+      <ProfilePicture name={user?.name} />
       {ownProfile && (
         <Link to="/profile/settings">
           <Button>Profile Settings</Button>
@@ -141,10 +137,7 @@ const Profile: React.FC = () => {
           {users.map((users: IUser) => {
             return (
               <li key={users.name}>
-                <Playercard
-                  user={users}
-                  triggerReload={triggerReload}
-                />
+                <Playercard user={users} triggerReload={triggerReload} />
               </li>
             );
           })}
@@ -166,10 +159,7 @@ const Profile: React.FC = () => {
             {incomingFriends.map((users: IUser) => {
               return (
                 <li key={users.name}>
-                  <Playercard
-                    user={users}
-                    triggerReload={triggerReload}
-                  />
+                  <Playercard user={users} triggerReload={triggerReload} />
                 </li>
               );
             })}
@@ -190,10 +180,7 @@ const Profile: React.FC = () => {
             {friends.map((users: IUser) => {
               return (
                 <li key={users.name}>
-                  <Playercard
-                    user={users}
-                    triggerReload={triggerReload}
-                  />
+                  <Playercard user={users} triggerReload={triggerReload} />
                 </li>
               );
             })}

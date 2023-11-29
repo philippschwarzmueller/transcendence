@@ -1,11 +1,10 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { AuthContext } from "../../context/auth";
+import { IUser } from "../../context/auth";
 import { BACKEND } from "../../routes/SetUser";
 
 interface IProfilePicture {
   name?: string;
-  profilePictureUrl?: string;
 }
 
 const StyledProfilePicture = styled.img`
@@ -15,55 +14,44 @@ const StyledProfilePicture = styled.img`
     rgb(134, 138, 142) 0px 0px 0px 1px inset, rgb(0, 0, 0) 1px 2px 1px 1px;
 `;
 
-const ProfilePicture: React.FC<IProfilePicture> = ({
-  profilePictureUrl,
-  name,
-}) => {
-  const [customAvatar, setCustomAvatar] = useState<string>("");
+const ProfilePicture: React.FC<IProfilePicture> = ({ name }) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const auth = useContext(AuthContext);
+  const [user, setUser] = useState<IUser>();
 
   useEffect(() => {
     const fetchData = async () => {
-      if (!auth.user.hasCustomAvatar) {
-        setIsLoading(false);
-      } else {
-        try {
-          const res: Response = await fetch(
-            `${BACKEND}/users/get-custom-avatar`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              credentials: "include",
-            }
-          );
-          if (!res.ok) {
-            throw new Error(`HTTP error! Status: ${res.status}`);
-          }
-          setCustomAvatar(await res.text());
-          setIsLoading(false);
-        } catch (error) {
-          console.error("fetching avatar failed", error);
+      try {
+        const res: Response = await fetch(`${BACKEND}/users/${name}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        if (!res.ok) {
+          throw new Error(`HTTP error! Status: ${res.status}`);
         }
+        setUser(await res.json());
+        setIsLoading(false);
+      } catch (error) {
+        console.error("fetching user for avatar/profilepicture failed", error);
       }
     };
     fetchData();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [name]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (isLoading) {
     return <div>Loading...</div>;
-  } else {
-    return (
-      <div>
-        <StyledProfilePicture
-          src={customAvatar || profilePictureUrl}
-          alt={`${name}'s avatar`}
-        />
-      </div>
-    );
   }
+  return (
+    <div>
+      <StyledProfilePicture
+        src={
+          user?.hasCustomAvatar ? user.customAvatar : user?.profilePictureUrl
+        }
+        alt={`${user?.name}'s avatar`}
+      />
+    </div>
+  );
 };
 
 export default ProfilePicture;
