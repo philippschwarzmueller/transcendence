@@ -9,15 +9,9 @@ import { SocketContext } from "../../context/socket";
 const StyledUl = styled.ul<{ $display: boolean; $posX: number; $posY: number }>`
   display: ${(props) => (props.$display ? "" : "none")};
   position: absolute;
-<<<<<<< HEAD
-  z-index: 600;
-  left: ${(props) => props.$posX + "px"};
-  top: ${(props) => props.$posY + "px"};
-=======
   z-index: 200;
   left: ${(props) => props.$posX};
   top: ${(props) => props.$posY};
->>>>>>> master
   list-style-type: none;
   background-color: rgb(195, 199, 203);
   min-width: 100px;

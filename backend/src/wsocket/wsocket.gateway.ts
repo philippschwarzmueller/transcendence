@@ -45,17 +45,23 @@ export class WSocketGateway implements OnGatewayInit {
   @WebSocketServer()
   server: Server;
 
+  @SubscribeMessage('connect')
+  con() {
+    console.log('hello');
+  }
+
   @SubscribeMessage('contact')
   initConnect(
     @MessageBody() data: IChannel,
     @ConnectedSocket() client: Socket,
   ) {
+    console.log(data);
     this.chatService.updateActiveClients(data, client);
   }
 
   @SubscribeMessage('layoff')
   breakConnection(@MessageBody() name: string) {
-    this;
+    this.chatService.removeUser(name);
   }
 
   @SubscribeMessage('message')
@@ -75,7 +81,6 @@ export class WSocketGateway implements OnGatewayInit {
   async addChat(@MessageBody() data: IChannel): Promise<ITab[]> {
     if (data.type !== EChannelType.CHAT)
       return await this.chatService.addChat(data);
-    console.log(data);
     return await this.chatService.addU2UChat(data, this.server);
   }
 

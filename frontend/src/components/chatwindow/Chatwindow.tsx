@@ -104,6 +104,7 @@ const Chatwindow: React.FC<{ $display: boolean, z?: number }> = ({
   const roomRef: any = useRef<typeof Popup | null>(null);
 
   socket.on("connect", () => {
+    console.log("connect");
     socket.emit("contact", { user: user, type: 0, id: 0, title: "" });
   });
   socket.on("disconnect", () => {
