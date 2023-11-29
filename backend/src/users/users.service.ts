@@ -35,6 +35,17 @@ export class UsersService {
     }
   }
 
+  async findOneByIntraName(intraname: string): Promise<User> {
+    const res: User = await this.usersRepository.findOne({
+      where: { intraname: intraname },
+    });
+    if (res) {
+      return res;
+    } else {
+      throw new Error('User not found');
+    }
+  }
+
   async findAllNames(): Promise<string[]> {
     const res: User[] = await this.usersRepository.find();
     return res.map((item) => {
