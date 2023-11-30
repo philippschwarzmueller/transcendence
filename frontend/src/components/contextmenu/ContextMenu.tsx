@@ -50,9 +50,6 @@ export enum FriendState {
   friend,
 }
 
-
-
-
 const ContextMenu: React.FC<IContextMenu> = ({
   display,
   user,
@@ -211,7 +208,7 @@ const ContextMenu: React.FC<IContextMenu> = ({
     ).then((res) => {return res.json()})
     .then((res: boolean) => setIsBlocked(res))
     .catch((error) => console.log(error));
-  }, [isBlocked]);
+  }, [isBlocked]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const refreshContextMenu = () => {
     setRefreshFlag((prev) => !prev);
