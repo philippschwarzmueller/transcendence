@@ -48,7 +48,7 @@ const ProfilePicture: React.FC<IProfilePicture> = ({ name }) => {
       }
     };
     fetchData();
-  }, [name, user]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [name]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (isLoading) {
     return <div></div>;
