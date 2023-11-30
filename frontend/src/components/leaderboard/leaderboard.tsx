@@ -4,7 +4,6 @@ import Dropdown from "../dropdown/dropdown";
 import Checkbox from "../checkbox/checkbox";
 import styled from "styled-components";
 import WindowWrapper from "../outlinecontainer/outlinecontainer";
-import { NavigateFunction, useNavigate } from "react-router-dom";
 import Moveablewindow from "../moveablewindow";
 
 const HorizontalContainer = styled.div`
