@@ -1,13 +1,18 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { styled } from "styled-components";
-import { AuthContext } from "../../context/auth";
+import { IProfileContext, ProfileContext } from "../../context/profile";
 import Elograph from "../elograph";
 import MatchHistory from "../matchhistory/Matchhistory";
 import Moveablewindow from "../moveablewindow/Moveablewindow";
 import ProfilePicture from "../profilepicture/ProfilePicture";
 import StatsWindow from "../stats/StatsWindow";
 
-const UserData = styled.div``;
+const UserData = styled.div`
+  width: 250px;
+  display: flex;
+  flex-direction: column;
+  justify-contetn: center;
+`;
 
 const Tabbar = styled.ul`
   height: 24px;
@@ -64,23 +69,23 @@ const Profilewindow: React.FC<{ $display: boolean; z?: number }> = ({
   $display,
   z,
 }) => {
-  const auth = useContext(AuthContext);
+  const user: IProfileContext = useContext(ProfileContext);
   const [displayMatch, setDisplayMatch] = useState<boolean>(true);
   const [displayElo, setDisplayElo] = useState<boolean>(false);
+
+  useEffect(() => {}, [user]);
+
   return (
     <>
       <Moveablewindow
-        title={auth.user.name ? auth.user.name + "'s profile" : "profile"}
+        title={user.name ? user.name + "'s profile" : "profile"}
         display={$display}
         positionZ={z}
       >
         <ProfileArea>
           <UserData>
-            <ProfilePicture
-              name={auth.user.name}
-              profilePictureUrl={auth.user.profilePictureUrl}
-            />
-            <StatsWindow intraname={auth.user.name ? auth.user.name : ""} />
+            <ProfilePicture name={user.name} />
+            <StatsWindow intraname={user.intraname ? user.intraname : ""} />
           </UserData>
           <Tabs>
             <Tabbar>
@@ -106,11 +111,11 @@ const Profilewindow: React.FC<{ $display: boolean; z?: number }> = ({
             </Tabbar>
             <Tabcontent>
               <MatchHistory
-                intraname={auth.user.name ? auth.user.name : ""}
+                intraname={user.intraname ? user.intraname : ""}
                 display={displayMatch}
               />
               <Elograph
-                intraname={auth.user.name ? auth.user.name : ""}
+                intraname={user.intraname ? user.intraname : ""}
                 display={displayElo}
               />
             </Tabcontent>

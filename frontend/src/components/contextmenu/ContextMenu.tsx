@@ -1,15 +1,13 @@
 import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
-import { Link } from "react-router-dom";
 import { BACKEND } from "../../routes/SetUser";
-import { AuthContext, IAuthContext } from "../../context/auth";
+import { AuthContext, IUser } from "../../context/auth";
+import { ProfileContext } from "../../context/profile";
 
-const StyledUl = styled.ul<{ $display: boolean; $posX: number; $posY: number }>`
+const StyledUl = styled.ul<{ $display: boolean }>`
   display: ${(props) => (props.$display ? "" : "none")};
   position: absolute;
-  z-index: 600;
-  left: ${(props) => props.$posX + "px"};
-  top: ${(props) => props.$posY + "px"};
+  z-index: 200;
   list-style-type: none;
   background-color: rgb(195, 199, 203);
   min-width: 100px;
@@ -41,9 +39,7 @@ const OptionLi = styled.li`
 
 export interface IContextMenu {
   display: boolean;
-  positionX: number;
-  positionY: number;
-  name: string | undefined;
+  user: IUser;
   triggerReload?: () => void;
 }
 
@@ -54,20 +50,35 @@ export enum FriendState {
   friend,
 }
 
+
+
+
 const ContextMenu: React.FC<IContextMenu> = ({
   display,
-  positionX,
-  positionY,
-  name,
+  user,
   triggerReload,
 }) => {
+
+  const profile = useContext(ProfileContext)
   const [friendState, setFriendState] = useState<FriendState>(
     FriendState.noFriend,
   );
-  const [ownProfile, setOwnProfile] = useState<boolean>(false);
   let [isLoading, setIsLoading] = useState<boolean>(true);
-  const auth: IAuthContext = useContext(AuthContext);
+  const auth = useContext(AuthContext);
+  const [ownProfile, setOwnProfile] = useState<boolean>(false);
   const [, setRefreshFlag] = useState(false);
+  const [isBlocked, setIsBlocked] = useState<boolean>(false);
+
+  const blockProfile = (method: string) => {
+    fetch(
+      `${BACKEND}/users/block/?blocking=${auth.user.intraname}&blocked=${user.intraname}`,
+      {
+        method: method,
+      },
+    ).then((res) => {return res.json()})
+    .then((res: boolean) => setIsBlocked(res))
+    .catch((error) => console.log(error));
+  };
 
   const handleFriendAccept = async (friend: string | undefined) => {
     if (friend !== undefined) {
@@ -167,14 +178,14 @@ const ContextMenu: React.FC<IContextMenu> = ({
           "Content-Type": "application/json",
         },
         credentials: "include",
-        body: JSON.stringify({ name }),
+        body: JSON.stringify( {name: user.name} ),
       });
       if (!res.ok) {
         throw new Error("Network response was not ok");
       }
       const friendState: FriendState = await res.json();
       setFriendState(friendState);
-      if (auth.user.name === name) {
+      if (auth.user.name === user.name) {
         setOwnProfile(true);
       }
     } catch (error) {
@@ -190,6 +201,17 @@ const ContextMenu: React.FC<IContextMenu> = ({
     };
     fetchData();
   }, [friendState]); // eslint-disable-line react-hooks/exhaustive-deps
+  
+  useEffect(() => {
+    fetch(
+    `${BACKEND}/users/block/?blocking=${auth.user.intraname}&blocked=${user.intraname}`,
+    {
+      method: "POST",
+    },
+    ).then((res) => {return res.json()})
+    .then((res: boolean) => setIsBlocked(res))
+    .catch((error) => console.log(error));
+  }, [isBlocked]);
 
   const refreshContextMenu = () => {
     setRefreshFlag((prev) => !prev);
@@ -201,17 +223,17 @@ const ContextMenu: React.FC<IContextMenu> = ({
 
   return (
     <>
-      <StyledUl $display={display} $posX={positionX} $posY={positionY}>
+      <StyledUl $display={display}>
         {/* PENDING FRIEND */}
-        {friendState === FriendState.pendingFriend && (
-          <OptionLi onClick={() => handleFriendAccept(name)}>
+        {friendState === FriendState.pendingFriend && !isBlocked && (
+          <OptionLi onClick={() => handleFriendAccept(user.name)}>
             👥 Accept friend request
           </OptionLi>
         )}
-        {friendState === FriendState.pendingFriend && <LineLi />}
+        {friendState === FriendState.pendingFriend  && !isBlocked && <LineLi />}
         {/* NO FRIEND */}
-        {friendState === FriendState.noFriend && !ownProfile && (
-          <OptionLi onClick={() => handleFriendAdd(name)}>
+        {friendState === FriendState.noFriend && !isBlocked &&!ownProfile && (
+          <OptionLi onClick={() => handleFriendAdd(user.name)}>
             👨‍❤️‍💋‍👨 Add as friend
           </OptionLi>
         )}
@@ -220,25 +242,37 @@ const ContextMenu: React.FC<IContextMenu> = ({
         {friendState === FriendState.requestedFriend && !ownProfile && (
           <OptionLi>👀 Friend request pending</OptionLi>
         )}
-        {friendState === FriendState.requestedFriend && <LineLi />}
-        {name !== undefined && (
-          <Link to={`/profile/${name}`}>
-            <OptionLi>👤 Visit Profile</OptionLi>
-          </Link>
+        {friendState === FriendState.requestedFriend  && !isBlocked && <LineLi />}
+        {user.name !== undefined && (
+          <OptionLi onClick={() => {
+            profile.name = user.name ? user.name : ""
+            profile.intraname = user.intraname ? user.intraname : ""
+            profile.profilePictureUrl = user.profilePictureUrl ? user.profilePictureUrl: ""
+            profile.display = true
+          }}>👤 Visit Profile</OptionLi>
         )}
         <LineLi />
         {!ownProfile && <OptionLi>🏓 Challenge to Game</OptionLi>}
         {!ownProfile && <LineLi />}
-        {!ownProfile && <OptionLi>💬 Start Chat</OptionLi>}
-        {!ownProfile && <LineLi />}
+        {!ownProfile && !isBlocked && <OptionLi>💬 Start Chat</OptionLi>}
+        {!ownProfile && !isBlocked && <LineLi />}
         {/* FRIEND */}
         {friendState === FriendState.friend && (
-          <OptionLi onClick={() => handleFriendRemove(name)}>
+          <OptionLi onClick={() => handleFriendRemove(user.name)}>
             ❌ Remove friend
           </OptionLi>
         )}
         {friendState === FriendState.friend && <LineLi />}
-        {!ownProfile && <OptionLi>🚫 Block User</OptionLi>}
+        {!ownProfile && !isBlocked && (
+          <OptionLi onClick={() => blockProfile("PUT")}>
+            🚫 Block User
+          </OptionLi>
+        )}
+        {!ownProfile && isBlocked && (
+          <OptionLi onClick={() => blockProfile("DELETE")}>
+            💢 Unblock User
+          </OptionLi>
+        )}
         {!ownProfile && <LineLi />}
       </StyledUl>
     </>

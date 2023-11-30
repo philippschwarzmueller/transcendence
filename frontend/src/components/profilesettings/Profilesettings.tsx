@@ -1,5 +1,8 @@
-import React from "react";
 import Moveablewindow from "../moveablewindow/Moveablewindow";
+import NameChangeSection from "../changename/ChangeName";
+import AvatarChangeSection from "../changeavatar/ChangeAvatar";
+import TwoFactorAuthSection from "../twoFaSection/TwoFaSection";
+import WindowWrapper from "../outlinecontainer/outlinecontainer";
 
 const Profilesettings: React.FC<{ $display: boolean; z?: number }> = ({
   $display,
@@ -8,7 +11,13 @@ const Profilesettings: React.FC<{ $display: boolean; z?: number }> = ({
   return (
     <>
       <Moveablewindow title="Profile Settings" display={$display} positionZ={z}>
-        This will be settings..
+        <WindowWrapper title="change name">
+          <NameChangeSection />
+        </WindowWrapper>
+        <WindowWrapper title="change avatar">
+          <AvatarChangeSection />
+        </WindowWrapper>
+        <TwoFactorAuthSection />
       </Moveablewindow>
     </>
   );

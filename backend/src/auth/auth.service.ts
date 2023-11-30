@@ -1,4 +1,4 @@
-import { Injectable, Res } from '@nestjs/common';
+import { Injectable, Inject, Res } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
 import { Repository } from 'typeorm';
@@ -14,6 +14,11 @@ export interface TokenResponse {
   scope: string;
   created_at: number;
   secret_valid_until: number;
+}
+
+export interface IntraSignInEvent {
+  user: User;
+  firstLogin: boolean;
 }
 
 export function logTime(timestamp: number, msg: string) {
@@ -71,10 +76,10 @@ export class AuthService {
     }
   }
 
-  async createIntraUser(
+  async IntraSignIn(
     data: TokenResponse,
     hashedToken: string,
-  ): Promise<User> {
+  ): Promise<IntraSignInEvent> {
     const response: Response | void = await fetch(
       'https://api.intra.42.fr/v2/me',
       {
@@ -89,18 +94,26 @@ export class AuthService {
     const userExists = await this.usersRepository.exist({
       where: { intraname: intraname },
     });
+    const signIn: IntraSignInEvent = {
+      user: null,
+      firstLogin: true,
+    };
     if (userExists) {
+      signIn.firstLogin = false;
       await this.setUserData(data, intraname, hashedToken);
     } else {
+      signIn.firstLogin = true;
       const currentTime: number = Math.floor(Date.now() / 1000);
-      await this.usersRepository.insert({
-        name: intraname,
-        intraname: intraname,
-        profilePictureUrl: imageLink,
-        token: data.access_token,
-        hashedToken: hashedToken,
-        tokenExpiry: currentTime + data.expires_in,
-      });
+      await this.usersRepository.save(
+        await this.usersRepository.create({
+          name: intraname,
+          intraname: intraname,
+          profilePictureUrl: imageLink,
+          token: data.access_token,
+          hashedToken: hashedToken,
+          tokenExpiry: currentTime + data.expires_in,
+        })
+      );
     }
 
     const specificValue =
@@ -113,7 +126,10 @@ export class AuthService {
     if (userWithDefaultProfilePicture) {
       await this.usersRepository.save({ profilePictureUrl: imageLink });
     }
-    return this.usersRepository.findOne({ where: { intraname: intraname } });
+    signIn.user = await this.usersRepository.findOne({
+      where: { intraname: intraname },
+    });
+    return signIn;
   }
 
   async setUserData(

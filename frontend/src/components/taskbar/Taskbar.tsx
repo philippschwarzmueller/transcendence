@@ -1,15 +1,16 @@
 import { useContext, useState } from "react";
-import { Link } from "react-router-dom";
 import { styled } from "styled-components";
 import { AuthContext } from "../../context/auth";
+import { ProfileContext } from "../../context/profile";
 import { BACKEND } from "../../routes/SetUser";
 import Chatwindow from "../chatwindow/Chatwindow";
+import Friendbrowser from "../friendbrowser/Friendbrowser";
 import Leaderboard from "../leaderboard/leaderboard";
-import Moveablewindow from "../moveablewindow/Moveablewindow";
 import Profilesettings from "../profilesettings/Profilesettings";
 import Profilewindow from "../profilewindow/Profilewindow";
-import Queuebox from "../queuebox/Queuebox";
 import Userbrowser from "../userbrowser";
+import Queuepopwindow from "../queuepopwindow/queuepopwindow";
+import Spectatorboard from "../spectatorboard";
 
 const StyledNavbar = styled.nav`
   width: 100vw;
@@ -19,12 +20,8 @@ const StyledNavbar = styled.nav`
   position: absolute;
   bottom: 0;
   background-color: rgb(195, 199, 203);
-  box-shadow:
-    inset 0.5px 0.5px 0px 0.5px #ffffff,
-    inset 0 0 0 1px #868a8e,
-    1px 0px 0 0px #000000,
-    0px 1px 0 0px #000000,
-    1px 1px 0 0px #000000;
+  box-shadow: inset 0.5px 0.5px 0px 0.5px #ffffff, inset 0 0 0 1px #868a8e,
+    1px 0px 0 0px #000000, 0px 1px 0 0px #000000, 1px 1px 0 0px #000000;
   align-items: center;
 `;
 
@@ -48,9 +45,7 @@ const TaskButton = styled.button<{ $active: boolean }>`
     padding: 8 20 4;
     background-color: rgb(215, 216, 220);
 
-    box-shadow:
-      inset 0 0 0 1px rgb(134, 138, 142),
-      0 0 0 1px rgb(0, 0, 0);
+    box-shadow: inset 0 0 0 1px rgb(134, 138, 142), 0 0 0 1px rgb(0, 0, 0);
   }
   box-shadow: ${(props) =>
     props.$active
@@ -66,12 +61,8 @@ const StartMenu = styled.div<{ $display: boolean }>`
   left: 2px;
   z-index: 4;
   background-color: rgb(195, 199, 203);
-  box-shadow:
-    inset 0.5px 0.5px 0px 0.5px #ffffff,
-    inset 0 0 0 1px #868a8e,
-    1px 0px 0 0px #000000,
-    0px 1px 0 0px #000000,
-    1px 1px 0 0px #000000;
+  box-shadow: inset 0.5px 0.5px 0px 0.5px #ffffff, inset 0 0 0 1px #868a8e,
+    1px 0px 0 0px #000000, 0px 1px 0 0px #000000, 1px 1px 0 0px #000000;
   user-select: none;
 `;
 
@@ -110,44 +101,31 @@ const TextBar = styled.div`
   user-select: none;
 `;
 
-const Icon = styled.div<{ $active: boolean }>`
-  width: 64px;
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  position: relative;
-  color: white;
-  outline-offset: -4px;
-  background-color: ${(props) => (props.$active ? "rgb(0, 14, 122)" : "")};
-  outline: ${(props) => (props.$active ? "white dotted 1px" : "")};
-`;
-
 enum Windows {
-  Queue = 0,
-  Profile = 1,
-  Settings = 2,
-  Chat = 3,
-  Users = 4,
-  Leaderboard = 5,
+  Profile = 0,
+  Settings = 1,
+  Chat = 2,
+  Users = 3,
+  Leaderboard = 4,
+  Friends = 5,
+  Queuepopwindow = 6,
+  Spectatorboard = 7,
 }
-  
-const RoutesLi = styled.li`
-  padding: 10px;
-`;
-
 
 const Taskbar: React.FC = () => {
   let auth = useContext(AuthContext);
+  const profile = useContext(ProfileContext);
   const [displayChat, setDisplayChat] = useState<boolean>(false);
   const [displayUsers, setDisplayUsers] = useState<boolean>(false);
   const [displayStart, setDisplayStart] = useState<boolean>(false);
-  const [displayQueue, setDisplayQueue] = useState<boolean>(false);
   const [displayLeaderboard, setDisplayLeaderboard] = useState<boolean>(false);
-  const [displayProfile, setDisplayProfile] = useState<boolean>(false);
+  const [displayFriends, setDisplayFriends] = useState<boolean>(false);
   const [displayProfileSettings, setDisplayProfileSettings] =
     useState<boolean>(false);
+  const [displaySpectatorboard, setDisplaySpectatorboard] =
+    useState<boolean>(false);
   const [displayOrder, setDisplayOrder] = useState<number[]>([
-    0, 10, 20, 30, 40, 50,
+    0, 10, 20, 30, 40, 50, 60, 70,
   ]);
 
   const handleLogout = async () => {
@@ -162,39 +140,33 @@ const Taskbar: React.FC = () => {
 
   function changeOrder(pos: number) {
     setDisplayOrder([
-      pos === Windows.Queue ? 50 : displayOrder[Windows.Queue] - 10,
-      pos === Windows.Profile ? 50 : displayOrder[Windows.Profile] - 10,
-      pos === Windows.Settings ? 50 : displayOrder[Windows.Settings] - 10,
-      pos === Windows.Chat ? 50 : displayOrder[Windows.Chat] - 10,
-      pos === Windows.Users ? 50 : displayOrder[Windows.Users] - 10,
-      pos === Windows.Leaderboard ? 50 : displayOrder[Windows.Leaderboard] - 10,
+      pos === Windows.Profile ? 70 : displayOrder[Windows.Profile] - 10,
+      pos === Windows.Settings ? 70 : displayOrder[Windows.Settings] - 10,
+      pos === Windows.Chat ? 70 : displayOrder[Windows.Chat] - 10,
+      pos === Windows.Users ? 70 : displayOrder[Windows.Users] - 10,
+      pos === Windows.Leaderboard ? 70 : displayOrder[Windows.Leaderboard] - 10,
+      pos === Windows.Queuepopwindow
+        ? 70
+        : displayOrder[Windows.Queuepopwindow] - 10,
+      pos === Windows.Friends ? 70 : displayOrder[Windows.Friends] - 10,
+      pos === Windows.Spectatorboard
+        ? 70
+        : displayOrder[Windows.Spectatorboard] - 10,
     ]);
   }
 
   return (
     <>
-      <Icon
-        onClick={() => setDisplayQueue(!displayQueue)}
-        $active={displayQueue}
-      >
-        <img src={require("../../images/pong.png")} alt="pong" height="64px" />
-        Pong
-      </Icon>
-      <div onClick={() => changeOrder(Windows.Queue)}>
-        <Moveablewindow
-          title="Queue"
-          positionX={900}
-          positionY={200}
-          positionZ={displayOrder[Windows.Queue]}
-          display={displayQueue}
-        >
-          <Queuebox />
-        </Moveablewindow>
-      </div>
       <div onClick={() => changeOrder(Windows.Profile)}>
         <Profilewindow
-          $display={displayProfile}
+          $display={profile.display}
           z={displayOrder[Windows.Profile]}
+        />
+      </div>
+      <div onClick={() => changeOrder(Windows.Friends)}>
+        <Friendbrowser
+          $display={displayFriends}
+          z={displayOrder[Windows.Friends]}
         />
       </div>
       <div onClick={() => changeOrder(Windows.Settings)}>
@@ -215,12 +187,28 @@ const Taskbar: React.FC = () => {
           z={displayOrder[Windows.Leaderboard]}
         />
       </div>
+      <div onClick={() => changeOrder(Windows.Queuepopwindow)}>
+        <Queuepopwindow></Queuepopwindow>
+      </div>
+      <div onClick={() => changeOrder(Windows.Spectatorboard)}>
+        <Spectatorboard
+          display={displaySpectatorboard}
+          z={displayOrder[Windows.Spectatorboard]}
+        />
+      </div>
       <StartMenu $display={displayStart}>
         <TextBar>Transcendence95</TextBar>
         <StyledUl>
           <StyledLi
             onClick={() => {
-              setDisplayProfile(!displayProfile);
+              profile.intraname = auth.user.intraname
+                ? auth.user.intraname
+                : "";
+              profile.name = auth.user.name ? auth.user.name : "";
+              profile.profilePictureUrl = auth.user.profilePictureUrl
+                ? auth.user.profilePictureUrl
+                : "";
+              profile.display = !profile.display;
               changeOrder(Windows.Profile);
             }}
           >
@@ -270,7 +258,12 @@ const Taskbar: React.FC = () => {
             />
             Blocklist
           </StyledLi>
-          <StyledLi>
+          <StyledLi
+            onClick={() => {
+              setDisplayFriends(!displayFriends);
+              changeOrder(Windows.Friends);
+            }}
+          >
             <img
               src={require("../../images/buddy.png")}
               height="16"
@@ -293,6 +286,20 @@ const Taskbar: React.FC = () => {
               alt="leaderboard"
             />
             Leaderboard
+          </StyledLi>
+          <StyledLi
+            onClick={() => {
+              setDisplaySpectatorboard(!displaySpectatorboard);
+              changeOrder(Windows.Spectatorboard);
+            }}
+          >
+            <img
+              src={require("../../images/joystick.png")}
+              height="16"
+              width="16"
+              alt="running games"
+            />
+            Running Games
           </StyledLi>
           <Seperator />
           <StyledLi onClick={() => handleLogout()}>
@@ -334,21 +341,6 @@ const Taskbar: React.FC = () => {
           />
           Chat
         </TaskButton>
-        <ul style={{ listStyle: "none", display: "inline-flex" }}>
-          <RoutesLi style={{}}>Links to old Routes : </RoutesLi>
-          <RoutesLi style={{ padding: 10 }}>
-            <Link to={"/home"}>Home</Link>
-          </RoutesLi>
-          <RoutesLi style={{ padding: 10 }}>
-            <Link to={"/chat"}>Chat</Link>
-          </RoutesLi>
-          <RoutesLi style={{ padding: 10 }}>
-            <Link to={"/login"}>Login</Link>
-          </RoutesLi >
-          {auth.user.intraname !== undefined && <RoutesLi>
-            <Link to={`/profile/${auth.user.name}`}>My Profile</Link>
-          </RoutesLi>}
-        </ul>
       </StyledNavbar>
     </>
   );

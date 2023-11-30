@@ -6,6 +6,7 @@ import { Server } from 'socket.io';
 import { IGameUser } from 'src/games/properties';
 import { GamesService } from 'src/games/games.service';
 import { ChatServiceBase } from './chat.servicebase';
+import { User } from 'src/users/user.entity';
 
 @Injectable()
 export class ChatService extends ChatServiceBase {
@@ -55,7 +56,11 @@ export class ChatService extends ChatServiceBase {
     }
     try {
       const mess = `${data.user.name}: ${data.input}`;
-      server.to(data.room).emit('message', mess);
+      const blocking: User[] = await this.userService.getBlocking(data.user.name);
+      const blockNames: string[] = blocking.map((u) => {
+        return u.intraname;
+      })
+      server.to(data.room).emit('message', {message: mess, block: blockNames });
       await this.chatDao.saveMessageToChannel(data);
     } catch (error) {
       console.log(`SYSTEM: ${error.message.split('\n')[0]}`);

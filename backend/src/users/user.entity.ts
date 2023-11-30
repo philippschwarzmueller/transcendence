@@ -69,6 +69,23 @@ export class User {
   @Column({ default: 0 })
   tokenExpiry: number;
 
+  @ManyToMany(() => User, user => user.blocking)
+  @JoinTable({
+    name: 'block_list',
+    joinColumn: {
+      name: 'blocking',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'blocked',
+      referencedColumnName: 'id',
+    },
+  })
+  blocked: User[];
+
+  @ManyToMany(() => User, user => user.blocked) // This defines the reverse relationship
+  blocking: User[];
+
   @ManyToMany(() => User)
   @JoinTable({
     name: 'friend_requests',
@@ -122,5 +139,8 @@ export class User {
   elo: number[];
 
   @Column('text', { nullable: true })
-  upladedAvatar: string;
+  customAvatar: string;
+
+  @Column({ default: false })
+  hasCustomAvatar: boolean;
 }

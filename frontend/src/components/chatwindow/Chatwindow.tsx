@@ -9,7 +9,7 @@ import { AuthContext, IUser } from "../../context/auth";
 import Popup from "../popup/Popup";
 import { IGameStart } from "../gamewindow/properties";
 import { useNavigate } from "react-router-dom";
-import { EChannelType } from "./properties";
+import { EChannelType, IMessage } from "./properties";
 
 const Msgfield = styled.div`
   width: 320px;
@@ -89,7 +89,7 @@ const Chatwindow: React.FC<{ $display: boolean, z?: number }> = ({
   $display,
   z,
 }) => {
-  const [messages, setMessages] = useState<string[]>([]);
+  const [messages, setMessages] = useState<IMessage[]>([]);
   const [input, setInput] = useState<string>("");
   const user: IUser = useContext(AuthContext).user;
   const [tabs, setTabs] = useState<string[]>([]);
@@ -102,7 +102,7 @@ const Chatwindow: React.FC<{ $display: boolean, z?: number }> = ({
   const msgField: any = useRef<HTMLCanvasElement | null>(null);
   const roomRef: any = useRef<typeof Popup | null>(null);
 
-  socket.on("message", (res: string) => setMessages([...messages, res]));
+  socket.on("message", (res: IMessage) => setMessages([...messages, res]));
   socket.on("invite", (res: string[]) => setTabs(res));
   socket.on("game", (body: IGameStart) => {
     navigate(`/play/${body.gameId}/${body.side}`);
@@ -119,7 +119,7 @@ const Chatwindow: React.FC<{ $display: boolean, z?: number }> = ({
         return response.json();
       })
       .then((res: string[]) => setTabs(res))
-      .catch((error) => console.log(error));
+      .catch((error) => console.error(error));
     setRoom(tabs[tabs.length - 1]);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -127,7 +127,7 @@ const Chatwindow: React.FC<{ $display: boolean, z?: number }> = ({
     socket.emit(
       "join",
       { user: user, type: EChannelType.PUBLIC, title: room },
-      (res: string[]) => setMessages(res),
+      (res: IMessage[]) => setMessages(res),
     );
   }, [room]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -199,7 +199,7 @@ const Chatwindow: React.FC<{ $display: boolean, z?: number }> = ({
               fetch(
                 `http://${window.location.hostname}:4000/chat/rooms?userId=${user.name}&chat=${activeTab}`,
                 { method: "DELETE" },
-              );
+              ).catch(err=>console.error(err));
               setTabs(
                 tabs.filter(function (e) {
                   return e !== activeTab;
@@ -217,7 +217,8 @@ const Chatwindow: React.FC<{ $display: boolean, z?: number }> = ({
         <Textfield>
           <StyledUl ref={msgField} id="msgField">
             {messages.map((mes) => {
-              return <li key={listKey++}>{mes}</li>;
+              if (mes.block.filter((m) => m === user.intraname).length === 0)
+                return <li key={listKey++}>{mes.message}</li>;
             })}
           </StyledUl>
         </Textfield>
@@ -234,7 +235,7 @@ const Chatwindow: React.FC<{ $display: boolean, z?: number }> = ({
           <Button onClick={(e: React.MouseEvent) => send(e)}>Send</Button>
           <Button
             onClick={() =>
-              socket.emit("clear", room, (res: string[]) => setMessages(res))
+              socket.emit("clear", room, (res: IMessage[]) => setMessages(res))
             }
           >
             Clear
