@@ -1,4 +1,4 @@
-import { Injectable, Res } from '@nestjs/common';
+import { Injectable, Inject, Res } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
 import { Repository } from 'typeorm';
@@ -104,14 +104,16 @@ export class AuthService {
     } else {
       signIn.firstLogin = true;
       const currentTime: number = Math.floor(Date.now() / 1000);
-      await this.usersRepository.insert({
-        name: intraname,
-        intraname: intraname,
-        profilePictureUrl: imageLink,
-        token: data.access_token,
-        hashedToken: hashedToken,
-        tokenExpiry: currentTime + data.expires_in,
-      });
+      await this.usersRepository.save(
+        await this.usersRepository.create({
+          name: intraname,
+          intraname: intraname,
+          profilePictureUrl: imageLink,
+          token: data.access_token,
+          hashedToken: hashedToken,
+          tokenExpiry: currentTime + data.expires_in,
+        })
+      );
     }
 
     const specificValue =

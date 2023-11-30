@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import Pagetitle from "../components/pagetitle/Pagetitle";
-import Taskbar from "../components/taskbar/Taskbar";
 
 import GameWindow from "../components/gamewindow/";
 import { useParams } from "react-router-dom";
@@ -34,9 +33,7 @@ const Game: React.FC = () => {
       <StyledDiv>
         <Pagetitle>{gameTitle}</Pagetitle>
       </StyledDiv>
-      <Taskbar />
       <GameWindow></GameWindow>
-      <Taskbar />
     </>
   );
 };

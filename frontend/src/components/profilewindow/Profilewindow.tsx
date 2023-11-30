@@ -7,7 +7,12 @@ import Moveablewindow from "../moveablewindow/Moveablewindow";
 import ProfilePicture from "../profilepicture/ProfilePicture";
 import StatsWindow from "../stats/StatsWindow";
 
-const UserData = styled.div``;
+const UserData = styled.div`
+  width: 250px;
+  display: flex;
+  flex-direction: column;
+  justify-contetn: center;
+`;
 
 const Tabbar = styled.ul`
   height: 24px;

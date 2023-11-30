@@ -16,33 +16,36 @@ const SetUser: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    const urlParams = new URLSearchParams(location.search);
-    const userName: string | null = urlParams.get("user");
-    setIsFirstLogin(urlParams.get("firstSignIn") === "true");
-    if (userName) {
-      fetch(`${BACKEND}/users/${userName}`)
-        .then((res) => res.json())
-        .then((resUser) => {
-          setUser(resUser);
-          if (!resUser.twoFAenabled) {
-            auth.logIn({
-              id: Number(resUser.id),
-              name: resUser.name,
-              intraname: resUser.intraname,
-              twoFAenabled: resUser.twoFAenabled,
-              profilePictureUrl: resUser.profilePictureUrl,
-              activeChats: resUser.activeChats,
-              hasCustomAvatar: resUser.hasCustomAvatar,
-              customAvatar: resUser.customAvatar,
-            });
-            if (!isFirstLogin) {
-              setRedirect(true);
+    const fetchData = async () => {
+      const urlParams = new URLSearchParams(location.search);
+      const intraname: string | null = urlParams.get("intraname");
+      setIsFirstLogin(urlParams.get("firstSignIn") === "true");
+      if (intraname) {
+        await fetch(`${BACKEND}/users/intra/${intraname}`)
+          .then((res) => res.json())
+          .then((resUser) => {
+            setUser(resUser);
+            if (!resUser.twoFAenabled) {
+              auth.logIn({
+                id: Number(resUser.id),
+                name: resUser.name,
+                intraname: resUser.intraname,
+                twoFAenabled: resUser.twoFAenabled,
+                profilePictureUrl: resUser.profilePictureUrl,
+                activeChats: resUser.activeChats,
+                hasCustomAvatar: resUser.hasCustomAvatar,
+                customAvatar: resUser.customAvatar,
+              });
+              if (!isFirstLogin) {
+                setRedirect(true);
+              }
             }
-          }
-        })
-        .catch((err) => console.error(err));
-      setIsLoading(false);
-    }
+          })
+          .catch((err) => console.error(err));
+        setIsLoading(false);
+      }
+    };
+    fetchData();
   }, [auth]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {

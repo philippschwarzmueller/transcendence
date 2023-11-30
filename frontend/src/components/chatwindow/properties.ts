@@ -10,3 +10,8 @@ export interface IChannel {
   type: EChannelType;
   title: string;
 }
+
+export interface IMessage {
+  message: string;
+  block: string[];
+}
