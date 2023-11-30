@@ -2,6 +2,7 @@ import { ReactNode, useState } from "react";
 import styled from "styled-components";
 
 const StyledWindow = styled.div<{ $display: boolean; $posZ: number }>`
+  user-select: none;
   position: absolute;
   z-index: ${(props) => props.$posZ};
   display: ${(props) => (props.$display ? "" : "none")};
@@ -103,7 +104,10 @@ const Moveablewindow: React.FC<IMoveableWindow> = ({
       <StyledWindow
         $posZ={positionZ ? positionZ : 0}
         $display={display}
-        style={{ top: position.y, left: position.x }}
+        style={{
+          top: position.y < window.innerHeight ? position.y : 0,
+          left: position.x < window.innerWidth ? position.x : 0,
+        }}
       >
         <Windowbar
           draggable={true}
