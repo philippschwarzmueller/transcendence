@@ -152,9 +152,7 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({ intraname, display }) => {
     if (intraname) fetchData();
   }, [intraname]);
 
-  const handleMatchClick = (enemyIntra: string) => {
-    navigate(`/profile/${enemyIntra}`);
-  };
+  const handleMatchClick = () => {};
 
   const getGameModeName = (gamemode: EGamemode) => {
     return gameModeNames.get(gamemode) || "";
@@ -171,7 +169,7 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({ intraname, display }) => {
                   <MatchItem
                     key={index}
                     won={match.wonGame.toString()}
-                    onClick={() => handleMatchClick(match.enemyIntra)}
+                    onClick={() => handleMatchClick()}
                   >
                     <MatchDetails>
                       <MatchStatus won={match.wonGame.toString()}>
