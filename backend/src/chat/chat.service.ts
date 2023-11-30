@@ -37,6 +37,7 @@ export class ChatService extends ChatServiceBase {
         this.demote(data, server);
         break;
       case '/mute':
+        this.mute(data, server);
         break;
       case '/challenge': {
         this.gameInvite(data, server);
@@ -58,6 +59,8 @@ export class ChatService extends ChatServiceBase {
     }
     try {
       const mess = `${data.user.name}: ${data.input}`;
+      if (await this.chatDao.getMute(data.room, data.user.name))
+        return;
       const blocking: User[] = await this.userService.getBlocking(data.user.name);
       const blockNames: string[] = blocking.map((u) => {
         return u.intraname;
@@ -85,9 +88,6 @@ export class ChatService extends ChatServiceBase {
         );
       server.to(data.room).emit(`${name}: got added`);
     } catch (error) {
-      server
-        .to(this.getUser(data.user.name).socket.id)
-        .emit('message', 'command failed');
       console.log(`SYSTEM: ${error.message.split('\n')[0]}`);
     }
   }
@@ -101,9 +101,6 @@ export class ChatService extends ChatServiceBase {
         return;
       await this.chatDao.promoteUser(data.room, name);
     } catch (error) {
-      server
-        .to(this.getUser(data.user.name).socket.id)
-        .emit('message', 'command failed');
       console.log(`SYSTEM: ${error.message.split('\n')[0]}`);
     }
   }
@@ -117,9 +114,23 @@ export class ChatService extends ChatServiceBase {
         return;
       await this.chatDao.demoteUser(data.room, name);
     } catch (error) {
-      server
-        .to(this.getUser(data.user.name).socket.id)
-        .emit('message', 'command failed');
+      console.log(`SYSTEM: ${error.message.split('\n')[0]}`);
+    }
+  }
+
+  private async mute(data: IMessage, server: Server) {
+    try {
+      let time = 5;
+      const val = data.input.split(' ');
+      if (val.length === 3 && isNaN(Number(val[2])) !== true)
+        time = Number(val[2]);
+      const owner = await this.chatDao.getChannelOwner(data.room);
+      if (owner.name !== data.user.name 
+        && (await this.chatDao.getAdmin(data.room, data.user.name)) === 0
+        && owner.name !== val[1])
+        return;
+      await this.chatDao.muteUser(data.room, val[1], time);
+    } catch (error) {
       console.log(`SYSTEM: ${error.message.split('\n')[0]}`);
     }
   }
@@ -129,7 +140,8 @@ export class ChatService extends ChatServiceBase {
       const name = data.input.substring(data.input.indexOf(' ') + 1);
       const owner = await this.chatDao.getChannelOwner(data.room);
       if (owner.name !== data.user.name 
-        && (await this.chatDao.getAdmin(data.room, data.user.name)) === 0)
+        && (await this.chatDao.getAdmin(data.room, data.user.name)) === 0
+        && owner.name !== name)
         return;
       await this.chatDao.removeUserFromChannel(data.room, name);
       server
@@ -140,9 +152,6 @@ export class ChatService extends ChatServiceBase {
         );
       server.to(data.room).emit(`${name}: got kicked`);
     } catch (error) {
-      server
-        .to(this.getUser(data.user.name).socket.id)
-        .emit('message', 'command failed');
       console.log(`SYSTEM: ${error.message.split('\n')[0]}`);
     }
   }

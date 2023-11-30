@@ -7,6 +7,7 @@ import {
   ManyToMany,
   PrimaryGeneratedColumn,
   Unique,
+  PrimaryColumn,
 } from 'typeorm';
 
 import { User } from '../users/user.entity';
@@ -86,4 +87,19 @@ export class Messages {
 
   @Column({ name: 'content' })
   content: string;
+}
+
+@Entity('muted')
+export class Muted {
+  @PrimaryColumn({name: 'user'})
+  user: number;
+
+  @PrimaryColumn({name: 'channel'})
+  channel: number;
+
+  @Column({name: 'timestamp'})
+  timestamp: number;
+
+  @Column({name: 'time'})
+  time: number;
 }

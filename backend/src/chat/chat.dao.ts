@@ -181,4 +181,36 @@ export class ChatDAO {
       })).admins.filter((a) => a.name === user).length
     );
   }
+
+  public async muteUser(title: string, user: string, time: number) {
+    const userId: number = (await this.userService.findOneByName(user)).id;
+    const channel: number = (await this.getChannelByTitle(title)).id;
+    const queryRunner = this.dataSource.createQueryRunner();
+    queryRunner.connect();
+    await queryRunner.manager.query(
+      `INSERT INTO muted ("user", "channel", "time", "timestamp")
+      VALUES (${userId}, ${channel}, ${time}, EXTRACT(EPOCH FROM CURRENT_TIMESTAMP))
+      ON CONFLICT ("user", "channel")
+      DO UPDATE SET "time" = EXCLUDED."time", "timestamp" = EXTRACT(EPOCH FROM CURRENT_TIMESTAMP);`
+    );
+    queryRunner.release();
+  }
+
+  public async getMute(title: string, user: string): Promise<boolean> {
+    const userId: number = (await this.userService.findOneByName(user)).id;
+    const channel: number = (await this.getChannelByTitle(title)).id;
+    const queryRunner = this.dataSource.createQueryRunner();
+    const current = new Date();
+    queryRunner.connect();
+    const res  =  await queryRunner.manager.query( 
+      `SELECT time, timestamp
+        FROM muted
+        WHERE "user" = ${userId} AND "channel = ${channel};`
+    );
+    queryRunner.release();
+    if (res.length === 0)
+      return false;
+    const check = res[0].timestamp + res[0].time * 60; 
+    return check > Math.floor(current.getTime() / 1000);
+  }
 }
