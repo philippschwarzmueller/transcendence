@@ -145,4 +145,40 @@ export class ChatDAO {
     queryRunner.release();
     return res;
   }
+
+  public async promoteUser(title: string, user: string) {
+    const userId: number = (await this.userService.findOneByName(user)).id;
+    const channel: number = (await this.getChannelByTitle(title)).id;
+    const queryRunner = this.dataSource.createQueryRunner();
+    queryRunner.connect();
+    const res: test[]  =  await queryRunner.manager.query(
+      `INSERT INTO channel_administration (channel, "user")
+        VALUES (${channel}, ${userId})
+        ON CONFLICT (channel, "user") DO NOTHING;`,
+    );
+    queryRunner.release();
+    return res;
+  }
+
+  public async demoteUser(title: string, user: string) {
+    const userId: number = (await this.userService.findOneByName(user)).id;
+    const channel: number = (await this.getChannelByTitle(title)).id;
+    const queryRunner = this.dataSource.createQueryRunner();
+    queryRunner.connect();
+    const res: test[]  =  await queryRunner.manager.query(
+      `DELETE FROM channel_administration
+      WHERE channel = ${channel} AND user = ${userId}`,
+    );
+    queryRunner.release();
+    return res;
+  }
+
+  public async getAdmin(channel: string, user: string): Promise<number> {
+    return (
+      (await this.channelRepo.findOne({
+        where: { title: channel },
+        relations: ['admins'],
+      })).admins.filter((a) => a.name === user).length
+    );
+  }
 }

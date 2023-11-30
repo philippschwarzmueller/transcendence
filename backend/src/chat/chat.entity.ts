@@ -36,6 +36,34 @@ export class Channels {
   })
   users: User[];
 
+  @ManyToMany(() => User)
+  @JoinTable({
+    name: 'channel_administration',
+    joinColumn: {
+      name: 'channel',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'user',
+      referencedColumnName: 'id',
+    },
+  })
+  admins: User[];
+
+  @ManyToMany(() => User)
+  @JoinTable({
+    name: 'channel_administration',
+    joinColumn: {
+      name: 'channel',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'user',
+      referencedColumnName: 'id',
+    },
+  })
+  muted: User[];
+
   @Column({ name: 'title' })
   title: string;
 
