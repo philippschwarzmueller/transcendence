@@ -13,6 +13,7 @@ import {
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from './user.entity';
+import { PublicUser } from './users.service';
 import { Request } from 'express';
 import { FriendState } from './users.service';
 
@@ -20,8 +21,8 @@ import { FriendState } from './users.service';
 export class UsersController {
   constructor(private usersService: UsersService) {}
   @Get()
-  findAll(): Promise<User[]> {
-    return this.usersService.findAll();
+  async findAll(): Promise<PublicUser[]> {
+    return (await this.usersService.findAll());
   }
 
   @Get('names')

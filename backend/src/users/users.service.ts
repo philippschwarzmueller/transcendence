@@ -10,6 +10,17 @@ export enum FriendState {
   friend,
 }
 
+export interface PublicUser {
+  id?: number | undefined;
+  name: string | undefined;
+  intraname: string | undefined;
+  twoFAenabled: boolean;
+  profilePictureUrl: string | undefined;
+  activeChats: string[];
+  customAvatar?: string | undefined;
+  hasCustomAvatar?: boolean;
+}
+
 @Injectable()
 export class UsersService {
   constructor(
@@ -19,8 +30,10 @@ export class UsersService {
     private dataSource: DataSource,
   ) {}
 
-  findAll(): Promise<User[]> {
-    return this.usersRepository.find();
+  async findAll(): Promise<PublicUser[]> {
+    const users: User[] = await this.usersRepository.find();
+    const publicUsers: PublicUser[] = (users.map(user => {return this.createPublicUser(user)}));
+    return publicUsers;
   }
 
   async findOneByName(userId: string): Promise<User> {
@@ -44,6 +57,20 @@ export class UsersService {
       throw new Error('User not found');
     }
   }
+
+  public createPublicUser(user: User): PublicUser {
+    const publicUser: PublicUser = {
+      id: user.id,
+      name: user.name,
+      intraname: user.intraname,
+      twoFAenabled: user.twoFAenabled,
+      profilePictureUrl: user.profilePictureUrl,
+      activeChats: user.activeChats,
+      customAvatar: user.customAvatar,
+      hasCustomAvatar: user.hasCustomAvatar,
+    };
+    return publicUser;
+  } 
   
   async getBlockList(userId: string): Promise<User[]> {
     return (
