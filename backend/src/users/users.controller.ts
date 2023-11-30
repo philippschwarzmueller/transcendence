@@ -23,6 +23,7 @@ import { FriendState } from './users.service';
   profilePictureUrl?: string;
   upladedAvatar?: string;
   hasCustomAvatar?: boolean;
+  activeChats?: string[];
 }
 
 @Controller('users')
@@ -74,7 +75,7 @@ export class UsersController {
   }
 
   @Get('/intra/:userId')
-  async findIntra(@Param('userId') name: string): Promise<User> {
+  async findIntra(@Param('userId') name: string): Promise<PublicUser> {
     try {
       return await this.usersService.findOneByIntraName(name);
     } catch (e) {
@@ -102,7 +103,7 @@ export class UsersController {
   }
 
   @Post('get-pending-friend-requests')
-  async getPendingFriendRequests(@Req() req: Request): Promise<User[]> {
+  async getPendingFriendRequests(@Req() req: Request): Promise<PublicUser[]> {
     const token: string = req.cookies.token;
     const user: User | null =
       await this.usersService.exchangeTokenforUser(token);
@@ -113,7 +114,7 @@ export class UsersController {
   }
 
   @Post('get-received-friend-requests')
-  async getReceivedFriendRequests(@Req() req: Request): Promise<User[]> {
+  async getReceivedFriendRequests(@Req() req: Request): Promise<PublicUser[]> {
     const token: string = req.cookies.token;
     const user: User | null =
       await this.usersService.exchangeTokenforUser(token);
@@ -140,7 +141,7 @@ export class UsersController {
   }
 
   @Post('get-friends')
-  async getFriends(@Req() req: Request): Promise<User[]> {
+  async getFriends(@Req() req: Request): Promise<PublicUser[]> {
     const token: string = req.cookies.token;
     const user: User | null =
       await this.usersService.exchangeTokenforUser(token);
