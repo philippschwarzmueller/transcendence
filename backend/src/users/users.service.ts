@@ -34,6 +34,17 @@ export class UsersService {
     }
   }
 
+  async findOneByHashedToken(hashedToken: string): Promise<User> {
+    const res: User = await this.usersRepository.findOne({
+      where: { hashedToken: hashedToken },
+    });
+    if (res) {
+      return res;
+    } else {
+      throw new Error('User not found');
+    }
+  }
+
   async findOneByIntraName(intraname: string): Promise<User> {
     const res: User = await this.usersRepository.findOne({
       where: { intraname: intraname },

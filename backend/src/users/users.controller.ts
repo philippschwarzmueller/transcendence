@@ -40,6 +40,18 @@ export class UsersController {
     }
   }
 
+  @Get('get-user-with-token')
+  async getUserWithToken(
+    @Body() body: { hashedToken: string },
+    @Req() req: Request,
+  ): Promise<User | null> {
+    const cookie_token: string = req.cookies.token;
+    const hashedToken = body.hashedToken;
+    if (cookie_token !== hashedToken)
+      return null;
+    return(await this.usersService.findOneByHashedToken(hashedToken));
+  }
+
   @Put('block')
   async block(
     @Query('blocking') blocking: string,
