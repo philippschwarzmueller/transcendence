@@ -2,6 +2,8 @@ import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { User } from './user.entity';
+import { Channels } from 'src/chat/chat.entity';
+import { Game } from 'src/games/game.entity';
 
 export enum FriendState {
   noFriend,
@@ -11,6 +13,8 @@ export enum FriendState {
 }
 
 export interface PublicUser {
+  owned: Channels[];
+  channels: Channels[];
   id?: number | undefined;
   name: string | undefined;
   intraname: string | undefined;
@@ -19,6 +23,14 @@ export interface PublicUser {
   activeChats: string[];
   customAvatar?: string | undefined;
   hasCustomAvatar?: boolean;
+  blocked: PublicUser[];
+  blocking: PublicUser[];
+  friend_requested: PublicUser[];
+  friend_requests_received: PublicUser[];
+  friends: PublicUser[];
+  wonGames: Game[];
+  lostGames: Game[];
+  elo: number[];
 }
 
 @Injectable()
@@ -67,6 +79,18 @@ export class UsersService {
       activeChats: user.activeChats,
       customAvatar: user.customAvatar,
       hasCustomAvatar: user.hasCustomAvatar,
+      owned: user.owned,
+      channels: user.channels,
+      blocked: this.createPublicUserArray(user.blocked),
+      blocking: this.createPublicUserArray(user.blocking),
+      friend_requested: this.createPublicUserArray(user.friend_requested),
+      friend_requests_received: this.createPublicUserArray(
+        user.friend_requests_received,
+      ),
+      friends: this.createPublicUserArray(user.friends),
+      wonGames: user.wonGames,
+      lostGames: user.lostGames,
+      elo: user.elo,
     };
     return publicUser;
   }
