@@ -43,7 +43,7 @@ const Userbrowser: React.FC<{ $display: boolean; z?: number }> = ({
   $display,
   z,
 }) => {
-  let [users, setUsers] = useState<IUser[]>([]);
+  const [users, setUsers] = useState<IUser[]>([]);
 
   useEffect(() => {
     fetch(`http://${window.location.hostname}:4000/users`, {
