@@ -73,7 +73,7 @@ const Profilewindow: React.FC<{ $display: boolean; z?: number }> = ({
   const [displayMatch, setDisplayMatch] = useState<boolean>(true);
   const [displayElo, setDisplayElo] = useState<boolean>(false);
 
-  useEffect(() => {}, [user, $display]);
+  useEffect(() => {}, [$display]);
 
   return (
     <>

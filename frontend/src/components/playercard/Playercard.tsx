@@ -42,6 +42,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ user, triggerReload }) => {
       <ContextMenu
         display={showContext}
         user={user}
+        displayswitch={openContextMenu}
         triggerReload={triggerReload}
       />
         <StyledDiv onClick={() => openContextMenu()}>
