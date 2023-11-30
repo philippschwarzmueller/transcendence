@@ -134,7 +134,6 @@ const GameModeName = styled.div`
 
 const MatchHistory: React.FC<MatchHistoryProps> = ({ intraname, display }) => {
   const [matches, setMatches] = useState<IMatch[]>([]);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
