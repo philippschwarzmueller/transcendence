@@ -10,7 +10,13 @@ const Profilesettings: React.FC<{ $display: boolean; z?: number }> = ({
 }) => {
   return (
     <>
-      <Moveablewindow title="Profile Settings" display={$display} positionZ={z}>
+      <Moveablewindow
+        title="Profile Settings"
+        display={$display}
+        positionX={286}
+        positionY={300}
+        positionZ={z}
+      >
         <WindowWrapper title="change name">
           <NameChangeSection />
         </WindowWrapper>

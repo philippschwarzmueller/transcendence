@@ -57,7 +57,7 @@ const Userbrowser: React.FC<{ $display: boolean; z?: number }> = ({
       })
       .then((res: IUser[]) => setUsers(res))
       .catch((err) => console.error(err));
-  }, []);
+  }, [$display, users]);
 
   return (
     <>
