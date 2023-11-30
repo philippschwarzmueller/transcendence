@@ -75,27 +75,33 @@ export class AuthController {
     @Query('code') code: string,
     @Res() res: Response,
   ): Promise<void> {
-    const data: TokenResponse =
-      await this.authService.exchangeCodeForToken(code);
-    if (data === null) {
-      console.error('something is wrong with ur env');
-      res.redirect(`http://${this.hostIP}:3000/login`);
+    try {
+      const data: TokenResponse =
+        await this.authService.exchangeCodeForToken(code);
+      if (data === null) {
+        console.error('something is wrong with ur env');
+        res.redirect(`http://${this.hostIP}:3000/login`);
+      }
+      const hashedToken: string = await this.authService.hashToken(
+        data.access_token,
+      );
+      const signIn: IntraSignInEvent = await this.authService.IntraSignIn(
+        data,
+        hashedToken,
+      );
+      res.cookie('token', hashedToken, {
+        secure: false,
+        httpOnly: true,
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      });
+      res.redirect(
+        `http://${this.hostIP}:3000/set-user?intraname=${signIn.user.intraname}&firstSignIn=${signIn.firstLogin}`,
+      );
+    } catch (error) {
+      console.error(
+        '42 login failed, check your env file or the app config on 42 intra',
+      );
     }
-    const hashedToken: string = await this.authService.hashToken(
-      data.access_token,
-    );
-    const signIn: IntraSignInEvent = await this.authService.IntraSignIn(
-      data,
-      hashedToken,
-    );
-    res.cookie('token', hashedToken, {
-      secure: false,
-      httpOnly: true,
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    });
-    res.redirect(
-      `http://${this.hostIP}:3000/set-user?intraname=${signIn.user.intraname}&firstSignIn=${signIn.firstLogin}`,
-    );
   }
 
   @Post('validate-token')
