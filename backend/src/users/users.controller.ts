@@ -22,7 +22,8 @@ export class UsersController {
   constructor(private usersService: UsersService) {}
   @Get()
   async findAll(): Promise<PublicUser[]> {
-    return (await this.usersService.findAll());
+    const users: User[] = await this.usersService.findAll();
+    return await this.usersService.createPublicUserArray(users);
   }
 
   @Get('names')
@@ -31,9 +32,10 @@ export class UsersController {
   }
 
   @Get(':userId')
-  async findOne(@Param('userId') name: string): Promise<User> {
+  async findOne(@Param('userId') name: string): Promise<PublicUser> {
     try {
-      return await this.usersService.findOneByName(name);
+      const user: User = await this.usersService.findOneByName(name);
+      return this.usersService.createPublicUser(user);
     } catch (e) {
       throw new HttpException('user not found', HttpStatus.NOT_FOUND, {
         cause: e,
@@ -66,9 +68,10 @@ export class UsersController {
   }
 
   @Get('/intra/:userId')
-  async findIntra(@Param('userId') name: string): Promise<User> {
+  async findIntra(@Param('userId') name: string): Promise<PublicUser> {
     try {
-      return await this.usersService.findOneByIntraName(name);
+      const user: User = await this.usersService.findOneByIntraName(name);
+      return this.usersService.createPublicUser(user);
     } catch (e) {
       throw new HttpException('user not found', HttpStatus.NOT_FOUND, {
         cause: e,
@@ -94,24 +97,26 @@ export class UsersController {
   }
 
   @Post('get-pending-friend-requests')
-  async getPendingFriendRequests(@Req() req: Request): Promise<User[]> {
+  async getPendingFriendRequests(@Req() req: Request): Promise<PublicUser[]> {
     const token: string = req.cookies.token;
     const user: User | null =
       await this.usersService.exchangeTokenforUser(token);
     const pendingUsers: User[] = await this.usersService.getFriendRequestList(
       user.name,
     );
-    return pendingUsers;
+    return this.usersService.createPublicUserArray(pendingUsers);
   }
 
   @Post('get-received-friend-requests')
-  async getReceivedFriendRequests(@Req() req: Request): Promise<User[]> {
+  async getReceivedFriendRequests(@Req() req: Request): Promise<PublicUser[]> {
     const token: string = req.cookies.token;
     const user: User | null =
       await this.usersService.exchangeTokenforUser(token);
     const ReceivedFriendRequestsFromUsers: User[] =
       await this.usersService.getReceivedFriendRequestList(user.name);
-    return ReceivedFriendRequestsFromUsers;
+    return this.usersService.createPublicUserArray(
+      ReceivedFriendRequestsFromUsers,
+    );
   }
 
   @Post('accept-friend-request')
@@ -132,12 +137,12 @@ export class UsersController {
   }
 
   @Post('get-friends')
-  async getFriends(@Req() req: Request): Promise<User[]> {
+  async getFriends(@Req() req: Request): Promise<PublicUser[]> {
     const token: string = req.cookies.token;
     const user: User | null =
       await this.usersService.exchangeTokenforUser(token);
     const friendList: User[] = await this.usersService.getFriendList(user.name);
-    return friendList;
+    return this.usersService.createPublicUserArray(friendList);
   }
 
   @Post('remove-friend')

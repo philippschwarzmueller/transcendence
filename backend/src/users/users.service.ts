@@ -30,10 +30,9 @@ export class UsersService {
     private dataSource: DataSource,
   ) {}
 
-  async findAll(): Promise<PublicUser[]> {
+  async findAll(): Promise<User[]> {
     const users: User[] = await this.usersRepository.find();
-    const publicUsers: PublicUser[] = (users.map(user => {return this.createPublicUser(user)}));
-    return publicUsers;
+    return users;
   }
 
   async findOneByName(userId: string): Promise<User> {
@@ -70,8 +69,15 @@ export class UsersService {
       hasCustomAvatar: user.hasCustomAvatar,
     };
     return publicUser;
-  } 
-  
+  }
+
+  public createPublicUserArray(users: User[]): PublicUser[] {
+    const publicUsers: PublicUser[] = users.map((user) => {
+      return this.createPublicUser(user);
+    });
+    return publicUsers;
+  }
+
   async getBlockList(userId: string): Promise<User[]> {
     return (
       await this.usersRepository.findOne({
@@ -151,7 +157,10 @@ export class UsersService {
     return res[0].is_blocked;
   }
 
-  async removeFromBlockList(userId: string, blockedId: string): Promise<boolean> {
+  async removeFromBlockList(
+    userId: string,
+    blockedId: string,
+  ): Promise<boolean> {
     const user: User = await this.findOneByIntraName(userId);
     const blocked: User = await this.findOneByIntraName(blockedId);
     const queryRunner = this.dataSource.createQueryRunner();
