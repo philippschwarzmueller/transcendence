@@ -79,7 +79,6 @@ export class AuthController {
       const data: TokenResponse =
         await this.authService.exchangeCodeForToken(code);
       if (data === null) {
-        console.error('something is wrong with ur env');
         res.redirect(`http://${this.hostIP}:3000/login`);
       }
       const hashedToken: string = await this.authService.hashToken(
