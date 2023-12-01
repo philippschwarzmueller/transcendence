@@ -128,7 +128,6 @@ export class ChatServiceBase {
     try {
       this.updateActiveClients(data, client);
       const channel = await this.chatDao.getChannel(data.id);
-      client.join(channel.title);
       const mess = `${data.user.name}: joined room`;
       const blocking: User[] = await this.userService.getBlocking(data.user.name);
       const blockNames: string[] = blocking.map((u) => {
