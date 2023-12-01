@@ -272,12 +272,7 @@ const ContextMenu: React.FC<IContextMenu> = ({
           <OptionLi
             onClick={() => {
               displayswitch();
-              profile.name = user.name ? user.name : "";
-              profile.intraname = user.intraname ? user.intraname : "";
-              profile.profilePictureUrl = user.profilePictureUrl
-                ? user.profilePictureUrl
-                : "";
-              profile.display = true;
+              profile.updateProfile(user, !profile.profile.display);
             }}
           >
             👤 Visit Profile

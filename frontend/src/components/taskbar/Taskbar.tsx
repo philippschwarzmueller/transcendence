@@ -1,7 +1,6 @@
 import { useContext, useState } from "react";
 import { styled } from "styled-components";
 import { AuthContext } from "../../context/auth";
-import { ProfileContext } from "../../context/profile";
 import { BACKEND } from "../../routes/SetUser";
 import Chatwindow from "../chatwindow/Chatwindow";
 import Friendbrowser from "../friendbrowser/Friendbrowser";
@@ -11,6 +10,7 @@ import Profilewindow from "../profilewindow/Profilewindow";
 import Userbrowser from "../userbrowser";
 import Queuepopwindow from "../queuepopwindow/queuepopwindow";
 import Spectatorboard from "../spectatorboard";
+import { ProfileContext } from "../../context/profile";
 
 const StyledNavbar = styled.nav`
   width: 100vw;
@@ -114,7 +114,7 @@ enum Windows {
 
 const Taskbar: React.FC = () => {
   let auth = useContext(AuthContext);
-  const profile = useContext(ProfileContext);
+  const user = useContext(ProfileContext);
   const [displayChat, setDisplayChat] = useState<boolean>(false);
   const [displayUsers, setDisplayUsers] = useState<boolean>(false);
   const [displayStart, setDisplayStart] = useState<boolean>(false);
@@ -159,7 +159,6 @@ const Taskbar: React.FC = () => {
     <>
       <div onClick={() => changeOrder(Windows.Profile)}>
         <Profilewindow
-          $display={profile.display}
           z={displayOrder[Windows.Profile]}
         />
       </div>
@@ -201,14 +200,7 @@ const Taskbar: React.FC = () => {
         <StyledUl>
           <StyledLi
             onClick={() => {
-              profile.intraname = auth.user.intraname
-                ? auth.user.intraname
-                : "";
-              profile.name = auth.user.name ? auth.user.name : "";
-              profile.profilePictureUrl = auth.user.profilePictureUrl
-                ? auth.user.profilePictureUrl
-                : "";
-              profile.display = !profile.display;
+              user.updateProfile(auth.user, !user.profile.display);
               changeOrder(Windows.Profile);
             }}
           >
@@ -216,7 +208,7 @@ const Taskbar: React.FC = () => {
               src={require("../../images/head.png")}
               height="16"
               width="16"
-              alt="profile"
+              alt="user.profile"
             />
             Profile
           </StyledLi>
@@ -230,7 +222,7 @@ const Taskbar: React.FC = () => {
               src={require("../../images/settings.png")}
               height="16"
               width="16"
-              alt="profile"
+              alt="user.profile"
             />
             Profile Settings
           </StyledLi>
