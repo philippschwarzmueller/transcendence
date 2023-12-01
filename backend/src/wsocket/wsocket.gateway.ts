@@ -12,12 +12,10 @@ import {
   IFinishedGame,
   IGame,
   IGameSocketPayload,
-  IGameUser,
-  IGameUserAuth,
   IQueuePayload,
 } from '../games/properties';
 
-import { IChannel, IMessage, ISendMessage } from '../chat/properties';
+import { EChannelType, IChannel, IMessage, ITab, ISendMessage, IUser } from '../chat/properties';
 import { Socket, Server } from 'socket.io';
 import { GamesService } from '../games/games.service';
 import { ChatService } from 'src/chat/chat.service';
@@ -44,6 +42,23 @@ export class WSocketGateway implements OnGatewayInit {
   @WebSocketServer()
   server: Server;
 
+  @SubscribeMessage('channel')
+  async getChannels(@MessageBody() user: IUser): Promise<IChannel[]> {
+    return await this.chatService.getChannelList(user);
+  }
+  @SubscribeMessage('contact')
+  initConnect(
+    @MessageBody() data: IChannel,
+    @ConnectedSocket() client: Socket,
+  ) {
+    this.chatService.updateActiveClients(data, client);
+  }
+
+  @SubscribeMessage('layoff')
+  breakConnection(@MessageBody() name: string) {
+    this.chatService.removeUser(name);
+  }
+
   @SubscribeMessage('message')
   async message(@MessageBody() data: IMessage): Promise<void> {
     this.chatService.handleMessage(data, this.server, this.gamesService);
@@ -58,8 +73,10 @@ export class WSocketGateway implements OnGatewayInit {
   }
 
   @SubscribeMessage('create')
-  async addChat(@MessageBody() data: IChannel): Promise<string[]> {
-    return await this.chatService.addChat(data);
+  async addChat(@MessageBody() data: IChannel): Promise<ITab[]> {
+    if (data.type !== EChannelType.CHAT)
+      return await this.chatService.addChat(data);
+    return await this.chatService.addU2UChat(data, this.server);
   }
 
   @SubscribeMessage('alterGameData')

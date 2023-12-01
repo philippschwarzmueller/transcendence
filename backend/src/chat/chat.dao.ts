@@ -3,13 +3,14 @@ import { User } from 'src/users/user.entity';
 import { DataSource, Repository } from 'typeorm';
 import { Injectable, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DMessage, EChannelType, IChannel, IMessage } from './properties';
+import { EChannelType, IChannel, IMessage, ITab } from './properties';
 import { UsersService } from 'src/users/users.service';
 
-interface test {
+interface DMessage {
   content: string;
   sender: string;
 }
+
 @Injectable()
 export class ChatDAO {
   constructor(
@@ -29,18 +30,18 @@ export class ChatDAO {
     await this.messsageRepo.save(
       this.messsageRepo.create({
         sender: await this.userService.findOneByName(message.user.name),
-        channel: await this.getChannelByTitle(message.room),
+        channel: await this.getChannel(message.room),
         content: message.input,
       }),
     );
   }
 
-  public async saveChannel(channel: IChannel, user: string): Promise<void> {
+  public async saveChannel(channel: IChannel, user: string): Promise<Channels> {
     const existingChannel = await this.channelRepo.findOne({
       where: { title: channel.title },
     });
     if (existingChannel && existingChannel.type !== EChannelType.PRIVATE) {
-      await this.addUserToChannel(channel.title, user);
+      await this.addUserToChannel(existingChannel.id, user);
     } else if (!existingChannel) {
       await this.channelRepo.save(
         this.channelRepo.create({
@@ -51,10 +52,15 @@ export class ChatDAO {
         }),
       );
     }
+    return await this.channelRepo.findOne({
+      where: { title: channel.title },
+    });
   }
 
-  public async addUserToChannel(title: string, user: string): Promise<void> {
-    const channel: Channels = await this.getChannelByTitle(title);
+  public async addUserToChannel(id: number, user: string): Promise<void> {
+    const channel: Channels = await this.getChannel(id);
+    if (channel.type === EChannelType.CHAT && channel.users.length === 2)
+      return;
     const newUser: User = await this.userService.findOneByName(user);
     const queryRunner = this.dataSource.createQueryRunner();
     queryRunner.connect();
@@ -66,19 +72,21 @@ export class ChatDAO {
     queryRunner.release();
   }
 
-  public async removeUserFromChannel(title: string, userId: string): Promise<void> {
-    const channel: Channels = await this.getChannelByTitle(title);
+  public async removeUserFromChannel(
+    id: number,
+    userId: string,
+  ): Promise<void> {
+    const channel: Channels = await this.getChannel(id);
     const user: User = await this.userService.findOneByName(userId);
     channel.users = channel.users.filter((u) => u.id !== user.id);
     this.channelRepo.save(channel);
   }
 
-  public async getChannelByTitle(title: string): Promise<Channels> {
-    return await this.channelRepo
-      .createQueryBuilder('channel')
-      .leftJoinAndSelect('channel.users', 'users')
-      .where('channel.title = :title', { title })
-      .getOne();
+  public async getChannel(id: number): Promise<Channels> {
+    return await this.channelRepo.findOne({
+      where: { id: id },
+      relations: ['users'],
+    });
   }
 
   public async getChannelMessages(channelId: number): Promise<Messages[]> {
@@ -104,33 +112,53 @@ export class ChatDAO {
       .getMany();
   }
 
-  public async getAllChannels(): Promise<string[]> {
-    const res: Channels[] = await this.channelRepo.find();
-    return res.map((item) => {
-      return item.title;
-    });
+  public async getAllChannels(): Promise<Channels[]> {
+    return await this.channelRepo.find();
   }
 
-  public async getRawUserChannels(userId: number): Promise<string[]> {
-    return (await this.getUserChannels(userId)).map((item) => {
-      return item.title;
-    });
+  public async getTitle(channel: Channels, userId: number): Promise<string> {
+    if (channel.type !== EChannelType.CHAT) return channel.title;
+    const queryRunner = this.dataSource.createQueryRunner();
+    queryRunner.connect();
+    const res = await queryRunner.manager.query(
+      `SELECT name
+      FROM users
+      INNER JOIN channel_subscription ON users.id = channel_subscription.user
+      WHERE channel_subscription.channel = ${channel.id}
+      AND users.id != ${userId}`,
+    );
+    queryRunner.release();
+    if (res && res[0] && res[0].name) return res[0].name;
+    return channel.title;
   }
 
-  public async getChannelOwner(title: string): Promise<User> {
+  public async getRawUserChannels(userId: number): Promise<ITab[]> {
+    const tmp: Channels[] = await this.getUserChannels(userId);
+    return await Promise.all(
+      tmp.map(async (item) => {
+        return {
+          type: item.type,
+          id: item.id,
+          title: await this.getTitle(item, userId),
+        };
+      }),
+    );
+  }
+
+  public async getChannelOwner(id: number): Promise<User> {
     return (
       await this.channelRepo.findOne({
-        where: { title: title },
+        where: { id: id },
         relations: ['owner'],
       })
     ).owner;
   }
 
-  public async getMessagesFiltert(channelId: number, user: string): Promise<test[]> {
+  public async getMessagesFiltert(channelId: number, user: string): Promise<DMessage[]> {
     const userId: number = (await this.userService.findOneByName(user)).id;
     const queryRunner = this.dataSource.createQueryRunner();
     queryRunner.connect();
-    const res: test[]  =  await queryRunner.manager.query(
+    const res: DMessage[]  =  await queryRunner.manager.query(
       `SELECT messages.content, users.name as sender
       FROM messages
       LEFT JOIN users ON messages.sender = users.id
@@ -144,5 +172,67 @@ export class ChatDAO {
     );
     queryRunner.release();
     return res;
+  }
+
+  public async promoteUser(channel: number, user: string) {
+    const userId: number = (await this.userService.findOneByName(user)).id;
+    const queryRunner = this.dataSource.createQueryRunner();
+    queryRunner.connect();
+    await queryRunner.manager.query(
+      `INSERT INTO channel_administration (channel, "user")
+        VALUES (${channel}, ${userId})
+        ON CONFLICT (channel, "user") DO NOTHING;`,
+    );
+    queryRunner.release();
+  }
+
+  public async demoteUser(channel: number, user: string) {
+    const userId: number = (await this.userService.findOneByName(user)).id;
+    const queryRunner = this.dataSource.createQueryRunner();
+    queryRunner.connect();
+    await queryRunner.manager.query(
+      `DELETE FROM channel_administration
+      WHERE channel = ${channel} AND user = ${userId}`,
+    );
+    queryRunner.release();
+  }
+
+  public async getAdmin(channel: number, user: string): Promise<number> {
+    return (
+      (await this.channelRepo.findOne({
+        where: { id: channel },
+        relations: ['admins'],
+      })).admins.filter((a) => a.name === user).length
+    );
+  }
+
+  public async muteUser(channel: number, user: string, time: number) {
+    const userId: number = (await this.userService.findOneByName(user)).id;
+    const queryRunner = this.dataSource.createQueryRunner();
+    queryRunner.connect();
+    await queryRunner.manager.query(
+      `INSERT INTO muted ("user", "channel", "time", "timestamp")
+      VALUES (${userId}, ${channel}, ${time}, EXTRACT(EPOCH FROM CURRENT_TIMESTAMP))
+      ON CONFLICT ("user", "channel")
+      DO UPDATE SET "time" = EXCLUDED."time", "timestamp" = EXTRACT(EPOCH FROM CURRENT_TIMESTAMP);`
+    );
+    queryRunner.release();
+  }
+
+  public async getMute(channel: number, user: string): Promise<boolean> {
+    const userId: number = (await this.userService.findOneByName(user)).id;
+    const queryRunner = this.dataSource.createQueryRunner();
+    const current = new Date();
+    queryRunner.connect();
+    const res  =  await queryRunner.manager.query( 
+      `SELECT time, timestamp
+        FROM muted
+        WHERE "user" = ${userId} AND "channel" = ${channel};`
+    );
+    queryRunner.release();
+    if (res.length === 0)
+      return false;
+    const check = res[0].timestamp + res[0].time * 60; 
+    return check > Math.floor(current.getTime() / 1000);
   }
 }
