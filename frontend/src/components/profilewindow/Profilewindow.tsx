@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import { styled } from "styled-components";
 import { IProfileContext, ProfileContext } from "../../context/profile";
 import Elograph from "../elograph";
