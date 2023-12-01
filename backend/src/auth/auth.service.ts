@@ -155,7 +155,7 @@ export class AuthService {
     res.redirect(url);
   }
 
-  async exchangeCodeForToken(code: string): Promise<TokenResponse> {
+  async exchangeCodeForToken(code: string): Promise<TokenResponse | null> {
     const response: Response | void = await fetch(
       'https://api.intra.42.fr/oauth/token',
       {
@@ -171,7 +171,7 @@ export class AuthService {
       },
     ).catch((e) => console.error(e));
     if (response instanceof Response && !response.ok) {
-      throw new Error('Failed to exchange code for token');
+      return null;
     }
 
     if (response instanceof Response && response.ok) {
