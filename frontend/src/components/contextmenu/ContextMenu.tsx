@@ -1,7 +1,10 @@
 import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
+import { useNavigate } from "react-router-dom";
 import { BACKEND } from "../../routes/SetUser";
 import { AuthContext, IUser } from "../../context/auth";
+import { EChannelType, IChannel } from "../chatwindow/properties";
+import { SocketContext } from "../../context/socket";
 import { ProfileContext } from "../../context/profile";
 
 const StyledUl = styled.ul<{ $display: boolean }>`
@@ -50,9 +53,6 @@ export enum FriendState {
   friend,
 }
 
-
-
-
 const ContextMenu: React.FC<IContextMenu> = ({
   display,
   user,
@@ -68,6 +68,18 @@ const ContextMenu: React.FC<IContextMenu> = ({
   const [ownProfile, setOwnProfile] = useState<boolean>(false);
   const [, setRefreshFlag] = useState(false);
   const [isBlocked, setIsBlocked] = useState<boolean>(false);
+  const navigate = useNavigate();
+  const socket = useContext(SocketContext);
+
+  const startChat = () => {
+    const body: IChannel = {
+      user: auth.user,
+      type: EChannelType.CHAT,
+      id: 0,
+      title: user.name,
+    };
+    socket.emit("create", body);
+  }
 
   const blockProfile = (method: string) => {
     fetch(
@@ -254,7 +266,7 @@ const ContextMenu: React.FC<IContextMenu> = ({
         <LineLi />
         {!ownProfile && <OptionLi>🏓 Challenge to Game</OptionLi>}
         {!ownProfile && <LineLi />}
-        {!ownProfile && !isBlocked && <OptionLi>💬 Start Chat</OptionLi>}
+        {!ownProfile && !isBlocked && <OptionLi onClick={() => startChat()}>💬 Start Chat</OptionLi>}
         {!ownProfile && !isBlocked && <LineLi />}
         {/* FRIEND */}
         {friendState === FriendState.friend && (
