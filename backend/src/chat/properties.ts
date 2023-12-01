@@ -10,17 +10,26 @@ export interface IUser {
 export interface IMessage {
   user: IUser;
   input: string;
-  room: string;
+  room: number;
 }
 
 export enum EChannelType {
   PRIVATE,
-  PUBLIC
+  PUBLIC,
+  CHAT,
 }
 
 export interface IChannel {
   user: IUser;
   type: EChannelType;
+  id: number;
+  title: string;
+  prev: number;
+}
+
+export interface ITab {
+  type: EChannelType;
+  id: number;
   title: string;
 }
 

@@ -9,7 +9,7 @@ import { AuthContext, IUser } from "../../context/auth";
 import Popup from "../popup/Popup";
 import { IGameStart } from "../gamewindow/properties";
 import { useNavigate } from "react-router-dom";
-import { EChannelType, IMessage } from "./properties";
+import { IMessage, ITab } from "./properties";
 
 const Msgfield = styled.div`
   width: 320px;
@@ -92,9 +92,10 @@ const Chatwindow: React.FC<{ $display: boolean, z?: number }> = ({
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [input, setInput] = useState<string>("");
   const user: IUser = useContext(AuthContext).user;
-  const [tabs, setTabs] = useState<string[]>([]);
+  const [tabs, setTabs] = useState<ITab[]>([]);
   const [activeTab, setActiveTab] = useState<string | null>(null);
-  const [room, setRoom] = useState<string | null>(null);
+  const [room, setRoom] = useState<ITab | null>(null);
+  const [prevRoom, setPrevRoom] = useState<ITab | null>(null);
   const socket: Socket = useContext(SocketContext);
   const navigate = useNavigate();
   let listKey = 0;
@@ -102,8 +103,15 @@ const Chatwindow: React.FC<{ $display: boolean, z?: number }> = ({
   const msgField: any = useRef<HTMLCanvasElement | null>(null);
   const roomRef: any = useRef<typeof Popup | null>(null);
 
+  socket.on("connect", () => {
+    console.log("connect");
+    socket.emit("contact", { user: user, type: 0, id: 0, title: "" });
+  });
+  socket.on("disconnect", () => {
+    socket.emit("layoff", user.name);
+  });
   socket.on("message", (res: IMessage) => setMessages([...messages, res]));
-  socket.on("invite", (res: string[]) => setTabs(res));
+  socket.on("invite", (res: ITab[]) => setTabs(res));
   socket.on("game", (body: IGameStart) => {
     navigate(`/play/${body.gameId}/${body.side}`);
   });
@@ -118,15 +126,21 @@ const Chatwindow: React.FC<{ $display: boolean, z?: number }> = ({
         }
         return response.json();
       })
-      .then((res: string[]) => setTabs(res))
-      .catch((error) => console.error(error));
-    setRoom(tabs[tabs.length - 1]);
+      .then((res: ITab[]) => setTabs(res))
+      .catch((error) => console.log(error));
+    if (tabs.length > 0) setRoom(tabs[tabs.length - 1]);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     socket.emit(
       "join",
-      { user: user, type: EChannelType.PUBLIC, title: room },
+      {
+        user: user,
+        type: 0,
+        id: room?.id,
+        title: room?.title,
+        prev: prevRoom?.id,
+      },
       (res: IMessage[]) => setMessages(res),
     );
   }, [room]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -143,18 +157,19 @@ const Chatwindow: React.FC<{ $display: boolean, z?: number }> = ({
 
   useEffect(() => {
     setTabs(tabs);
-    setActive(tabs[tabs.length - 1]);
+    if (tabs.length > 0) setActive(tabs[tabs.length - 1]);
   }, [tabs]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function send(event: React.MouseEvent | React.KeyboardEvent) {
     event.preventDefault();
     if (input.trim() !== "" && user !== undefined)
-      socket.emit("message", { user, input, room });
+      socket.emit("message", { user, input, room: room?.id });
     setInput("");
   }
 
-  const setActive = (tab: string) => {
-    setActiveTab(tab);
+  const setActive = (tab: ITab) => {
+    setActiveTab(tab.title);
+    setPrevRoom(room);
     setRoom(tab);
   };
 
@@ -180,10 +195,10 @@ const Chatwindow: React.FC<{ $display: boolean, z?: number }> = ({
             return (
               <StyledLi
                 onClick={() => setActive(tab)}
-                key={tab}
-                $active={tab === activeTab ? "true" : "false"}
+                key={tab.title}
+                $active={tab.title === activeTab ? "true" : "false"}
               >
-                {tab}
+                {tab.title}
               </StyledLi>
             );
           })}
@@ -202,10 +217,10 @@ const Chatwindow: React.FC<{ $display: boolean, z?: number }> = ({
               ).catch(err=>console.error(err));
               setTabs(
                 tabs.filter(function (e) {
-                  return e !== activeTab;
+                  return e.title !== activeTab;
                 }),
               );
-              setActive(tabs[tabs.length - 1]);
+              if (tabs.length > 0) setActive(tabs[tabs.length - 1]);
             }}
             $position="absolute"
             $top="35px"

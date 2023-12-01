@@ -65,7 +65,7 @@ export class ChatService extends ChatServiceBase {
       const blockNames: string[] = blocking.map((u) => {
         return u.intraname;
       })
-      server.to(data.room).emit('message', {message: mess, block: blockNames });
+      server.to(data.room.toString()).emit('message', {message: mess, block: blockNames });
       await this.chatDao.saveMessageToChannel(data);
     } catch (error) {
       console.log(`SYSTEM: ${error.message.split('\n')[0]}`);
@@ -86,7 +86,7 @@ export class ChatService extends ChatServiceBase {
           'invite',
           await this.chatDao.getRawUserChannels(this.getUser(name).user.id),
         );
-      server.to(data.room).emit(`${name}: got added`);
+      server.to(data.room.toString()).emit(`${name}: got added`);
     } catch (error) {
       console.log(`SYSTEM: ${error.message.split('\n')[0]}`);
     }
@@ -150,7 +150,7 @@ export class ChatService extends ChatServiceBase {
           'invite',
           await this.chatDao.getRawUserChannels(this.getUser(name).user.id),
         );
-      server.to(data.room).emit(`${name}: got kicked`);
+      server.to(data.room.toString()).emit(`${name}: got kicked`);
     } catch (error) {
       console.log(`SYSTEM: ${error.message.split('\n')[0]}`);
     }
