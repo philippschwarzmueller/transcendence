@@ -2,12 +2,35 @@ import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { User } from './user.entity';
+import { Channels } from 'src/chat/chat.entity';
+import { Game } from 'src/games/game.entity';
 
 export enum FriendState {
   noFriend,
   requestedFriend,
   pendingFriend,
   friend,
+}
+
+export interface PublicUser {
+  owned: Channels[];
+  channels: Channels[];
+  id?: number | undefined;
+  name: string | undefined;
+  intraname: string | undefined;
+  twoFAenabled: boolean;
+  profilePictureUrl: string | undefined;
+  activeChats: string[];
+  customAvatar?: string | undefined;
+  hasCustomAvatar?: boolean;
+  blocked: PublicUser[];
+  blocking: PublicUser[];
+  friend_requested: PublicUser[];
+  friend_requests_received: PublicUser[];
+  friends: PublicUser[];
+  wonGames: Game[];
+  lostGames: Game[];
+  elo: number[];
 }
 
 @Injectable()
@@ -19,8 +42,9 @@ export class UsersService {
     private dataSource: DataSource,
   ) {}
 
-  findAll(): Promise<User[]> {
-    return this.usersRepository.find();
+  async findAll(): Promise<User[]> {
+    const users: User[] = await this.usersRepository.find();
+    return users;
   }
 
   async findOneByName(userId: string): Promise<User> {
@@ -44,7 +68,54 @@ export class UsersService {
       throw new Error('User not found');
     }
   }
-  
+
+  public createPublicUser(user: User): PublicUser {
+    const publicUser: PublicUser = {
+      id: user.id,
+      name: user.name,
+      intraname: user.intraname,
+      twoFAenabled: user.twoFAenabled,
+      profilePictureUrl: user.profilePictureUrl,
+      activeChats: user.activeChats,
+      customAvatar: user.customAvatar,
+      hasCustomAvatar: user.hasCustomAvatar,
+      owned: user.owned,
+      channels: user.channels,
+      blocked:
+        user.blocked && user.blocked.length > 0
+          ? this.createPublicUserArray(user.blocked)
+          : [],
+      blocking:
+        user.blocking && user.blocking.length > 0
+          ? this.createPublicUserArray(user.blocking)
+          : [],
+      friend_requested:
+        user.friend_requested && user.friend_requested.length > 0
+          ? this.createPublicUserArray(user.friend_requested)
+          : [],
+      friend_requests_received:
+        user.friend_requests_received &&
+        user.friend_requests_received.length > 0
+          ? this.createPublicUserArray(user.friend_requests_received)
+          : [],
+      friends:
+        user.friends && user.friends.length > 0
+          ? this.createPublicUserArray(user.friends)
+          : [],
+      wonGames: user.wonGames,
+      lostGames: user.lostGames,
+      elo: user.elo,
+    };
+    return publicUser;
+  }
+
+  public createPublicUserArray(users: User[]): PublicUser[] {
+    const publicUsers: PublicUser[] = users.map((user) => {
+      return this.createPublicUser(user);
+    });
+    return publicUsers;
+  }
+
   async getBlockList(userId: string): Promise<User[]> {
     return (
       await this.usersRepository.findOne({
@@ -124,7 +195,10 @@ export class UsersService {
     return res[0].is_blocked;
   }
 
-  async removeFromBlockList(userId: string, blockedId: string): Promise<boolean> {
+  async removeFromBlockList(
+    userId: string,
+    blockedId: string,
+  ): Promise<boolean> {
     const user: User = await this.findOneByIntraName(userId);
     const blocked: User = await this.findOneByIntraName(blockedId);
     const queryRunner = this.dataSource.createQueryRunner();

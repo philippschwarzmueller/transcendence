@@ -127,6 +127,7 @@ export class User {
     },
   })
   friends: User[];
+  
   @OneToMany(() => Game, (game) => game.winner)
   wonGames: Game[];
 
