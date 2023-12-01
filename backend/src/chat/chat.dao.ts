@@ -178,45 +178,40 @@ export class ChatDAO {
     return res;
   }
 
-  public async promoteUser(title: string, user: string) {
+  public async promoteUser(channel: number, user: string) {
     const userId: number = (await this.userService.findOneByName(user)).id;
-    const channel: number = (await this.getChannelByTitle(title)).id;
     const queryRunner = this.dataSource.createQueryRunner();
     queryRunner.connect();
-    const res: test[]  =  await queryRunner.manager.query(
+    await queryRunner.manager.query(
       `INSERT INTO channel_administration (channel, "user")
         VALUES (${channel}, ${userId})
         ON CONFLICT (channel, "user") DO NOTHING;`,
     );
     queryRunner.release();
-    return res;
   }
 
-  public async demoteUser(title: string, user: string) {
+  public async demoteUser(channel: number, user: string) {
     const userId: number = (await this.userService.findOneByName(user)).id;
-    const channel: number = (await this.getChannelByTitle(title)).id;
     const queryRunner = this.dataSource.createQueryRunner();
     queryRunner.connect();
-    const res: test[]  =  await queryRunner.manager.query(
+    await queryRunner.manager.query(
       `DELETE FROM channel_administration
       WHERE channel = ${channel} AND user = ${userId}`,
     );
     queryRunner.release();
-    return res;
   }
 
-  public async getAdmin(channel: string, user: string): Promise<number> {
+  public async getAdmin(channel: number, user: string): Promise<number> {
     return (
       (await this.channelRepo.findOne({
-        where: { title: channel },
+        where: { id: channel },
         relations: ['admins'],
       })).admins.filter((a) => a.name === user).length
     );
   }
 
-  public async muteUser(title: string, user: string, time: number) {
+  public async muteUser(channel: number, user: string, time: number) {
     const userId: number = (await this.userService.findOneByName(user)).id;
-    const channel: number = (await this.getChannelByTitle(title)).id;
     const queryRunner = this.dataSource.createQueryRunner();
     queryRunner.connect();
     await queryRunner.manager.query(
@@ -228,9 +223,8 @@ export class ChatDAO {
     queryRunner.release();
   }
 
-  public async getMute(title: string, user: string): Promise<boolean> {
+  public async getMute(channel: number, user: string): Promise<boolean> {
     const userId: number = (await this.userService.findOneByName(user)).id;
-    const channel: number = (await this.getChannelByTitle(title)).id;
     const queryRunner = this.dataSource.createQueryRunner();
     const current = new Date();
     queryRunner.connect();

@@ -53,9 +53,6 @@ export enum FriendState {
   friend,
 }
 
-
-
-
 const ContextMenu: React.FC<IContextMenu> = ({
   display,
   user,
