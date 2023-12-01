@@ -113,11 +113,8 @@ export class ChatDAO {
       .getMany();
   }
 
-  public async getAllChannels(): Promise<number[]> {
-    const res: Channels[] = await this.channelRepo.find();
-    return res.map((item) => {
-      return item.id;
-    });
+  public async getAllChannels(): Promise<Channels[]> {
+    return await this.channelRepo.find();
   }
 
   public async getTitle(channel: Channels, userId: number): Promise<string> {

@@ -15,7 +15,7 @@ import {
   IQueuePayload,
 } from '../games/properties';
 
-import { EChannelType, IChannel, IMessage, ITab, ISendMessage } from '../chat/properties';
+import { EChannelType, IChannel, IMessage, ITab, ISendMessage, IUser } from '../chat/properties';
 import { Socket, Server } from 'socket.io';
 import { GamesService } from '../games/games.service';
 import { ChatService } from 'src/chat/chat.service';
@@ -47,6 +47,10 @@ export class WSocketGateway implements OnGatewayInit {
     console.log('hello');
   }
 
+  @SubscribeMessage('channel')
+  async getChannels(@MessageBody() user: IUser): Promise<IChannel[]> {
+    return await this.chatService.getChannelList(user);
+  }
   @SubscribeMessage('contact')
   initConnect(
     @MessageBody() data: IChannel,

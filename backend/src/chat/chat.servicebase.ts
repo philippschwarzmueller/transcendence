@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
-import { IChannel, ISendMessage, ITab } from './properties';
+import { IChannel, ISendMessage, ITab, IUser } from './properties';
 import { ChatDAO } from './chat.dao';
 import { Socket, Server } from 'socket.io';
 import { IGameUser } from 'src/games/properties';
@@ -23,10 +23,20 @@ export class ChatServiceBase {
   private async initializeMap(): Promise<void> {
     const list = await this.chatDao.getAllChannels();
     list.forEach((item) => {
-      this.activeClients.set(item, []);
+      this.activeClients.set(item.id, []);
     });
   }
 
+  public async getChannelList(user: IUser): Promise<IChannel[]>{
+    const list = await this.chatDao.getAllChannels();
+    return list.map((l) => { return {
+      user: user, 
+      type: l.type,
+      id: l.type,
+      title: l.title,
+      prev: l.id,
+    }})
+  }
   public updateActiveClients(data: IChannel, client: Socket) {
     if (!data.user || !data.user.name) return;
     for (const [key, value] of this.activeClients) {
