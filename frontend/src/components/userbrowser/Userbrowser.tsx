@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { styled } from "styled-components";
 import { IUser } from "../../context/auth";
+import { ProfileContext } from "../../context/profile";
 import Moveablewindow from "../moveablewindow";
 import Playercard from "../playercard";
 
@@ -44,6 +45,7 @@ const Userbrowser: React.FC<{ $display: boolean; z?: number }> = ({
   z,
 }) => {
   const [users, setUsers] = useState<IUser[]>([]);
+  const profile = useContext(ProfileContext);
 
   useEffect(() => {
     fetch(`http://${window.location.hostname}:4000/users`, {
@@ -57,7 +59,7 @@ const Userbrowser: React.FC<{ $display: boolean; z?: number }> = ({
       })
       .then((res: IUser[]) => setUsers(res))
       .catch((err) => console.error(err));
-  }, [$display]);
+  }, [$display, profile]);
 
   return (
     <>
