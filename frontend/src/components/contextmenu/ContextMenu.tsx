@@ -127,6 +127,36 @@ const ContextMenu: React.FC<IContextMenu> = ({
     }
   };
 
+  const handleFriendDeny = async (friend: string | undefined) => {
+    if (friend !== undefined) {
+      try {
+        const res = await fetch(`${BACKEND}/users/deny-friend-request`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({ friend }),
+        });
+
+        if (!res.ok) {
+          throw new Error("Network response was not ok");
+        }
+
+        const success: boolean = await res.json();
+        if (success) {
+          setFriendState(FriendState.friend);
+          if (triggerReload) triggerReload();
+          refreshContextMenu();
+        } else {
+          alert("An Error occured, please reload the page to update data");
+        }
+      } catch (error) {
+        console.error("Error denying friend request:", error);
+      }
+    }
+  };
+
   const handleFriendRemove = async (friend: string | undefined) => {
     displayswitch();
     if (friend !== undefined) {
@@ -248,9 +278,15 @@ const ContextMenu: React.FC<IContextMenu> = ({
       <StyledUl $display={display} onMouseLeave={() => displayswitch()}>
         {/* PENDING FRIEND */}
         {friendState === FriendState.pendingFriend && !isBlocked && (
+          <>
           <OptionLi onClick={() => handleFriendAccept(user.name)}>
             👥 Accept friend request
           </OptionLi>
+          <LineLi />
+          <OptionLi onClick={() => handleFriendDeny(user.name)}>
+            💩 Deny friend request
+          </OptionLi>
+          </>
         )}
         {friendState === FriendState.pendingFriend && !isBlocked && <LineLi />}
         {/* NO FRIEND */}

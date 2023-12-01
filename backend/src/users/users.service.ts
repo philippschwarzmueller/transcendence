@@ -323,6 +323,35 @@ export class UsersService {
     return true;
   }
 
+  async denyFriendRequest(user: User, friend: User): Promise<boolean> {
+    const receiver: User = await this.usersRepository.findOne({
+      where: { name: user.name },
+      relations: ['friend_requests_received', 'friend_requested'],
+    });
+
+    const sender: User = await this.usersRepository.findOne({
+      where: { name: friend.name },
+      relations: ['friend_requested', 'friend_requests_received'],
+    });
+
+    const friendState: FriendState = await this.getFriendState(
+      receiver.name,
+      sender.name,
+    );
+
+    if (friendState !== FriendState.pendingFriend || receiver.name === sender.name){
+      return false;
+    }
+
+    receiver.friend_requests_received = receiver.friend_requests_received.filter(req => req.name !== sender.name);
+    sender.friend_requested = sender.friend_requested.filter(req => req.name !== receiver.name);
+
+    await this.usersRepository.save(receiver);
+    await this.usersRepository.save(sender);
+
+    return true;
+  }
+
   async removeFriend(user: User, friend: User): Promise<boolean> {
     const remover: User = await this.usersRepository.findOne({
       where: { name: user.name },
