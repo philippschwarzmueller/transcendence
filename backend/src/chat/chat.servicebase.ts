@@ -58,7 +58,6 @@ export class ChatServiceBase {
 
   public async getChats(userId: string): Promise<ITab[]> {
     let res: ITab[] = [];
-
     try {
       const user = await this.userService.findOneByName(userId);
       res = await this.chatDao.getRawUserChannels(user.id);
@@ -73,7 +72,6 @@ export class ChatServiceBase {
     try {
       const user = await this.userService.findOneByName(chat.user.name);
       await this.chatDao.saveChannel(chat, chat.user.name);
-      console.log(chat);
       return await this.chatDao.getRawUserChannels(user.id);
     } catch (error) {
       console.log(`SYSTEM: ${error.message.split('\n')[0]}`);
@@ -125,7 +123,8 @@ export class ChatServiceBase {
       const blockNames: string[] = blocking.map((u) => {
         return u.intraname;
       })
-      client.leave(data.prev.toString());
+      if (data.prev)
+        client.leave(data.prev.toString());
       client.join(channel.id.toString());
       server
         .to(channel.id.toString())

@@ -143,7 +143,7 @@ const Chatwindow: React.FC<{ $display: boolean, z?: number }> = ({
       },
       (res: IMessage[]) => setMessages(res),
     );
-  }, [room, prevRoom]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [room]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(
     () =>
