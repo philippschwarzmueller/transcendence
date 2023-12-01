@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
-import { IMessage } from './properties';
+import { EChannelType, IMessage } from './properties';
 import { ChatDAO } from './chat.dao';
 import { Server } from 'socket.io';
 import { IGameUser } from 'src/games/properties';
@@ -125,9 +125,10 @@ export class ChatService extends ChatServiceBase {
       if (val.length === 3 && isNaN(Number(val[2])) !== true)
         time = Number(val[2]);
       const owner = await this.chatDao.getChannelOwner(data.room);
-      if (owner.name !== data.user.name 
-        && (await this.chatDao.getAdmin(data.room, data.user.name)) === 0
-        && owner.name !== val[1])
+      if ((owner.name !== data.user.name 
+        && (await this.chatDao.getAdmin(data.room, data.user.name)) === 0)
+        || owner.name === val[1]
+        || (await this.chatDao.getChannel(data.room)).type === EChannelType.CHAT)
         return;
       await this.chatDao.muteUser(data.room, val[1], time);
     } catch (error) {
@@ -139,9 +140,10 @@ export class ChatService extends ChatServiceBase {
     try {
       const name = data.input.substring(data.input.indexOf(' ') + 1);
       const owner = await this.chatDao.getChannelOwner(data.room);
-      if (owner.name !== data.user.name 
-        && (await this.chatDao.getAdmin(data.room, data.user.name)) === 0
-        && owner.name !== name)
+      if ((owner.name !== data.user.name 
+        && (await this.chatDao.getAdmin(data.room, data.user.name)) === 0)
+        || owner.name === name
+        || (await this.chatDao.getChannel(data.room)).type === EChannelType.CHAT)
         return;
       await this.chatDao.removeUserFromChannel(data.room, name);
       server

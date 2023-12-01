@@ -227,7 +227,7 @@ export class ChatDAO {
     const res  =  await queryRunner.manager.query( 
       `SELECT time, timestamp
         FROM muted
-        WHERE "user" = ${userId} AND "channel = ${channel};`
+        WHERE "user" = ${userId} AND "channel" = ${channel};`
     );
     queryRunner.release();
     if (res.length === 0)

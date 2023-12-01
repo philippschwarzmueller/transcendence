@@ -92,7 +92,7 @@ function Popup(
 
   useEffect(() => {
     socket.emit("channel", user, (res: IChannel[]) => setChannel(res));
-  }, [channel]);
+  }, []);
 
   function openRoom(event: React.MouseEvent) {
     event.preventDefault();
