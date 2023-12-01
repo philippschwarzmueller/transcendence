@@ -241,15 +241,6 @@ const Taskbar: React.FC = () => {
             />
             Users
           </StyledLi>
-          <StyledLi>
-            <img
-              src={require("../../images/block.png")}
-              height="16"
-              width="16"
-              alt="block"
-            />
-            Blocklist
-          </StyledLi>
           <StyledLi
             onClick={() => {
               setDisplayFriends(!displayFriends);
