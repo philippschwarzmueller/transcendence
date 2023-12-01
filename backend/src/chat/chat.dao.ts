@@ -3,13 +3,14 @@ import { User } from 'src/users/user.entity';
 import { DataSource, Repository } from 'typeorm';
 import { Injectable, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DMessage, EChannelType, IChannel, IMessage, ITab } from './properties';
+import { EChannelType, IChannel, IMessage, ITab } from './properties';
 import { UsersService } from 'src/users/users.service';
 
-interface test {
+interface DMessage {
   content: string;
   sender: string;
 }
+
 @Injectable()
 export class ChatDAO {
   constructor(
@@ -157,11 +158,11 @@ export class ChatDAO {
     ).owner;
   }
 
-  public async getMessagesFiltert(channelId: number, user: string): Promise<test[]> {
+  public async getMessagesFiltert(channelId: number, user: string): Promise<DMessage[]> {
     const userId: number = (await this.userService.findOneByName(user)).id;
     const queryRunner = this.dataSource.createQueryRunner();
     queryRunner.connect();
-    const res: test[]  =  await queryRunner.manager.query(
+    const res: DMessage[]  =  await queryRunner.manager.query(
       `SELECT messages.content, users.name as sender
       FROM messages
       LEFT JOIN users ON messages.sender = users.id

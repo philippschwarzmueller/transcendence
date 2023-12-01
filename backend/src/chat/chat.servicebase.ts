@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
-import { EChannelType, IChannel, ISendMessage, ITab } from './properties';
+import { IChannel, ISendMessage, ITab } from './properties';
 import { ChatDAO } from './chat.dao';
 import { Socket, Server } from 'socket.io';
 import { IGameUser } from 'src/games/properties';
@@ -131,7 +131,7 @@ export class ChatServiceBase {
         .emit('message', {message: mess, block: blockNames});
       res = await this.chatDao.getRawChannelMessages(channel.id, data.user.name);
     } catch (error) {
-      console.log(`SYSTEM: ${error.message.split('\n')[0]}`);
+      (`SYSTEM: ${error.message.split('\n')[0]}`);
     }
     return res.map((m) => {
       return { message: m, block: []};

@@ -1,8 +1,8 @@
 import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { BACKEND } from "../../routes/SetUser";
-import { AuthContext, IUser, IAuthContext } from "../../context/auth";
+import { AuthContext, IUser } from "../../context/auth";
 import { EChannelType, IChannel } from "../chatwindow/properties";
 import { SocketContext } from "../../context/socket";
 import { ProfileContext } from "../../context/profile";
@@ -82,7 +82,6 @@ const ContextMenu: React.FC<IContextMenu> = ({
       title: user.name,
     };
     socket.emit("create", body);
-    navigate("/chat");
   }
 
   const blockProfile = (method: string) => {
@@ -248,7 +247,7 @@ const ContextMenu: React.FC<IContextMenu> = ({
         )}
         {friendState === FriendState.pendingFriend  && !isBlocked && <LineLi />}
         {/* NO FRIEND */}
-        {friendState === FriendState.noFriend && !ownProfile && (
+        {friendState === FriendState.noFriend && !isBlocked &&!ownProfile && (
           <OptionLi onClick={() => handleFriendAdd(user.name)}>
             👨‍❤️‍💋‍👨 Add as friend
           </OptionLi>

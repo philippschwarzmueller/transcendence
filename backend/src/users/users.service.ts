@@ -55,7 +55,6 @@ export class UsersService {
   }
 
   async getBlocking(userId: string): Promise<User[]> {
-    console.log(userId)
     return (
       await this.usersRepository.findOne({
         where: { name: userId },
@@ -134,14 +133,6 @@ export class UsersService {
       `DELETE FROM block_list
       WHERE blocking = ${user.id} AND blocked = ${blocked.id}`,
     );
-    await queryRunner.manager.query(
-      `DELETE FROM friends 
-      WHERE blocking = ${user.id} AND blocked = ${blocked.id}`,
-    );
-    await queryRunner.manager.query(
-      `DELETE FROM friends 
-      WHERE blocking = ${blocked.id} AND blocked = ${user.id}`,
-    );
     queryRunner.release();
     return false;
   }
@@ -155,6 +146,14 @@ export class UsersService {
       `INSERT INTO block_list (blocking, "blocked")
         VALUES (${user.id}, ${block.id})
         ON CONFLICT (blocking, "blocked") DO NOTHING;`,
+    );
+    await queryRunner.manager.query(
+      `DELETE FROM friends 
+      WHERE user_id = ${user.id} AND friend_id = ${block.id}`,
+    );
+    await queryRunner.manager.query(
+      `DELETE FROM friends 
+      WHERE user_id = ${block.id} AND friend_id = ${user.id}`,
     );
     queryRunner.release();
     return true;

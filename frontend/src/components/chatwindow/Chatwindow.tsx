@@ -9,7 +9,7 @@ import { AuthContext, IUser } from "../../context/auth";
 import Popup from "../popup/Popup";
 import { IGameStart } from "../gamewindow/properties";
 import { useNavigate } from "react-router-dom";
-import { EChannelType, IMessage, ITab } from "./properties";
+import { IMessage, ITab } from "./properties";
 
 const Msgfield = styled.div`
   width: 320px;

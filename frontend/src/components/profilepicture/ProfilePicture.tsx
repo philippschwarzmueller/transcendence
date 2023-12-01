@@ -51,7 +51,7 @@ const ProfilePicture: React.FC<IProfilePicture> = ({ name }) => {
   }, [name]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div></div>;
   }
   return (
     <StyledFrame>

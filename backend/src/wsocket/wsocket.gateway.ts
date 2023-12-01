@@ -12,10 +12,7 @@ import {
   IFinishedGame,
   IGame,
   IGameSocketPayload,
-  IGameUser,
-  IGameUserAuth,
   IQueuePayload,
-  IUser,
 } from '../games/properties';
 
 import { EChannelType, IChannel, IMessage, ITab, ISendMessage } from '../chat/properties';
