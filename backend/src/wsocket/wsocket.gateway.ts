@@ -42,11 +42,6 @@ export class WSocketGateway implements OnGatewayInit {
   @WebSocketServer()
   server: Server;
 
-  @SubscribeMessage('connect')
-  con() {
-    console.log('hello');
-  }
-
   @SubscribeMessage('channel')
   async getChannels(@MessageBody() user: IUser): Promise<IChannel[]> {
     return await this.chatService.getChannelList(user);
@@ -56,7 +51,6 @@ export class WSocketGateway implements OnGatewayInit {
     @MessageBody() data: IChannel,
     @ConnectedSocket() client: Socket,
   ) {
-    console.log(data);
     this.chatService.updateActiveClients(data, client);
   }
 

@@ -61,7 +61,6 @@ export class ChatDAO {
     const channel: Channels = await this.getChannel(id);
     if (channel.type === EChannelType.CHAT && channel.users.length === 2)
       return;
-    console.log('user kommt bis hier');
     const newUser: User = await this.userService.findOneByName(user);
     const queryRunner = this.dataSource.createQueryRunner();
     queryRunner.connect();
