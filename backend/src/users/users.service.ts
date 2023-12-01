@@ -339,12 +339,20 @@ export class UsersService {
       sender.name,
     );
 
-    if (friendState !== FriendState.pendingFriend || receiver.name === sender.name){
+    if (
+      friendState !== FriendState.pendingFriend ||
+      receiver.name === sender.name
+    ) {
       return false;
     }
 
-    receiver.friend_requests_received = receiver.friend_requests_received.filter(req => req.name !== sender.name);
-    sender.friend_requested = sender.friend_requested.filter(req => req.name !== receiver.name);
+    receiver.friend_requests_received =
+      receiver.friend_requests_received.filter(
+        (req) => req.name !== sender.name,
+      );
+    sender.friend_requested = sender.friend_requested.filter(
+      (req) => req.name !== receiver.name,
+    );
 
     await this.usersRepository.save(receiver);
     await this.usersRepository.save(sender);
