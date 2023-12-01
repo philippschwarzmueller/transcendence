@@ -233,6 +233,7 @@ const Chatwindow: React.FC<{ $display: boolean, z?: number }> = ({
             {messages.map((mes) => {
               if (mes.block.filter((m) => m === user.intraname).length === 0)
                 return <li key={listKey++}>{mes.message}</li>;
+              return <></>; //maybe lint fix
             })}
           </StyledUl>
         </Textfield>
