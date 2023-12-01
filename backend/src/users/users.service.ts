@@ -81,13 +81,27 @@ export class UsersService {
       hasCustomAvatar: user.hasCustomAvatar,
       owned: user.owned,
       channels: user.channels,
-      blocked: this.createPublicUserArray(user.blocked),
-      blocking: this.createPublicUserArray(user.blocking),
-      friend_requested: this.createPublicUserArray(user.friend_requested),
-      friend_requests_received: this.createPublicUserArray(
-        user.friend_requests_received,
-      ),
-      friends: this.createPublicUserArray(user.friends),
+      blocked:
+        user.blocked && user.blocked.length > 0
+          ? this.createPublicUserArray(user.blocked)
+          : [],
+      blocking:
+        user.blocking && user.blocking.length > 0
+          ? this.createPublicUserArray(user.blocking)
+          : [],
+      friend_requested:
+        user.friend_requested && user.friend_requested.length > 0
+          ? this.createPublicUserArray(user.friend_requested)
+          : [],
+      friend_requests_received:
+        user.friend_requests_received &&
+        user.friend_requests_received.length > 0
+          ? this.createPublicUserArray(user.friend_requests_received)
+          : [],
+      friends:
+        user.friends && user.friends.length > 0
+          ? this.createPublicUserArray(user.friends)
+          : [],
       wonGames: user.wonGames,
       lostGames: user.lostGames,
       elo: user.elo,
