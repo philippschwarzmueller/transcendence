@@ -57,6 +57,22 @@ export class ChatDAO {
     });
   }
 
+  public async checkForChat(user: number, user2: number): Promise<number> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    queryRunner.connect();
+    const res = await queryRunner.manager.query(
+      `SELECT c.id AS channel_id
+      FROM channels c
+      LEFT JOIN channel_subscription cs ON c.id = cs.channel
+      WHERE cs.user IN (${user}, ${user2})
+        AND c.type = ${EChannelType.CHAT}
+      GROUP BY c.id
+      HAVING COUNT(DISTINCT cs.user) = 2;`
+    );
+    queryRunner.release();
+    return res.length;
+  }
+
   public async addUserToChannel(id: number, user: string): Promise<void> {
     const channel: Channels = await this.getChannel(id);
     if (channel.type === EChannelType.CHAT && channel.users.length === 2)
