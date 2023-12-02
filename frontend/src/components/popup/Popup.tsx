@@ -12,8 +12,6 @@ import Input from "../input/Input";
 import styled from "styled-components";
 import { IUser } from "../../context/auth";
 import { SocketContext } from "../../context/socket";
-import Button from "../button/Button";
-import Userbrowser from "../userbrowser/Userbrowser";
 import { EChannelType, IChannel, ITab } from "../chatwindow/properties";
 
 const InputField = styled.div<{
@@ -79,7 +77,6 @@ function Popup(
   const [display, setDisplay] = useState<boolean>(false);
   const [positionX, setPositionX] = useState<number>(0);
   const [positionY, setPositionY] = useState<number>(0);
-  const [visable, setVisable] = useState<boolean>(false);
   const [channel, setChannel] = useState<IChannel[]>([]);
   const [channelType, setChanneltype] = useState<EChannelType>(
     EChannelType.PUBLIC,
@@ -102,31 +99,25 @@ function Popup(
   }
 
   function openChannel(data: IChannel) {
-    socket.emit(
-      "create",
-      data,
-      (res: ITab[]) => setTabs(res),
-    );
+    socket.emit("create", data, (res: ITab[]) => setTabs(res));
     setDisplay(false);
     setInput("");
   }
 
   return (
     <>
-      <Userbrowser
-        $display={visable}
-        ></Userbrowser>
       <InputField $display={display} $posX={positionX} $posY={positionY}>
         {children}
         {channel.map((ch) => {
           return (
             <StyledDiv key={key++} onClick={() => openChannel(ch)}>
               <p>
-              {ch.type === EChannelType.PRIVATE && "private " }
-              {ch.type === EChannelType.PUBLIC && "public " }
-              {ch.title} </p>
+                {ch.type === EChannelType.PRIVATE && "private "}
+                {ch.type === EChannelType.PUBLIC && "public "}
+                {ch.title}{" "}
+              </p>
             </StyledDiv>
-          )
+          );
         })}
         <Input
           id="room"
@@ -136,12 +127,15 @@ function Popup(
           onChange={(e) => setInput(e.target.value)}
           onKeyUp={(e: React.KeyboardEvent) => {
             if (e.key === "Enter") {
-              openChannel({ user: user, type: channelType, id: 0, title: input });
+              openChannel({
+                user: user,
+                type: channelType,
+                id: 0,
+                title: input,
+              });
             }
           }}
         ></Input>
-        <Button onClick={() => setVisable(!visable)}
-          >User Chat</Button>
         <form>
           <label>
             <input
