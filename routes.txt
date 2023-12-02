@@ -1,0 +1,6 @@
+PUT users/block?blocking=<blocking>&blocked=<blocked>
+POST users/block?blocking=<user>&blocked=<blocked>
+DELETE users/block?blocking=<user>&blocked=<blocked>
+
+POST users/back-to-fallback-profilepicture
+POST users/back-to-fallback-profilepicture

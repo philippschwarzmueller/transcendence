@@ -239,6 +239,9 @@ export class UsersService {
   async getFriendRequestList(req: Request): Promise<User[]> {
     const token: string = req.cookies.token;
     const user: User | null = await this.exchangeTokenforUser(token);
+    if (!user) {
+      return null;
+    }
     return (
       await this.usersRepository.findOne({
         where: { name: user.name },
@@ -250,6 +253,9 @@ export class UsersService {
   async getReceivedFriendRequestList(req: Request): Promise<User[]> {
     const token: string = req.cookies.token;
     const user: User | null = await this.exchangeTokenforUser(token);
+    if (!user) {
+      return null;
+    }
     return (
       await this.usersRepository.findOne({
         where: { name: user.name },
@@ -299,7 +305,9 @@ export class UsersService {
   async acceptFriendRequest(req: Request, friend: string): Promise<boolean> {
     const token: string = req.cookies.token;
     const user: User | null = await this.exchangeTokenforUser(token);
-
+    if (!user) {
+      return false;
+    }
     const receiver: User = await this.usersRepository.findOne({
       where: { name: user.name },
       relations: ['friend_requests_received', 'friends', 'friend_requested'],
@@ -344,6 +352,9 @@ export class UsersService {
   async denyFriendRequest(req: Request, friend: string): Promise<boolean> {
     const token: string = req.cookies.token;
     const user: User | null = await this.exchangeTokenforUser(token);
+    if (!user) {
+      return false;
+    }
 
     const receiver: User = await this.usersRepository.findOne({
       where: { name: user.name },
@@ -384,6 +395,9 @@ export class UsersService {
   async removeFriend(req: Request, friend: string): Promise<boolean> {
     const token: string = req.cookies.token;
     const user: User | null = await this.exchangeTokenforUser(token);
+    if (!user) {
+      return false;
+    }
 
     const remover: User = await this.usersRepository.findOne({
       where: { name: user.name },
@@ -427,6 +441,9 @@ export class UsersService {
   async getFriendList(req: Request): Promise<User[]> {
     const token: string = req.cookies.token;
     const user: User | null = await this.exchangeTokenforUser(token);
+    if (!user) {
+      return null;
+    }
     return (
       await this.usersRepository.findOne({
         where: { name: user.name },
@@ -437,6 +454,10 @@ export class UsersService {
 
   async userIsFriend(req: Request, friend: string): Promise<boolean> {
     const friends: User[] = await this.getFriendList(req);
+    if (!friends) {
+      console.log('hello');
+      return false;
+    }
     const isFriend: boolean = friends.some(
       (friendUser) => friendUser.name === friend,
     );
@@ -445,6 +466,9 @@ export class UsersService {
 
   async userIsPendingFriend(req: Request, friend: string): Promise<boolean> {
     const pendingFriends: User[] = await this.getReceivedFriendRequestList(req);
+    if (!pendingFriends) {
+      return false;
+    }
     const ispendingFriend: boolean = pendingFriends.some(
       (friendUser) => friendUser.name === friend,
     );
@@ -452,8 +476,11 @@ export class UsersService {
   }
 
   async userIsRequestedFriend(req: Request, friend: string): Promise<boolean> {
-    const RequestedFriends: User[] = await this.getFriendRequestList(req);
-    const isRequestedFriend: boolean = RequestedFriends.some(
+    const requestedFriends: User[] = await this.getFriendRequestList(req);
+    if (!requestedFriends) {
+      return false;
+    }
+    const isRequestedFriend: boolean = requestedFriends.some(
       (friendUser) => friendUser.name === friend,
     );
     return isRequestedFriend;
@@ -486,6 +513,9 @@ export class UsersService {
   async changeAvatar(req: Request, avatar: string): Promise<boolean> {
     const token: string = req.cookies.token;
     const user: User | null = await this.exchangeTokenforUser(token);
+    if (!user || !req.cookies.token) {
+      return false;
+    }
     const result = await this.usersRepository.update(
       {
         name: user.name,
@@ -519,7 +549,9 @@ export class UsersService {
   async backToFallbackProfilePicture(req: Request): Promise<boolean> {
     const token: string = req.cookies.token;
     const user: User | null = await this.exchangeTokenforUser(token);
-
+    if (!user || !token) {
+      return false;
+    }
     const result: UpdateResult = await this.usersRepository.update(
       {
         name: user.name,
