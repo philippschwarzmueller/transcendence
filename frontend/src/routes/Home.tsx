@@ -10,9 +10,9 @@ import Invitepopwindow from "../components/invitepopwindow";
 const Home: React.FC = () => {
   const [challenger, setChallenger] = useState<IUser | null>(null);
   const socket = useContext(SocketContext);
-  const [user,] = useState<IUser>(useContext(AuthContext).user);
+  const [user] = useState<IUser>(useContext(AuthContext).user);
   const navigate = useNavigate();
-  socket.on('challenge', (res: IUser) => setChallenger(res));
+  socket.on("challenge", (res: IUser) => setChallenger(res));
   socket.on("gamesubmit", (body: IGameStart) => {
     navigate(`/play/${body.gameId}/${body.side}`);
   });
@@ -21,16 +21,16 @@ const Home: React.FC = () => {
     const handleBeforeUnload = () => {
       socket.emit("layoff", user.intraname);
     };
-    window.addEventListener('beforeunload', handleBeforeUnload);
-  }, []);
+    window.addEventListener("beforeunload", handleBeforeUnload);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     socket.emit("contact", { user: user, type: 0, id: 0, title: "" });
-  })
+  }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <>
-      <Invitepopwindow challenger={challenger}/>
+      <Invitepopwindow challenger={challenger} />
       <Gameicon />
       <Taskbar />
     </>
