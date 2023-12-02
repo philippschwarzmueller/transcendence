@@ -76,7 +76,7 @@ export class ChatService extends ChatServiceBase {
     try {
       const name = data.input.substring(data.input.indexOf(' ') + 1);
       const owner = await this.chatDao.getChannelOwner(data.room);
-      if (owner.name !== data.user.name 
+      if (owner.name !== data.user.name
         && (await this.chatDao.getAdmin(data.room, data.user.name)) === 0)
         return;
       await this.chatDao.addUserToChannel(data.room, name);
@@ -96,7 +96,7 @@ export class ChatService extends ChatServiceBase {
     try {
       const name = data.input.substring(data.input.indexOf(' ') + 1);
       const owner = await this.chatDao.getChannelOwner(data.room);
-      if (owner.name !== data.user.name 
+      if (owner.name !== data.user.name
         && (await this.chatDao.getAdmin(data.room, data.user.name)) === 0)
         return;
       await this.chatDao.promoteUser(data.room, name);
@@ -109,7 +109,7 @@ export class ChatService extends ChatServiceBase {
     try {
       const name = data.input.substring(data.input.indexOf(' ') + 1);
       const owner = await this.chatDao.getChannelOwner(data.room);
-      if (owner.name !== data.user.name 
+      if (owner.name !== data.user.name
         && (await this.chatDao.getAdmin(data.room, data.user.name)) === 0)
         return;
       await this.chatDao.demoteUser(data.room, name);
@@ -125,7 +125,7 @@ export class ChatService extends ChatServiceBase {
       if (val.length === 3 && isNaN(Number(val[2])) !== true)
         time = Number(val[2]);
       const owner = await this.chatDao.getChannelOwner(data.room);
-      if ((owner.name !== data.user.name 
+      if ((owner.name !== data.user.name
         && (await this.chatDao.getAdmin(data.room, data.user.name)) === 0)
         || owner.name === val[1]
         || (await this.chatDao.getChannel(data.room)).type === EChannelType.CHAT)
@@ -140,7 +140,7 @@ export class ChatService extends ChatServiceBase {
     try {
       const name = data.input.substring(data.input.indexOf(' ') + 1);
       const owner = await this.chatDao.getChannelOwner(data.room);
-      if ((owner.name !== data.user.name 
+      if ((owner.name !== data.user.name
         && (await this.chatDao.getAdmin(data.room, data.user.name)) === 0)
         || owner.name === name
         || (await this.chatDao.getChannel(data.room)).type === EChannelType.CHAT)
@@ -158,15 +158,22 @@ export class ChatService extends ChatServiceBase {
     }
   }
 
-  private gameInvite(data: IMessage, server: Server) {
+  private async gameInvite(data: IMessage, server: Server) {
     const name = data.input.substring(data.input.indexOf(' ') + 1);
     const opponent = this.getUserInChannel(name, data.room);
+    const blocking: User[] = await this.userService.getBlocking(data.user.name);
+    const blockNames: string[] = blocking.map((u) => {
+        return u.intraname;
+      })
     if (opponent) {
       server
         .to(opponent.socket.id)
         .emit(
           'message',
-          `${data.user.name} wants to play with you [type \'yes\' to accept]`,
+          {
+            message: `${data.user.name} wants to play with you [type \'yes\' to accept]`,
+            block: blockNames,
+          }
         );
       this.opponents.set(name, data.user.name);
     }

@@ -91,8 +91,9 @@ function Popup(
   }));
 
   useEffect(() => {
-    socket.emit("channel", user, (res: IChannel[]) => setChannel(res));
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    if (display === true)
+      socket.emit("channel", user, (res: IChannel[]) => setChannel(res));
+  }, [display]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function openRoom(event: React.MouseEvent) {
     event.preventDefault();
@@ -136,7 +137,8 @@ function Popup(
           onChange={(e) => setInput(e.target.value)}
           onKeyUp={(e: React.KeyboardEvent) => {
             if (e.key === "Enter") {
-              openChannel({ user: user, type: channelType, id: 0, title: input });
+              if (input.trim() !== "")
+                openChannel({ user: user, type: channelType, id: 0, title: input });
             }
           }}
         ></Input>
