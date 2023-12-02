@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import { EChannelType, IMessage } from './properties';
+import { IUser } from 'src/games/properties';
 import { ChatDAO } from './chat.dao';
 import { Server } from 'socket.io';
 import { IGameUser } from 'src/games/properties';
@@ -75,16 +76,17 @@ export class ChatService extends ChatServiceBase {
   private async addUser(data: IMessage, server: Server) {
     try {
       const name = data.input.substring(data.input.indexOf(' ') + 1);
+      const user = await this.userService.findOneByName(name);
       const owner = await this.chatDao.getChannelOwner(data.room);
       if (owner.name !== data.user.name
         && (await this.chatDao.getAdmin(data.room, data.user.name)) === 0)
         return;
       await this.chatDao.addUserToChannel(data.room, name);
       server
-        .to(this.getUser(name).socket.id)
+        .to(this.getUser(user.intraname).socket.id)
         .emit(
           'invite',
-          await this.chatDao.getRawUserChannels(this.getUser(name).user.id),
+          await this.chatDao.getRawUserChannels(this.getUser(user.intraname).user.id),
         );
       server.to(data.room.toString()).emit(`${name}: got added`);
     } catch (error) {
@@ -139,6 +141,7 @@ export class ChatService extends ChatServiceBase {
   private async kickUser(data: IMessage, server: Server) {
     try {
       const name = data.input.substring(data.input.indexOf(' ') + 1);
+      const user = await this.userService.findOneByName(name);
       const owner = await this.chatDao.getChannelOwner(data.room);
       if ((owner.name !== data.user.name
         && (await this.chatDao.getAdmin(data.room, data.user.name)) === 0)
@@ -147,10 +150,10 @@ export class ChatService extends ChatServiceBase {
         return;
       await this.chatDao.removeUserFromChannel(data.room, name);
       server
-        .to(this.getUser(name).socket.id)
+        .to(this.getUser(user.intraname).socket.id)
         .emit(
           'invite',
-          await this.chatDao.getRawUserChannels(this.getUser(name).user.id),
+          await this.chatDao.getRawUserChannels(this.getUser(user.intraname).user.id),
         );
       server.to(data.room.toString()).emit(`${name}: got kicked`);
     } catch (error) {
@@ -160,7 +163,8 @@ export class ChatService extends ChatServiceBase {
 
   private async gameInvite(data: IMessage, server: Server) {
     const name = data.input.substring(data.input.indexOf(' ') + 1);
-    const opponent = this.getUserInChannel(name, data.room);
+    const user = await this.userService.findOneByName(name);
+    const opponent = this.getUserInChannel(user.intraname, data.room);
     const blocking: User[] = await this.userService.getBlocking(data.user.name);
     const blockNames: string[] = blocking.map((u) => {
         return u.intraname;
@@ -184,9 +188,9 @@ export class ChatService extends ChatServiceBase {
     server: Server,
     gameServ: GamesService,
   ) {
-    const user: IGameUser = this.getUserInChannel(data.user.name, data.room);
+    const user: IGameUser = this.getUserInChannel(data.user.intraname, data.room);
     const opponent: IGameUser = this.getUserInChannel(
-      this.opponents.get(data.user.name),
+      this.opponents.get(data.user.intraname),
       data.room,
     );
     if (opponent && data.input === 'yes') {
@@ -200,6 +204,35 @@ export class ChatService extends ChatServiceBase {
         .to(opponent.socket.id)
         .emit('message', `${user.user.name} declined`);
     }
-    this.opponents.delete(data.user.name);
+    this.opponents.delete(data.user.intraname);
+  }
+
+  public async gameInviteButton(challenger: IUser, challenged: IUser, server: Server) {
+    const opponent = this.getUser(challenged.intraname);
+    if (opponent) {
+      server
+        .to(opponent.socket.id)
+        .emit(
+          'challenge',
+          challenger,
+        );
+      this.opponents.set(challenged.intraname, challenger.intraname);
+    }
+  }
+
+  public async gameAcceptButton(
+    challenger: IUser,
+    challenged: IUser,
+    server: Server,
+    gameServ: GamesService,
+  ) {
+    const user: IGameUser = this.getUser(challenger.intraname);
+    const opponent: IGameUser = this.getUser(challenged.intraname);
+    const gameid = await gameServ.startGameLoop(opponent, user, 1);
+    server.to(user.socket.id).emit('gamesubmit', { gameId: gameid, side: 'right' });
+    server
+      .to(opponent.socket.id)
+      .emit('gamesubmit', { gameId: gameid, side: 'left' });
+    this.opponents.delete(challenged.intraname);
   }
 }

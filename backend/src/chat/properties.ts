@@ -1,12 +1,5 @@
-export interface IUser {
-  id?: number | undefined;
-  name?: string | undefined;
-  intraname?: string | undefined;
-  twoFAenabled?: boolean;
-  profilePictureUrl?: string | undefined;
-  token?: string | undefined;
-  activeChats?: string[];
-}
+import { IGameUser } from 'src/games/properties';
+import { IUser } from 'src/games/properties';
 
 export interface IMessage {
   user: IUser;
