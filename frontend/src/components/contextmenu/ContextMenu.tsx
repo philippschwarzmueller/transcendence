@@ -314,7 +314,7 @@ const ContextMenu: React.FC<IContextMenu> = ({
           </OptionLi>
         )}
         <LineLi />
-        {!ownProfile && <OptionLi>🏓 Challenge to Game</OptionLi>}
+        {!ownProfile && <OptionLi onClick={() => socket.emit("challenge", { challenger: auth.user, challenged: user })}>🏓 Challenge to Game</OptionLi>}
         {!ownProfile && <LineLi />}
         {!ownProfile && !isBlocked && <OptionLi onClick={() => startChat()}>💬 Start Chat</OptionLi>}
         {!ownProfile && !isBlocked && <LineLi />}
