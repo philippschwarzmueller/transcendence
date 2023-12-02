@@ -92,7 +92,7 @@ const ContextMenu: React.FC<IContextMenu> = ({
         return res.json();
       })
       .then((res: boolean) => setIsBlocked(res))
-      .catch((error) => console.log(error));
+      .catch((error) => console.error(error));
   };
 
   const handleFriendAccept = async (friend: string | undefined) => {
@@ -261,7 +261,7 @@ const ContextMenu: React.FC<IContextMenu> = ({
         return res.json();
       })
       .then((res: boolean) => setIsBlocked(res))
-      .catch((error) => console.log(error));
+      .catch((error) => console.error(error));
   }, [isBlocked]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const refreshContextMenu = () => {

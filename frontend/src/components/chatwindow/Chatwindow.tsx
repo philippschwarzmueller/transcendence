@@ -126,7 +126,7 @@ const Chatwindow: React.FC<{ $display: boolean, z?: number }> = ({
         return response.json();
       })
       .then((res: ITab[]) => setTabs(res))
-      .catch((error) => console.log(error));
+      .catch((error) => console.error(error));
     if (tabs.length > 0) setRoom(tabs[tabs.length - 1]);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
