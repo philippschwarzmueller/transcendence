@@ -10,6 +10,7 @@ import Popup from "../popup/Popup";
 import { IGameStart } from "../gamewindow/properties";
 import { useNavigate } from "react-router-dom";
 import { IMessage, ITab } from "./properties";
+import ChannelUser from "../channeluser/ChannelUser";
 
 const Msgfield = styled.div`
   width: 320px;
@@ -21,9 +22,11 @@ const Msgfield = styled.div`
 
 const Tabbar = styled.div`
   display: flex;
+  flex-wrap: wrap;
   padding: 0px;
   margin-bottom: 5px;
   border: none;
+  max-width: 290px;
 `;
 
 const Textfield = styled.div`
@@ -73,6 +76,7 @@ const StyledLi = styled.li<{ $active: string }>`
   border-top-left-radius: 5px 5px;
   border-top-right-radius: 5px 5px;
   cursor: pointer;
+  max-width: 100%;
   background-color: ${(props) =>
     props.$active === "true" ? "rgb(195, 199, 203)" : "rgb(180, 180, 190)"};
   border-bottom-color: ${(props) =>
@@ -103,13 +107,8 @@ const Chatwindow: React.FC<{ $display: boolean, z?: number }> = ({
 
   const msgField: any = useRef<HTMLCanvasElement | null>(null);
   const roomRef: any = useRef<typeof Popup | null>(null);
+  const channelRef: any = useRef<typeof ChannelUser | null>(null);
 
-  socket.on("connect", () => {
-    socket.emit("contact", { user: user, type: 0, id: 0, title: "" });
-  });
-  socket.on("disconnect", () => {
-    socket.emit("layoff", user.name);
-  });
   socket.on("message", (res: IMessage) => setMessages([...messages, res]));
   socket.on("invite", (res: ITab[]) => setTabs(res));
   socket.on("game", (body: IGameStart) => {
@@ -183,9 +182,11 @@ const Chatwindow: React.FC<{ $display: boolean, z?: number }> = ({
         user={user}
         ref={roomRef}
         setTabs={setTabs}
-      >
-       Add Channel
-      </Popup>
+      />
+      <ChannelUser
+        id={activeTabId}
+        ref={channelRef}
+      />
       <Moveablewindow
         title="Chat"
         positionX={200}
@@ -197,7 +198,9 @@ const Chatwindow: React.FC<{ $display: boolean, z?: number }> = ({
           {tabs.map((tab) => {
             return (
               <StyledLi
-                onClick={() => setActive(tab)}
+                onClick={(e: React.MouseEvent) => {setActive(tab);
+                if (tab.title === activeTab) { channelRef.current.openBrowser(e);
+                }}}
                 key={tab.title}
                 $active={tab.title === activeTab ? "true" : "false"}
               >

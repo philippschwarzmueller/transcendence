@@ -118,6 +118,11 @@ export class WSocketGateway implements OnGatewayInit {
     return this.gamesService.getGameData(gameId);
   }
 
+  @SubscribeMessage('getChannelUser')
+  async getChannelUser(@MessageBody() channelId: number): Promise<IUser[]> {
+    return await this.chatService.getUserInChannelList(channelId);
+  }
+
   @SubscribeMessage('isGameRunning')
   public isGameRunning(@MessageBody() gameId: string): boolean {
     return this.gamesService.isGameRunning(gameId);

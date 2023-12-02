@@ -1,7 +1,6 @@
 import { IGameUser } from 'src/games/properties';
 import { IUser } from 'src/games/properties';
 
-
 export interface IMessage {
   user: IUser;
   input: string;

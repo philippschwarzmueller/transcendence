@@ -52,7 +52,7 @@ export interface IUser {
   name?: string | undefined;
   intraname?: string | undefined;
   twoFAenabled?: boolean;
-  image?: string | undefined;
+  profilePictureUrl?: string | undefined;
   token?: string | undefined;
   activeChats?: string[];
 }
