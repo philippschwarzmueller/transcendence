@@ -38,7 +38,6 @@ const Windowbar = styled.div`
 const Wrapper = styled.div`
   width: 400px;
   height: 150px;
-  border: 1px solid black;
 `;
 
 const ButtonDiv = styled.div`
@@ -104,7 +103,7 @@ const Queuepopwindow: React.FC<IQueuepopwindowProps> = (
     <>
       {queue.queueFound ? (
         <StyledWindow>
-        <Windowbar>Match Found</Windowbar>
+          <Windowbar>Match Found</Windowbar>
           <Wrapper>
             <TextDiv>
               <p>{windowText}</p>
