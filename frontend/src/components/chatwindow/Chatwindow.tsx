@@ -179,9 +179,7 @@ const Chatwindow: React.FC<{ $display: boolean, z?: number }> = ({
         user={user}
         ref={roomRef}
         setTabs={setTabs}
-      >
-       Add Channel 
-      </Popup>
+      />
       <Moveablewindow
         title="Chat"
         positionX={200}

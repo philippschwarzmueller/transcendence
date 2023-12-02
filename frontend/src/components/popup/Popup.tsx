@@ -3,7 +3,6 @@ import React, {
   forwardRef,
   useImperativeHandle,
   Ref,
-  ReactNode,
   useContext,
   useEffect,
 } from "react";
@@ -13,15 +12,20 @@ import styled from "styled-components";
 import { IUser } from "../../context/auth";
 import { SocketContext } from "../../context/socket";
 import { EChannelType, IChannel, ITab } from "../chatwindow/properties";
+import WindowWrapper from "../outlinecontainer/outlinecontainer";
 
 const InputField = styled.div<{
   $display: boolean;
   $posX: number;
   $posY: number;
 }>`
-  display: ${(props) => (props.$display ? "" : "none")};
+  user-select: none;
+  display: ${(props) => (props.$display ? "flex" : "none")};
+  flex-direction: column;
+  justify-content: center;
   position: absolute;
-  z-index: 100;
+  padding: 15px;
+  z-index: 300;
   left: ${(props) => props.$posX + "px"};
   top: ${(props) => props.$posY + "px"};
   background-color: rgb(195, 199, 203);
@@ -35,19 +39,40 @@ const InputField = styled.div<{
     rgb(0, 0, 0) 1px 1px 0px 1px;
 `;
 
-const StyledDiv = styled.div`
+const StyledUl = styled.ul`
+  padding: 4px;
+  list-style: none;
+  max-height: 200px;
+  overflow: auto;
+  &::-webkit-scrollbar {
+    width: 17x;
+    height: 17px;
+  }
+  &::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+  }
+  &::-webkit-scrollbar-thumb {
+    box-sizing: border-box;
+    display: inline-block;
+    background: rgb(195, 199, 203);
+    color: rgb(0, 0, 0);
+    border: 0px;
+    box-shadow:
+      rgb(0, 0, 0) -1px -1px 0px 0px inset,
+      rgb(210, 210, 210) 1px 1px 0px 0px inset,
+      rgb(134, 138, 142) -2px -2px 0px 0px inset,
+      rgb(255, 255, 255) 2px 2px 0px 0px inset;
+  }
+`;
+
+const StyledLi = styled.li`
   text-align: center;
-  min-width: 4rem;
-  min-height: 1rem;
-  display: flex;
-  align-items: center;
   background-color: rgb(195, 199, 203);
-  box-shadow:
-    rgb(255, 255, 255) 1px 1px 0px 1px inset,
-    rgb(134, 138, 142) 0px 0px 0px 1px inset,
-    rgb(0, 0, 0) 1px 1px 0px 1px;
-  padding: 8px;
   cursor: pointer;
+  &:hover {
+    background-color: rgb(0, 14, 122);
+    color: white;
+  }
   &:active {
     outline: 1px dotted rgb(0, 0, 0);
     outline-offset: -5px;
@@ -59,7 +84,6 @@ const StyledDiv = styled.div`
 
 interface props {
   placeholder: string;
-  children: ReactNode;
   user: IUser;
   setTabs: (s: ITab[]) => void;
 }
@@ -69,7 +93,7 @@ interface refs {
 }
 
 function Popup(
-  { placeholder, children, user, setTabs }: props,
+  { placeholder, user, setTabs }: props,
   ref: Ref<refs>,
 ) {
   const socket = useContext(SocketContext);
@@ -89,7 +113,7 @@ function Popup(
 
   useEffect(() => {
     socket.emit("channel", user, (res: IChannel[]) => setChannel(res));
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [display]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function openRoom(event: React.MouseEvent) {
     event.preventDefault();
@@ -106,19 +130,20 @@ function Popup(
 
   return (
     <>
-      <InputField $display={display} $posX={positionX} $posY={positionY}>
-        {children}
+      <InputField onMouseLeave={() => setDisplay(!display)} $display={display} $posX={positionX} $posY={positionY}>
+        <WindowWrapper title="open channels">
+        <StyledUl>
         {channel.map((ch) => {
           return (
-            <StyledDiv key={key++} onClick={() => openChannel(ch)}>
-              <p>
+            <StyledLi key={key++} onClick={() => openChannel(ch)}>
                 {ch.type === EChannelType.PRIVATE && "private "}
                 {ch.type === EChannelType.PUBLIC && "public "}
                 {ch.title}{" "}
-              </p>
-            </StyledDiv>
+            </StyledLi>
           );
         })}
+        </StyledUl>
+        </WindowWrapper>
         <Input
           id="room"
           value={input}
@@ -135,7 +160,7 @@ function Popup(
               });
             }
           }}
-        ></Input>
+        />
         <form>
           <label>
             <input
