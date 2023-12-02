@@ -138,6 +138,7 @@ const GameWindow: React.FC = () => {
 
     socket.emit("isGameRunning", gameId, (isGameRunning: boolean) => {
       if (!isGameRunning) {
+        finishGame(gameInterval.current);
         socket.emit("isGameInDatabase", gameId, (isGameInDatabase: boolean) => {
           if (isGameInDatabase) {
             navigateToEndScreen.current = true;
