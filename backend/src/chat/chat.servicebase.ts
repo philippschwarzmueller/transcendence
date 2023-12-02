@@ -109,16 +109,19 @@ export class ChatServiceBase {
     try {
       const send = async (name: string) => {
         const u = this.getUser(name);
-        server
-          .to(u.socket.id)
-          .emit('invite', await this.chatDao.getRawUserChannels(u.user.id));
+        if (u) {
+          server
+            .to(u.socket.id)
+            .emit('invite', await this.chatDao.getRawUserChannels(u.user.id));
+        }
       };
       const user = await this.userService.findOneByName(chat.user.name);
       const user2 = await this.userService.findOneByName(chat.title);
+      if (await this.chatDao.checkForChat(user.id, user2.id)) return ;
       const cha = await this.chatDao.saveChannel(chat, chat.user.name);
       await this.chatDao.addUserToChannel(cha.id, chat.title);
-      send(user.intraname);
-      send(user2.intraname);
+      await send(user.intraname);
+      await send(user2.intraname);
       return await this.chatDao.getRawUserChannels(user.id);
     } catch (error) {
       console.log(`SYSTEM: ${error.message.split('\n')[0]}`);
