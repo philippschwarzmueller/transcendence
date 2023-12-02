@@ -10,6 +10,7 @@ import Popup from "../popup/Popup";
 import { IGameStart } from "../gamewindow/properties";
 import { useNavigate } from "react-router-dom";
 import { IMessage, ITab } from "./properties";
+import ChannelUser from "../channeluser/ChannelUser";
 
 const Msgfield = styled.div`
   width: 320px;
@@ -102,6 +103,7 @@ const Chatwindow: React.FC<{ $display: boolean, z?: number }> = ({
 
   const msgField: any = useRef<HTMLCanvasElement | null>(null);
   const roomRef: any = useRef<typeof Popup | null>(null);
+  const channelRef: any = useRef<typeof ChannelUser | null>(null);
 
   socket.on("connect", () => {
     socket.emit("contact", { user: user, type: 0, id: 0, title: "" });
@@ -180,6 +182,10 @@ const Chatwindow: React.FC<{ $display: boolean, z?: number }> = ({
         ref={roomRef}
         setTabs={setTabs}
       />
+      <ChannelUser
+        title={activeTab ? activeTab : ""}
+        ref={channelRef}
+      />
       <Moveablewindow
         title="Chat"
         positionX={200}
@@ -191,7 +197,9 @@ const Chatwindow: React.FC<{ $display: boolean, z?: number }> = ({
           {tabs.map((tab) => {
             return (
               <StyledLi
-                onClick={() => setActive(tab)}
+                onClick={(e: React.MouseEvent) => {setActive(tab);
+                if (tab.title === activeTab) { channelRef.current.openBrowser(e);
+                }}}
                 key={tab.title}
                 $active={tab.title === activeTab ? "true" : "false"}
               >

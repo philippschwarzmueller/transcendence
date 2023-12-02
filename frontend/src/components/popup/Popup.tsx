@@ -92,10 +92,7 @@ interface refs {
   openRoom: (event: React.MouseEvent) => void;
 }
 
-function Popup(
-  { placeholder, user, setTabs }: props,
-  ref: Ref<refs>,
-) {
+function Popup({ placeholder, user, setTabs }: props, ref: Ref<refs>) {
   const socket = useContext(SocketContext);
   const [input, setInput] = useState<string>("");
   const [display, setDisplay] = useState<boolean>(false);
@@ -130,19 +127,24 @@ function Popup(
 
   return (
     <>
-      <InputField onMouseLeave={() => setDisplay(!display)} $display={display} $posX={positionX} $posY={positionY}>
+      <InputField
+        onMouseLeave={() => setDisplay(!display)}
+        $display={display}
+        $posX={positionX}
+        $posY={positionY}
+      >
         <WindowWrapper title="open channels">
-        <StyledUl>
-        {channel.map((ch) => {
-          return (
-            <StyledLi key={key++} onClick={() => openChannel(ch)}>
-                {ch.type === EChannelType.PRIVATE && "private "}
-                {ch.type === EChannelType.PUBLIC && "public "}
-                {ch.title}{" "}
-            </StyledLi>
-          );
-        })}
-        </StyledUl>
+          <StyledUl>
+            {channel.map((ch) => {
+              return (
+                <StyledLi key={key++} onClick={() => openChannel(ch)}>
+                  {ch.type === EChannelType.PRIVATE && "private "}
+                  {ch.type === EChannelType.PUBLIC && "public "}
+                  {ch.title}{" "}
+                </StyledLi>
+              );
+            })}
+          </StyledUl>
         </WindowWrapper>
         <Input
           id="room"
