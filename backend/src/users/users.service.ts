@@ -338,7 +338,6 @@ export class UsersService {
 
     await this.usersRepository.save(sender);
     await this.usersRepository.save(receiver);
-    //await this.usersRepository.save([user, friend]);
     return true;
   }
 

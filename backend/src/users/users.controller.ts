@@ -163,7 +163,6 @@ export class UsersController {
 
   @Post('back-to-fallback-profilepicture')
   async backToFallbackProfilePicture(@Req() req: Request): Promise<boolean> {
-
     return await this.usersService.backToFallbackProfilePicture(req);
   }
 }
