@@ -69,7 +69,6 @@ const ContextMenu: React.FC<IContextMenu> = ({
   const [ownProfile, setOwnProfile] = useState<boolean>(false);
   const [, setRefreshFlag] = useState(false);
   const [isBlocked, setIsBlocked] = useState<boolean>(false);
-  const navigate = useNavigate();
   const socket = useContext(SocketContext);
 
   const startChat = () => {
