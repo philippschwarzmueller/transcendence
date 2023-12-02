@@ -25,7 +25,7 @@ const SocketRefresh: React.FC<RefreshProviderProps> = ({ children }) => {
 
   useEffect(() => {
     try {
-      socket.on("queue found", (body: IGameStart) => {
+      socket.on("queue found", () => {
         removeCookie("queue");
         queue.setQueueFound(true);
         queue.setDenied(false);
@@ -37,7 +37,7 @@ const SocketRefresh: React.FC<RefreshProviderProps> = ({ children }) => {
         navigate(`/play/${body.gameId}/${body.side}`);
       });
 
-      socket.on("game denied", (body: IGameStart) => {
+      socket.on("game denied", () => {
         removeCookie("queue");
         queue.setDenied(true);
       });
@@ -54,7 +54,7 @@ const SocketRefresh: React.FC<RefreshProviderProps> = ({ children }) => {
       validateToken(auth).then(() => {
         emitChangeSocket();
       });
-    } catch (err) {}
+    } catch (err) { }
     return () => {
       socket.off("queue found");
     };

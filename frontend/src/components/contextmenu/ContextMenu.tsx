@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
-import { useNavigate } from "react-router-dom";
 import { BACKEND } from "../../routes/SetUser";
 import { AuthContext, IUser } from "../../context/auth";
 import { EChannelType, IChannel } from "../chatwindow/properties";
@@ -279,13 +278,13 @@ const ContextMenu: React.FC<IContextMenu> = ({
         {/* PENDING FRIEND */}
         {friendState === FriendState.pendingFriend && !isBlocked && (
           <>
-          <OptionLi onClick={() => handleFriendAccept(user.name)}>
-            👥 Accept friend request
-          </OptionLi>
-          <LineLi />
-          <OptionLi onClick={() => handleFriendDeny(user.name)}>
-            💩 Deny friend request
-          </OptionLi>
+            <OptionLi onClick={() => handleFriendAccept(user.name)}>
+              👥 Accept friend request
+            </OptionLi>
+            <LineLi />
+            <OptionLi onClick={() => handleFriendDeny(user.name)}>
+              💩 Deny friend request
+            </OptionLi>
           </>
         )}
         {friendState === FriendState.pendingFriend && !isBlocked && <LineLi />}

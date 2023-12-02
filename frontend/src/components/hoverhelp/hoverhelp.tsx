@@ -3,10 +3,6 @@ import styled from "styled-components";
 import icon from "../../images/questionbook.png";
 import { ButtonWrapper } from "../homebutton/homebutton";
 
-export interface HoverHelpProps {
-  children?: React.ReactNode;
-}
-
 const PopupWrapper = styled.div<{ position: { top: number; left: number } }>`
   padding-left: 10px;
   padding-right: 10px;
@@ -50,7 +46,7 @@ const Popup: React.FC = () => {
   );
 };
 
-const HoverHelp: React.FC<HoverHelpProps> = (props: HoverHelpProps) => {
+const HoverHelp: React.FC = () => {
   const [isHovered, setIsHovered] = useState<boolean>(false);
 
   return (
