@@ -6,6 +6,7 @@ import { AuthContext, IUser } from "../context/auth";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { IGameStart } from "../components/gamewindow/properties";
+import Invitepopwindow from "../components/invitepopwindow";
 
 const StyledDiv = styled.div`
   text-align: center;
@@ -40,7 +41,7 @@ const Home: React.FC = () => {
   });
   return (
     <>
-      {challenger && <StyledDiv onClick={() => socket.emit("acceptgame", {challenger: challenger, challenged: user})}>accept invitation from {challenger.name}</StyledDiv>}
+      <Invitepopwindow challenger={challenger}/>
       <Gameicon />
       <Taskbar />
     </>

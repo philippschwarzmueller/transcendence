@@ -90,6 +90,11 @@ export class WSocketGateway implements OnGatewayInit {
     this.chatService.gameAcceptButton(data.challenger, data.challenged, this.server, this.gamesService);
   }
 
+  @SubscribeMessage('declinegame')
+  decline(@MessageBody() data: IUser) {
+    this.chatService.opponents.delete(data.intraname);
+  }
+
   @SubscribeMessage('alterGameData')
   public alterGameData(@MessageBody() payload: IGameSocketPayload): IGame {
     return this.gamesService.alterGameData(
