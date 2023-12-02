@@ -1,9 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
-import { EChannelType, IChannel, ISendMessage, ITab, IUser } from './properties';
+import { EChannelType, IChannel, ISendMessage, ITab } from './properties';
 import { ChatDAO } from './chat.dao';
 import { Socket, Server } from 'socket.io';
-import { IGameUser } from 'src/games/properties';
+import { IGameUser, IUser } from 'src/games/properties';
 import { User } from 'src/users/user.entity';
 
 @Injectable()
@@ -38,10 +38,11 @@ export class ChatServiceBase {
       prev: l.id,
     }})
   }
+
   public updateActiveClients(data: IChannel, client: Socket) {
-    if (!data.user || !data.user.name) return;
+    if (!data.user || !data.user.intraname) return;
     for (const [key, value] of this.activeClients) {
-      const tmp = value.filter((c) => c.user.name !== data.user.name);
+      const tmp = value.filter((c) => c.user.intraname !== data.user.intraname);
       this.activeClients.set(key, tmp);
     }
     if (!this.activeClients.has(data.id)) this.activeClients.set(data.id, []);
@@ -49,12 +50,12 @@ export class ChatServiceBase {
   }
 
   protected getUserInChannel(name: string, room: number): IGameUser {
-    return this.activeClients.get(room).find((user) => user.user.name === name);
+    return this.activeClients.get(room).find((user) => user.user.intraname === name);
   }
 
   protected getUser(name: string): IGameUser | null {
     for (const [key, value] of this.activeClients) {
-      const user = value.find((u) => u.user.name === name);
+      const user = value.find((u) => u.user.intraname === name);
       if (user) return user;
     }
     return null;
@@ -102,8 +103,8 @@ export class ChatServiceBase {
       const user2 = await this.userService.findOneByName(chat.title);
       const cha = await this.chatDao.saveChannel(chat, chat.user.name);
       await this.chatDao.addUserToChannel(cha.id, chat.title);
-      send(user.name);
-      send(user2.name);
+      send(user.intraname);
+      send(user2.intraname);
       return await this.chatDao.getRawUserChannels(user.id);
     } catch (error) {
       console.log(`SYSTEM: ${error.message.split('\n')[0]}`);

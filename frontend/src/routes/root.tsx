@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Outlet } from "react-router-dom";
 import GlobalStyle from "./GlobalStyle";
 import { AuthContext, IUser } from "../context/auth";
