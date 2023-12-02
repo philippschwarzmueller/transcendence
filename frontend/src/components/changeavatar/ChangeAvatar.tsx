@@ -21,6 +21,7 @@ const AvatarChangeSection: React.FC = () => {
       const file = e.target.files[0];
       if (!file.type.startsWith('image/')) {
         alert('Please select an image file.');
+        setAvatar("");
         return;
       }
       if (file.size <= 2000000) {
@@ -31,6 +32,7 @@ const AvatarChangeSection: React.FC = () => {
         };
         reader.readAsDataURL(file);
       } else {
+        setAvatar("");
         alert("File size should be 1.5 MB or less.");
       }
     }
