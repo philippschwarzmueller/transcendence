@@ -26,7 +26,7 @@ const Tabbar = styled.div`
   padding: 0px;
   margin-bottom: 5px;
   border: none;
-  max-width: 400px;
+  max-width: 290px;
 `;
 
 const Textfield = styled.div`
@@ -224,7 +224,7 @@ const Chatwindow: React.FC<{ $display: boolean, z?: number }> = ({
           <Button
             onClick={() => {
               fetch(
-                `http://${window.location.hostname}:4000/chat/rooms?userId=${user.name}&chat=${activeTab}`,
+                `http://${window.location.hostname}:4000/chat/rooms?userId=${user.name}&chat=${activeTabId}`,
                 { method: "DELETE" },
               ).catch(err=>console.error(err));
               setTabs(
