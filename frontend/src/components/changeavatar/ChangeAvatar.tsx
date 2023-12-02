@@ -19,6 +19,11 @@ const AvatarChangeSection: React.FC = () => {
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
+      if (!file.type.startsWith('image/')) {
+        alert('Please select an image file.');
+        setAvatar("");
+        return;
+      }
       if (file.size <= 2000000) {
         const reader = new FileReader();
         reader.onload = () => {
@@ -27,6 +32,7 @@ const AvatarChangeSection: React.FC = () => {
         };
         reader.readAsDataURL(file);
       } else {
+        setAvatar("");
         alert("File size should be 1.5 MB or less.");
       }
     }
@@ -89,7 +95,7 @@ const AvatarChangeSection: React.FC = () => {
   return (
     <>
       <Container>
-        <Input type="file" accept="image/*" onChange={handleAvatarChange} />
+        <Input type="file" accept="image/png, image/jpeg, image/jpg, image/gif" onChange={handleAvatarChange} />
         <Button onClick={handleAvatarUpload}>Upload new Avatar</Button>
         {auth.user.hasCustomAvatar && (
           <div>

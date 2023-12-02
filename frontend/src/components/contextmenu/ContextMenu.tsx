@@ -69,7 +69,6 @@ const ContextMenu: React.FC<IContextMenu> = ({
   const [ownProfile, setOwnProfile] = useState<boolean>(false);
   const [, setRefreshFlag] = useState(false);
   const [isBlocked, setIsBlocked] = useState<boolean>(false);
-  const navigate = useNavigate();
   const socket = useContext(SocketContext);
 
   const startChat = () => {
@@ -124,6 +123,36 @@ const ContextMenu: React.FC<IContextMenu> = ({
         }
       } catch (error) {
         console.error("Error accepting friend request:", error);
+      }
+    }
+  };
+
+  const handleFriendDeny = async (friend: string | undefined) => {
+    if (friend !== undefined) {
+      try {
+        const res = await fetch(`${BACKEND}/users/deny-friend-request`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({ friend }),
+        });
+
+        if (!res.ok) {
+          throw new Error("Network response was not ok");
+        }
+
+        const success: boolean = await res.json();
+        if (success) {
+          setFriendState(FriendState.noFriend);
+          if (triggerReload) triggerReload();
+          refreshContextMenu();
+        } else {
+          alert("An Error occured, please reload the page to update data");
+        }
+      } catch (error) {
+        console.error("Error denying friend request:", error);
       }
     }
   };
@@ -249,9 +278,15 @@ const ContextMenu: React.FC<IContextMenu> = ({
       <StyledUl $display={display} onMouseLeave={() => displayswitch()}>
         {/* PENDING FRIEND */}
         {friendState === FriendState.pendingFriend && !isBlocked && (
+          <>
           <OptionLi onClick={() => handleFriendAccept(user.name)}>
             👥 Accept friend request
           </OptionLi>
+          <LineLi />
+          <OptionLi onClick={() => handleFriendDeny(user.name)}>
+            💩 Deny friend request
+          </OptionLi>
+          </>
         )}
         {friendState === FriendState.pendingFriend && !isBlocked && <LineLi />}
         {/* NO FRIEND */}

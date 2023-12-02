@@ -136,6 +136,25 @@ export class UsersController {
     return await this.usersService.acceptFriendRequest(user, friend);
   }
 
+  @Post('deny-friend-request')
+  async denyFriendRequest(
+    @Body() body: { friend: string },
+    @Req() req: Request,
+  ): Promise<boolean> {
+    const token: string = req.cookies.token;
+    const user: User | null =
+      await this.usersService.exchangeTokenforUser(token);
+    const friend: User | null = await this.usersService.findOneByName(
+      body.friend,
+    );
+    if (user === null || friend === null) {
+      return false;
+    }
+    return await this.usersService.denyFriendRequest(user, friend);
+  }
+
+
+
   @Post('get-friends')
   async getFriends(@Req() req: Request): Promise<PublicUser[]> {
     const token: string = req.cookies.token;
