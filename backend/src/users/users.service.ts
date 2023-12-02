@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, Repository, UpdateResult } from 'typeorm';
 import { User } from './user.entity';
 import { Channels } from 'src/chat/chat.entity';
 import { Game } from 'src/games/game.entity';
@@ -236,19 +236,23 @@ export class UsersService {
 
   // Friends
 
-  async getFriendRequestList(userId: string): Promise<User[]> {
+  async getFriendRequestList(req: Request): Promise<User[]> {
+    const token: string = req.cookies.token;
+    const user: User | null = await this.exchangeTokenforUser(token);
     return (
       await this.usersRepository.findOne({
-        where: { name: userId },
+        where: { name: user.name },
         relations: ['friend_requested'],
       })
     ).friend_requested;
   }
 
-  async getReceivedFriendRequestList(userId: string): Promise<User[]> {
+  async getReceivedFriendRequestList(req: Request): Promise<User[]> {
+    const token: string = req.cookies.token;
+    const user: User | null = await this.exchangeTokenforUser(token);
     return (
       await this.usersRepository.findOne({
-        where: { name: userId },
+        where: { name: user.name },
         relations: ['friend_requests_received'],
       })
     ).friend_requests_received;
@@ -276,7 +280,7 @@ export class UsersService {
     }
 
     const friendState: FriendState = await this.getFriendState(
-      sender.name,
+      req,
       receiver.name,
     );
 
@@ -292,19 +296,26 @@ export class UsersService {
     return true;
   }
 
-  async acceptFriendRequest(user: User, friend: User): Promise<boolean> {
+  async acceptFriendRequest(req: Request, friend: string): Promise<boolean> {
+    const token: string = req.cookies.token;
+    const user: User | null = await this.exchangeTokenforUser(token);
+
     const receiver: User = await this.usersRepository.findOne({
       where: { name: user.name },
       relations: ['friend_requests_received', 'friends', 'friend_requested'],
     });
 
     const sender: User = await this.usersRepository.findOne({
-      where: { name: friend.name },
+      where: { name: friend },
       relations: ['friend_requested', 'friends', 'friend_requests_received'],
     });
 
+    if (receiver === null || sender === null) {
+      return false;
+    }
+
     const friendState: FriendState = await this.getFriendState(
-      receiver.name,
+      req,
       sender.name,
     );
 
@@ -327,23 +338,26 @@ export class UsersService {
 
     await this.usersRepository.save(sender);
     await this.usersRepository.save(receiver);
-    await this.usersRepository.save([user, friend]);
+    //await this.usersRepository.save([user, friend]);
     return true;
   }
 
-  async denyFriendRequest(user: User, friend: User): Promise<boolean> {
+  async denyFriendRequest(req: Request, friend: string): Promise<boolean> {
+    const token: string = req.cookies.token;
+    const user: User | null = await this.exchangeTokenforUser(token);
+
     const receiver: User = await this.usersRepository.findOne({
       where: { name: user.name },
       relations: ['friend_requests_received', 'friend_requested'],
     });
 
     const sender: User = await this.usersRepository.findOne({
-      where: { name: friend.name },
+      where: { name: friend },
       relations: ['friend_requested', 'friend_requests_received'],
     });
 
     const friendState: FriendState = await this.getFriendState(
-      receiver.name,
+      req,
       sender.name,
     );
 
@@ -368,19 +382,26 @@ export class UsersService {
     return true;
   }
 
-  async removeFriend(user: User, friend: User): Promise<boolean> {
+  async removeFriend(req: Request, friend: string): Promise<boolean> {
+    const token: string = req.cookies.token;
+    const user: User | null = await this.exchangeTokenforUser(token);
+
     const remover: User = await this.usersRepository.findOne({
       where: { name: user.name },
       relations: ['friends'],
     });
 
     const removeFriend: User = await this.usersRepository.findOne({
-      where: { name: friend.name },
+      where: { name: friend },
       relations: ['friends'],
     });
 
+    if (remover === null || removeFriend === null) {
+      return false;
+    }
+
     const friendState: FriendState = await this.getFriendState(
-      remover.name,
+      req,
       removeFriend.name,
     );
 
@@ -404,48 +425,49 @@ export class UsersService {
     return true;
   }
 
-  async getFriendList(userId: string): Promise<User[]> {
+  async getFriendList(req: Request): Promise<User[]> {
+    const token: string = req.cookies.token;
+    const user: User | null = await this.exchangeTokenforUser(token);
     return (
       await this.usersRepository.findOne({
-        where: { name: userId },
+        where: { name: user.name },
         relations: ['friends'],
       })
     ).friends;
   }
 
-  async userIsFriend(user: string, friend: string): Promise<boolean> {
-    const friends: User[] = await this.getFriendList(user);
+  async userIsFriend(req: Request, friend: string): Promise<boolean> {
+    const friends: User[] = await this.getFriendList(req);
     const isFriend: boolean = friends.some(
       (friendUser) => friendUser.name === friend,
     );
     return isFriend;
   }
 
-  async userIsPendingFriend(user: string, friend: string): Promise<boolean> {
-    const pendingFriends: User[] =
-      await this.getReceivedFriendRequestList(user);
+  async userIsPendingFriend(req: Request, friend: string): Promise<boolean> {
+    const pendingFriends: User[] = await this.getReceivedFriendRequestList(req);
     const ispendingFriend: boolean = pendingFriends.some(
       (friendUser) => friendUser.name === friend,
     );
     return ispendingFriend;
   }
 
-  async userIsRequestedFriend(user: string, friend: string): Promise<boolean> {
-    const RequestedFriends: User[] = await this.getFriendRequestList(user);
+  async userIsRequestedFriend(req: Request, friend: string): Promise<boolean> {
+    const RequestedFriends: User[] = await this.getFriendRequestList(req);
     const isRequestedFriend: boolean = RequestedFriends.some(
       (friendUser) => friendUser.name === friend,
     );
     return isRequestedFriend;
   }
 
-  async getFriendState(user: string, friend: string): Promise<FriendState> {
-    const isFriend: boolean = await this.userIsFriend(user, friend);
+  async getFriendState(req: Request, friend: string): Promise<FriendState> {
+    const isFriend: boolean = await this.userIsFriend(req, friend);
     const isPendingFriend: boolean = await this.userIsPendingFriend(
-      user,
+      req,
       friend,
     );
     const isRequestedFriend: boolean = await this.userIsRequestedFriend(
-      user,
+      req,
       friend,
     );
 
@@ -462,10 +484,12 @@ export class UsersService {
 
   //Change Avatar
 
-  async changeAvatar(user: string, avatar: string): Promise<boolean> {
+  async changeAvatar(req: Request, avatar: string): Promise<boolean> {
+    const token: string = req.cookies.token;
+    const user: User | null = await this.exchangeTokenforUser(token);
     const result = await this.usersRepository.update(
       {
-        name: user,
+        name: user.name,
       },
       {
         customAvatar: avatar,
@@ -493,10 +517,13 @@ export class UsersService {
     return res.hasCustomAvatar;
   }
 
-  async backToFallbackProfilePicture(user: string): Promise<boolean> {
-    const result = await this.usersRepository.update(
+  async backToFallbackProfilePicture(req: Request): Promise<boolean> {
+    const token: string = req.cookies.token;
+    const user: User | null = await this.exchangeTokenforUser(token);
+
+    const result: UpdateResult = await this.usersRepository.update(
       {
-        name: user,
+        name: user.name,
       },
       {
         hasCustomAvatar: false,
