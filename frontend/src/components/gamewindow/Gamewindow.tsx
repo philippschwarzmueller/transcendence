@@ -138,7 +138,6 @@ const GameWindow: React.FC = () => {
 
     socket.emit("isGameRunning", gameId, (isGameRunning: boolean) => {
       if (!isGameRunning) {
-        finishGame(gameInterval.current);
         socket.emit("isGameInDatabase", gameId, (isGameInDatabase: boolean) => {
           if (isGameInDatabase) {
             navigateToEndScreen.current = true;
@@ -148,6 +147,7 @@ const GameWindow: React.FC = () => {
             drawErrorScreen(gameCanvas.endScreen.current?.getContext("2d"));
           }
         });
+        finishGame(gameInterval.current);
       }
     });
 
@@ -157,12 +157,12 @@ const GameWindow: React.FC = () => {
 
     socket.on("endgame", (res: string) => {
       if (res === gameId) {
-        finishGame(gameInterval.current);
         socket.emit("getGameData", gameId, (res: IGame) => {
           gameStateRef.current = res;
           navigateToEndScreen.current = true;
         });
         fetchAndDrawFinishedGame(socket, gameId, gameCanvas.endScreen);
+        finishGame(gameInterval.current);
       }
     });
 
