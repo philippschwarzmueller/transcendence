@@ -7,8 +7,6 @@ import Progressbar from "../progressbar";
 import { IQueueContext, QueueContext } from "../../context/queue";
 import { queueTimeout } from "../gamewindow/properties";
 
-interface IQueuepopwindowProps {}
-
 const StyledWindow = styled.div`
   position: absolute;
   top: 50%;
@@ -59,9 +57,7 @@ const LoadingDiv = styled.div`
   margin: 15px;
 `;
 
-const Queuepopwindow: React.FC<IQueuepopwindowProps> = (
-  props: IQueuepopwindowProps
-) => {
+const Queuepopwindow: React.FC = () => {
   const socket = useContext(SocketContext);
   const auth = useContext(AuthContext);
   const queue: IQueueContext = useContext(QueueContext);
@@ -104,7 +100,7 @@ const Queuepopwindow: React.FC<IQueuepopwindowProps> = (
     <>
       {queue.queueFound ? (
         <StyledWindow>
-        <Windowbar>Match Found</Windowbar>
+          <Windowbar>Match Found</Windowbar>
           <Wrapper>
             <TextDiv>
               <p>{windowText}</p>

@@ -4,7 +4,6 @@ import Root from "./routes/root";
 import Home from "./routes/Home";
 import Game from "./routes/Game";
 import Queue from "./routes/Queue";
-import ErrorPage from "./routes/error-page";
 import SignUp from "./routes/SignUp";
 import Login from "./routes/Login";
 import SetUser from "./routes/SetUser";
@@ -14,13 +13,13 @@ import NotFound from "./routes/404";
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<Root />} errorElement={<ErrorPage />}>
+      <Route path="/" element={<Root />} errorElement={<NotFound />}>
         <Route path="/" element={<Navigate to="/home" />} />
         <Route
           path="home"
           element={
             <PrivateRoute>
-              <Home/>
+              <Home />
             </PrivateRoute>
           }
         />

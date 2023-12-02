@@ -278,13 +278,13 @@ const ContextMenu: React.FC<IContextMenu> = ({
         {/* PENDING FRIEND */}
         {friendState === FriendState.pendingFriend && !isBlocked && (
           <>
-          <OptionLi onClick={() => handleFriendAccept(user.name)}>
-            👥 Accept friend request
-          </OptionLi>
-          <LineLi />
-          <OptionLi onClick={() => handleFriendDeny(user.name)}>
-            💩 Deny friend request
-          </OptionLi>
+            <OptionLi onClick={() => handleFriendAccept(user.name)}>
+              👥 Accept friend request
+            </OptionLi>
+            <LineLi />
+            <OptionLi onClick={() => handleFriendDeny(user.name)}>
+              💩 Deny friend request
+            </OptionLi>
           </>
         )}
         {friendState === FriendState.pendingFriend && !isBlocked && <LineLi />}

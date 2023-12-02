@@ -81,7 +81,7 @@ const Profilewindow: React.FC<{ z?: number }> = ({
       >
         <ProfileArea>
           <UserData>
-            <ProfilePicture name={user.profile.name} />
+            <ProfilePicture intraname={user.profile.intraname} />
             <StatsWindow intraname={user.profile.intraname ? user.profile.intraname : ""} />
           </UserData>
           <Tabs>

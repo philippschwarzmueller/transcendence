@@ -1,10 +1,12 @@
-import { Injectable, Inject, Res } from '@nestjs/common';
+import { Injectable, Res } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
 import { Repository } from 'typeorm';
 import { User } from '../users/user.entity';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { hash as bcrypt_hash, compare as bcrypt_compare } from 'bcrypt';
+import { Request } from 'express';
+import * as sanitizeHtml from 'sanitize-html';
 
 export interface TokenResponse {
   access_token: string;
@@ -112,7 +114,7 @@ export class AuthService {
           token: data.access_token,
           hashedToken: hashedToken,
           tokenExpiry: currentTime + data.expires_in,
-        })
+        }),
       );
     }
 
@@ -188,10 +190,11 @@ export class AuthService {
     return hashedToken;
   }
 
-  async checkToken(frontendToken: string): Promise<User | null> {
+  async checkToken(req: Request): Promise<User | null> {
+    const token: string = req.cookies.token;
     const user: User = await this.usersRepository.findOne({
       where: {
-        hashedToken: frontendToken,
+        hashedToken: token,
       },
     });
     if (!user) {
@@ -216,21 +219,30 @@ export class AuthService {
     return userExists;
   }
 
-  async checkNameChange(
-    hashedtoken: string,
-    newName: string,
-  ): Promise<User | null> {
-    const user: User = await this.checkToken(hashedtoken);
+  sanitizeInput(input: string): string {
+    return sanitizeHtml(input, {
+      allowedTags: [],
+      allowedAttributes: {},
+    });
+  }
+
+  async checkNameChange(req: Request, newName: string): Promise<User | null> {
+    const user: User = await this.checkToken(req);
     const token: string = user.token;
-    let userExists: boolean = await this.nameExists(newName);
+    const sanitizedNewName: string = this.sanitizeInput(newName);
+    let userExists: boolean = await this.nameExists(sanitizedNewName);
     if (userExists) {
       return user;
     }
-    userExists = await this.intranameExists(newName, user.intraname, token);
+    userExists = await this.intranameExists(
+      sanitizedNewName,
+      user.intraname,
+      token,
+    );
     if (userExists) {
       return user;
     }
-    const updatedUser: User = await this.changeName(newName, user);
+    const updatedUser: User = await this.changeName(sanitizedNewName, user);
     return updatedUser;
   }
 

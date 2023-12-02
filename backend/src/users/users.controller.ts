@@ -43,6 +43,18 @@ export class UsersController {
     }
   }
 
+  @Get('intraname/:userId')
+  async findOneIntra(@Param('userId') intraname: string): Promise<PublicUser> {
+    try {
+      const user: User = await this.usersService.findOneByIntraName(intraname);
+      return this.usersService.createPublicUser(user);
+    } catch (e) {
+      throw new HttpException('user not found', HttpStatus.NOT_FOUND, {
+        cause: e,
+      });
+    }
+  }
+
   @Put('block')
   async block(
     @Query('blocking') blocking: string,
@@ -84,36 +96,20 @@ export class UsersController {
     @Body() body: { friend: string },
     @Req() req: Request,
   ): Promise<boolean> {
-    const token: string = req.cookies.token;
-    const user: User | null =
-      await this.usersService.exchangeTokenforUser(token);
-    const friend: User | null = await this.usersService.findOneByName(
-      body.friend,
-    );
-    if (user === null || friend === null) {
-      return false;
-    }
-    return await this.usersService.addFriend(user, friend);
+    return await this.usersService.addFriend(req, body.friend);
   }
 
   @Post('get-pending-friend-requests')
   async getPendingFriendRequests(@Req() req: Request): Promise<PublicUser[]> {
-    const token: string = req.cookies.token;
-    const user: User | null =
-      await this.usersService.exchangeTokenforUser(token);
-    const pendingUsers: User[] = await this.usersService.getFriendRequestList(
-      user.name,
-    );
+    const pendingUsers: User[] =
+      await this.usersService.getFriendRequestList(req);
     return this.usersService.createPublicUserArray(pendingUsers);
   }
 
   @Post('get-received-friend-requests')
   async getReceivedFriendRequests(@Req() req: Request): Promise<PublicUser[]> {
-    const token: string = req.cookies.token;
-    const user: User | null =
-      await this.usersService.exchangeTokenforUser(token);
     const ReceivedFriendRequestsFromUsers: User[] =
-      await this.usersService.getReceivedFriendRequestList(user.name);
+      await this.usersService.getReceivedFriendRequestList(req);
     return this.usersService.createPublicUserArray(
       ReceivedFriendRequestsFromUsers,
     );
@@ -124,16 +120,7 @@ export class UsersController {
     @Body() body: { friend: string },
     @Req() req: Request,
   ): Promise<boolean> {
-    const token: string = req.cookies.token;
-    const user: User | null =
-      await this.usersService.exchangeTokenforUser(token);
-    const friend: User | null = await this.usersService.findOneByName(
-      body.friend,
-    );
-    if (user === null || friend === null) {
-      return false;
-    }
-    return await this.usersService.acceptFriendRequest(user, friend);
+    return await this.usersService.acceptFriendRequest(req, body.friend);
   }
 
   @Post('deny-friend-request')
@@ -141,26 +128,12 @@ export class UsersController {
     @Body() body: { friend: string },
     @Req() req: Request,
   ): Promise<boolean> {
-    const token: string = req.cookies.token;
-    const user: User | null =
-      await this.usersService.exchangeTokenforUser(token);
-    const friend: User | null = await this.usersService.findOneByName(
-      body.friend,
-    );
-    if (user === null || friend === null) {
-      return false;
-    }
-    return await this.usersService.denyFriendRequest(user, friend);
+    return await this.usersService.denyFriendRequest(req, body.friend);
   }
-
-
 
   @Post('get-friends')
   async getFriends(@Req() req: Request): Promise<PublicUser[]> {
-    const token: string = req.cookies.token;
-    const user: User | null =
-      await this.usersService.exchangeTokenforUser(token);
-    const friendList: User[] = await this.usersService.getFriendList(user.name);
+    const friendList: User[] = await this.usersService.getFriendList(req);
     return this.usersService.createPublicUserArray(friendList);
   }
 
@@ -169,16 +142,7 @@ export class UsersController {
     @Body() body: { friend: string },
     @Req() req: Request,
   ): Promise<boolean> {
-    const token: string = req.cookies.token;
-    const user: User | null =
-      await this.usersService.exchangeTokenforUser(token);
-    const friend: User | null = await this.usersService.findOneByName(
-      body.friend,
-    );
-    if (user === null || friend === null) {
-      return false;
-    }
-    return await this.usersService.removeFriend(user, friend);
+    return await this.usersService.removeFriend(req, body.friend);
   }
 
   @Post('get-friend-state')
@@ -186,13 +150,7 @@ export class UsersController {
     @Body() body: { name: string },
     @Req() req: Request,
   ): Promise<FriendState> {
-    const token: string = req.cookies.token;
-    const user: User | null =
-      await this.usersService.exchangeTokenforUser(token);
-    const friend: User | null = await this.usersService.findOneByName(
-      body.name,
-    );
-    return await this.usersService.getFriendState(user.name, friend.name);
+    return await this.usersService.getFriendState(req, body.name);
   }
 
   @Post('change-avatar')
@@ -200,17 +158,11 @@ export class UsersController {
     @Body() body: { avatar: string },
     @Req() req: Request,
   ): Promise<boolean> {
-    const token: string = req.cookies.token;
-    const user: User | null =
-      await this.usersService.exchangeTokenforUser(token);
-    return await this.usersService.changeAvatar(user.name, body.avatar);
+    return await this.usersService.changeAvatar(req, body.avatar);
   }
 
   @Post('back-to-fallback-profilepicture')
   async backToFallbackProfilePicture(@Req() req: Request): Promise<boolean> {
-    const token: string = req.cookies.token;
-    const user: User | null =
-      await this.usersService.exchangeTokenforUser(token);
-    return await this.usersService.backToFallbackProfilePicture(user.name);
+    return await this.usersService.backToFallbackProfilePicture(req);
   }
 }
