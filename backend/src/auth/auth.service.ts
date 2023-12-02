@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { User } from '../users/user.entity';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { hash as bcrypt_hash, compare as bcrypt_compare } from 'bcrypt';
+import { Request } from 'express';
 import * as sanitizeHtml from 'sanitize-html';
 
 export interface TokenResponse {
@@ -189,10 +190,11 @@ export class AuthService {
     return hashedToken;
   }
 
-  async checkToken(frontendToken: string): Promise<User | null> {
+  async checkToken(req: Request): Promise<User | null> {
+    const token: string = req.cookies.token;
     const user: User = await this.usersRepository.findOne({
       where: {
-        hashedToken: frontendToken,
+        hashedToken: token,
       },
     });
     if (!user) {
@@ -224,11 +226,8 @@ export class AuthService {
     });
   }
 
-  async checkNameChange(
-    hashedtoken: string,
-    newName: string,
-  ): Promise<User | null> {
-    const user: User = await this.checkToken(hashedtoken);
+  async checkNameChange(req: Request, newName: string): Promise<User | null> {
+    const user: User = await this.checkToken(req);
     const token: string = user.token;
     const sanitizedNewName: string = this.sanitizeInput(newName);
     let userExists: boolean = await this.nameExists(sanitizedNewName);
