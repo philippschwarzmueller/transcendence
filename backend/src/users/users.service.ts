@@ -186,7 +186,7 @@ export class UsersService {
       `SELECT EXISTS (
         SELECT 1
         FROM users
-        INNER JOIN block_list 
+        INNER JOIN block_list
         ON users.id = block_list.blocking
         WHERE users.id = ${user.id}
         AND block_list.blocked = ${blocked.id}
@@ -204,7 +204,7 @@ export class UsersService {
     const blocked: User = await this.findOneByIntraName(blockedId);
     const queryRunner = this.dataSource.createQueryRunner();
     queryRunner.connect();
-    const res = await queryRunner.manager.query(
+    await queryRunner.manager.query(
       `DELETE FROM block_list
       WHERE blocking = ${user.id} AND blocked = ${blocked.id}`,
     );
@@ -223,11 +223,11 @@ export class UsersService {
         ON CONFLICT (blocking, "blocked") DO NOTHING;`,
     );
     await queryRunner.manager.query(
-      `DELETE FROM friends 
+      `DELETE FROM friends
       WHERE user_id = ${user.id} AND friend_id = ${block.id}`,
     );
     await queryRunner.manager.query(
-      `DELETE FROM friends 
+      `DELETE FROM friends
       WHERE user_id = ${block.id} AND friend_id = ${user.id}`,
     );
     queryRunner.release();

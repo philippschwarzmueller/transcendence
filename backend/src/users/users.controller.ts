@@ -43,6 +43,18 @@ export class UsersController {
     }
   }
 
+  @Get('intraname/:userId')
+  async findOneIntra(@Param('userId') intraname: string): Promise<PublicUser> {
+    try {
+      const user: User = await this.usersService.findOneByIntraName(intraname);
+      return this.usersService.createPublicUser(user);
+    } catch (e) {
+      throw new HttpException('user not found', HttpStatus.NOT_FOUND, {
+        cause: e,
+      });
+    }
+  }
+
   @Put('block')
   async block(
     @Query('blocking') blocking: string,
