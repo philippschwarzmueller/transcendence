@@ -48,7 +48,7 @@ const Queuebutton: React.FC<IQueueProps> = (
   const queue: IQueueContext = useContext(QueueContext);
 
   useEffect(() => {
-    socket.on("queue found", (body: IGameStart) => {
+    socket.on("queue found", () => {
       removeCookie("queue");
       queue.setQueueFound(true);
     });
@@ -59,7 +59,7 @@ const Queuebutton: React.FC<IQueueProps> = (
       navigate(`/play/${body.gameId}/${body.side}`);
     });
 
-    socket.on("game denied", (body: IGameStart) => {
+    socket.on("game denied", () => {
       removeCookie("queue");
     });
   }, [navigate, removeCookie, socket]); // eslint-disable-line react-hooks/exhaustive-deps

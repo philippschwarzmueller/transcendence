@@ -3,10 +3,6 @@ import styled from "styled-components";
 import icon from "../../images/errorbutton.png";
 import { NavigateFunction, useNavigate } from "react-router-dom";
 
-export interface HoverHelpProps {
-  children?: React.ReactNode;
-}
-
 export const ButtonWrapper = styled.div`
   background-color: rgb(195, 199, 203);
   position: relative;
@@ -24,7 +20,7 @@ export const ButtonWrapper = styled.div`
     1px 0px 0 0px #000000, 0px 1px 0 0px #000000, 1px 1px 0 0px #000000;
 `;
 
-const Homebutton: React.FC<HoverHelpProps> = (props: HoverHelpProps) => {
+const Homebutton: React.FC = () => {
   const navigate: NavigateFunction = useNavigate();
   return (
     <>
