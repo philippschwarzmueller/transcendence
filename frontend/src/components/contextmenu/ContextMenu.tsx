@@ -145,7 +145,7 @@ const ContextMenu: React.FC<IContextMenu> = ({
 
         const success: boolean = await res.json();
         if (success) {
-          setFriendState(FriendState.friend);
+          setFriendState(FriendState.noFriend);
           if (triggerReload) triggerReload();
           refreshContextMenu();
         } else {
