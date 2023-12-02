@@ -153,8 +153,6 @@ export class UsersController {
     return await this.usersService.denyFriendRequest(user, friend);
   }
 
-
-
   @Post('get-friends')
   async getFriends(@Req() req: Request): Promise<PublicUser[]> {
     const token: string = req.cookies.token;
