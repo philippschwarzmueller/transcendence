@@ -27,6 +27,20 @@ export class ChatServiceBase {
     });
   }
 
+  public async getUserInChannelList(channelId: number): Promise<IUser[]> {
+    const list = await this.chatDao.getChannelUsers(channelId)
+    return list.map((l) => {
+      return {
+        id: l.id,
+        name: l.name,
+        intraname: l.intraname,
+        twoFAenabled: l.twoFAenabled,
+        profilePictureUrl: l.profilePictureUrl,
+        token: l.token,
+      }
+    });
+  }
+
   public async getChannelList(user: IUser): Promise<IChannel[]>{
     const list = (await this.chatDao.getAllChannels())
       .filter((l) => l.type !== EChannelType.CHAT);

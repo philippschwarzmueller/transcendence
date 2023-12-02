@@ -95,6 +95,7 @@ const Chatwindow: React.FC<{ $display: boolean, z?: number }> = ({
   const user: IUser = useContext(AuthContext).user;
   const [tabs, setTabs] = useState<ITab[]>([]);
   const [activeTab, setActiveTab] = useState<string | null>(null);
+  const [activeTabId, setActiveTabId] = useState<number>(0);
   const [room, setRoom] = useState<ITab | null>(null);
   const [prevRoom, setPrevRoom] = useState<ITab | null>(null);
   const socket: Socket = useContext(SocketContext);
@@ -172,6 +173,7 @@ const Chatwindow: React.FC<{ $display: boolean, z?: number }> = ({
 
   const setActive = (tab: ITab) => {
     setActiveTab(tab.title);
+    setActiveTabId(tab.id);
     setPrevRoom(room);
     setRoom(tab);
   };
@@ -185,7 +187,7 @@ const Chatwindow: React.FC<{ $display: boolean, z?: number }> = ({
         setTabs={setTabs}
       />
       <ChannelUser
-        title={activeTab ? activeTab : ""}
+        id={activeTabId}
         ref={channelRef}
       />
       <Moveablewindow
