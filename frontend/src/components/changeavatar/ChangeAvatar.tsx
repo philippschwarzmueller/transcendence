@@ -95,7 +95,11 @@ const AvatarChangeSection: React.FC = () => {
   return (
     <>
       <Container>
-        <Input type="file" accept="image/png, image/jpeg, image/jpg, image/gif" onChange={handleAvatarChange} />
+        <Input label="Change Avatar"
+          type="file"
+          accept="image/png, image/jpeg, image/jpg, image/gif"
+          onChange={handleAvatarChange}
+        />
         <Button onClick={handleAvatarUpload}>Upload new Avatar</Button>
         {auth.user.hasCustomAvatar && (
           <div>

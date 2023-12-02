@@ -98,7 +98,7 @@ const Leaderboard: React.FC<{ $display: boolean; z?: number }> = ({
   const [checkedStandardBox, setCheckedStandardBox] = useState<boolean>(true);
   const [checked2dBox, setChecked2dBox] = useState<boolean>(true);
 
-  const handleElementClick = (): void => {};
+  const handleElementClick = (): void => { };
 
   useEffect(() => {
     fetch(`${BACKEND}/leaderboard/data/${gamemode}`)
@@ -143,6 +143,7 @@ const Leaderboard: React.FC<{ $display: boolean; z?: number }> = ({
               }}
             />
             <Dropdown
+              id="stats-select"
               title="select sorting"
               items={[
                 {

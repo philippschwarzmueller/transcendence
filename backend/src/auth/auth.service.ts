@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { User } from '../users/user.entity';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { hash as bcrypt_hash, compare as bcrypt_compare } from 'bcrypt';
+import * as sanitizeHtml from 'sanitize-html';
 
 export interface TokenResponse {
   access_token: string;
@@ -216,21 +217,33 @@ export class AuthService {
     return userExists;
   }
 
+  sanitizeInput(input: string): string {
+    return sanitizeHtml(input, {
+      allowedTags: [],
+      allowedAttributes: {},
+    });
+  }
+
   async checkNameChange(
     hashedtoken: string,
     newName: string,
   ): Promise<User | null> {
     const user: User = await this.checkToken(hashedtoken);
     const token: string = user.token;
-    let userExists: boolean = await this.nameExists(newName);
+    const sanitizedNewName: string = this.sanitizeInput(newName);
+    let userExists: boolean = await this.nameExists(sanitizedNewName);
     if (userExists) {
       return user;
     }
-    userExists = await this.intranameExists(newName, user.intraname, token);
+    userExists = await this.intranameExists(
+      sanitizedNewName,
+      user.intraname,
+      token,
+    );
     if (userExists) {
       return user;
     }
-    const updatedUser: User = await this.changeName(newName, user);
+    const updatedUser: User = await this.changeName(sanitizedNewName, user);
     return updatedUser;
   }
 

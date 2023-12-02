@@ -4,7 +4,7 @@ import { AuthContext } from "../../context/auth";
 import { BACKEND } from "../../routes/SetUser";
 import Chatwindow from "../chatwindow/Chatwindow";
 import Friendbrowser from "../friendbrowser/Friendbrowser";
-import Leaderboard from "../leaderboard/leaderboard";
+import Leaderboard from "../leaderboard/";
 import Profilesettings from "../profilesettings/Profilesettings";
 import Profilewindow from "../profilewindow/Profilewindow";
 import Userbrowser from "../userbrowser";

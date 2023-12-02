@@ -224,7 +224,7 @@ export class ChatDAO {
     const queryRunner = this.dataSource.createQueryRunner();
     const current = new Date();
     queryRunner.connect();
-    const res  =  await queryRunner.manager.query( 
+    const res  =  await queryRunner.manager.query(
       `SELECT time, timestamp
         FROM muted
         WHERE "user" = ${userId} AND "channel" = ${channel};`
@@ -232,7 +232,7 @@ export class ChatDAO {
     queryRunner.release();
     if (res.length === 0)
       return false;
-    const check = res[0].timestamp + res[0].time * 60; 
+    const check = res[0].timestamp + res[0].time * 60;
     return check > Math.floor(current.getTime() / 1000);
   }
 }

@@ -77,6 +77,7 @@ type DropdownItem = {
 type DropdownProps = {
   title: string;
   items: DropdownItem[];
+  id: string;
 };
 
 const Dropdown: React.FC<DropdownProps> = (props) => {
@@ -91,7 +92,7 @@ const Dropdown: React.FC<DropdownProps> = (props) => {
 
   return (
     <Wrapper>
-      <Select onChange={handleSelectChange}>
+      <Select id={props.id} onChange={handleSelectChange}>
         {props.items &&
           props.items.map((item, index) => (
             <StyledOption key={index} value={item.label}>

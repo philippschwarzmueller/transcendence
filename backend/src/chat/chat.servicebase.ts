@@ -31,7 +31,7 @@ export class ChatServiceBase {
     const list = (await this.chatDao.getAllChannels())
       .filter((l) => l.type !== EChannelType.CHAT);
     return list.map((l) => { return {
-      user: user, 
+      user: user,
       type: l.type,
       id: l.type,
       title: l.title,
@@ -126,6 +126,7 @@ export class ChatServiceBase {
   ): Promise<ISendMessage[]> {
     let res: string[] = [];
     try {
+      if (data.title === '') return;
       this.updateActiveClients(data, client);
       const channel = await this.chatDao.getChannel(data.id);
       const mess = `${data.user.name}: joined room`;
