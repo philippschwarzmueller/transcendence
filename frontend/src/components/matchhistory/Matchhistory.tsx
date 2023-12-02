@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
+import { ProfileContext } from "../../context/profile";
 import { BACKEND } from "../../routes/SetUser";
 import { EGamemode } from "../gamewindow/properties";
 import { gameModeNames } from "../queuebutton/Queuebutton";
@@ -132,6 +133,7 @@ const GameModeName = styled.div`
 
 const MatchHistory: React.FC<MatchHistoryProps> = ({ intraname, display }) => {
   const [matches, setMatches] = useState<IMatch[]>([]);
+  const profile = useContext(ProfileContext);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -147,7 +149,7 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({ intraname, display }) => {
     };
 
     if (intraname) fetchData();
-  }, [intraname]);
+  }, [intraname, profile]);
 
   const handleMatchClick = () => {};
 

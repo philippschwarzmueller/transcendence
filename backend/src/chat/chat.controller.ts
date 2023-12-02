@@ -1,5 +1,14 @@
-import { Controller, Delete, HttpCode, Get, Query } from '@nestjs/common';
+import {
+  Controller,
+  Delete,
+  HttpCode,
+  Get,
+  Query,
+  Post,
+  Body,
+} from '@nestjs/common';
 import { ChatService } from './chat.service';
+import { IChannel, ITab } from './properties';
 
 @Controller('chat')
 export class ChatController {
@@ -7,7 +16,7 @@ export class ChatController {
 
   @Get()
   @HttpCode(200)
-  async getChats(@Query('userId') userId: string): Promise<string[]> {
+  async getChats(@Query('userId') userId: string): Promise<ITab[]> {
     return await this.chatService.getChats(userId);
   }
 
@@ -15,7 +24,7 @@ export class ChatController {
   @HttpCode(201)
   async deleteChat(
     @Query('userId') userId: string,
-    @Query('chat') chat: string,
+    @Query('chat') chat: number,
   ): Promise<void> {
     await this.chatService.removeChat(userId, chat);
   }

@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import { styled } from "styled-components";
 import { IProfileContext, ProfileContext } from "../../context/profile";
 import Elograph from "../elograph";
@@ -65,27 +65,24 @@ const ProfileArea = styled.div`
   display: flex;
 `;
 
-const Profilewindow: React.FC<{ $display: boolean; z?: number }> = ({
-  $display,
+const Profilewindow: React.FC<{ z?: number }> = ({
   z,
 }) => {
   const user: IProfileContext = useContext(ProfileContext);
   const [displayMatch, setDisplayMatch] = useState<boolean>(true);
   const [displayElo, setDisplayElo] = useState<boolean>(false);
 
-  useEffect(() => {}, [user]);
-
   return (
     <>
       <Moveablewindow
-        title={user.name ? user.name + "'s profile" : "profile"}
-        display={$display}
+        title={user.profile.name ? user.profile.name + "'s profile" : "profile"}
+        display={user.profile.display}
         positionZ={z}
       >
         <ProfileArea>
           <UserData>
-            <ProfilePicture name={user.name} />
-            <StatsWindow intraname={user.intraname ? user.intraname : ""} />
+            <ProfilePicture name={user.profile.name} />
+            <StatsWindow intraname={user.profile.intraname ? user.profile.intraname : ""} />
           </UserData>
           <Tabs>
             <Tabbar>
@@ -111,11 +108,11 @@ const Profilewindow: React.FC<{ $display: boolean; z?: number }> = ({
             </Tabbar>
             <Tabcontent>
               <MatchHistory
-                intraname={user.intraname ? user.intraname : ""}
+                intraname={user.profile.intraname ? user.profile.intraname : ""}
                 display={displayMatch}
               />
               <Elograph
-                intraname={user.intraname ? user.intraname : ""}
+                intraname={user.profile.intraname ? user.profile.intraname : ""}
                 display={displayElo}
               />
             </Tabcontent>

@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import { IUser } from "../../context/auth";
+import { ProfileContext } from "../../context/profile";
 import { BACKEND } from "../../routes/SetUser";
 
 interface IProfilePicture {
@@ -28,6 +29,7 @@ const StyledProfilePicture = styled.img`
 const ProfilePicture: React.FC<IProfilePicture> = ({ name }) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [user, setUser] = useState<IUser>();
+  const profile = useContext(ProfileContext);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -48,7 +50,7 @@ const ProfilePicture: React.FC<IProfilePicture> = ({ name }) => {
       }
     };
     fetchData();
-  }, [name]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [name, profile]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (isLoading) {
     return <div></div>;
