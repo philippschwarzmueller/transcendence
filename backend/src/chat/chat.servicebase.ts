@@ -43,7 +43,7 @@ export class ChatServiceBase {
 
   public async getChannelList(user: IUser): Promise<IChannel[]>{
     const list = (await this.chatDao.getAllChannels())
-      .filter((l) => l.type !== EChannelType.CHAT);
+      .filter((l) => l.type === EChannelType.PUBLIC);
     return list.map((l) => { return {
       user: user,
       type: l.type,
