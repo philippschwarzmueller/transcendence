@@ -67,7 +67,7 @@ export class ChatServiceBase {
     return this.activeClients.get(room).find((user) => user.user.intraname === name);
   }
 
-  protected getUser(name: string): IGameUser | null {
+  public getUser(name: string): IGameUser | null {
     for (const [key, value] of this.activeClients) {
       const user = value.find((u) => u.user.intraname === name);
       if (user) return user;
@@ -88,7 +88,7 @@ export class ChatServiceBase {
       const user = await this.userService.findOneByName(userId);
       res = await this.chatDao.getRawUserChannels(user.id);
     } catch (error) {
-      console.log(`SYSTEM: ${error.message.split('\n')[0]}`);
+      console.error(`SYSTEM: ${error.message.split('\n')[0]}`);
     }
     return res;
   }
@@ -100,7 +100,7 @@ export class ChatServiceBase {
       await this.chatDao.saveChannel(chat, chat.user.name);
       return await this.chatDao.getRawUserChannels(user.id);
     } catch (error) {
-      console.log(`SYSTEM: ${error.message.split('\n')[0]}`);
+      console.error(`SYSTEM: ${error.message.split('\n')[0]}`);
     }
     return res;
   }
@@ -124,7 +124,7 @@ export class ChatServiceBase {
       await send(user2.intraname);
       return await this.chatDao.getRawUserChannels(user.id);
     } catch (error) {
-      console.log(`SYSTEM: ${error.message.split('\n')[0]}`);
+      console.error(`SYSTEM: ${error.message.split('\n')[0]}`);
     }
     return [];
   }
@@ -133,7 +133,7 @@ export class ChatServiceBase {
     try {
       await this.chatDao.removeUserFromChannel(chat, userId);
     } catch (error) {
-      console.log(`SYSTEM: ${error.message.split('\n')[0]}`);
+      console.error(`SYSTEM: ${error.message.split('\n')[0]}`);
     }
   }
 

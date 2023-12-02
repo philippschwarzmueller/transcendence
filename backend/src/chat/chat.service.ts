@@ -69,7 +69,7 @@ export class ChatService extends ChatServiceBase {
       server.to(data.room.toString()).emit('message', {message: mess, block: blockNames });
       await this.chatDao.saveMessageToChannel(data);
     } catch (error) {
-      console.log(`SYSTEM: ${error.message.split('\n')[0]}`);
+      console.error(`SYSTEM: ${error.message.split('\n')[0]}`);
     }
   }
 
@@ -90,7 +90,7 @@ export class ChatService extends ChatServiceBase {
         );
       server.to(data.room.toString()).emit(`${name}: got added`);
     } catch (error) {
-      console.log(`SYSTEM: ${error.message.split('\n')[0]}`);
+      console.error(`SYSTEM: ${error.message.split('\n')[0]}`);
     }
   }
 
@@ -103,7 +103,7 @@ export class ChatService extends ChatServiceBase {
         return;
       await this.chatDao.promoteUser(data.room, name);
     } catch (error) {
-      console.log(`SYSTEM: ${error.message.split('\n')[0]}`);
+      console.error(`SYSTEM: ${error.message.split('\n')[0]}`);
     }
   }
 
@@ -116,7 +116,7 @@ export class ChatService extends ChatServiceBase {
         return;
       await this.chatDao.demoteUser(data.room, name);
     } catch (error) {
-      console.log(`SYSTEM: ${error.message.split('\n')[0]}`);
+      console.error(`SYSTEM: ${error.message.split('\n')[0]}`);
     }
   }
 
@@ -134,7 +134,7 @@ export class ChatService extends ChatServiceBase {
         return;
       await this.chatDao.muteUser(data.room, val[1], time);
     } catch (error) {
-      console.log(`SYSTEM: ${error.message.split('\n')[0]}`);
+      console.error(`SYSTEM: ${error.message.split('\n')[0]}`);
     }
   }
 
@@ -157,7 +157,7 @@ export class ChatService extends ChatServiceBase {
         );
       server.to(data.room.toString()).emit(`${name}: got kicked`);
     } catch (error) {
-      console.log(`SYSTEM: ${error.message.split('\n')[0]}`);
+      console.error(`SYSTEM: ${error.message.split('\n')[0]}`);
     }
   }
 
