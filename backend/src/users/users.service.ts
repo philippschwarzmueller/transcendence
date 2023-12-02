@@ -66,7 +66,7 @@ export class UsersService {
     if (res) {
       return res;
     } else {
-      throw new Error('User not found');
+      return null;
     }
   }
 
@@ -180,6 +180,9 @@ export class UsersService {
   async isBlocked(userId: string, blockedId: string): Promise<boolean> {
     const user = await this.findOneByIntraName(userId);
     const blocked = await this.findOneByIntraName(blockedId);
+    if (!user || !blocked) {
+      return false;
+    }
     const queryRunner = this.dataSource.createQueryRunner();
     queryRunner.connect();
     const res = await queryRunner.manager.query(
@@ -202,6 +205,9 @@ export class UsersService {
   ): Promise<boolean> {
     const user: User = await this.findOneByIntraName(userId);
     const blocked: User = await this.findOneByIntraName(blockedId);
+    if (!user || !blocked) {
+      return false;
+    }
     const queryRunner = this.dataSource.createQueryRunner();
     queryRunner.connect();
     await queryRunner.manager.query(
@@ -215,6 +221,9 @@ export class UsersService {
   async addToBlockList(userId: string, blockedId: string): Promise<boolean> {
     const user = await this.findOneByIntraName(userId);
     const block = await this.findOneByIntraName(blockedId);
+    if (!user || !block) {
+      return false;
+    }
     const queryRunner = this.dataSource.createQueryRunner();
     queryRunner.connect();
     await queryRunner.manager.query(

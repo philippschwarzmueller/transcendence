@@ -1,6 +1,60 @@
+POST auth/login
+POST auth/signup
+GET auth/intra-login
+GET auth/logout
+POST auth/validate-token
+POST auth/change-name
+
+GET chat?userId=<userId>
+DELETE chat/rooms?userId=<userId>&chat=<chat>
+
+GET games/runninggames
+GET games/runninggames/hntest1
+GET games/runninggames/:intraname
+GET games/getwongamesamount/:intraname
+GET games/getwongamesamount/hntest1
+GET games/getlostgamesamount/hntest1
+GET games/getlostgamesamount/:intraname
+GET games/gettotalgamesamount/hntest1
+GET games/gettotalgamesamount/:intraname
+GET games/getwinrate/hntest1
+GET games/getwinrate/:intraname
+GET games/getelo/hntest1
+GET games/getelo/:intraname
+GET games/getallelo/hntest1
+GET games/getallelo/:intraname
+GET games/getallgames/hntest1
+GET games/getallgames/:intraname
+GET games/players/0
+GET games/players/100
+
+GET leaderboard/data/1
+GET leaderboard/data/2
+GET leaderboard/data/5
+
+GET users
+GET users/names
+GET users/hntest1
+GET users/:userId
+GET users/intraname/hntest1
+GET users/intraname/:userId
 PUT users/block?blocking=<blocking>&blocked=<blocked>
 POST users/block?blocking=<user>&blocked=<blocked>
 DELETE users/block?blocking=<user>&blocked=<blocked>
+GET users/intra/:userId
+GET users/intra/hntest1
+POST users/send-friend-request
+POST users/get-pending-friend-requests
+POST users/get-received-friend-requests
+POST users/accept-friend-request
+POST users/deny-friend-request
+POST users/get-friends
+POST users/remove-friend
+POST users/get-friend-state
+POST users/change-avatar
+POST users/back-to-fallback-profilepicture
 
-POST users/back-to-fallback-profilepicture
-POST users/back-to-fallback-profilepicture
+GET hello
+GET hello/hntest1
+GET hello/:id
+GET hello/:id
