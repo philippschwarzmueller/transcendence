@@ -22,9 +22,11 @@ const Msgfield = styled.div`
 
 const Tabbar = styled.div`
   display: flex;
+  flex-wrap: wrap;
   padding: 0px;
   margin-bottom: 5px;
   border: none;
+  max-width: 400px;
 `;
 
 const Textfield = styled.div`
@@ -74,6 +76,7 @@ const StyledLi = styled.li<{ $active: string }>`
   border-top-left-radius: 5px 5px;
   border-top-right-radius: 5px 5px;
   cursor: pointer;
+  max-width: 100%;
   background-color: ${(props) =>
     props.$active === "true" ? "rgb(195, 199, 203)" : "rgb(180, 180, 190)"};
   border-bottom-color: ${(props) =>
