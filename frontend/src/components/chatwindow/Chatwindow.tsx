@@ -133,17 +133,19 @@ const Chatwindow: React.FC<{ $display: boolean, z?: number }> = ({
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    socket.emit(
-      "join",
-      {
-        user: user,
-        type: 0,
-        id: room?.id,
-        title: room?.title,
-        prev: prevRoom?.id,
-      },
-      (res: IMessage[]) => setMessages(res),
-    );
+    if (room) {
+      socket.emit(
+        "join",
+        {
+          user: user,
+          type: 0,
+          id: room?.id,
+          title: room?.title,
+          prev: prevRoom?.id,
+        },
+        (res: IMessage[]) => setMessages(res),
+      );
+    }
   }, [room]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(
