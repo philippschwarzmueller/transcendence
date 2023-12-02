@@ -1,4 +1,4 @@
-import { Injectable, Inject, Res } from '@nestjs/common';
+import { Injectable, Res } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
 import { Repository } from 'typeorm';
@@ -112,7 +112,7 @@ export class AuthService {
           token: data.access_token,
           hashedToken: hashedToken,
           tokenExpiry: currentTime + data.expires_in,
-        })
+        }),
       );
     }
 
