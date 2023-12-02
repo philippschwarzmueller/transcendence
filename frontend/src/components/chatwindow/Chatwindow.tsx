@@ -109,12 +109,6 @@ const Chatwindow: React.FC<{ $display: boolean, z?: number }> = ({
   const roomRef: any = useRef<typeof Popup | null>(null);
   const channelRef: any = useRef<typeof ChannelUser | null>(null);
 
-  socket.on("connect", () => {
-    socket.emit("contact", { user: user, type: 0, id: 0, title: "" });
-  });
-  socket.on("disconnect", () => {
-    socket.emit("layoff", user.name);
-  });
   socket.on("message", (res: IMessage) => setMessages([...messages, res]));
   socket.on("invite", (res: ITab[]) => setTabs(res));
   socket.on("game", (body: IGameStart) => {
