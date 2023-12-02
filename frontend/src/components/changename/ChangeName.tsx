@@ -51,6 +51,7 @@ const NameChangeSection: React.FC = () => {
     <>
       <Container>
         <Input
+          label="Change Name"
           placeholder="new name goes here"
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
