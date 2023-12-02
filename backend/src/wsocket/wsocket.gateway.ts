@@ -13,9 +13,10 @@ import {
   IGame,
   IGameSocketPayload,
   IQueuePayload,
+  IUser,
 } from '../games/properties';
 
-import { EChannelType, IChannel, IMessage, ITab, ISendMessage, IUser } from '../chat/properties';
+import { EChannelType, IChannel, IMessage, ITab, ISendMessage } from '../chat/properties';
 import { Socket, Server } from 'socket.io';
 import { GamesService } from '../games/games.service';
 import { ChatService } from 'src/chat/chat.service';
@@ -77,6 +78,21 @@ export class WSocketGateway implements OnGatewayInit {
     if (data.type !== EChannelType.CHAT)
       return await this.chatService.addChat(data);
     return await this.chatService.addU2UChat(data, this.server);
+  }
+
+  @SubscribeMessage('challenge')
+  challenge(@MessageBody() data: {challenger: IUser, challenged: IUser}) {
+    this.chatService.gameInviteButton(data.challenger, data.challenged, this.server);
+  }
+
+  @SubscribeMessage('acceptgame')
+  accept(@MessageBody() data: {challenger: IUser, challenged: IUser}) {
+    this.chatService.gameAcceptButton(data.challenger, data.challenged, this.server, this.gamesService);
+  }
+
+  @SubscribeMessage('declinegame')
+  decline(@MessageBody() data: IUser) {
+    this.chatService.opponents.delete(data.intraname);
   }
 
   @SubscribeMessage('alterGameData')

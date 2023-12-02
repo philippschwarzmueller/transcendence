@@ -1,11 +1,14 @@
 import Button from "../button";
-import { AuthContext } from "../../context/auth";
-import { useContext, useEffect, useState } from "react";
+import { AuthContext, IUser } from "../../context/auth";
+import { useContext } from "react";
 import { SocketContext } from "../../context/socket";
 import styled from "styled-components";
 import Progressbar from "../progressbar";
-import { IQueueContext, QueueContext } from "../../context/queue";
 import { queueTimeout } from "../gamewindow/properties";
+
+interface IInvitepopwindowProps {
+  challenger: IUser | null;
+}
 
 const StyledWindow = styled.div`
   position: absolute;
@@ -36,6 +39,7 @@ const Windowbar = styled.div`
 const Wrapper = styled.div`
   width: 400px;
   height: 150px;
+  border: 1px solid black;
 `;
 
 const ButtonDiv = styled.div`
@@ -56,64 +60,40 @@ const LoadingDiv = styled.div`
   margin: 15px;
 `;
 
-const Queuepopwindow: React.FC = () => {
+const Invitepopwindow: React.FC<IInvitepopwindowProps> = (
+  {challenger}: IInvitepopwindowProps
+) => {
   const socket = useContext(SocketContext);
   const auth = useContext(AuthContext);
-  const queue: IQueueContext = useContext(QueueContext);
-  const [windowText, setWindowText] = useState<string>(
-    "A match has been found, do you want to accept or decline?"
-  );
-  const [windowButtons, setWindowButtons] = useState(<></>);
 
   const handleAccept = (): void => {
-    if (auth.user.intraname) socket.emit("accept", auth.user.intraname);
-    setWindowText("waiting for the other player");
-    setWindowButtons(<></>);
+    if (auth.user.intraname) socket.emit("acceptgame", {challenger: challenger, challenged: auth.user});
   };
 
   const handleDecline = (): void => {
-    if (auth.user.intraname) socket.emit("decline", auth.user.intraname);
-    queue.setQueueFound(false);
+    if (auth.user.intraname) socket.emit("declinegame", auth.user);
   };
-
-  useEffect(() => {
-    if (queue.denied === true) {
-      setWindowButtons(
-        <Button onClick={() => queue.setQueueFound(false)}>go back</Button>
-      );
-      setWindowText("Your opponent denied");
-    } else {
-      setWindowButtons(
-        <>
-          <Button onClick={handleAccept}>Accept</Button>
-          <Button onClick={handleDecline}>Decline</Button>
-        </>
-      );
-      setWindowText(
-        "A match has been found, do you want to accept or decline?"
-      );
-    }
-  }, [queue]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <>
-      {queue.queueFound ? (
+      {challenger ? (
         <StyledWindow>
-          <Windowbar>Match Found</Windowbar>
+        <Windowbar>Challenge received</Windowbar>
           <Wrapper>
             <TextDiv>
-              <p>{windowText}</p>
+              <p>{challenger?.name} challenges you to a game</p>
             </TextDiv>
             <LoadingDiv>
-              {!queue.denied ? (
                 <Progressbar totalTime={queueTimeout}></Progressbar>
-              ) : null}
             </LoadingDiv>
-            <ButtonDiv>{windowButtons}</ButtonDiv>
+            <ButtonDiv>
+            <Button onClick={handleAccept}>Accept</Button>
+            <Button onClick={handleDecline}>Decline</Button>
+            </ButtonDiv>
           </Wrapper>
         </StyledWindow>
       ) : null}
     </>
   );
 };
-export default Queuepopwindow;
+export default Invitepopwindow;

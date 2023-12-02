@@ -94,6 +94,7 @@ const Chatwindow: React.FC<{ $display: boolean, z?: number }> = ({
   const user: IUser = useContext(AuthContext).user;
   const [tabs, setTabs] = useState<ITab[]>([]);
   const [activeTab, setActiveTab] = useState<string | null>(null);
+  const [activeTabId, setActiveTabId] = useState<number>(0);
   const [room, setRoom] = useState<ITab | null>(null);
   const [prevRoom, setPrevRoom] = useState<ITab | null>(null);
   const socket: Socket = useContext(SocketContext);
@@ -170,6 +171,7 @@ const Chatwindow: React.FC<{ $display: boolean, z?: number }> = ({
 
   const setActive = (tab: ITab) => {
     setActiveTab(tab.title);
+    setActiveTabId(tab.id);
     setPrevRoom(room);
     setRoom(tab);
   };
@@ -213,7 +215,7 @@ const Chatwindow: React.FC<{ $display: boolean, z?: number }> = ({
           <Button
             onClick={() => {
               fetch(
-                `http://${window.location.hostname}:4000/chat/rooms?userId=${user.name}&chat=${activeTab}`,
+                `http://${window.location.hostname}:4000/chat/rooms?userId=${user.name}&chat=${activeTabId}`,
                 { method: "DELETE" },
               ).catch(err=>console.error(err));
               setTabs(

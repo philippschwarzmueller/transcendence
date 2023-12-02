@@ -1,11 +1,6 @@
 import { IGameUser } from 'src/games/properties';
+import { IUser } from 'src/games/properties';
 
-export interface IUser {
-  id: number | undefined;
-  name: string | undefined;
-  image: string | undefined;
-  token: string | undefined;
-}
 
 export interface IMessage {
   user: IUser;
