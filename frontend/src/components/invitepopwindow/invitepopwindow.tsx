@@ -1,6 +1,6 @@
 import Button from "../button";
 import { AuthContext, IUser } from "../../context/auth";
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import { SocketContext } from "../../context/socket";
 import styled from "styled-components";
 import Progressbar from "../progressbar";
@@ -65,9 +65,6 @@ const Invitepopwindow: React.FC<IInvitepopwindowProps> = (
 ) => {
   const socket = useContext(SocketContext);
   const auth = useContext(AuthContext);
-  const [windowText, setWindowText] = useState<string>(
-    `${challenger?.name} challenges you to a game`
-  );
 
   const handleAccept = (): void => {
     if (auth.user.intraname) socket.emit("acceptgame", {challenger: challenger, challenged: auth.user});
@@ -81,10 +78,10 @@ const Invitepopwindow: React.FC<IInvitepopwindowProps> = (
     <>
       {challenger ? (
         <StyledWindow>
-        <Windowbar>Match Found</Windowbar>
+        <Windowbar>Challenge received</Windowbar>
           <Wrapper>
             <TextDiv>
-              <p>{windowText}</p>
+              <p>{challenger?.name} challenges you to a game</p>
             </TextDiv>
             <LoadingDiv>
                 <Progressbar totalTime={queueTimeout}></Progressbar>
