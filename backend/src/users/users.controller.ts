@@ -84,16 +84,7 @@ export class UsersController {
     @Body() body: { friend: string },
     @Req() req: Request,
   ): Promise<boolean> {
-    const token: string = req.cookies.token;
-    const user: User | null =
-      await this.usersService.exchangeTokenforUser(token);
-    const friend: User | null = await this.usersService.findOneByName(
-      body.friend,
-    );
-    if (user === null || friend === null) {
-      return false;
-    }
-    return await this.usersService.addFriend(user, friend);
+    return await this.usersService.addFriend(req, body.friend);
   }
 
   @Post('get-pending-friend-requests')
@@ -152,8 +143,6 @@ export class UsersController {
     }
     return await this.usersService.denyFriendRequest(user, friend);
   }
-
-
 
   @Post('get-friends')
   async getFriends(@Req() req: Request): Promise<PublicUser[]> {

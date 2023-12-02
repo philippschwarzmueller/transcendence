@@ -4,6 +4,7 @@ import { DataSource, Repository } from 'typeorm';
 import { User } from './user.entity';
 import { Channels } from 'src/chat/chat.entity';
 import { Game } from 'src/games/game.entity';
+import { Request } from 'express';
 
 export enum FriendState {
   noFriend,
@@ -253,7 +254,14 @@ export class UsersService {
     ).friend_requests_received;
   }
 
-  async addFriend(user: User, friend: User): Promise<boolean> {
+  async addFriend(req: Request, friendName: string): Promise<boolean> {
+    const token: string = req.cookies.token;
+    const user: User | null = await this.exchangeTokenforUser(token);
+    const friend: User | null = await this.findOneByName(friendName);
+    if (user === null || friend === null) {
+      return false;
+    }
+
     const sender: User = await this.usersRepository.findOne({
       where: { name: user.name },
       relations: ['friend_requested'],
