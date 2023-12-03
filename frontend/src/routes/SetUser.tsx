@@ -50,7 +50,7 @@ const SetUser: React.FC = () => {
 
   useEffect(() => {
     if (redirect) {
-      nav(`/home`); //TODO change later for login redirect
+      nav(`/home`);
     }
   }, [redirect]); // eslint-disable-line react-hooks/exhaustive-deps
 

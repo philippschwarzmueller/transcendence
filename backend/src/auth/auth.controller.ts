@@ -1,21 +1,10 @@
-import {
-  Body,
-  Controller,
-  Post,
-  Get,
-  Query,
-  HttpCode,
-  HttpException,
-  HttpStatus,
-  Res,
-  Req,
-} from '@nestjs/common';
+import { Body, Controller, Post, Get, Query, Res, Req } from '@nestjs/common';
 import { AuthService, IntraSignInEvent } from './auth.service';
-import { CreateUserDto } from '../users/dto/create-user.dto';
 import { User } from '../users/user.entity';
 import { Response, Request } from 'express';
 import { TokenResponse } from './auth.service';
 import { ConfigService } from '@nestjs/config';
+import { PublicUser } from 'src/users/users.service';
 
 @Controller('auth')
 export class AuthController {
@@ -25,38 +14,6 @@ export class AuthController {
     private configService: ConfigService,
   ) {
     this.hostIP = this.configService.get<string>('HOST_IP');
-  }
-  @Post('login')
-  @HttpCode(200)
-  async login(@Body() createUserDto: CreateUserDto): Promise<User> {
-    try {
-      return await this.authService.login(createUserDto);
-    } catch (error) {
-      if (error.message === 'User not found') {
-        throw new HttpException(error.message, HttpStatus.NOT_FOUND);
-      }
-      if (error.message === 'Wrong password') {
-        throw new HttpException(error.message, HttpStatus.FORBIDDEN);
-      }
-      throw new HttpException(
-        'Internal Server Error',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
-
-  @Post('signup')
-  @HttpCode(201)
-  async signup(
-    @Body() createUserDto: CreateUserDto,
-  ): Promise<{ message: string; data: any }> {
-    try {
-      return await this.authService.signup(createUserDto);
-    } catch (error) {
-      if (error.message === 'User already exists') {
-        throw new HttpException(error.message, HttpStatus.CONFLICT);
-      }
-    }
   }
 
   @Get('intra-login')
@@ -74,12 +31,17 @@ export class AuthController {
   async callback(
     @Query('code') code: string,
     @Res() res: Response,
-  ): Promise<void> {
+  ): Promise<void | null> {
+    if (!code) {
+      res.redirect(`http://${this.hostIP}:3000/login`);
+      return null;
+    }
     try {
       const data: TokenResponse =
         await this.authService.exchangeCodeForToken(code);
       if (data === null) {
         res.redirect(`http://${this.hostIP}:3000/login`);
+        return null;
       }
       const hashedToken: string = await this.authService.hashToken(
         data.access_token,
@@ -100,27 +62,45 @@ export class AuthController {
       console.error(
         '42 login failed, check your env file or the app config on 42 intra',
       );
+      res.redirect(`http://${this.hostIP}:3000/login`);
+      return null;
     }
   }
 
   @Post('validate-token')
-  async validateToken(@Req() req: Request): Promise<User> | null {
-    const token = req.cookies.token;
-    if (token == undefined) return null;
-    const User: User | null = await this.authService.checkToken(token);
-    return User;
+  async validateToken(@Req() req: Request): Promise<PublicUser> {
+    let validUser: User;
+    let retUser: PublicUser;
+    if (!req.cookies.token) {
+      validUser = null;
+      return validUser;
+    }
+    try {
+      validUser = await this.authService.checkToken(req);
+    } catch (error) {
+      validUser = null;
+      return validUser;
+    }
+    if (validUser) {
+      retUser = await this.authService.createPublicUser(validUser);
+      return retUser;
+    }
+    return validUser;
   }
 
   @Post('change-name')
   async changeName(
     @Body() body: { newName: string },
     @Req() req: Request,
-  ): Promise<User | null> {
-    const token: string = req.cookies.token;
-    const user: User | null = await this.authService.checkNameChange(
-      token,
-      body.newName,
-    );
-    return user;
+  ): Promise<PublicUser | null> {
+    try {
+      const newNameUser: User = await this.authService.checkNameChange(
+        req,
+        body.newName,
+      );
+      return await this.authService.createPublicUser(newNameUser);
+    } catch (error) {
+      return null;
+    }
   }
 }

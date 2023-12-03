@@ -4,7 +4,7 @@ import GlobalStyle from "./GlobalStyle";
 import { AuthContext, IUser } from "../context/auth";
 import { SocketContext, awSocket } from "../context/socket";
 import RefreshProvider from "../components/refresh/RefreshProvider";
-import { ProfileContext } from "../context/profile";
+import { IProfile, ProfileContext } from "../context/profile";
 import { QueueProvider } from "../context/queue";
 
 const Root: React.FC = () => {
@@ -31,16 +31,37 @@ const Root: React.FC = () => {
       activeChats: [],
     });
   };
+  const [profile, setProfile] = React.useState<IProfile>({
+      intraname: "",
+      name: "",
+      profilePictureUrl: "",
+      display: false,
+    });
+  const updateProfile = (profile: IUser, value: boolean) => {
+      setProfile({
+          intraname: profile.intraname,
+          name: profile.name,
+          profilePictureUrl: profile.profilePictureUrl,
+          display: value,
+        })
+    }
+  const updateProfileDisplay = (profile: IProfile, value: boolean) => {
+      setProfile({
+          intraname: profile.intraname,
+          name: profile.name,
+          profilePictureUrl: profile.profilePictureUrl,
+          display: value,
+        })
+    }
 
   return (
     <>
       <AuthContext.Provider value={{ user, logIn, logOut }}>
         <ProfileContext.Provider
           value={{
-            intraname: "",
-            name: "",
-            profilePictureUrl: "",
-            display: false,
+            profile,
+            updateProfile,
+            updateProfileDisplay
           }}
         >
           <QueueProvider>

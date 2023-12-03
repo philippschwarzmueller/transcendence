@@ -4,7 +4,6 @@ import Dropdown from "../dropdown/dropdown";
 import Checkbox from "../checkbox/checkbox";
 import styled from "styled-components";
 import WindowWrapper from "../outlinecontainer/outlinecontainer";
-import { NavigateFunction, useNavigate } from "react-router-dom";
 import Moveablewindow from "../moveablewindow";
 
 const HorizontalContainer = styled.div`
@@ -90,20 +89,18 @@ const StyledTableHead = styled.thead`
 
 const StyledTableBody = styled.tbody``;
 
-const Leaderboard: React.FC<{ $display: boolean, z?: number}> = ({
-  $display,
-  z
-}) => {
+const Leaderboard: React.FC<{
+  setDisplay?: (display: boolean) => void;
+  $display: boolean;
+  z?: number;
+}> = ({ $display, z, setDisplay }) => {
   const [data, setData] = useState<ILeaderboardLine[]>([]);
   const [gamemode, setGamemode] = useState<string>("0");
   const [sortedBy, setSortedBy] = useState<ESortedBy>(ESortedBy.Elo);
   const [checkedStandardBox, setCheckedStandardBox] = useState<boolean>(true);
   const [checked2dBox, setChecked2dBox] = useState<boolean>(true);
-  const navigate: NavigateFunction = useNavigate();
 
-  const handleElementClick = (intraname: string): void => {
-    navigate(`/profile/${intraname}`);
-  };
+  const handleElementClick = (): void => {};
 
   useEffect(() => {
     fetch(`${BACKEND}/leaderboard/data/${gamemode}`)
@@ -133,6 +130,7 @@ const Leaderboard: React.FC<{ $display: boolean, z?: number}> = ({
         title="Leaderboard"
         positionZ={z}
         display={$display}
+        setDisplay={setDisplay}
       >
         <WindowWrapper title="sortBy">
           <HorizontalContainer>
@@ -152,6 +150,7 @@ const Leaderboard: React.FC<{ $display: boolean, z?: number}> = ({
               }}
             />
             <Dropdown
+              id="stats-select"
               title="select sorting"
               items={[
                 {
@@ -199,7 +198,7 @@ const Leaderboard: React.FC<{ $display: boolean, z?: number}> = ({
               {data.map((val, key) => (
                 <tr
                   onClick={() => {
-                    handleElementClick(val.intraname);
+                    handleElementClick();
                   }}
                   key={key}
                 >

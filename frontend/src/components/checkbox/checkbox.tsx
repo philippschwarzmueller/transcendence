@@ -72,7 +72,7 @@ const Checkbox: React.FC<CheckboxProps> = (props) => {
   return (
     <>
       <Label>
-        <Field checked={props.checked} onChange={props.onChange} />
+        <Field id={props.label} checked={props.checked} onChange={props.onChange} />
         <Icon />
         <Text>{props.label}</Text>
       </Label>

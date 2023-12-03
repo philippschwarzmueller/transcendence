@@ -1,16 +1,28 @@
-import { createContext } from "react"
+import { createContext } from "react";
+import { IUser } from "./auth";
+
+export interface IProfile {
+  intraname: string | undefined;
+  name: string | undefined;
+  profilePictureUrl: string | undefined;
+  display: boolean;
+}
+
+let default_profile: IProfile = {
+  intraname: "",
+  name: "",
+  profilePictureUrl: "",
+  display: false,
+};
 
 export interface IProfileContext {
-    intraname: string;
-    name: string;
-    profilePictureUrl: string;
-    display: boolean;
-  }
+  profile: IProfile;
+  updateProfile: (user: IUser, value: boolean) => void;
+  updateProfileDisplay: (profile: IProfile, value: boolean) => void;
+};
 
 export const ProfileContext = createContext<IProfileContext>({
-    intraname: "",
-    name: "",
-    display: false,
-    profilePictureUrl: "",
-  })
-
+  profile: default_profile,
+  updateProfile: () => {},
+  updateProfileDisplay: () => {},
+});

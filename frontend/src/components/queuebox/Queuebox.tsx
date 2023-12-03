@@ -62,7 +62,8 @@ const Queuebox: React.FC = () => {
     localStorage.removeItem("queueInterval");
     clearInterval(queueInterval);
     const newQueueInterval: ReturnType<typeof setInterval> = setInterval(() => {
-      setTimer(Math.floor((Date.now() - cookie.queue.timestamp) / 1000));
+      if (cookie?.queue?.timestamp)
+        setTimer(Math.floor((Date.now() - cookie.queue.timestamp) / 1000));
     }, 1000);
     localStorage.setItem("queueInterval", String(newQueueInterval));
   };

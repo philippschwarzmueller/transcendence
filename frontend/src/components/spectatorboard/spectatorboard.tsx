@@ -15,6 +15,7 @@ interface SpectatorboardProps {
   intraname?: string;
   display: boolean;
   z: number;
+  setDisplay?: (display: boolean) => void;
 }
 
 interface ISpectateGame {
@@ -35,14 +36,18 @@ const StyledItem = styled.li`
   align-items: center;
   border-radius: 0px;
   background-color: rgb(195, 199, 203);
-  box-shadow: inset 1px 1px 0px 1px rgb(255, 255, 255),
-    inset 0 0 0 1px rgb(134, 138, 142), 1px 1px 0px 1px rgb(0, 0, 0),
+  box-shadow:
+    inset 1px 1px 0px 1px rgb(255, 255, 255),
+    inset 0 0 0 1px rgb(134, 138, 142),
+    1px 1px 0px 1px rgb(0, 0, 0),
     2px 2px 5px 0px rgba(0, 0, 0, 0.5);
 
   &:hover {
     outline-offset: -5px;
-    box-shadow: inset 1px 1px 0px 1px rgb(255, 255, 255),
-      inset 0 0 0 1px rgb(134, 138, 142), 1px 1px 0 0px rgb(0, 0, 0);
+    box-shadow:
+      inset 1px 1px 0px 1px rgb(255, 255, 255),
+      inset 0 0 0 1px rgb(134, 138, 142),
+      1px 1px 0 0px rgb(0, 0, 0);
   }
 `;
 
@@ -58,7 +63,7 @@ const StyledParagraph = styled.p`
 
 const getGameUrl = (
   selfIntraname: string | null | undefined,
-  spectateGame: ISpectateGame
+  spectateGame: ISpectateGame,
 ): string => {
   if (!selfIntraname) return `/play/${spectateGame.gameId}`;
   else if (selfIntraname === spectateGame.leftPlayerIntraname)
@@ -69,7 +74,7 @@ const getGameUrl = (
 };
 
 const Spectatorboard: React.FC<SpectatorboardProps> = (
-  props: SpectatorboardProps
+  props: SpectatorboardProps,
 ) => {
   const [spectateGames, setSpectateGames] = useState<ISpectateGame[]>([]);
   const navigate: NavigateFunction = useNavigate();
@@ -103,6 +108,7 @@ const Spectatorboard: React.FC<SpectatorboardProps> = (
         title="Running Games"
         display={props.display}
         positionZ={props.z}
+        setDisplay={props.setDisplay}
       >
         <Wrapper>
           {spectateGames.length > 0 ? (

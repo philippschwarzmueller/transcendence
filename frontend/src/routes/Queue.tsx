@@ -6,7 +6,7 @@ const QueuePage: React.FC = () => {
   return (
     <>
       <Pagetitle>Queue</Pagetitle>
-      <Queuebox></Queuebox>
+      <Queuebox />
     </>
   );
 };

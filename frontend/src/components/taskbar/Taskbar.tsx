@@ -1,18 +1,19 @@
 import { useContext, useState } from "react";
 import { styled } from "styled-components";
 import { AuthContext } from "../../context/auth";
-import { ProfileContext } from "../../context/profile";
 import { BACKEND } from "../../routes/SetUser";
 import Chatwindow from "../chatwindow/Chatwindow";
 import Friendbrowser from "../friendbrowser/Friendbrowser";
-import Leaderboard from "../leaderboard/leaderboard";
+import Leaderboard from "../leaderboard/";
 import Profilesettings from "../profilesettings/Profilesettings";
 import Profilewindow from "../profilewindow/Profilewindow";
 import Userbrowser from "../userbrowser";
 import Queuepopwindow from "../queuepopwindow/queuepopwindow";
 import Spectatorboard from "../spectatorboard";
+import { ProfileContext } from "../../context/profile";
 
 const StyledNavbar = styled.nav`
+  user-select: none;
   width: 100vw;
   height: 3vh;
   display: flex;
@@ -20,8 +21,12 @@ const StyledNavbar = styled.nav`
   position: absolute;
   bottom: 0;
   background-color: rgb(195, 199, 203);
-  box-shadow: inset 0.5px 0.5px 0px 0.5px #ffffff, inset 0 0 0 1px #868a8e,
-    1px 0px 0 0px #000000, 0px 1px 0 0px #000000, 1px 1px 0 0px #000000;
+  box-shadow:
+    inset 0.5px 0.5px 0px 0.5px #ffffff,
+    inset 0 0 0 1px #868a8e,
+    1px 0px 0 0px #000000,
+    0px 1px 0 0px #000000,
+    1px 1px 0 0px #000000;
   align-items: center;
 `;
 
@@ -45,7 +50,9 @@ const TaskButton = styled.button<{ $active: boolean }>`
     padding: 8 20 4;
     background-color: rgb(215, 216, 220);
 
-    box-shadow: inset 0 0 0 1px rgb(134, 138, 142), 0 0 0 1px rgb(0, 0, 0);
+    box-shadow:
+      inset 0 0 0 1px rgb(134, 138, 142),
+      0 0 0 1px rgb(0, 0, 0);
   }
   box-shadow: ${(props) =>
     props.$active
@@ -61,8 +68,12 @@ const StartMenu = styled.div<{ $display: boolean }>`
   left: 2px;
   z-index: 4;
   background-color: rgb(195, 199, 203);
-  box-shadow: inset 0.5px 0.5px 0px 0.5px #ffffff, inset 0 0 0 1px #868a8e,
-    1px 0px 0 0px #000000, 0px 1px 0 0px #000000, 1px 1px 0 0px #000000;
+  box-shadow:
+    inset 0.5px 0.5px 0px 0.5px #ffffff,
+    inset 0 0 0 1px #868a8e,
+    1px 0px 0 0px #000000,
+    0px 1px 0 0px #000000,
+    1px 1px 0 0px #000000;
   user-select: none;
 `;
 
@@ -114,7 +125,7 @@ enum Windows {
 
 const Taskbar: React.FC = () => {
   let auth = useContext(AuthContext);
-  const profile = useContext(ProfileContext);
+  const user = useContext(ProfileContext);
   const [displayChat, setDisplayChat] = useState<boolean>(false);
   const [displayUsers, setDisplayUsers] = useState<boolean>(false);
   const [displayStart, setDisplayStart] = useState<boolean>(false);
@@ -158,13 +169,11 @@ const Taskbar: React.FC = () => {
   return (
     <>
       <div onClick={() => changeOrder(Windows.Profile)}>
-        <Profilewindow
-          $display={profile.display}
-          z={displayOrder[Windows.Profile]}
-        />
+        <Profilewindow z={displayOrder[Windows.Profile]} />
       </div>
       <div onClick={() => changeOrder(Windows.Friends)}>
         <Friendbrowser
+          setDisplay={setDisplayFriends}
           $display={displayFriends}
           z={displayOrder[Windows.Friends]}
         />
@@ -173,16 +182,26 @@ const Taskbar: React.FC = () => {
         <Profilesettings
           $display={displayProfileSettings}
           z={displayOrder[Windows.Settings]}
+          setDisplay={setDisplayProfileSettings}
         />
       </div>
       <div onClick={() => changeOrder(Windows.Chat)}>
-        <Chatwindow $display={displayChat} z={displayOrder[Windows.Chat]} />
+        <Chatwindow
+          setDisplay={setDisplayChat}
+          $display={displayChat}
+          z={displayOrder[Windows.Chat]}
+        />
       </div>
       <div onClick={() => changeOrder(Windows.Users)}>
-        <Userbrowser $display={displayUsers} z={displayOrder[Windows.Users]} />
+        <Userbrowser
+          setDisplay={setDisplayUsers}
+          $display={displayUsers}
+          z={displayOrder[Windows.Users]}
+        />
       </div>
       <div onClick={() => changeOrder(Windows.Leaderboard)}>
         <Leaderboard
+          setDisplay={setDisplayLeaderboard}
           $display={displayLeaderboard}
           z={displayOrder[Windows.Leaderboard]}
         />
@@ -192,6 +211,7 @@ const Taskbar: React.FC = () => {
       </div>
       <div onClick={() => changeOrder(Windows.Spectatorboard)}>
         <Spectatorboard
+          setDisplay={setDisplaySpectatorboard}
           display={displaySpectatorboard}
           z={displayOrder[Windows.Spectatorboard]}
         />
@@ -201,14 +221,7 @@ const Taskbar: React.FC = () => {
         <StyledUl>
           <StyledLi
             onClick={() => {
-              profile.intraname = auth.user.intraname
-                ? auth.user.intraname
-                : "";
-              profile.name = auth.user.name ? auth.user.name : "";
-              profile.profilePictureUrl = auth.user.profilePictureUrl
-                ? auth.user.profilePictureUrl
-                : "";
-              profile.display = !profile.display;
+              user.updateProfile(auth.user, !user.profile.display);
               changeOrder(Windows.Profile);
             }}
           >
@@ -216,7 +229,7 @@ const Taskbar: React.FC = () => {
               src={require("../../images/head.png")}
               height="16"
               width="16"
-              alt="profile"
+              alt="user.profile"
             />
             Profile
           </StyledLi>
@@ -230,7 +243,7 @@ const Taskbar: React.FC = () => {
               src={require("../../images/settings.png")}
               height="16"
               width="16"
-              alt="profile"
+              alt="user.profile"
             />
             Profile Settings
           </StyledLi>
@@ -248,15 +261,6 @@ const Taskbar: React.FC = () => {
               alt="useres"
             />
             Users
-          </StyledLi>
-          <StyledLi>
-            <img
-              src={require("../../images/block.png")}
-              height="16"
-              width="16"
-              alt="block"
-            />
-            Blocklist
           </StyledLi>
           <StyledLi
             onClick={() => {

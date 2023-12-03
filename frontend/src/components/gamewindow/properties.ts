@@ -49,13 +49,6 @@ export interface IGame {
   isFinished: boolean;
 }
 
-// export interface IUser {
-//   id: number | undefined;
-//   name: string | undefined;
-//   image: string | undefined;
-//   token: string | undefined;
-// }
-
 export interface IBall {
   x: number;
   y: number;
@@ -74,7 +67,7 @@ export interface IGameSocketPayload {
   side: string;
   gameId: string;
   keystate: IKeyState;
-  user: IUser;
+  user: IAnonymUser;
 }
 
 export interface IGameStart {
@@ -164,6 +157,12 @@ export const gameSpawn: IGame = {
   keyStateRight: { up: false, down: false, left: false, right: false },
   isFinished: false,
 };
+
+export interface IAnonymUser {
+  intraname: string | null;
+  nickname: string | null;
+  hashedToken: string | null;
+}
 
 export const goalSizePercent: number = 50;
 

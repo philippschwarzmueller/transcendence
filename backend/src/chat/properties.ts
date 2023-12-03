@@ -1,26 +1,29 @@
 import { IGameUser } from 'src/games/properties';
-
-export interface IUser {
-  id: number | undefined;
-  name: string | undefined;
-  image: string | undefined;
-  token: string | undefined;
-}
+import { IUser } from 'src/games/properties';
 
 export interface IMessage {
   user: IUser;
   input: string;
-  room: string;
+  room: number;
 }
 
 export enum EChannelType {
   PRIVATE,
-  PUBLIC
+  PUBLIC,
+  CHAT,
 }
 
 export interface IChannel {
   user: IUser;
   type: EChannelType;
+  id: number;
+  title: string;
+  prev: number;
+}
+
+export interface ITab {
+  type: EChannelType;
+  id: number;
   title: string;
 }
 

@@ -13,6 +13,7 @@ import {
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from './user.entity';
+import { PublicUser } from './users.service';
 import { Request } from 'express';
 import { FriendState } from './users.service';
 
@@ -20,8 +21,9 @@ import { FriendState } from './users.service';
 export class UsersController {
   constructor(private usersService: UsersService) {}
   @Get()
-  findAll(): Promise<User[]> {
-    return this.usersService.findAll();
+  async findAll(): Promise<PublicUser[]> {
+    const users: User[] = await this.usersService.findAll();
+    return await this.usersService.createPublicUserArray(users);
   }
 
   @Get('names')
@@ -30,9 +32,22 @@ export class UsersController {
   }
 
   @Get(':userId')
-  async findOne(@Param('userId') name: string): Promise<User> {
+  async findOne(@Param('userId') name: string): Promise<PublicUser> {
     try {
-      return await this.usersService.findOneByName(name);
+      const user: User = await this.usersService.findOneByName(name);
+      return this.usersService.createPublicUser(user);
+    } catch (e) {
+      throw new HttpException('user not found', HttpStatus.NOT_FOUND, {
+        cause: e,
+      });
+    }
+  }
+
+  @Get('intraname/:userId')
+  async findOneIntra(@Param('userId') intraname: string): Promise<PublicUser> {
+    try {
+      const user: User = await this.usersService.findOneByIntraName(intraname);
+      return this.usersService.createPublicUser(user);
     } catch (e) {
       throw new HttpException('user not found', HttpStatus.NOT_FOUND, {
         cause: e,
@@ -77,9 +92,10 @@ export class UsersController {
   }
 
   @Get('/intra/:userId')
-  async findIntra(@Param('userId') name: string): Promise<User> {
+  async findIntra(@Param('userId') name: string): Promise<PublicUser> {
     try {
-      return await this.usersService.findOneByIntraName(name);
+      const user: User = await this.usersService.findOneByIntraName(name);
+      return this.usersService.createPublicUser(user);
     } catch (e) {
       throw new HttpException('user not found', HttpStatus.NOT_FOUND, {
         cause: e,
@@ -92,37 +108,29 @@ export class UsersController {
     @Body() body: { friend: string },
     @Req() req: Request,
   ): Promise<boolean> {
-    const token: string = req.cookies.token;
-    const user: User | null =
-      await this.usersService.exchangeTokenforUser(token);
-    const friend: User | null = await this.usersService.findOneByName(
-      body.friend,
-    );
-    if (user === null || friend === null) {
-      return false;
-    }
-    return await this.usersService.addFriend(user, friend);
+    return await this.usersService.addFriend(req, body.friend);
   }
 
   @Post('get-pending-friend-requests')
-  async getPendingFriendRequests(@Req() req: Request): Promise<User[]> {
-    const token: string = req.cookies.token;
-    const user: User | null =
-      await this.usersService.exchangeTokenforUser(token);
-    const pendingUsers: User[] = await this.usersService.getFriendRequestList(
-      user.name,
-    );
-    return pendingUsers;
+  async getPendingFriendRequests(@Req() req: Request): Promise<PublicUser[]> {
+    const pendingUsers: User[] =
+      await this.usersService.getFriendRequestList(req);
+    if (pendingUsers) {
+      return this.usersService.createPublicUserArray(pendingUsers);
+    }
+    return [];
   }
 
   @Post('get-received-friend-requests')
-  async getReceivedFriendRequests(@Req() req: Request): Promise<User[]> {
-    const token: string = req.cookies.token;
-    const user: User | null =
-      await this.usersService.exchangeTokenforUser(token);
+  async getReceivedFriendRequests(@Req() req: Request): Promise<PublicUser[]> {
     const ReceivedFriendRequestsFromUsers: User[] =
-      await this.usersService.getReceivedFriendRequestList(user.name);
-    return ReceivedFriendRequestsFromUsers;
+      await this.usersService.getReceivedFriendRequestList(req);
+    if (ReceivedFriendRequestsFromUsers) {
+      return this.usersService.createPublicUserArray(
+        ReceivedFriendRequestsFromUsers,
+      );
+    }
+    return [];
   }
 
   @Post('accept-friend-request')
@@ -130,25 +138,24 @@ export class UsersController {
     @Body() body: { friend: string },
     @Req() req: Request,
   ): Promise<boolean> {
-    const token: string = req.cookies.token;
-    const user: User | null =
-      await this.usersService.exchangeTokenforUser(token);
-    const friend: User | null = await this.usersService.findOneByName(
-      body.friend,
-    );
-    if (user === null || friend === null) {
-      return false;
-    }
-    return await this.usersService.acceptFriendRequest(user, friend);
+    return await this.usersService.acceptFriendRequest(req, body.friend);
+  }
+
+  @Post('deny-friend-request')
+  async denyFriendRequest(
+    @Body() body: { friend: string },
+    @Req() req: Request,
+  ): Promise<boolean> {
+    return await this.usersService.denyFriendRequest(req, body.friend);
   }
 
   @Post('get-friends')
-  async getFriends(@Req() req: Request): Promise<User[]> {
-    const token: string = req.cookies.token;
-    const user: User | null =
-      await this.usersService.exchangeTokenforUser(token);
-    const friendList: User[] = await this.usersService.getFriendList(user.name);
-    return friendList;
+  async getFriends(@Req() req: Request): Promise<PublicUser[] | null> {
+    const friendList: User[] = await this.usersService.getFriendList(req);
+    if (friendList) {
+      return this.usersService.createPublicUserArray(friendList);
+    }
+    return [];
   }
 
   @Post('remove-friend')
@@ -156,16 +163,7 @@ export class UsersController {
     @Body() body: { friend: string },
     @Req() req: Request,
   ): Promise<boolean> {
-    const token: string = req.cookies.token;
-    const user: User | null =
-      await this.usersService.exchangeTokenforUser(token);
-    const friend: User | null = await this.usersService.findOneByName(
-      body.friend,
-    );
-    if (user === null || friend === null) {
-      return false;
-    }
-    return await this.usersService.removeFriend(user, friend);
+    return await this.usersService.removeFriend(req, body.friend);
   }
 
   @Post('get-friend-state')
@@ -173,13 +171,7 @@ export class UsersController {
     @Body() body: { name: string },
     @Req() req: Request,
   ): Promise<FriendState> {
-    const token: string = req.cookies.token;
-    const user: User | null =
-      await this.usersService.exchangeTokenforUser(token);
-    const friend: User | null = await this.usersService.findOneByName(
-      body.name,
-    );
-    return await this.usersService.getFriendState(user.name, friend.name);
+    return await this.usersService.getFriendState(req, body.name);
   }
 
   @Post('change-avatar')
@@ -187,17 +179,11 @@ export class UsersController {
     @Body() body: { avatar: string },
     @Req() req: Request,
   ): Promise<boolean> {
-    const token: string = req.cookies.token;
-    const user: User | null =
-      await this.usersService.exchangeTokenforUser(token);
-    return await this.usersService.changeAvatar(user.name, body.avatar);
+    return await this.usersService.changeAvatar(req, body.avatar);
   }
 
   @Post('back-to-fallback-profilepicture')
   async backToFallbackProfilePicture(@Req() req: Request): Promise<boolean> {
-    const token: string = req.cookies.token;
-    const user: User | null =
-      await this.usersService.exchangeTokenforUser(token);
-    return await this.usersService.backToFallbackProfilePicture(user.name);
+    return await this.usersService.backToFallbackProfilePicture(req);
   }
 }

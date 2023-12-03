@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { styled } from "styled-components";
 import { IUser } from "../../context/auth";
+import { ProfileContext } from "../../context/profile";
 import Moveablewindow from "../moveablewindow";
 import Playercard from "../playercard";
 
@@ -24,7 +25,8 @@ const Browser = styled.div`
     background: rgb(195, 199, 203);
     color: rgb(0, 0, 0);
     border: 0px;
-    box-shadow: rgb(0, 0, 0) -1px -1px 0px 0px inset,
+    box-shadow:
+      rgb(0, 0, 0) -1px -1px 0px 0px inset,
       rgb(210, 210, 210) 1px 1px 0px 0px inset,
       rgb(134, 138, 142) -2px -2px 0px 0px inset,
       rgb(255, 255, 255) 2px 2px 0px 0px inset;
@@ -39,11 +41,13 @@ const StyledUl = styled.ul`
   width: auto;
 `;
 
-const Userbrowser: React.FC<{ $display: boolean; z?: number }> = ({
-  $display,
-  z,
-}) => {
-  let [users, setUsers] = useState<IUser[]>([]);
+const Userbrowser: React.FC<{
+  setDisplay?: (display: boolean) => void;
+  $display: boolean;
+  z?: number;
+}> = ({ $display, z, setDisplay }) => {
+  const [users, setUsers] = useState<IUser[]>([]);
+  const profile = useContext(ProfileContext);
 
   useEffect(() => {
     fetch(`http://${window.location.hostname}:4000/users`, {
@@ -57,7 +61,7 @@ const Userbrowser: React.FC<{ $display: boolean; z?: number }> = ({
       })
       .then((res: IUser[]) => setUsers(res))
       .catch((err) => console.error(err));
-  }, []);
+  }, [$display, profile]);
 
   return (
     <>
@@ -67,6 +71,7 @@ const Userbrowser: React.FC<{ $display: boolean; z?: number }> = ({
         positionY={600}
         positionZ={z}
         display={$display}
+        setDisplay={setDisplay}
       >
         <Browser>
           <StyledUl>

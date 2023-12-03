@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
-import { IMessage } from './properties';
+import { EChannelType, IMessage } from './properties';
+import { IUser } from 'src/games/properties';
 import { ChatDAO } from './chat.dao';
 import { Server } from 'socket.io';
 import { IGameUser } from 'src/games/properties';
@@ -31,10 +32,13 @@ export class ChatService extends ChatServiceBase {
         this.kickUser(data, server);
         break;
       case '/promote':
+        this.promote(data, server);
         break;
       case '/demote':
+        this.demote(data, server);
         break;
       case '/mute':
+        this.mute(data, server);
         break;
       case '/challenge': {
         this.gameInvite(data, server);
@@ -56,68 +60,124 @@ export class ChatService extends ChatServiceBase {
     }
     try {
       const mess = `${data.user.name}: ${data.input}`;
+      if (await this.chatDao.getMute(data.room, data.user.name))
+        return;
       const blocking: User[] = await this.userService.getBlocking(data.user.name);
       const blockNames: string[] = blocking.map((u) => {
         return u.intraname;
       })
-      server.to(data.room).emit('message', {message: mess, block: blockNames });
+      server.to(data.room.toString()).emit('message', {message: mess, block: blockNames });
       await this.chatDao.saveMessageToChannel(data);
     } catch (error) {
-      console.log(`SYSTEM: ${error.message.split('\n')[0]}`);
+      console.error(`SYSTEM: ${error.message.split('\n')[0]}`);
     }
   }
 
   private async addUser(data: IMessage, server: Server) {
     try {
       const name = data.input.substring(data.input.indexOf(' ') + 1);
+      const user = await this.userService.findOneByName(name);
       const owner = await this.chatDao.getChannelOwner(data.room);
-      if (owner.name !== data.user.name) return;
+      if (owner.name !== data.user.name
+        && (await this.chatDao.getAdmin(data.room, data.user.name)) === 0)
+        return;
       await this.chatDao.addUserToChannel(data.room, name);
       server
-        .to(this.getUser(name).socket.id)
+        .to(this.getUser(user.intraname).socket.id)
         .emit(
           'invite',
-          await this.chatDao.getRawUserChannels(this.getUser(name).user.id),
+          await this.chatDao.getRawUserChannels(this.getUser(user.intraname).user.id),
         );
-      server.to(data.room).emit(`${name}: got added`);
+      server.to(data.room.toString()).emit(`${name}: got added`);
     } catch (error) {
-      server
-        .to(this.getUser(data.user.name).socket.id)
-        .emit('message', 'command failed');
-      console.log(`SYSTEM: ${error.message.split('\n')[0]}`);
+      console.error(`SYSTEM: ${error.message.split('\n')[0]}`);
+    }
+  }
+
+  private async promote(data: IMessage, server: Server) {
+    try {
+      const name = data.input.substring(data.input.indexOf(' ') + 1);
+      const owner = await this.chatDao.getChannelOwner(data.room);
+      if (owner.name !== data.user.name
+        && (await this.chatDao.getAdmin(data.room, data.user.name)) === 0)
+        return;
+      await this.chatDao.promoteUser(data.room, name);
+    } catch (error) {
+      console.error(`SYSTEM: ${error.message.split('\n')[0]}`);
+    }
+  }
+
+  private async demote(data: IMessage, server: Server) {
+    try {
+      const name = data.input.substring(data.input.indexOf(' ') + 1);
+      const owner = await this.chatDao.getChannelOwner(data.room);
+      if (owner.name !== data.user.name
+        && (await this.chatDao.getAdmin(data.room, data.user.name)) === 0)
+        return;
+      await this.chatDao.demoteUser(data.room, name);
+    } catch (error) {
+      console.error(`SYSTEM: ${error.message.split('\n')[0]}`);
+    }
+  }
+
+  private async mute(data: IMessage, server: Server) {
+    try {
+      let time = 5;
+      const val = data.input.split(' ');
+      if (val.length === 3 && isNaN(Number(val[2])) !== true)
+        time = Number(val[2]);
+      const owner = await this.chatDao.getChannelOwner(data.room);
+      if ((owner.name !== data.user.name
+        && (await this.chatDao.getAdmin(data.room, data.user.name)) === 0)
+        || owner.name === val[1]
+        || (await this.chatDao.getChannel(data.room)).type === EChannelType.CHAT)
+        return;
+      await this.chatDao.muteUser(data.room, val[1], time);
+    } catch (error) {
+      console.error(`SYSTEM: ${error.message.split('\n')[0]}`);
     }
   }
 
   private async kickUser(data: IMessage, server: Server) {
     try {
       const name = data.input.substring(data.input.indexOf(' ') + 1);
+      const user = await this.userService.findOneByName(name);
       const owner = await this.chatDao.getChannelOwner(data.room);
-      if (owner.name !== data.user.name) return;
+      if ((owner.name !== data.user.name
+        && (await this.chatDao.getAdmin(data.room, data.user.name)) === 0)
+        || owner.name === name
+        || (await this.chatDao.getChannel(data.room)).type === EChannelType.CHAT)
+        return;
       await this.chatDao.removeUserFromChannel(data.room, name);
       server
-        .to(this.getUser(name).socket.id)
+        .to(this.getUser(user.intraname).socket.id)
         .emit(
           'invite',
-          await this.chatDao.getRawUserChannels(this.getUser(name).user.id),
+          await this.chatDao.getRawUserChannels(this.getUser(user.intraname).user.id),
         );
-      server.to(data.room).emit(`${name}: got kicked`);
+      server.to(data.room.toString()).emit(`${name}: got kicked`);
     } catch (error) {
-      server
-        .to(this.getUser(data.user.name).socket.id)
-        .emit('message', 'command failed');
-      console.log(`SYSTEM: ${error.message.split('\n')[0]}`);
+      console.error(`SYSTEM: ${error.message.split('\n')[0]}`);
     }
   }
 
-  private gameInvite(data: IMessage, server: Server) {
+  private async gameInvite(data: IMessage, server: Server) {
     const name = data.input.substring(data.input.indexOf(' ') + 1);
-    const opponent = this.getUserInChannel(name, data.room);
+    const user = await this.userService.findOneByName(name);
+    const opponent = this.getUserInChannel(user.intraname, data.room);
+    const blocking: User[] = await this.userService.getBlocking(data.user.name);
+    const blockNames: string[] = blocking.map((u) => {
+        return u.intraname;
+      })
     if (opponent) {
       server
         .to(opponent.socket.id)
         .emit(
           'message',
-          `${data.user.name} wants to play with you [type \'yes\' to accept]`,
+          {
+            message: `${data.user.name} wants to play with you [type \'yes\' to accept]`,
+            block: blockNames,
+          }
         );
       this.opponents.set(name, data.user.name);
     }
@@ -128,9 +188,9 @@ export class ChatService extends ChatServiceBase {
     server: Server,
     gameServ: GamesService,
   ) {
-    const user: IGameUser = this.getUserInChannel(data.user.name, data.room);
+    const user: IGameUser = this.getUserInChannel(data.user.intraname, data.room);
     const opponent: IGameUser = this.getUserInChannel(
-      this.opponents.get(data.user.name),
+      this.opponents.get(data.user.intraname),
       data.room,
     );
     if (opponent && data.input === 'yes') {
@@ -144,6 +204,35 @@ export class ChatService extends ChatServiceBase {
         .to(opponent.socket.id)
         .emit('message', `${user.user.name} declined`);
     }
-    this.opponents.delete(data.user.name);
+    this.opponents.delete(data.user.intraname);
+  }
+
+  public async gameInviteButton(challenger: IUser, challenged: IUser, server: Server) {
+    const opponent = this.getUser(challenged.intraname);
+    if (opponent) {
+      server
+        .to(opponent.socket.id)
+        .emit(
+          'challenge',
+          challenger,
+        );
+      this.opponents.set(challenged.intraname, challenger.intraname);
+    }
+  }
+
+  public async gameAcceptButton(
+    challenger: IUser,
+    challenged: IUser,
+    server: Server,
+    gameServ: GamesService,
+  ) {
+    const user: IGameUser = this.getUser(challenger.intraname);
+    const opponent: IGameUser = this.getUser(challenged.intraname);
+    const gameid = await gameServ.startGameLoop(opponent, user, 1);
+    server.to(user.socket.id).emit('gamesubmit', { gameId: gameid, side: 'right' });
+    server
+      .to(opponent.socket.id)
+      .emit('gamesubmit', { gameId: gameid, side: 'left' });
+    this.opponents.delete(challenged.intraname);
   }
 }
