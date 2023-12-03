@@ -27,9 +27,23 @@ export class ChatServiceBase {
     });
   }
 
+  public async getUserInChannelList(channelId: number): Promise<IUser[]> {
+    const list = await this.chatDao.getChannelUsers(channelId)
+    return list.map((l) => {
+      return {
+        id: l.id,
+        name: l.name,
+        intraname: l.intraname,
+        twoFAenabled: l.twoFAenabled,
+        profilePictureUrl: l.profilePictureUrl,
+        token: l.token,
+      }
+    });
+  }
+
   public async getChannelList(user: IUser): Promise<IChannel[]>{
     const list = (await this.chatDao.getAllChannels())
-      .filter((l) => l.type !== EChannelType.CHAT);
+      .filter((l) => l.type === EChannelType.PUBLIC);
     return list.map((l) => { return {
       user: user,
       type: l.type,
@@ -53,7 +67,7 @@ export class ChatServiceBase {
     return this.activeClients.get(room).find((user) => user.user.intraname === name);
   }
 
-  protected getUser(name: string): IGameUser | null {
+  public getUser(name: string): IGameUser | null {
     for (const [key, value] of this.activeClients) {
       const user = value.find((u) => u.user.intraname === name);
       if (user) return user;
@@ -74,7 +88,7 @@ export class ChatServiceBase {
       const user = await this.userService.findOneByName(userId);
       res = await this.chatDao.getRawUserChannels(user.id);
     } catch (error) {
-      console.log(`SYSTEM: ${error.message.split('\n')[0]}`);
+      console.error(`SYSTEM: ${error.message.split('\n')[0]}`);
     }
     return res;
   }
@@ -86,7 +100,7 @@ export class ChatServiceBase {
       await this.chatDao.saveChannel(chat, chat.user.name);
       return await this.chatDao.getRawUserChannels(user.id);
     } catch (error) {
-      console.log(`SYSTEM: ${error.message.split('\n')[0]}`);
+      console.error(`SYSTEM: ${error.message.split('\n')[0]}`);
     }
     return res;
   }
@@ -95,19 +109,22 @@ export class ChatServiceBase {
     try {
       const send = async (name: string) => {
         const u = this.getUser(name);
-        server
-          .to(u.socket.id)
-          .emit('invite', await this.chatDao.getRawUserChannels(u.user.id));
+        if (u) {
+          server
+            .to(u.socket.id)
+            .emit('invite', await this.chatDao.getRawUserChannels(u.user.id));
+        }
       };
       const user = await this.userService.findOneByName(chat.user.name);
       const user2 = await this.userService.findOneByName(chat.title);
+      if (await this.chatDao.checkForChat(user.id, user2.id)) return ;
       const cha = await this.chatDao.saveChannel(chat, chat.user.name);
       await this.chatDao.addUserToChannel(cha.id, chat.title);
-      send(user.intraname);
-      send(user2.intraname);
+      await send(user.intraname);
+      await send(user2.intraname);
       return await this.chatDao.getRawUserChannels(user.id);
     } catch (error) {
-      console.log(`SYSTEM: ${error.message.split('\n')[0]}`);
+      console.error(`SYSTEM: ${error.message.split('\n')[0]}`);
     }
     return [];
   }
@@ -116,7 +133,7 @@ export class ChatServiceBase {
     try {
       await this.chatDao.removeUserFromChannel(chat, userId);
     } catch (error) {
-      console.log(`SYSTEM: ${error.message.split('\n')[0]}`);
+      console.error(`SYSTEM: ${error.message.split('\n')[0]}`);
     }
   }
 

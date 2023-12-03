@@ -65,12 +65,14 @@ const ProfileArea = styled.div`
   display: flex;
 `;
 
-const Profilewindow: React.FC<{ z?: number }> = ({
-  z,
-}) => {
+const Profilewindow: React.FC<{ z?: number }> = ({ z }) => {
   const user: IProfileContext = useContext(ProfileContext);
   const [displayMatch, setDisplayMatch] = useState<boolean>(true);
   const [displayElo, setDisplayElo] = useState<boolean>(false);
+
+  const setDisplay = (value: boolean) => {
+    user.updateProfileDisplay(user.profile, value);
+  };
 
   return (
     <>
@@ -78,11 +80,14 @@ const Profilewindow: React.FC<{ z?: number }> = ({
         title={user.profile.name ? user.profile.name + "'s profile" : "profile"}
         display={user.profile.display}
         positionZ={z}
+        setDisplay={setDisplay}
       >
         <ProfileArea>
           <UserData>
             <ProfilePicture intraname={user.profile.intraname} />
-            <StatsWindow intraname={user.profile.intraname ? user.profile.intraname : ""} />
+            <StatsWindow
+              intraname={user.profile.intraname ? user.profile.intraname : ""}
+            />
           </UserData>
           <Tabs>
             <Tabbar>

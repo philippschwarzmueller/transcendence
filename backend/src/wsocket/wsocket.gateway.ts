@@ -52,12 +52,15 @@ export class WSocketGateway implements OnGatewayInit {
     @MessageBody() data: IChannel,
     @ConnectedSocket() client: Socket,
   ) {
-    this.chatService.updateActiveClients(data, client);
+    if (!this.chatService.getUser(data.user.intraname))
+      this.chatService.updateActiveClients(data, client);
+    this.server.emit('update');
   }
 
   @SubscribeMessage('layoff')
   breakConnection(@MessageBody() name: string) {
     this.chatService.removeUser(name);
+    this.server.emit('update');
   }
 
   @SubscribeMessage('message')
@@ -116,6 +119,11 @@ export class WSocketGateway implements OnGatewayInit {
   @SubscribeMessage('getGameData')
   public getGameData(@MessageBody() gameId: string): IGame {
     return this.gamesService.getGameData(gameId);
+  }
+
+  @SubscribeMessage('getChannelUser')
+  async getChannelUser(@MessageBody() channelId: number): Promise<IUser[]> {
+    return await this.chatService.getUserInChannelList(channelId);
   }
 
   @SubscribeMessage('isGameRunning')

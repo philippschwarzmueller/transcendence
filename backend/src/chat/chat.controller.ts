@@ -4,11 +4,9 @@ import {
   HttpCode,
   Get,
   Query,
-  Post,
-  Body,
 } from '@nestjs/common';
 import { ChatService } from './chat.service';
-import { IChannel, ITab } from './properties';
+import { ITab } from './properties';
 
 @Controller('chat')
 export class ChatController {
@@ -18,6 +16,14 @@ export class ChatController {
   @HttpCode(200)
   async getChats(@Query('userId') userId: string): Promise<ITab[]> {
     return await this.chatService.getChats(userId);
+  }
+
+  @Get('online')
+  @HttpCode(200)
+  getOnlineStatus(@Query('user') intra: string): boolean {
+    if (this.chatService.getUser(intra))
+      return true;
+    return false;
   }
 
   @Delete('rooms')

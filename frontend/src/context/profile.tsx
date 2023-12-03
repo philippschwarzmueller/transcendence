@@ -18,9 +18,11 @@ let default_profile: IProfile = {
 export interface IProfileContext {
   profile: IProfile;
   updateProfile: (user: IUser, value: boolean) => void;
+  updateProfileDisplay: (profile: IProfile, value: boolean) => void;
 };
 
 export const ProfileContext = createContext<IProfileContext>({
   profile: default_profile,
   updateProfile: () => {},
+  updateProfileDisplay: () => {},
 });

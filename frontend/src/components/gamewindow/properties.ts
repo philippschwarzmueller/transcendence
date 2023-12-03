@@ -49,13 +49,6 @@ export interface IGame {
   isFinished: boolean;
 }
 
-// export interface IUser {
-//   id: number | undefined;
-//   name: string | undefined;
-//   image: string | undefined;
-//   token: string | undefined;
-// }
-
 export interface IBall {
   x: number;
   y: number;

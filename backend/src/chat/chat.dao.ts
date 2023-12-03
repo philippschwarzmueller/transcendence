@@ -57,6 +57,22 @@ export class ChatDAO {
     });
   }
 
+  public async checkForChat(user: number, user2: number): Promise<number> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    queryRunner.connect();
+    const res = await queryRunner.manager.query(
+      `SELECT c.id AS channel_id
+      FROM channels c
+      LEFT JOIN channel_subscription cs ON c.id = cs.channel
+      WHERE cs.user IN (${user}, ${user2})
+        AND c.type = ${EChannelType.CHAT}
+      GROUP BY c.id
+      HAVING COUNT(DISTINCT cs.user) = 2;`
+    );
+    queryRunner.release();
+    return res.length;
+  }
+
   public async addUserToChannel(id: number, user: string): Promise<void> {
     const channel: Channels = await this.getChannel(id);
     if (channel.type === EChannelType.CHAT && channel.users.length === 2)
@@ -98,7 +114,10 @@ export class ChatDAO {
       .getMany();
   }
 
-  public async getRawChannelMessages(channelId: number, user: string): Promise<string[]> {
+  public async getRawChannelMessages(
+    channelId: number,
+    user: string,
+  ): Promise<string[]> {
     return (await this.getMessagesFiltert(channelId, user)).map((item) => {
       return `${item.sender}: ${item.content}`;
     });
@@ -109,6 +128,14 @@ export class ChatDAO {
       .createQueryBuilder('channel')
       .innerJoin('channel.users', 'user')
       .where('user.id = :userId', { userId })
+      .getMany();
+  }
+
+  public async getChannelUsers(channelId: number): Promise<User[]> {
+    return await this.userRepo
+      .createQueryBuilder('user')
+      .innerJoin('user.channels', 'channel')
+      .where('channel.id = :channelId', { channelId })
       .getMany();
   }
 
@@ -154,11 +181,14 @@ export class ChatDAO {
     ).owner;
   }
 
-  public async getMessagesFiltert(channelId: number, user: string): Promise<DMessage[]> {
+  public async getMessagesFiltert(
+    channelId: number,
+    user: string,
+  ): Promise<DMessage[]> {
     const userId: number = (await this.userService.findOneByName(user)).id;
     const queryRunner = this.dataSource.createQueryRunner();
     queryRunner.connect();
-    const res: DMessage[]  =  await queryRunner.manager.query(
+    const res: DMessage[] = await queryRunner.manager.query(
       `SELECT messages.content, users.name as sender
       FROM messages
       LEFT JOIN users ON messages.sender = users.id
@@ -168,7 +198,7 @@ export class ChatDAO {
         FROM block_list
         WHERE blocking = ${userId}
       )
-      ORDER BY messages.id;`
+      ORDER BY messages.id;`,
     );
     queryRunner.release();
     return res;
@@ -199,11 +229,11 @@ export class ChatDAO {
 
   public async getAdmin(channel: number, user: string): Promise<number> {
     return (
-      (await this.channelRepo.findOne({
+      await this.channelRepo.findOne({
         where: { id: channel },
         relations: ['admins'],
-      })).admins.filter((a) => a.name === user).length
-    );
+      })
+    ).admins.filter((a) => a.name === user).length;
   }
 
   public async muteUser(channel: number, user: string, time: number) {
@@ -214,7 +244,7 @@ export class ChatDAO {
       `INSERT INTO muted ("user", "channel", "time", "timestamp")
       VALUES (${userId}, ${channel}, ${time}, EXTRACT(EPOCH FROM CURRENT_TIMESTAMP))
       ON CONFLICT ("user", "channel")
-      DO UPDATE SET "time" = EXCLUDED."time", "timestamp" = EXTRACT(EPOCH FROM CURRENT_TIMESTAMP);`
+      DO UPDATE SET "time" = EXCLUDED."time", "timestamp" = EXTRACT(EPOCH FROM CURRENT_TIMESTAMP);`,
     );
     queryRunner.release();
   }
@@ -224,14 +254,13 @@ export class ChatDAO {
     const queryRunner = this.dataSource.createQueryRunner();
     const current = new Date();
     queryRunner.connect();
-    const res  =  await queryRunner.manager.query(
+    const res = await queryRunner.manager.query(
       `SELECT time, timestamp
         FROM muted
-        WHERE "user" = ${userId} AND "channel" = ${channel};`
+        WHERE "user" = ${userId} AND "channel" = ${channel};`,
     );
     queryRunner.release();
-    if (res.length === 0)
-      return false;
+    if (res.length === 0) return false;
     const check = res[0].timestamp + res[0].time * 60;
     return check > Math.floor(current.getTime() / 1000);
   }
