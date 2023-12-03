@@ -134,8 +134,6 @@ function Popup({ placeholder, user, setTabs }: props, ref: Ref<refs>) {
             {channel.map((ch) => {
               return (
                 <StyledLi key={key++} onClick={() => openChannel(ch)}>
-                  {ch.type === EChannelType.PRIVATE && "private "}
-                  {ch.type === EChannelType.PUBLIC && "public "}
                   {ch.title}{" "}
                 </StyledLi>
               );
