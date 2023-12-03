@@ -1,5 +1,6 @@
 import { ReactNode, useState } from "react";
 import styled from "styled-components";
+import Button from "../button/Button";
 
 const StyledWindow = styled.div<{ $display: boolean; $posZ: number }>`
   user-select: none;
@@ -18,6 +19,7 @@ const Windowbar = styled.div`
   margin-bottom: 2px;
   padding: 2px;
   display: flex;
+  justify-content: space-between;
   gap: 10px;
   box-shadow: none;
   background: rgb(0, 14, 122);
@@ -31,8 +33,9 @@ interface IMoveableWindow {
   positionX?: number;
   positionY?: number;
   positionZ?: number;
-  display: boolean;
+  display?: boolean;
   children: ReactNode;
+  setDisplay?: (display: boolean) => void;
 }
 
 const Moveablewindow: React.FC<IMoveableWindow> = ({
@@ -42,6 +45,7 @@ const Moveablewindow: React.FC<IMoveableWindow> = ({
   positionZ,
   display,
   children,
+  setDisplay,
 }) => {
   const [position, setPosition] = useState({
     x: positionX ? positionX : 200,
@@ -103,7 +107,7 @@ const Moveablewindow: React.FC<IMoveableWindow> = ({
     <>
       <StyledWindow
         $posZ={positionZ ? positionZ : 0}
-        $display={display}
+        $display={display ? display : false}
         style={{
           top: position.y < window.innerHeight ? position.y : 0,
           left: position.x < window.innerWidth ? position.x : 0,
@@ -123,6 +127,13 @@ const Moveablewindow: React.FC<IMoveableWindow> = ({
             alt="Monitor"
           ></img>
           {title}
+          <Button
+            onClick={() => {
+              if (setDisplay) setDisplay(false);
+            }}
+          >
+            x
+          </Button>
         </Windowbar>
         {children}
       </StyledWindow>
