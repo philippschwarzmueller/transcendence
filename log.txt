@@ -1,0 +1,428 @@
+Without token
+POST auth/login
+{"message":"Cannot POST /auth/login","error":"Not Found","statusCode":404}
+POST auth/login with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+{"message":"Cannot POST /auth/login","error":"Not Found","statusCode":404}
+POST auth/login with token=1
+{"message":"Cannot POST /auth/login","error":"Not Found","statusCode":404}
+
+POST auth/signup
+{"message":"Cannot POST /auth/signup","error":"Not Found","statusCode":404}
+POST auth/signup with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+{"message":"Cannot POST /auth/signup","error":"Not Found","statusCode":404}
+POST auth/signup with token=1
+{"message":"Cannot POST /auth/signup","error":"Not Found","statusCode":404}
+
+GET auth/intra-login
+Found. Redirecting to https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-fc178a66a1b092400023d9870b7cd5f9b61734d00d9c531d66c8125d5c59b8ad&redirect_uri=http%3A%2F%2F10.11.5.13%3A4000%2Fauth%2Fcallback&response_type=code
+GET auth/intra-login with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+Found. Redirecting to https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-fc178a66a1b092400023d9870b7cd5f9b61734d00d9c531d66c8125d5c59b8ad&redirect_uri=http%3A%2F%2F10.11.5.13%3A4000%2Fauth%2Fcallback&response_type=code
+GET auth/intra-login with token=1
+Found. Redirecting to https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-fc178a66a1b092400023d9870b7cd5f9b61734d00d9c531d66c8125d5c59b8ad&redirect_uri=http%3A%2F%2F10.11.5.13%3A4000%2Fauth%2Fcallback&response_type=code
+
+GET auth/callback
+Found. Redirecting to http://10.11.5.13:3000/login
+GET auth/callback with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+Found. Redirecting to http://10.11.5.13:3000/login
+GET auth/callback with token=1
+Found. Redirecting to http://10.11.5.13:3000/login
+
+GET auth/logout
+Logged out
+GET auth/logout with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+Logged out
+GET auth/logout with token=1
+Logged out
+
+POST auth/validate-token
+
+POST auth/validate-token with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+{"id":2,"name":"mgraefen","intraname":"mgraefen","twoFAenabled":false,"profilePictureUrl":"https://cdn.intra.42.fr/users/b8ee0ec146c4d0bbb035f57e79b0fdcd/large_mgraefen.jpg","activeChats":[],"customAvatar":null,"hasCustomAvatar":false,"blocked":[],"blocking":[],"friend_requested":[],"friend_requests_received":[],"friends":[],"elo":[1000,1000,1000,1000,1000,984,1001]}
+POST auth/validate-token with token=1
+
+
+POST auth/change-name
+
+POST auth/change-name with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+
+POST auth/change-name with token=1
+
+
+
+
+  with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+
+  with token=1
+
+
+GET chat?userId=<userId>
+[]
+GET chat?userId=<userId> with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+[]
+GET chat?userId=<userId> with token=1
+[]
+
+DELETE chat/rooms?userId=<userId>&chat=<chat>
+
+DELETE chat/rooms?userId=<userId>&chat=<chat> with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+
+DELETE chat/rooms?userId=<userId>&chat=<chat> with token=1
+
+
+
+
+  with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+
+  with token=1
+
+
+GET games/runninggames
+[]
+GET games/runninggames with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+[]
+GET games/runninggames with token=1
+[]
+
+GET games/runninggames/hntest1
+[]
+GET games/runninggames/hntest1 with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+[]
+GET games/runninggames/hntest1 with token=1
+[]
+
+GET games/runninggames/:intraname
+[]
+GET games/runninggames/:intraname with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+[]
+GET games/runninggames/:intraname with token=1
+[]
+
+GET games/getwongamesamount/:intraname
+0
+GET games/getwongamesamount/:intraname with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+0
+GET games/getwongamesamount/:intraname with token=1
+0
+
+GET games/getwongamesamount/hntest1
+1
+GET games/getwongamesamount/hntest1 with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+1
+GET games/getwongamesamount/hntest1 with token=1
+1
+
+GET games/getlostgamesamount/hntest1
+1
+GET games/getlostgamesamount/hntest1 with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+1
+GET games/getlostgamesamount/hntest1 with token=1
+1
+
+GET games/getlostgamesamount/:intraname
+0
+GET games/getlostgamesamount/:intraname with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+0
+GET games/getlostgamesamount/:intraname with token=1
+0
+
+GET games/gettotalgamesamount/hntest1
+2
+GET games/gettotalgamesamount/hntest1 with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+2
+GET games/gettotalgamesamount/hntest1 with token=1
+2
+
+GET games/gettotalgamesamount/:intraname
+0
+GET games/gettotalgamesamount/:intraname with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+0
+GET games/gettotalgamesamount/:intraname with token=1
+0
+
+GET games/getwinrate/hntest1
+50
+GET games/getwinrate/hntest1 with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+50
+GET games/getwinrate/hntest1 with token=1
+50
+
+GET games/getwinrate/:intraname
+0
+GET games/getwinrate/:intraname with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+0
+GET games/getwinrate/:intraname with token=1
+0
+
+GET games/getelo/hntest1
+998
+GET games/getelo/hntest1 with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+998
+GET games/getelo/hntest1 with token=1
+998
+
+GET games/getelo/:intraname
+1000
+GET games/getelo/:intraname with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+1000
+GET games/getelo/:intraname with token=1
+1000
+
+GET games/getallelo/hntest1
+[1000,1000,1000,1000,1000,1016,998]
+GET games/getallelo/hntest1 with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+[1000,1000,1000,1000,1000,1016,998]
+GET games/getallelo/hntest1 with token=1
+[1000,1000,1000,1000,1000,1016,998]
+
+GET games/getallelo/:intraname
+[]
+GET games/getallelo/:intraname with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+[]
+GET games/getallelo/:intraname with token=1
+[]
+
+GET games/getallgames/hntest1
+[{"winnerNickname":"mgraefen","looserNickname":"hntest1","winnerPoints":5,"looserPoints":4,"wonGame":false,"timestamp":"2023-12-03T11:20:33.843Z","enemyIntra":"mgraefen","gamemode":1},{"winnerNickname":"hntest1","looserNickname":"mgraefen","winnerPoints":5,"looserPoints":2,"wonGame":true,"timestamp":"2023-12-03T11:19:36.288Z","enemyIntra":"mgraefen","gamemode":1}]
+GET games/getallgames/hntest1 with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+[{"winnerNickname":"mgraefen","looserNickname":"hntest1","winnerPoints":5,"looserPoints":4,"wonGame":false,"timestamp":"2023-12-03T11:20:33.843Z","enemyIntra":"mgraefen","gamemode":1},{"winnerNickname":"hntest1","looserNickname":"mgraefen","winnerPoints":5,"looserPoints":2,"wonGame":true,"timestamp":"2023-12-03T11:19:36.288Z","enemyIntra":"mgraefen","gamemode":1}]
+GET games/getallgames/hntest1 with token=1
+[{"winnerNickname":"mgraefen","looserNickname":"hntest1","winnerPoints":5,"looserPoints":4,"wonGame":false,"timestamp":"2023-12-03T11:20:33.843Z","enemyIntra":"mgraefen","gamemode":1},{"winnerNickname":"hntest1","looserNickname":"mgraefen","winnerPoints":5,"looserPoints":2,"wonGame":true,"timestamp":"2023-12-03T11:19:36.288Z","enemyIntra":"mgraefen","gamemode":1}]
+
+GET games/getallgames/:intraname
+[]
+GET games/getallgames/:intraname with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+[]
+GET games/getallgames/:intraname with token=1
+[]
+
+GET games/players/0
+
+GET games/players/0 with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+
+GET games/players/0 with token=1
+
+
+GET games/players/100
+
+GET games/players/100 with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+
+GET games/players/100 with token=1
+
+
+
+
+  with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+
+  with token=1
+
+
+GET leaderboard/data/1
+[{"intraname":"mgraefen","nickname":"mgraefen","elo":1001,"wonGames":1,"winrate":50,"totalGames":2,"rank":1},{"intraname":"hntest1","nickname":"hntest1","elo":998,"wonGames":1,"winrate":50,"totalGames":2,"rank":2}]
+GET leaderboard/data/1 with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+[{"intraname":"mgraefen","nickname":"mgraefen","elo":1001,"wonGames":1,"winrate":50,"totalGames":2,"rank":1},{"intraname":"hntest1","nickname":"hntest1","elo":998,"wonGames":1,"winrate":50,"totalGames":2,"rank":2}]
+GET leaderboard/data/1 with token=1
+[{"intraname":"mgraefen","nickname":"mgraefen","elo":1001,"wonGames":1,"winrate":50,"totalGames":2,"rank":1},{"intraname":"hntest1","nickname":"hntest1","elo":998,"wonGames":1,"winrate":50,"totalGames":2,"rank":2}]
+
+GET leaderboard/data/2
+[{"intraname":"mgraefen","nickname":"mgraefen","elo":1001,"wonGames":0,"winrate":0,"totalGames":0,"rank":1},{"intraname":"hntest1","nickname":"hntest1","elo":998,"wonGames":0,"winrate":0,"totalGames":0,"rank":2}]
+GET leaderboard/data/2 with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+[{"intraname":"mgraefen","nickname":"mgraefen","elo":1001,"wonGames":0,"winrate":0,"totalGames":0,"rank":1},{"intraname":"hntest1","nickname":"hntest1","elo":998,"wonGames":0,"winrate":0,"totalGames":0,"rank":2}]
+GET leaderboard/data/2 with token=1
+[{"intraname":"mgraefen","nickname":"mgraefen","elo":1001,"wonGames":0,"winrate":0,"totalGames":0,"rank":1},{"intraname":"hntest1","nickname":"hntest1","elo":998,"wonGames":0,"winrate":0,"totalGames":0,"rank":2}]
+
+GET leaderboard/data/5
+[{"intraname":"mgraefen","nickname":"mgraefen","elo":1001,"wonGames":0,"winrate":0,"totalGames":0,"rank":1},{"intraname":"hntest1","nickname":"hntest1","elo":998,"wonGames":0,"winrate":0,"totalGames":0,"rank":2}]
+GET leaderboard/data/5 with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+[{"intraname":"mgraefen","nickname":"mgraefen","elo":1001,"wonGames":0,"winrate":0,"totalGames":0,"rank":1},{"intraname":"hntest1","nickname":"hntest1","elo":998,"wonGames":0,"winrate":0,"totalGames":0,"rank":2}]
+GET leaderboard/data/5 with token=1
+[{"intraname":"mgraefen","nickname":"mgraefen","elo":1001,"wonGames":0,"winrate":0,"totalGames":0,"rank":1},{"intraname":"hntest1","nickname":"hntest1","elo":998,"wonGames":0,"winrate":0,"totalGames":0,"rank":2}]
+
+
+
+  with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+
+  with token=1
+
+
+GET users
+[{"id":2,"name":"mgraefen","intraname":"mgraefen","twoFAenabled":false,"profilePictureUrl":"https://cdn.intra.42.fr/users/b8ee0ec146c4d0bbb035f57e79b0fdcd/large_mgraefen.jpg","activeChats":[],"customAvatar":null,"hasCustomAvatar":false,"blocked":[],"blocking":[],"friend_requested":[],"friend_requests_received":[],"friends":[],"elo":[1000,1000,1000,1000,1000,984,1001]},{"id":1,"name":"hntest1","intraname":"hntest1","twoFAenabled":false,"profilePictureUrl":"https://cdn.intra.42.fr/users/45dec157c77dc0aca2020186472aad72/large_hntest1.jpg","activeChats":[],"customAvatar":null,"hasCustomAvatar":false,"blocked":[],"blocking":[],"friend_requested":[],"friend_requests_received":[],"friends":[],"elo":[1000,1000,1000,1000,1000,1016,998]}]
+GET users with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+[{"id":2,"name":"mgraefen","intraname":"mgraefen","twoFAenabled":false,"profilePictureUrl":"https://cdn.intra.42.fr/users/b8ee0ec146c4d0bbb035f57e79b0fdcd/large_mgraefen.jpg","activeChats":[],"customAvatar":null,"hasCustomAvatar":false,"blocked":[],"blocking":[],"friend_requested":[],"friend_requests_received":[],"friends":[],"elo":[1000,1000,1000,1000,1000,984,1001]},{"id":1,"name":"hntest1","intraname":"hntest1","twoFAenabled":false,"profilePictureUrl":"https://cdn.intra.42.fr/users/45dec157c77dc0aca2020186472aad72/large_hntest1.jpg","activeChats":[],"customAvatar":null,"hasCustomAvatar":false,"blocked":[],"blocking":[],"friend_requested":[],"friend_requests_received":[],"friends":[],"elo":[1000,1000,1000,1000,1000,1016,998]}]
+GET users with token=1
+[{"id":2,"name":"mgraefen","intraname":"mgraefen","twoFAenabled":false,"profilePictureUrl":"https://cdn.intra.42.fr/users/b8ee0ec146c4d0bbb035f57e79b0fdcd/large_mgraefen.jpg","activeChats":[],"customAvatar":null,"hasCustomAvatar":false,"blocked":[],"blocking":[],"friend_requested":[],"friend_requests_received":[],"friends":[],"elo":[1000,1000,1000,1000,1000,984,1001]},{"id":1,"name":"hntest1","intraname":"hntest1","twoFAenabled":false,"profilePictureUrl":"https://cdn.intra.42.fr/users/45dec157c77dc0aca2020186472aad72/large_hntest1.jpg","activeChats":[],"customAvatar":null,"hasCustomAvatar":false,"blocked":[],"blocking":[],"friend_requested":[],"friend_requests_received":[],"friends":[],"elo":[1000,1000,1000,1000,1000,1016,998]}]
+
+GET users/names
+["mgraefen","hntest1"]
+GET users/names with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+["mgraefen","hntest1"]
+GET users/names with token=1
+["mgraefen","hntest1"]
+
+GET users/hntest1
+{"id":1,"name":"hntest1","intraname":"hntest1","twoFAenabled":false,"profilePictureUrl":"https://cdn.intra.42.fr/users/45dec157c77dc0aca2020186472aad72/large_hntest1.jpg","activeChats":[],"customAvatar":null,"hasCustomAvatar":false,"blocked":[],"blocking":[],"friend_requested":[],"friend_requests_received":[],"friends":[],"elo":[1000,1000,1000,1000,1000,1016,998]}
+GET users/hntest1 with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+{"id":1,"name":"hntest1","intraname":"hntest1","twoFAenabled":false,"profilePictureUrl":"https://cdn.intra.42.fr/users/45dec157c77dc0aca2020186472aad72/large_hntest1.jpg","activeChats":[],"customAvatar":null,"hasCustomAvatar":false,"blocked":[],"blocking":[],"friend_requested":[],"friend_requests_received":[],"friends":[],"elo":[1000,1000,1000,1000,1000,1016,998]}
+GET users/hntest1 with token=1
+{"id":1,"name":"hntest1","intraname":"hntest1","twoFAenabled":false,"profilePictureUrl":"https://cdn.intra.42.fr/users/45dec157c77dc0aca2020186472aad72/large_hntest1.jpg","activeChats":[],"customAvatar":null,"hasCustomAvatar":false,"blocked":[],"blocking":[],"friend_requested":[],"friend_requests_received":[],"friends":[],"elo":[1000,1000,1000,1000,1000,1016,998]}
+
+GET users/:userId
+{"statusCode":404,"message":"user not found"}
+GET users/:userId with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+{"statusCode":404,"message":"user not found"}
+GET users/:userId with token=1
+{"statusCode":404,"message":"user not found"}
+
+GET users/intraname/hntest1
+{"id":1,"name":"hntest1","intraname":"hntest1","twoFAenabled":false,"profilePictureUrl":"https://cdn.intra.42.fr/users/45dec157c77dc0aca2020186472aad72/large_hntest1.jpg","activeChats":[],"customAvatar":null,"hasCustomAvatar":false,"blocked":[],"blocking":[],"friend_requested":[],"friend_requests_received":[],"friends":[],"elo":[1000,1000,1000,1000,1000,1016,998]}
+GET users/intraname/hntest1 with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+{"id":1,"name":"hntest1","intraname":"hntest1","twoFAenabled":false,"profilePictureUrl":"https://cdn.intra.42.fr/users/45dec157c77dc0aca2020186472aad72/large_hntest1.jpg","activeChats":[],"customAvatar":null,"hasCustomAvatar":false,"blocked":[],"blocking":[],"friend_requested":[],"friend_requests_received":[],"friends":[],"elo":[1000,1000,1000,1000,1000,1016,998]}
+GET users/intraname/hntest1 with token=1
+{"id":1,"name":"hntest1","intraname":"hntest1","twoFAenabled":false,"profilePictureUrl":"https://cdn.intra.42.fr/users/45dec157c77dc0aca2020186472aad72/large_hntest1.jpg","activeChats":[],"customAvatar":null,"hasCustomAvatar":false,"blocked":[],"blocking":[],"friend_requested":[],"friend_requests_received":[],"friends":[],"elo":[1000,1000,1000,1000,1000,1016,998]}
+
+GET users/intraname/:userId
+{"statusCode":404,"message":"user not found"}
+GET users/intraname/:userId with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+{"statusCode":404,"message":"user not found"}
+GET users/intraname/:userId with token=1
+{"statusCode":404,"message":"user not found"}
+
+POST users/get-user-with-token
+
+POST users/get-user-with-token with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+{"id":2,"name":"mgraefen","intraname":"mgraefen","twoFAenabled":false,"profilePictureUrl":"https://cdn.intra.42.fr/users/b8ee0ec146c4d0bbb035f57e79b0fdcd/large_mgraefen.jpg","activeChats":[],"customAvatar":null,"hasCustomAvatar":false,"blocked":[],"blocking":[],"friend_requested":[],"friend_requests_received":[],"friends":[],"elo":[1000,1000,1000,1000,1000,984,1001]}
+POST users/get-user-with-token with token=1
+
+
+PUT users/block?blocking=<blocking>&blocked=<blocked>
+false
+PUT users/block?blocking=<blocking>&blocked=<blocked> with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+false
+PUT users/block?blocking=<blocking>&blocked=<blocked> with token=1
+false
+
+POST users/block?blocking=<user>&blocked=<blocked>
+false
+POST users/block?blocking=<user>&blocked=<blocked> with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+false
+POST users/block?blocking=<user>&blocked=<blocked> with token=1
+false
+
+DELETE users/block?blocking=<user>&blocked=<blocked>
+false
+DELETE users/block?blocking=<user>&blocked=<blocked> with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+false
+DELETE users/block?blocking=<user>&blocked=<blocked> with token=1
+false
+
+GET users/intra/:userId
+{"statusCode":409,"message":"pip not found"}
+GET users/intra/:userId with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+{"statusCode":409,"message":"pip not found"}
+GET users/intra/:userId with token=1
+{"statusCode":409,"message":"pip not found"}
+
+GET users/intra/hntest1
+{"id":1,"name":"hntest1","intraname":"hntest1","twoFAenabled":false,"profilePictureUrl":"https://cdn.intra.42.fr/users/45dec157c77dc0aca2020186472aad72/large_hntest1.jpg","activeChats":[],"customAvatar":null,"hasCustomAvatar":false,"blocked":[],"blocking":[],"friend_requested":[],"friend_requests_received":[],"friends":[],"elo":[1000,1000,1000,1000,1000,1016,998]}
+GET users/intra/hntest1 with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+{"id":1,"name":"hntest1","intraname":"hntest1","twoFAenabled":false,"profilePictureUrl":"https://cdn.intra.42.fr/users/45dec157c77dc0aca2020186472aad72/large_hntest1.jpg","activeChats":[],"customAvatar":null,"hasCustomAvatar":false,"blocked":[],"blocking":[],"friend_requested":[],"friend_requests_received":[],"friends":[],"elo":[1000,1000,1000,1000,1000,1016,998]}
+GET users/intra/hntest1 with token=1
+{"id":1,"name":"hntest1","intraname":"hntest1","twoFAenabled":false,"profilePictureUrl":"https://cdn.intra.42.fr/users/45dec157c77dc0aca2020186472aad72/large_hntest1.jpg","activeChats":[],"customAvatar":null,"hasCustomAvatar":false,"blocked":[],"blocking":[],"friend_requested":[],"friend_requests_received":[],"friends":[],"elo":[1000,1000,1000,1000,1000,1016,998]}
+
+POST users/send-friend-request
+false
+POST users/send-friend-request with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+false
+POST users/send-friend-request with token=1
+false
+
+POST users/get-pending-friend-requests
+[]
+POST users/get-pending-friend-requests with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+[]
+POST users/get-pending-friend-requests with token=1
+[]
+
+POST users/get-received-friend-requests
+[]
+POST users/get-received-friend-requests with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+[]
+POST users/get-received-friend-requests with token=1
+[]
+
+POST users/accept-friend-request
+false
+POST users/accept-friend-request with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+false
+POST users/accept-friend-request with token=1
+false
+
+POST users/deny-friend-request
+false
+POST users/deny-friend-request with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+false
+POST users/deny-friend-request with token=1
+false
+
+POST users/get-friends
+[]
+POST users/get-friends with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+[]
+POST users/get-friends with token=1
+[]
+
+POST users/remove-friend
+false
+POST users/remove-friend with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+false
+POST users/remove-friend with token=1
+false
+
+POST users/get-friend-state
+0
+POST users/get-friend-state with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+0
+POST users/get-friend-state with token=1
+0
+
+POST users/change-avatar
+false
+POST users/change-avatar with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+true
+POST users/change-avatar with token=1
+false
+
+POST users/back-to-fallback-profilepicture
+false
+POST users/back-to-fallback-profilepicture with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+true
+POST users/back-to-fallback-profilepicture with token=1
+false
+
+
+
+  with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+
+  with token=1
+
+
+GET hello
+Hello my transcendence team
+GET hello with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+Hello my transcendence team
+GET hello with token=1
+Hello my transcendence team
+
+GET hello/hntest1
+Hello hntest1, greetings from your NestJS Backend
+GET hello/hntest1 with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+Hello hntest1, greetings from your NestJS Backend
+GET hello/hntest1 with token=1
+Hello hntest1, greetings from your NestJS Backend
+
+GET hello/:id
+Hello :id, greetings from your NestJS Backend
+GET hello/:id with token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
+Hello :id, greetings from your NestJS Backend
+GET hello/:id with token=1
+Hello :id, greetings from your NestJS Backend
+
