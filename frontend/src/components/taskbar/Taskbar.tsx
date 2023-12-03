@@ -13,6 +13,7 @@ import Spectatorboard from "../spectatorboard";
 import { ProfileContext } from "../../context/profile";
 
 const StyledNavbar = styled.nav`
+  user-select: none;
   width: 100vw;
   height: 3vh;
   display: flex;
@@ -20,8 +21,12 @@ const StyledNavbar = styled.nav`
   position: absolute;
   bottom: 0;
   background-color: rgb(195, 199, 203);
-  box-shadow: inset 0.5px 0.5px 0px 0.5px #ffffff, inset 0 0 0 1px #868a8e,
-    1px 0px 0 0px #000000, 0px 1px 0 0px #000000, 1px 1px 0 0px #000000;
+  box-shadow:
+    inset 0.5px 0.5px 0px 0.5px #ffffff,
+    inset 0 0 0 1px #868a8e,
+    1px 0px 0 0px #000000,
+    0px 1px 0 0px #000000,
+    1px 1px 0 0px #000000;
   align-items: center;
 `;
 
@@ -45,7 +50,9 @@ const TaskButton = styled.button<{ $active: boolean }>`
     padding: 8 20 4;
     background-color: rgb(215, 216, 220);
 
-    box-shadow: inset 0 0 0 1px rgb(134, 138, 142), 0 0 0 1px rgb(0, 0, 0);
+    box-shadow:
+      inset 0 0 0 1px rgb(134, 138, 142),
+      0 0 0 1px rgb(0, 0, 0);
   }
   box-shadow: ${(props) =>
     props.$active
@@ -61,8 +68,12 @@ const StartMenu = styled.div<{ $display: boolean }>`
   left: 2px;
   z-index: 4;
   background-color: rgb(195, 199, 203);
-  box-shadow: inset 0.5px 0.5px 0px 0.5px #ffffff, inset 0 0 0 1px #868a8e,
-    1px 0px 0 0px #000000, 0px 1px 0 0px #000000, 1px 1px 0 0px #000000;
+  box-shadow:
+    inset 0.5px 0.5px 0px 0.5px #ffffff,
+    inset 0 0 0 1px #868a8e,
+    1px 0px 0 0px #000000,
+    0px 1px 0 0px #000000,
+    1px 1px 0 0px #000000;
   user-select: none;
 `;
 
@@ -158,12 +169,11 @@ const Taskbar: React.FC = () => {
   return (
     <>
       <div onClick={() => changeOrder(Windows.Profile)}>
-        <Profilewindow
-          z={displayOrder[Windows.Profile]}
-        />
+        <Profilewindow z={displayOrder[Windows.Profile]} />
       </div>
       <div onClick={() => changeOrder(Windows.Friends)}>
         <Friendbrowser
+          setDisplay={setDisplayFriends}
           $display={displayFriends}
           z={displayOrder[Windows.Friends]}
         />
@@ -172,16 +182,26 @@ const Taskbar: React.FC = () => {
         <Profilesettings
           $display={displayProfileSettings}
           z={displayOrder[Windows.Settings]}
+          setDisplay={setDisplayProfileSettings}
         />
       </div>
       <div onClick={() => changeOrder(Windows.Chat)}>
-        <Chatwindow $display={displayChat} z={displayOrder[Windows.Chat]} />
+        <Chatwindow
+          setDisplay={setDisplayChat}
+          $display={displayChat}
+          z={displayOrder[Windows.Chat]}
+        />
       </div>
       <div onClick={() => changeOrder(Windows.Users)}>
-        <Userbrowser $display={displayUsers} z={displayOrder[Windows.Users]} />
+        <Userbrowser
+          setDisplay={setDisplayUsers}
+          $display={displayUsers}
+          z={displayOrder[Windows.Users]}
+        />
       </div>
       <div onClick={() => changeOrder(Windows.Leaderboard)}>
         <Leaderboard
+          setDisplay={setDisplayLeaderboard}
           $display={displayLeaderboard}
           z={displayOrder[Windows.Leaderboard]}
         />
@@ -191,6 +211,7 @@ const Taskbar: React.FC = () => {
       </div>
       <div onClick={() => changeOrder(Windows.Spectatorboard)}>
         <Spectatorboard
+          setDisplay={setDisplaySpectatorboard}
           display={displaySpectatorboard}
           z={displayOrder[Windows.Spectatorboard]}
         />

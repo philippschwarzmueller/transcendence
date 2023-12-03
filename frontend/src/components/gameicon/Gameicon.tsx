@@ -35,6 +35,7 @@ const Gameicon: React.FC = () => {
         positionY={100}
         positionZ={100}
         display={displayQueue}
+        setDisplay={setDisplayQueue}
       >
         <Queuebox />
       </Moveablewindow>

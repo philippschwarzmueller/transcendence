@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import properties, {
   EGamemode,
   gameSpawn,
+  IAnonymUser,
   IBall,
   IFinishedGame,
   IGame,
@@ -134,17 +135,17 @@ export class GamesService {
     side: string,
     keystate: IKeyState,
     gameId: string,
-    user: IUser,
+    user: IAnonymUser,
   ): IGame {
     if (!this.isGameRunning(gameId)) return newGameCopy();
     if (
       side === 'left' &&
-      user.id === this.runningGames.get(gameId).leftPlayer.user.id
+      user.hashedToken === this.runningGames.get(gameId).leftPlayer.user.token
     )
       this.runningGames.get(gameId).gameState.keyStateLeft = keystate;
     else if (
       side === 'right' &&
-      user.id === this.runningGames.get(gameId).rightPlayer.user.id
+      user.hashedToken === this.runningGames.get(gameId).rightPlayer.user.token
     )
       this.runningGames.get(gameId).gameState.keyStateRight = keystate;
     return this.runningGames.get(gameId).gameState;

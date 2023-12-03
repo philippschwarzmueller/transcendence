@@ -45,6 +45,14 @@ const Root: React.FC = () => {
           display: value,
         })
     }
+  const updateProfileDisplay = (profile: IProfile, value: boolean) => {
+      setProfile({
+          intraname: profile.intraname,
+          name: profile.name,
+          profilePictureUrl: profile.profilePictureUrl,
+          display: value,
+        })
+    }
 
   return (
     <>
@@ -52,7 +60,8 @@ const Root: React.FC = () => {
         <ProfileContext.Provider
           value={{
             profile,
-            updateProfile
+            updateProfile,
+            updateProfileDisplay
           }}
         >
           <QueueProvider>

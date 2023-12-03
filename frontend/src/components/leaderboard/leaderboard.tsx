@@ -65,7 +65,8 @@ const StyledTableContainer = styled.div`
     background: rgb(195, 199, 203);
     color: rgb(0, 0, 0);
     border: 0px;
-    box-shadow: rgb(0, 0, 0) -1px -1px 0px 0px inset,
+    box-shadow:
+      rgb(0, 0, 0) -1px -1px 0px 0px inset,
       rgb(210, 210, 210) 1px 1px 0px 0px inset,
       rgb(134, 138, 142) -2px -2px 0px 0px inset,
       rgb(255, 255, 255) 2px 2px 0px 0px inset;
@@ -88,17 +89,18 @@ const StyledTableHead = styled.thead`
 
 const StyledTableBody = styled.tbody``;
 
-const Leaderboard: React.FC<{ $display: boolean; z?: number }> = ({
-  $display,
-  z,
-}) => {
+const Leaderboard: React.FC<{
+  setDisplay?: (display: boolean) => void;
+  $display: boolean;
+  z?: number;
+}> = ({ $display, z, setDisplay }) => {
   const [data, setData] = useState<ILeaderboardLine[]>([]);
   const [gamemode, setGamemode] = useState<string>("0");
   const [sortedBy, setSortedBy] = useState<ESortedBy>(ESortedBy.Elo);
   const [checkedStandardBox, setCheckedStandardBox] = useState<boolean>(true);
   const [checked2dBox, setChecked2dBox] = useState<boolean>(true);
 
-  const handleElementClick = (): void => { };
+  const handleElementClick = (): void => {};
 
   useEffect(() => {
     fetch(`${BACKEND}/leaderboard/data/${gamemode}`)
@@ -124,7 +126,12 @@ const Leaderboard: React.FC<{ $display: boolean; z?: number }> = ({
 
   return (
     <>
-      <Moveablewindow title="Leaderboard" positionZ={z} display={$display}>
+      <Moveablewindow
+        title="Leaderboard"
+        positionZ={z}
+        display={$display}
+        setDisplay={setDisplay}
+      >
         <WindowWrapper title="sortBy">
           <HorizontalContainer>
             <p></p>
