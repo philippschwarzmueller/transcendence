@@ -11,6 +11,7 @@ import { IGameStart } from "../gamewindow/properties";
 import { useNavigate } from "react-router-dom";
 import { IMessage, ITab } from "./properties";
 import ChannelUser from "../channeluser/ChannelUser";
+import { BACKEND } from "../../routes/SetUser";
 
 const Msgfield = styled.div`
   width: 320px;
@@ -110,14 +111,8 @@ const Chatwindow: React.FC<{ setDisplay?: (display: boolean) => void, $display: 
   const roomRef: any = useRef<typeof Popup | null>(null);
   const channelRef: any = useRef<typeof ChannelUser | null>(null);
 
-  socket.on("message", (res: IMessage) => setMessages([...messages, res]));
-  socket.on("invite", (res: ITab[]) => setTabs(res));
-  socket.on("game", (body: IGameStart) => {
-    navigate(`/play/${body.gameId}/${body.side}`);
-  });
-
-  useEffect(() => {
-    fetch(`http://${window.location.hostname}:4000/chat?userId=${user.name}`, {
+  const fetchChannels = () => {
+    fetch(`${BACKEND}/chat?userId=${user.intraname}`, {
       method: "GET",
     })
       .then((response) => {
@@ -128,6 +123,17 @@ const Chatwindow: React.FC<{ setDisplay?: (display: boolean) => void, $display: 
       })
       .then((res: ITab[]) => setTabs(res))
       .catch((error) => console.error(error));
+  }
+
+  socket.on("message", (res: IMessage) => setMessages([...messages, res]));
+  socket.on("invite", (res: ITab[]) => setTabs(res));
+  socket.on("update", () => fetchChannels());
+  socket.on("game", (body: IGameStart) => {
+    navigate(`/play/${body.gameId}/${body.side}`);
+  });
+
+  useEffect(() => {
+    fetchChannels();
     if (tabs.length > 0) setRoom(tabs[tabs.length - 1]);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -159,7 +165,10 @@ const Chatwindow: React.FC<{ setDisplay?: (display: boolean) => void, $display: 
 
   useEffect(() => {
     setTabs(tabs);
-    if (tabs.length > 0) setActive(tabs[tabs.length - 1]);
+    if (tabs.length > 0)
+      setActive(tabs[tabs.length - 1]);
+    else
+      setMessages([]);
   }, [tabs]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function send(event: React.MouseEvent | React.KeyboardEvent) {
@@ -187,9 +196,7 @@ const Chatwindow: React.FC<{ setDisplay?: (display: boolean) => void, $display: 
       <ChannelUser
         id={activeTabId}
         ref={channelRef}
-      />
-      <Moveablewindow
-        title="Chat"
+      /> <Moveablewindow title="Chat"
         positionX={200}
         positionY={200}
         positionZ={z}
@@ -219,22 +226,19 @@ const Chatwindow: React.FC<{ setDisplay?: (display: boolean) => void, $display: 
           </StyledLi>
           <Button
             onClick={() => {
-              fetch(
-                `http://${window.location.hostname}:4000/chat/rooms?userId=${user.name}&chat=${activeTabId}`,
-                { method: "DELETE" },
-              ).catch(err=>console.error(err));
-              setTabs(
-                tabs.filter(function (e) {
+              socket.emit("leave", {user: user.intraname, chat: activeTabId}, () => {
+                setTabs(
+                  tabs.filter(function (e) {
                   return e.title !== activeTab;
                 }),
               );
               if (tabs.length > 0) setActive(tabs[tabs.length - 1]);
-            }}
-            $position="absolute"
-            $top="35px"
-            $right="20px"
+              })}}
+              $position="absolute"
+              $top="35px"
+              $right="20px"
           >
-            Close
+            Leave
           </Button>
         </Tabbar>
         <Textfield>
@@ -256,14 +260,6 @@ const Chatwindow: React.FC<{ setDisplay?: (display: boolean) => void, $display: 
               if (e.key === "Enter") send(e);
             }}
           ></Input>
-          <Button onClick={(e: React.MouseEvent) => send(e)}>Send</Button>
-          <Button
-            onClick={() =>
-              socket.emit("clear", room, (res: IMessage[]) => setMessages(res))
-            }
-          >
-            Clear
-          </Button>
         </Msgfield>
       </Moveablewindow>
     </>

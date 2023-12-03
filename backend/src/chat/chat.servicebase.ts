@@ -77,7 +77,7 @@ export class ChatServiceBase {
 
   public removeUser(name: string) {
     for (const [key, value] of this.activeClients) {
-      const tmp = value.filter((u) => u.user.name !== name);
+      const tmp = value.filter((u) => u.user.intraname !== name);
       this.activeClients.set(key, tmp);
     }
   }
@@ -85,7 +85,7 @@ export class ChatServiceBase {
   public async getChats(userId: string): Promise<ITab[]> {
     let res: ITab[] = [];
     try {
-      const user = await this.userService.findOneByName(userId);
+      const user = await this.userService.findOneByIntraName(userId);
       res = await this.chatDao.getRawUserChannels(user.id);
     } catch (error) {
       console.error(`SYSTEM: ${error.message.split('\n')[0]}`);
@@ -96,8 +96,8 @@ export class ChatServiceBase {
   public async addChat(chat: IChannel): Promise<ITab[]> {
     const res: ITab[] = [];
     try {
-      const user = await this.userService.findOneByName(chat.user.name);
-      await this.chatDao.saveChannel(chat, chat.user.name);
+      const user = await this.userService.findOneByIntraName(chat.user.intraname);
+      await this.chatDao.saveChannel(chat, chat.user.intraname);
       return await this.chatDao.getRawUserChannels(user.id);
     } catch (error) {
       console.error(`SYSTEM: ${error.message.split('\n')[0]}`);
@@ -131,7 +131,18 @@ export class ChatServiceBase {
 
   public async removeChat(userId: string, chat: number): Promise<void> {
     try {
-      await this.chatDao.removeUserFromChannel(chat, userId);
+      const channel = await this.chatDao.getChannel(chat);
+      const owner = await this.chatDao.getChannelOwner(chat);
+      if (userId === owner.intraname || channel.type === EChannelType.CHAT) {
+        channel.users.forEach(async (u) => {
+          await this.chatDao.removeUserFromChannel(chat, u.intraname);
+          this.getUser(u.intraname).socket.leave(channel.id.toString());
+        });
+        this.chatDao.channelRepo.remove(channel);
+      }
+      else {
+        await this.chatDao.removeUserFromChannel(chat, userId);
+      }
     } catch (error) {
       console.error(`SYSTEM: ${error.message.split('\n')[0]}`);
     }
@@ -147,7 +158,7 @@ export class ChatServiceBase {
       if (data.title === '') return;
       this.updateActiveClients(data, client);
       const channel = await this.chatDao.getChannel(data.id);
-      const mess = `${data.user.name}: joined room`;
+      const mess = `${data.user.name} joined room`;
       const blocking: User[] = await this.userService.getBlocking(data.user.name);
       const blockNames: string[] = blocking.map((u) => {
         return u.intraname;
@@ -155,10 +166,12 @@ export class ChatServiceBase {
       if (data.prev)
         client.leave(data.prev.toString());
       client.join(channel.id.toString());
-      server
-        .to(channel.id.toString())
-        .emit('message', {message: mess, block: blockNames});
-      res = await this.chatDao.getRawChannelMessages(channel.id, data.user.name);
+      if (data.prev !== channel.id) {
+        server
+          .to(channel.id.toString())
+          .emit('message', {message: mess, block: blockNames});
+      }
+      res = await this.chatDao.getRawChannelMessages(channel.id, data.user.intraname);
     } catch (error) {
       (`SYSTEM: ${error.message.split('\n')[0]}`);
     }
