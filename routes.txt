@@ -1,6 +1,7 @@
 POST auth/login
 POST auth/signup
 GET auth/intra-login
+GET auth/callback
 GET auth/logout
 POST auth/validate-token
 POST auth/change-name

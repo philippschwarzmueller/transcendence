@@ -464,7 +464,6 @@ export class UsersService {
   async userIsFriend(req: Request, friend: string): Promise<boolean> {
     const friends: User[] = await this.getFriendList(req);
     if (!friends) {
-      console.log('hello');
       return false;
     }
     const isFriend: boolean = friends.some(

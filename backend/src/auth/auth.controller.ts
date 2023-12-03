@@ -33,6 +33,7 @@ export class AuthController {
     @Res() res: Response,
   ): Promise<void | null> {
     if (!code) {
+      res.redirect(`http://${this.hostIP}:3000/login`);
       return null;
     }
     try {
@@ -40,6 +41,7 @@ export class AuthController {
         await this.authService.exchangeCodeForToken(code);
       if (data === null) {
         res.redirect(`http://${this.hostIP}:3000/login`);
+        return null;
       }
       const hashedToken: string = await this.authService.hashToken(
         data.access_token,
@@ -60,6 +62,7 @@ export class AuthController {
       console.error(
         '42 login failed, check your env file or the app config on 42 intra',
       );
+      res.redirect(`http://${this.hostIP}:3000/login`);
       return null;
     }
   }

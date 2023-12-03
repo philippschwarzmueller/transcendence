@@ -147,10 +147,7 @@ export class AuthService {
       });
     } catch (e) {
       console.error(e);
-      throw new HttpException(
-        'Network error or invalid request',
-        HttpStatus.SERVICE_UNAVAILABLE,
-      );
+      return null;
     }
 
     if (!response.ok) {
