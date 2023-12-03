@@ -3,7 +3,7 @@
 BASE_URL="localhost:4000"
 
 echo "Without token"
-token=%242b%2410%240rbmVKdbF%2Fgw4UL2Dkb3VOi05ciqz.Ouo8mSvlTQykdHlZBYqc61K
+token=%242b%2410%24HIjsmHfJvV1eYGDvFxHxe.J0o2xzzz3WWmQJ1AUfxCfEueGoeCRVG
 while IFS= read -r line; do
     method=$(echo "$line" | awk '{print $1}')
     route=$(echo "$line" | awk '{print $2}')

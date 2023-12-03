@@ -59,6 +59,20 @@ export class UsersService {
     }
   }
 
+  async findOneByHashedToken(req: Request): Promise<User> {
+    const hashedToken: string = req.cookies.token;
+    if(!hashedToken){
+      return null;
+    }
+    const res: User = await this.usersRepository.findOne({
+      where: { hashedToken: hashedToken },
+    });
+    if (!res) {
+      return null;
+    }
+    return res;
+  }
+
   async findOneByIntraName(intraname: string): Promise<User> {
     const res: User = await this.usersRepository.findOne({
       where: { intraname: intraname },

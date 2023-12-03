@@ -33,10 +33,8 @@ const InputField = styled.div<{
   margin-block-start: 0px;
   margin-inline-start: 0px;
   padding-inline-start: 0px;
-  box-shadow:
-    rgb(255, 255, 255) 1px 1px 0px 1px inset,
-    rgb(134, 138, 142) 0px 0px 0px 1px inset,
-    rgb(0, 0, 0) 1px 1px 0px 1px;
+  box-shadow: rgb(255, 255, 255) 1px 1px 0px 1px inset,
+    rgb(134, 138, 142) 0px 0px 0px 1px inset, rgb(0, 0, 0) 1px 1px 0px 1px;
 `;
 
 const StyledUl = styled.ul`
@@ -57,8 +55,7 @@ const StyledUl = styled.ul`
     background: rgb(195, 199, 203);
     color: rgb(0, 0, 0);
     border: 0px;
-    box-shadow:
-      rgb(0, 0, 0) -1px -1px 0px 0px inset,
+    box-shadow: rgb(0, 0, 0) -1px -1px 0px 0px inset,
       rgb(210, 210, 210) 1px 1px 0px 0px inset,
       rgb(134, 138, 142) -2px -2px 0px 0px inset,
       rgb(255, 255, 255) 2px 2px 0px 0px inset;
@@ -76,9 +73,7 @@ const StyledLi = styled.li`
   &:active {
     outline: 1px dotted rgb(0, 0, 0);
     outline-offset: -5px;
-    box-shadow:
-      inset 0 0 0 1px rgb(134, 138, 142),
-      0 0 0 1px rgb(0, 0, 0);
+    box-shadow: inset 0 0 0 1px rgb(134, 138, 142), 0 0 0 1px rgb(0, 0, 0);
   }
 `;
 
@@ -100,7 +95,7 @@ function Popup({ placeholder, user, setTabs }: props, ref: Ref<refs>) {
   const [positionY, setPositionY] = useState<number>(0);
   const [channel, setChannel] = useState<IChannel[]>([]);
   const [channelType, setChanneltype] = useState<EChannelType>(
-    EChannelType.PUBLIC,
+    EChannelType.PUBLIC
   );
   let key = 0;
 
