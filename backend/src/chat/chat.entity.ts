@@ -6,7 +6,6 @@ import {
   ManyToOne,
   ManyToMany,
   PrimaryGeneratedColumn,
-  Unique,
   PrimaryColumn,
 } from 'typeorm';
 
@@ -14,7 +13,6 @@ import { User } from '../users/user.entity';
 import { EChannelType } from './properties';
 
 @Entity('channels')
-@Unique(['title'])
 export class Channels {
   @PrimaryGeneratedColumn()
   id: number;
@@ -67,7 +65,7 @@ export class Messages {
   @JoinColumn({ name: 'sender' })
   sender: User;
 
-  @ManyToOne(() => Channels)
+  @ManyToOne(() => Channels, { cascade: ['update', 'remove'] })
   @JoinColumn({ name: 'channel' })
   channel: Channels;
 

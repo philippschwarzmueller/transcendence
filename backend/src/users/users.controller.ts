@@ -167,10 +167,10 @@ export class UsersController {
 
   @Post('get-friend-state')
   async getFriendState(
-    @Body() body: { name: string },
+    @Body() body: { intraname: string },
     @Req() req: Request,
   ): Promise<FriendState> {
-    return await this.usersService.getFriendState(req, body.name);
+    return await this.usersService.getFriendState(req, body.intraname);
   }
 
   @Post('change-avatar')

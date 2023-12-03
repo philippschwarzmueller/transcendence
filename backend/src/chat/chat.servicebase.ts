@@ -115,13 +115,16 @@ export class ChatServiceBase {
       };
       const user = await this.userService.findOneByName(chat.user.name);
       const user2 = await this.userService.findOneByName(chat.title);
-      if (await this.chatDao.checkForChat(user.id, user2.id)) return ;
+      if ((await this.chatDao.checkForChat(user.id, user2.id)) > 0) {return ;}
+      console.log(user.name);
+      console.log(user2.name);
       const cha = await this.chatDao.saveChannel(chat, chat.user.intraname);
-      await this.chatDao.addUserToChannel(cha.id, chat.title);
+      await this.chatDao.addUserToChannel(cha.id, user2.intraname);
       await send(user.intraname);
       await send(user2.intraname);
       return await this.chatDao.getRawUserChannels(user.id);
     } catch (error) {
+      console.error(error);
     }
     return [];
   }
@@ -133,7 +136,7 @@ export class ChatServiceBase {
       if (userId === owner.intraname || channel.type === EChannelType.CHAT) {
         channel.users.forEach(async (u) => {
           await this.chatDao.removeUserFromChannel(chat, u.intraname);
-          this.getUser(u.intraname).socket.leave(channel.id.toString());
+          this.getUser(u.intraname)?.socket?.leave(channel.id.toString());
         });
         this.chatDao.channelRepo.remove(channel);
       }

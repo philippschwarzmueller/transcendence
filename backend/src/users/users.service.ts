@@ -267,7 +267,7 @@ export class UsersService {
     }
     return (
       await this.usersRepository.findOne({
-        where: { name: user.name },
+        where: { intraname: user.intraname },
         relations: ['friend_requested'],
       })
     ).friend_requested;
@@ -281,7 +281,7 @@ export class UsersService {
     }
     return (
       await this.usersRepository.findOne({
-        where: { name: user.name },
+        where: { intraname: user.intraname },
         relations: ['friend_requests_received'],
       })
     ).friend_requests_received;
@@ -290,7 +290,7 @@ export class UsersService {
   async addFriend(req: Request, friendName: string): Promise<boolean> {
     const token: string = req.cookies.token;
     const user: User | null = await this.exchangeTokenforUser(token);
-    const friend: User | null = await this.findOneByName(friendName);
+    const friend: User | null = await this.findOneByIntraName(friendName);
     if (user === null || friend === null) {
       return false;
     }
@@ -332,12 +332,12 @@ export class UsersService {
       return false;
     }
     const receiver: User = await this.usersRepository.findOne({
-      where: { name: user.name },
+      where: { intraname: user.intraname },
       relations: ['friend_requests_received', 'friends', 'friend_requested'],
     });
 
     const sender: User = await this.usersRepository.findOne({
-      where: { name: friend },
+      where: { intraname: friend },
       relations: ['friend_requested', 'friends', 'friend_requests_received'],
     });
 
@@ -347,12 +347,12 @@ export class UsersService {
 
     const friendState: FriendState = await this.getFriendState(
       req,
-      sender.name,
+      sender.intraname,
     );
 
     if (
       friendState !== FriendState.pendingFriend ||
-      receiver.name === sender.name
+      receiver.intraname === sender.intraname
     ) {
       return false;
     }
@@ -361,10 +361,10 @@ export class UsersService {
     receiver.friends.push(sender);
 
     sender.friend_requested = sender.friend_requested.filter(
-      (friend) => friend.name !== receiver.name,
+      (friend) => friend.intraname !== receiver.intraname,
     );
     receiver.friend_requests_received = sender.friend_requests_received.filter(
-      (friend) => friend.name !== sender.name,
+      (friend) => friend.intraname !== sender.intraname,
     );
 
     await this.usersRepository.save(sender);
@@ -380,33 +380,33 @@ export class UsersService {
     }
 
     const receiver: User = await this.usersRepository.findOne({
-      where: { name: user.name },
+      where: { intraname: user.intraname },
       relations: ['friend_requests_received', 'friend_requested'],
     });
 
     const sender: User = await this.usersRepository.findOne({
-      where: { name: friend },
+      where: { intraname: friend },
       relations: ['friend_requested', 'friend_requests_received'],
     });
 
     const friendState: FriendState = await this.getFriendState(
       req,
-      sender.name,
+      sender.intraname,
     );
 
     if (
       friendState !== FriendState.pendingFriend ||
-      receiver.name === sender.name
+      receiver.intraname === sender.intraname
     ) {
       return false;
     }
 
     receiver.friend_requests_received =
       receiver.friend_requests_received.filter(
-        (req) => req.name !== sender.name,
+        (req) => req.intraname !== sender.intraname,
       );
     sender.friend_requested = sender.friend_requested.filter(
-      (req) => req.name !== receiver.name,
+      (req) => req.intraname !== receiver.intraname,
     );
 
     await this.usersRepository.save(receiver);
@@ -423,12 +423,12 @@ export class UsersService {
     }
 
     const remover: User = await this.usersRepository.findOne({
-      where: { name: user.name },
+      where: { intraname: user.intraname },
       relations: ['friends'],
     });
 
     const removeFriend: User = await this.usersRepository.findOne({
-      where: { name: friend },
+      where: { intraname: friend },
       relations: ['friends'],
     });
 
@@ -438,21 +438,21 @@ export class UsersService {
 
     const friendState: FriendState = await this.getFriendState(
       req,
-      removeFriend.name,
+      removeFriend.intraname,
     );
 
     if (
       friendState !== FriendState.friend ||
-      remover.name === removeFriend.name
+      remover.intraname === removeFriend.intraname
     ) {
       return false;
     }
 
     remover.friends = remover.friends.filter(
-      (friend) => friend.name !== removeFriend.name,
+      (friend) => friend.intraname !== removeFriend.intraname,
     );
     removeFriend.friends = removeFriend.friends.filter(
-      (friend) => friend.name !== remover.name,
+      (friend) => friend.intraname !== remover.intraname,
     );
 
     await this.usersRepository.save(remover);
@@ -469,7 +469,7 @@ export class UsersService {
     }
     return (
       await this.usersRepository.findOne({
-        where: { name: user.name },
+        where: { intraname: user.intraname },
         relations: ['friends'],
       })
     ).friends;
@@ -481,7 +481,7 @@ export class UsersService {
       return false;
     }
     const isFriend: boolean = friends.some(
-      (friendUser) => friendUser.name === friend,
+      (friendUser) => friendUser.intraname === friend,
     );
     return isFriend;
   }
@@ -492,7 +492,7 @@ export class UsersService {
       return false;
     }
     const ispendingFriend: boolean = pendingFriends.some(
-      (friendUser) => friendUser.name === friend,
+      (friendUser) => friendUser.intraname === friend,
     );
     return ispendingFriend;
   }
@@ -503,7 +503,7 @@ export class UsersService {
       return false;
     }
     const isRequestedFriend: boolean = requestedFriends.some(
-      (friendUser) => friendUser.name === friend,
+      (friendUser) => friendUser.intraname === friend,
     );
     return isRequestedFriend;
   }

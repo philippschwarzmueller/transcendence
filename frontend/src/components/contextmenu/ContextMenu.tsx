@@ -226,7 +226,7 @@ const ContextMenu: React.FC<IContextMenu> = ({
           "Content-Type": "application/json",
         },
         credentials: "include",
-        body: JSON.stringify({ name: user.name }),
+        body: JSON.stringify({ intraname: user.intraname }),
       });
       if (!res.ok) {
         throw new Error("Network response was not ok");
@@ -278,11 +278,11 @@ const ContextMenu: React.FC<IContextMenu> = ({
         {/* PENDING FRIEND */}
         {friendState === FriendState.pendingFriend && !isBlocked && (
           <>
-            <OptionLi onClick={() => handleFriendAccept(user.name)}>
+            <OptionLi onClick={() => handleFriendAccept(user.intraname)}>
               👥 Accept friend request
             </OptionLi>
             <LineLi />
-            <OptionLi onClick={() => handleFriendDeny(user.name)}>
+            <OptionLi onClick={() => handleFriendDeny(user.intraname)}>
               💩 Deny friend request
             </OptionLi>
           </>
@@ -290,7 +290,7 @@ const ContextMenu: React.FC<IContextMenu> = ({
         {friendState === FriendState.pendingFriend && !isBlocked && <LineLi />}
         {/* NO FRIEND */}
         {friendState === FriendState.noFriend && !isBlocked && !ownProfile && (
-          <OptionLi onClick={() => handleFriendAdd(user.name)}>
+          <OptionLi onClick={() => handleFriendAdd(user.intraname)}>
             👨‍❤️‍💋‍👨 Add as friend
           </OptionLi>
         )}
@@ -319,7 +319,7 @@ const ContextMenu: React.FC<IContextMenu> = ({
         {!ownProfile && !isBlocked && <LineLi />}
         {/* FRIEND */}
         {friendState === FriendState.friend && (
-          <OptionLi onClick={() => handleFriendRemove(user.name)}>
+          <OptionLi onClick={() => handleFriendRemove(user.intraname)}>
             ❌ Remove friend
           </OptionLi>
         )}

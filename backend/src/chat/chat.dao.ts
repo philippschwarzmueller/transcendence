@@ -40,9 +40,9 @@ export class ChatDAO {
     const existingChannel = await this.channelRepo.findOne({
       where: { title: channel.title },
     });
-    if (existingChannel && existingChannel.type !== EChannelType.PRIVATE) {
+    if (existingChannel && existingChannel.type === EChannelType.PUBLIC) {
       await this.addUserToChannel(existingChannel.id, user);
-    } else if (!existingChannel) {
+    } else if (!existingChannel || existingChannel.type === EChannelType.CHAT) {
       await this.channelRepo.save(
         this.channelRepo.create({
           title: channel.title,
@@ -62,14 +62,21 @@ export class ChatDAO {
     queryRunner.connect();
     const res = await queryRunner.manager.query(
       `SELECT c.id AS channel_id
-      FROM channels c
-      LEFT JOIN channel_subscription cs ON c.id = cs.channel
-      WHERE cs.user IN (${user}, ${user2})
-        AND c.type = ${EChannelType.CHAT}
-      GROUP BY c.id
-      HAVING COUNT(DISTINCT cs.user) = 2;`
+FROM channels c
+WHERE c.type = ${EChannelType.CHAT}
+  AND EXISTS (
+    SELECT 1
+    FROM channel_subscription cs1
+    WHERE cs1.channel = c.id AND cs1.user = ${user}
+  )
+  AND EXISTS (
+    SELECT 1
+    FROM channel_subscription cs2
+    WHERE cs2.channel = c.id AND cs2.user = ${user2}
+  );`
     );
     queryRunner.release();
+    console.log(res);
     return res.length;
   }
 
@@ -77,15 +84,14 @@ export class ChatDAO {
     const channel: Channels = await this.getChannel(id);
     if (channel.type === EChannelType.CHAT && channel.users.length === 2)
       return;
-    const newUser: User = await this.userService.findOneByName(user);
+    const newUser: User = await this.userService.findOneByIntraName(user);
     const queryRunner = this.dataSource.createQueryRunner();
-    queryRunner.connect();
+    await queryRunner.connect();
     await queryRunner.manager.query(
       `INSERT INTO channel_subscription (channel, "user")
-        VALUES (${channel.id}, ${newUser.id})
-        ON CONFLICT (channel, "user") DO NOTHING;`,
+        VALUES (${channel.id}, ${newUser.id})`,
     );
-    queryRunner.release();
+    await queryRunner.release();
   }
 
   public async removeUserFromChannel(
