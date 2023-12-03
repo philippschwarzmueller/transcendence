@@ -185,7 +185,7 @@ function Popup({ placeholder, user, setTabs }: props, ref: Ref<refs>) {
             Private
           </label>
         </form>
-g      </InputField>
+      </InputField>
     </>
   );
 }
