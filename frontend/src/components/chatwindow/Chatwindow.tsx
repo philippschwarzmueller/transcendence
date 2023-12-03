@@ -40,10 +40,8 @@ const Textfield = styled.div`
   border-width: 1px 0px 0px 1px;
   border-top-color: rgb(134, 138, 142);
   border-left-color: rgb(134, 138, 142);
-  box-shadow:
-    rgb(195, 199, 203) -1px -1px 0px 0px inset,
-    rgb(0, 0, 0) 1px 1px 0px 0px inset,
-    rgb(255, 255, 255) 0.5px 0.5px 0px 0.5px;
+  box-shadow: rgb(195, 199, 203) -1px -1px 0px 0px inset,
+    rgb(0, 0, 0) 1px 1px 0px 0px inset, rgb(255, 255, 255) 0.5px 0.5px 0px 0.5px;
   overflow: auto;
   &::-webkit-scrollbar {
     width: 17x;
@@ -58,8 +56,7 @@ const Textfield = styled.div`
     background: rgb(195, 199, 203);
     color: rgb(0, 0, 0);
     border: 0px;
-    box-shadow:
-      rgb(0, 0, 0) -1px -1px 0px 0px inset,
+    box-shadow: rgb(0, 0, 0) -1px -1px 0px 0px inset,
       rgb(210, 210, 210) 1px 1px 0px 0px inset,
       rgb(134, 138, 142) -2px -2px 0px 0px inset,
       rgb(255, 255, 255) 2px 2px 0px 0px inset;
@@ -90,11 +87,11 @@ const StyledUl = styled.ul`
   list-style: none;
 `;
 
-const Chatwindow: React.FC<{ setDisplay?: (display: boolean) => void, $display: boolean, z?: number }> = ({
-  $display,
-  z,
-  setDisplay,
-}) => {
+const Chatwindow: React.FC<{
+  setDisplay?: (display: boolean) => void;
+  $display: boolean;
+  z?: number;
+}> = ({ $display, z, setDisplay }) => {
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [input, setInput] = useState<string>("");
   const user: IUser = useContext(AuthContext).user;
@@ -123,7 +120,7 @@ const Chatwindow: React.FC<{ setDisplay?: (display: boolean) => void, $display: 
       })
       .then((res: ITab[]) => setTabs(res))
       .catch((error) => console.error(error));
-  }
+  };
 
   socket.on("message", (res: IMessage) => setMessages([...messages, res]));
   socket.on("invite", (res: ITab[]) => setTabs(res));
@@ -147,7 +144,7 @@ const Chatwindow: React.FC<{ setDisplay?: (display: boolean) => void, $display: 
           title: room?.title,
           prev: prevRoom?.id,
         },
-        (res: IMessage[]) => setMessages(res),
+        (res: IMessage[]) => setMessages(res)
       );
     }
   }, [room]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -159,15 +156,13 @@ const Chatwindow: React.FC<{ setDisplay?: (display: boolean) => void, $display: 
         block: "end",
         inline: "nearest",
       }),
-    [messages],
+    [messages]
   ); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     setTabs(tabs);
-    if (tabs.length > 0)
-      setActive(tabs[tabs.length - 1]);
-    else
-      setMessages([]);
+    if (tabs.length > 0) setActive(tabs[tabs.length - 1]);
+    else setMessages([]);
   }, [tabs]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function send(event: React.MouseEvent | React.KeyboardEvent) {
@@ -192,10 +187,9 @@ const Chatwindow: React.FC<{ setDisplay?: (display: boolean) => void, $display: 
         ref={roomRef}
         setTabs={setTabs}
       />
-      <ChannelUser
-        id={activeTabId}
-        ref={channelRef}
-      /> <Moveablewindow title="Chat"
+      <ChannelUser id={activeTabId} ref={channelRef} />{" "}
+      <Moveablewindow
+        title="Chat"
         positionX={200}
         positionY={200}
         positionZ={z}
@@ -206,9 +200,12 @@ const Chatwindow: React.FC<{ setDisplay?: (display: boolean) => void, $display: 
           {tabs.map((tab) => {
             return (
               <StyledLi
-                onClick={(e: React.MouseEvent) => {setActive(tab);
-                if (tab.title === activeTab) { channelRef.current.openBrowser(e);
-                }}}
+                onClick={(e: React.MouseEvent) => {
+                  setActive(tab);
+                  if (tab.title === activeTab) {
+                    channelRef.current.openBrowser(e);
+                  }
+                }}
                 key={tab.title}
                 $active={tab.title === activeTab ? "true" : "false"}
               >
@@ -225,17 +222,22 @@ const Chatwindow: React.FC<{ setDisplay?: (display: boolean) => void, $display: 
           </StyledLi>
           <Button
             onClick={() => {
-              socket.emit("leave", {user: user.intraname, chat: activeTabId}, () => {
-                setTabs(
-                  tabs.filter(function (e) {
-                  return e.title !== activeTab;
-                }),
+              socket.emit(
+                "leave",
+                { user: user.intraname, chat: activeTabId },
+                () => {
+                  setTabs(
+                    tabs.filter(function (e) {
+                      return e.title !== activeTab;
+                    })
+                  );
+                  if (tabs.length > 0) setActive(tabs[tabs.length - 1]);
+                }
               );
-              if (tabs.length > 0) setActive(tabs[tabs.length - 1]);
-              })}}
-              $position="absolute"
-              $top="35px"
-              $right="20px"
+            }}
+            $position="absolute"
+            $top="35px"
+            $right="20px"
           >
             Leave
           </Button>
@@ -259,6 +261,7 @@ const Chatwindow: React.FC<{ setDisplay?: (display: boolean) => void, $display: 
               if (e.key === "Enter") send(e);
             }}
           ></Input>
+          <Button onClick={(e: React.MouseEvent) => send(e)}>Send</Button>
         </Msgfield>
       </Moveablewindow>
     </>
