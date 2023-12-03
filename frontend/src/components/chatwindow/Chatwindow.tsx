@@ -124,7 +124,6 @@ const Chatwindow: React.FC<{
 
   socket.on("message", (res: IMessage) => setMessages([...messages, res]));
   socket.on("invite", (res: ITab[]) => setTabs(res));
-  socket.on("update", () => fetchChannels());
   socket.on("game", (body: IGameStart) => {
     navigate(`/play/${body.gameId}/${body.side}`);
   });
