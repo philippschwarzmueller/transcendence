@@ -101,8 +101,9 @@ export class WSocketGateway implements OnGatewayInit {
   }
 
   @SubscribeMessage('declinegame')
-  decline(@MessageBody() data: IUser) {
+  decline(@MessageBody() data: IUser): boolean {
     this.chatService.opponents.delete(data.intraname);
+    return true;
   }
 
   @SubscribeMessage('alterGameData')

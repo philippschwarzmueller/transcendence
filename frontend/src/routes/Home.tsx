@@ -30,7 +30,7 @@ const Home: React.FC = () => {
 
   return (
     <>
-      <Invitepopwindow challenger={challenger} />
+      <Invitepopwindow challenger={challenger} setChallenger={setChallenger}/>
       <Gameicon />
       <Taskbar />
     </>
