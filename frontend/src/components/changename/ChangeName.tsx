@@ -34,6 +34,7 @@ const NameChangeSection: React.FC = () => {
         });
         const updatedUser: IUser = await res.json();
         if (
+          updatedUser &&
           updatedUser.name !== auth.user.name &&
           updatedUser.name !== undefined
         ) {
