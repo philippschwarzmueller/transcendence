@@ -20,7 +20,7 @@ const SetUser: React.FC = () => {
       const urlParams = new URLSearchParams(location.search);
       const hashedToken: string | null = urlParams.get("hashedToken");
       setIsFirstLogin(urlParams.get("firstSignIn") === "true");
-      if (hashedToken) {
+      if (hashedToken && isLoading) {
         await fetch(`${BACKEND}/users/get-user-with-token`, {
           method: "POST",
           credentials: "include",
