@@ -32,7 +32,6 @@ import { Repository } from 'typeorm';
 import { IChangeSocketPayload } from 'src/wsocket/wsocket.gateway';
 import { getWinnerLooserNames, isGameFinished } from './games.utils';
 import { User } from 'src/users/user.entity';
-import { setInternalBufferSize } from 'typeorm/driver/mongodb/bson.typings';
 
 export const randomBallSpawn = (): IBall => {
   const ballSpeed: number = 8;
