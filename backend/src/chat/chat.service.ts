@@ -24,6 +24,8 @@ export class ChatService extends ChatServiceBase {
     let check = data.input;
     if (data.input.indexOf(' ') != -1)
       check = data.input.substring(0, data.input.indexOf(' '));
+    if( (await this.chatDao.getChannel(data.room)).type === EChannelType.CHAT)
+      check = '';
     switch (check) {
       case '/add':
         this.addUser(data, server);
@@ -79,7 +81,8 @@ export class ChatService extends ChatServiceBase {
       const user = await this.userService.findOneByName(name);
       const owner = await this.chatDao.getChannelOwner(data.room);
       if (owner.name !== data.user.name
-        && (await this.chatDao.getAdmin(data.room, data.user.name)) === 0)
+        && (await this.chatDao.getAdmin(data.room, data.user.name)) === 0
+        || owner.name === name)
         return;
       await this.chatDao.addUserToChannel(data.room, name);
       server
@@ -88,7 +91,10 @@ export class ChatService extends ChatServiceBase {
           'invite',
           await this.chatDao.getRawUserChannels(this.getUser(user.intraname).user.id),
         );
-      server.to(data.room.toString()).emit(`${name}: got added`);
+      server.to(data.room.toString()).emit('message', {
+        message: `${name} got added`,
+        block: [],
+      });
     } catch (error) {
       console.error(`SYSTEM: ${error.message.split('\n')[0]}`);
     }
@@ -99,9 +105,14 @@ export class ChatService extends ChatServiceBase {
       const name = data.input.substring(data.input.indexOf(' ') + 1);
       const owner = await this.chatDao.getChannelOwner(data.room);
       if (owner.name !== data.user.name
-        && (await this.chatDao.getAdmin(data.room, data.user.name)) === 0)
+        && (await this.chatDao.getAdmin(data.room, data.user.name)) === 0
+        || owner.name === name)
         return;
       await this.chatDao.promoteUser(data.room, name);
+      server.to(data.room.toString()).emit('message', {
+        message: `${name} got promoted`,
+        block: [],
+      });
     } catch (error) {
       console.error(`SYSTEM: ${error.message.split('\n')[0]}`);
     }
@@ -112,9 +123,14 @@ export class ChatService extends ChatServiceBase {
       const name = data.input.substring(data.input.indexOf(' ') + 1);
       const owner = await this.chatDao.getChannelOwner(data.room);
       if (owner.name !== data.user.name
-        && (await this.chatDao.getAdmin(data.room, data.user.name)) === 0)
+        && (await this.chatDao.getAdmin(data.room, data.user.name)) === 0
+        || owner.name === name)
         return;
       await this.chatDao.demoteUser(data.room, name);
+      server.to(data.room.toString()).emit('message', {
+        message: `${name} got demoted`,
+        block: [],
+      });
     } catch (error) {
       console.error(`SYSTEM: ${error.message.split('\n')[0]}`);
     }
@@ -129,10 +145,13 @@ export class ChatService extends ChatServiceBase {
       const owner = await this.chatDao.getChannelOwner(data.room);
       if ((owner.name !== data.user.name
         && (await this.chatDao.getAdmin(data.room, data.user.name)) === 0)
-        || owner.name === val[1]
-        || (await this.chatDao.getChannel(data.room)).type === EChannelType.CHAT)
+        || owner.name === val[1])
         return;
       await this.chatDao.muteUser(data.room, val[1], time);
+      server.to(data.room.toString()).emit('message', {
+        message: `${val[1]} got muted for ${time} minutes`,
+        block: [],
+      });
     } catch (error) {
       console.error(`SYSTEM: ${error.message.split('\n')[0]}`);
     }
@@ -141,21 +160,25 @@ export class ChatService extends ChatServiceBase {
   private async kickUser(data: IMessage, server: Server) {
     try {
       const name = data.input.substring(data.input.indexOf(' ') + 1);
-      const user = await this.userService.findOneByName(name);
+      const user = await this.userService.findOneByIntraName(name);
       const owner = await this.chatDao.getChannelOwner(data.room);
       if ((owner.name !== data.user.name
         && (await this.chatDao.getAdmin(data.room, data.user.name)) === 0)
-        || owner.name === name
-        || (await this.chatDao.getChannel(data.room)).type === EChannelType.CHAT)
+        || owner.name === name)
         return;
-      await this.chatDao.removeUserFromChannel(data.room, name);
+      await this.chatDao.removeUserFromChannel(data.room, user.intraname);
+      this.getUser(user.intraname).socket.leave(data.room.toString());
       server
         .to(this.getUser(user.intraname).socket.id)
         .emit(
           'invite',
           await this.chatDao.getRawUserChannels(this.getUser(user.intraname).user.id),
         );
-      server.to(data.room.toString()).emit(`${name}: got kicked`);
+      server.to(data.room.toString()).emit('message', {
+        message: `${name} got kicked`,
+        block: [],
+      });
+
     } catch (error) {
       console.error(`SYSTEM: ${error.message.split('\n')[0]}`);
     }
@@ -179,7 +202,7 @@ export class ChatService extends ChatServiceBase {
             block: blockNames,
           }
         );
-      this.opponents.set(name, data.user.name);
+      this.opponents.set(name, data.user.intraname);
     }
   }
 
