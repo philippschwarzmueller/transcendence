@@ -25,7 +25,6 @@ export interface IntraSignInEvent {
 
 export function logTime(timestamp: number, msg: string) {
   const date = new Date(timestamp * 1000);
-  console.log(`${msg}: ${date.toUTCString()}`);
 }
 
 @Injectable()
