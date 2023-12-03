@@ -21,7 +21,10 @@ const SetUser: React.FC = () => {
       const hashedToken: string | null = urlParams.get("hashedToken");
       setIsFirstLogin(urlParams.get("firstSignIn") === "true");
       if (hashedToken) {
-        await fetch(`${BACKEND}/users/get-user-with-token`)
+        await fetch(`${BACKEND}/users/get-user-with-token`, {
+          method: "POST",
+          credentials: "include",
+        })
           .then((res) => res.json())
           .then((resUser) => {
             setUser(resUser);

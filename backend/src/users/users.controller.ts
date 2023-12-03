@@ -55,16 +55,15 @@ export class UsersController {
     }
   }
 
-  @Get('get-user-with-token')
+  @Post('get-user-with-token')
   async getUserWithToken(
-    @Body() body: { hashedToken: string },
     @Req() req: Request,
-  ): Promise<User | null> {
-    const cookie_token: string = req.cookies.token;
-    const hashedToken = body.hashedToken;
-    if (cookie_token !== hashedToken)
+  ): Promise<PublicUser | null> {
+    const user: User = await this.usersService.findOneByHashedToken(req);
+    if(!user){
       return null;
-    return(await this.usersService.findOneByHashedToken(hashedToken));
+    }
+    return (await this.usersService.createPublicUser(user));
   }
 
   @Put('block')
@@ -97,7 +96,7 @@ export class UsersController {
       const user: User = await this.usersService.findOneByIntraName(name);
       return this.usersService.createPublicUser(user);
     } catch (e) {
-      throw new HttpException('user not found', HttpStatus.NOT_FOUND, {
+      throw new HttpException('pip not found', HttpStatus.CONFLICT, {
         cause: e,
       });
     }
