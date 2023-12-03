@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
-import { useNavigate } from "react-router-dom";
 import { BACKEND } from "../../routes/SetUser";
 import { AuthContext, IUser } from "../../context/auth";
 import { EChannelType, IChannel } from "../chatwindow/properties";
@@ -93,7 +92,7 @@ const ContextMenu: React.FC<IContextMenu> = ({
         return res.json();
       })
       .then((res: boolean) => setIsBlocked(res))
-      .catch((error) => console.log(error));
+      .catch((error) => console.error(error));
   };
 
   const handleFriendAccept = async (friend: string | undefined) => {
@@ -262,7 +261,7 @@ const ContextMenu: React.FC<IContextMenu> = ({
         return res.json();
       })
       .then((res: boolean) => setIsBlocked(res))
-      .catch((error) => console.log(error));
+      .catch((error) => console.error(error));
   }, [isBlocked]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const refreshContextMenu = () => {
@@ -279,13 +278,13 @@ const ContextMenu: React.FC<IContextMenu> = ({
         {/* PENDING FRIEND */}
         {friendState === FriendState.pendingFriend && !isBlocked && (
           <>
-          <OptionLi onClick={() => handleFriendAccept(user.name)}>
-            👥 Accept friend request
-          </OptionLi>
-          <LineLi />
-          <OptionLi onClick={() => handleFriendDeny(user.name)}>
-            💩 Deny friend request
-          </OptionLi>
+            <OptionLi onClick={() => handleFriendAccept(user.name)}>
+              👥 Accept friend request
+            </OptionLi>
+            <LineLi />
+            <OptionLi onClick={() => handleFriendDeny(user.name)}>
+              💩 Deny friend request
+            </OptionLi>
           </>
         )}
         {friendState === FriendState.pendingFriend && !isBlocked && <LineLi />}
@@ -314,7 +313,7 @@ const ContextMenu: React.FC<IContextMenu> = ({
           </OptionLi>
         )}
         <LineLi />
-        {!ownProfile && <OptionLi>🏓 Challenge to Game</OptionLi>}
+        {!ownProfile && <OptionLi onClick={() => socket.emit("challenge", { challenger: auth.user, challenged: user })}>🏓 Challenge to Game</OptionLi>}
         {!ownProfile && <LineLi />}
         {!ownProfile && !isBlocked && <OptionLi onClick={() => startChat()}>💬 Start Chat</OptionLi>}
         {!ownProfile && !isBlocked && <LineLi />}
