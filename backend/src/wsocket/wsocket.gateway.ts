@@ -43,6 +43,13 @@ export class WSocketGateway implements OnGatewayInit {
   @WebSocketServer()
   server: Server;
 
+  @SubscribeMessage('leave')
+  async leaveChannel(@MessageBody() data: {user: string, channel: number}): Promise<boolean> {
+    await this.chatService.removeChat(data.user, data.channel);
+    this.server.emit('update');
+    return true;
+  }
+
   @SubscribeMessage('channel')
   async getChannels(@MessageBody() user: IUser): Promise<IChannel[]> {
     return await this.chatService.getChannelList(user);
