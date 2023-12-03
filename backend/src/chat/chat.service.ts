@@ -71,7 +71,6 @@ export class ChatService extends ChatServiceBase {
       server.to(data.room.toString()).emit('message', {message: mess, block: blockNames });
       await this.chatDao.saveMessageToChannel(data);
     } catch (error) {
-      console.error(`SYSTEM: ${error.message.split('\n')[0]}`);
     }
   }
 
@@ -96,7 +95,6 @@ export class ChatService extends ChatServiceBase {
         block: [],
       });
     } catch (error) {
-      console.error(`SYSTEM: ${error.message.split('\n')[0]}`);
     }
   }
 
@@ -114,7 +112,6 @@ export class ChatService extends ChatServiceBase {
         block: [],
       });
     } catch (error) {
-      console.error(`SYSTEM: ${error.message.split('\n')[0]}`);
     }
   }
 
@@ -132,7 +129,6 @@ export class ChatService extends ChatServiceBase {
         block: [],
       });
     } catch (error) {
-      console.error(`SYSTEM: ${error.message.split('\n')[0]}`);
     }
   }
 
@@ -153,7 +149,6 @@ export class ChatService extends ChatServiceBase {
         block: [],
       });
     } catch (error) {
-      console.error(`SYSTEM: ${error.message.split('\n')[0]}`);
     }
   }
 
@@ -178,9 +173,7 @@ export class ChatService extends ChatServiceBase {
         message: `${name} got kicked`,
         block: [],
       });
-
     } catch (error) {
-      console.error(`SYSTEM: ${error.message.split('\n')[0]}`);
     }
   }
 

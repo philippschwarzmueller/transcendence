@@ -18,10 +18,13 @@ const SetUser: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       const urlParams = new URLSearchParams(location.search);
-      const intraname: string | null = urlParams.get("intraname");
+      const hashedToken: string | null = urlParams.get("hashedToken");
       setIsFirstLogin(urlParams.get("firstSignIn") === "true");
-      if (intraname) {
-        await fetch(`${BACKEND}/users/intra/${intraname}`)
+      if (hashedToken) {
+        await fetch(`${BACKEND}/users/get-user-with-token`, {
+          method: "POST",
+          credentials: "include",
+        })
           .then((res) => res.json())
           .then((resUser) => {
             setUser(resUser);

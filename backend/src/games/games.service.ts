@@ -32,7 +32,6 @@ import { Repository } from 'typeorm';
 import { IChangeSocketPayload } from 'src/wsocket/wsocket.gateway';
 import { getWinnerLooserNames, isGameFinished } from './games.utils';
 import { User } from 'src/users/user.entity';
-import { setInternalBufferSize } from 'typeorm/driver/mongodb/bson.typings';
 
 export const randomBallSpawn = (): IBall => {
   const ballSpeed: number = 8;
@@ -140,12 +139,13 @@ export class GamesService {
     if (!this.isGameRunning(gameId)) return newGameCopy();
     if (
       side === 'left' &&
-      user.hashedToken === this.runningGames.get(gameId).leftPlayer.user.token
+      user.intraname === this.runningGames.get(gameId).leftPlayer.user.intraname
     )
       this.runningGames.get(gameId).gameState.keyStateLeft = keystate;
     else if (
       side === 'right' &&
-      user.hashedToken === this.runningGames.get(gameId).rightPlayer.user.token
+      user.intraname ===
+        this.runningGames.get(gameId).rightPlayer.user.intraname
     )
       this.runningGames.get(gameId).gameState.keyStateRight = keystate;
     return this.runningGames.get(gameId).gameState;
