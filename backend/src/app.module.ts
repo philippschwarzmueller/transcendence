@@ -8,7 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { GamesModule } from './games/games.module';
 import { ChatModule } from './chat/chat.module';
 import { Game } from './games/game.entity';
-import { Channels, Messages } from './chat/chat.entity';
+import { Channels, Messages, Muted } from './chat/chat.entity';
 import { WSocketModule } from './wsocket/wsocket.module';
 import { WSocketGateway } from './wsocket/wsocket.gateway';
 import { TwoFAModule } from './2FA/twofa.module';
@@ -23,7 +23,7 @@ import { LeaderboardModule } from './leaderboard/leaderboard.module';
       username: 'root',
       password: 'testpwd',
       database: 'transcendence',
-      entities: [User, Game, Messages, Channels],
+      entities: [User, Game, Messages, Channels, Muted],
       synchronize: true,
     }),
     UsersModule,

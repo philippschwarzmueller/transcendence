@@ -73,7 +73,7 @@ const Friendbrowser: React.FC<{ $display: boolean; z?: number }> = ({
       setIsLoading(false);
     };
     fetchData();
-  }, [reloadTrigger]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [reloadTrigger, $display]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchIncomingFriends = async () => {
     try {

@@ -178,32 +178,32 @@ export class GamesController {
     user.wonGames.forEach((game) => {
       if (!game.isFinished) return;
       Matches.push({
-        winnerNickname: game.winner.intraname,
-        looserNickname: game.looser.intraname,
+        winnerNickname: game.winner.name,
+        looserNickname: game.looser.name,
         winnerPoints: game.winnerPoints,
         looserPoints: game.looserPoints,
         wonGame: game.winner.intraname === intraname,
         timestamp: game.createdAt,
         enemyIntra:
           game.winner.intraname === intraname
-            ? game.looser.intraname
-            : game.winner.intraname,
+            ? game.looser.name
+            : game.winner.name,
         gamemode: game.gamemode,
       });
     });
     user.lostGames.forEach((game) => {
       if (!game.isFinished) return;
       Matches.push({
-        winnerNickname: game.winner.intraname,
-        looserNickname: game.looser.intraname,
+        winnerNickname: game.winner.name,
+        looserNickname: game.looser.name,
         winnerPoints: game.winnerPoints,
         looserPoints: game.looserPoints,
         wonGame: game.winner.intraname === intraname,
         timestamp: game.createdAt,
         enemyIntra:
           game.winner.intraname === intraname
-            ? game.looser.intraname
-            : game.winner.intraname,
+            ? game.looser.name
+            : game.winner.name,
         gamemode: game.gamemode,
       });
     });

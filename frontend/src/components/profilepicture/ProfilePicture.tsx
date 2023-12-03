@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import { IUser } from "../../context/auth";
+import { ProfileContext } from "../../context/profile";
 import { BACKEND } from "../../routes/SetUser";
 
 interface IProfilePicture {
-  name?: string;
+  intraname?: string;
 }
 
 const StyledFrame = styled.div`
@@ -25,30 +26,33 @@ const StyledProfilePicture = styled.img`
     rgb(0, 0, 0) 1px 2px 1px 1px;
 `;
 
-const ProfilePicture: React.FC<IProfilePicture> = ({ name }) => {
+const ProfilePicture: React.FC<IProfilePicture> = ({ intraname }) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [user, setUser] = useState<IUser>();
+  const profile = useContext(ProfileContext);
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        const res: Response = await fetch(`${BACKEND}/users/${name}`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        if (!res.ok) {
-          throw new Error(`HTTP error! Status: ${res.status}`);
+      if (intraname) {
+        try {
+          const res: Response = await fetch(`${BACKEND}/users/intraname/${intraname}`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+          if (!res.ok) {
+            throw new Error(`HTTP error! Status: ${res.status}`);
+          }
+          setUser(await res.json());
+          setIsLoading(false);
+        } catch (error) {
+          console.error("fetching user for avatar/profilepicture failed", error);
         }
-        setUser(await res.json());
-        setIsLoading(false);
-      } catch (error) {
-        console.error("fetching user for avatar/profilepicture failed", error);
       }
     };
     fetchData();
-  }, [name]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [intraname, profile]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (isLoading) {
     return <div></div>;

@@ -1,13 +1,37 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, Repository, UpdateResult } from 'typeorm';
 import { User } from './user.entity';
+import { Channels } from 'src/chat/chat.entity';
+import { Game } from 'src/games/game.entity';
+import { Request } from 'express';
 
 export enum FriendState {
   noFriend,
   requestedFriend,
   pendingFriend,
   friend,
+}
+
+export interface PublicUser {
+  owned: Channels[];
+  channels: Channels[];
+  id?: number | undefined;
+  name: string | undefined;
+  intraname: string | undefined;
+  twoFAenabled: boolean;
+  profilePictureUrl: string | undefined;
+  activeChats: string[];
+  customAvatar?: string | undefined;
+  hasCustomAvatar?: boolean;
+  blocked: PublicUser[];
+  blocking: PublicUser[];
+  friend_requested: PublicUser[];
+  friend_requests_received: PublicUser[];
+  friends: PublicUser[];
+  wonGames: Game[];
+  lostGames: Game[];
+  elo: number[];
 }
 
 @Injectable()
@@ -19,8 +43,9 @@ export class UsersService {
     private dataSource: DataSource,
   ) {}
 
-  findAll(): Promise<User[]> {
-    return this.usersRepository.find();
+  async findAll(): Promise<User[]> {
+    const users: User[] = await this.usersRepository.find();
+    return users;
   }
 
   async findOneByName(userId: string): Promise<User> {
@@ -44,7 +69,54 @@ export class UsersService {
       throw new Error('User not found');
     }
   }
-  
+
+  public createPublicUser(user: User): PublicUser {
+    const publicUser: PublicUser = {
+      id: user.id,
+      name: user.name,
+      intraname: user.intraname,
+      twoFAenabled: user.twoFAenabled,
+      profilePictureUrl: user.profilePictureUrl,
+      activeChats: user.activeChats,
+      customAvatar: user.customAvatar,
+      hasCustomAvatar: user.hasCustomAvatar,
+      owned: user.owned,
+      channels: user.channels,
+      blocked:
+        user.blocked && user.blocked.length > 0
+          ? this.createPublicUserArray(user.blocked)
+          : [],
+      blocking:
+        user.blocking && user.blocking.length > 0
+          ? this.createPublicUserArray(user.blocking)
+          : [],
+      friend_requested:
+        user.friend_requested && user.friend_requested.length > 0
+          ? this.createPublicUserArray(user.friend_requested)
+          : [],
+      friend_requests_received:
+        user.friend_requests_received &&
+        user.friend_requests_received.length > 0
+          ? this.createPublicUserArray(user.friend_requests_received)
+          : [],
+      friends:
+        user.friends && user.friends.length > 0
+          ? this.createPublicUserArray(user.friends)
+          : [],
+      wonGames: user.wonGames,
+      lostGames: user.lostGames,
+      elo: user.elo,
+    };
+    return publicUser;
+  }
+
+  public createPublicUserArray(users: User[]): PublicUser[] {
+    const publicUsers: PublicUser[] = users.map((user) => {
+      return this.createPublicUser(user);
+    });
+    return publicUsers;
+  }
+
   async getBlockList(userId: string): Promise<User[]> {
     return (
       await this.usersRepository.findOne({
@@ -114,7 +186,7 @@ export class UsersService {
       `SELECT EXISTS (
         SELECT 1
         FROM users
-        INNER JOIN block_list 
+        INNER JOIN block_list
         ON users.id = block_list.blocking
         WHERE users.id = ${user.id}
         AND block_list.blocked = ${blocked.id}
@@ -124,12 +196,15 @@ export class UsersService {
     return res[0].is_blocked;
   }
 
-  async removeFromBlockList(userId: string, blockedId: string): Promise<boolean> {
+  async removeFromBlockList(
+    userId: string,
+    blockedId: string,
+  ): Promise<boolean> {
     const user: User = await this.findOneByIntraName(userId);
     const blocked: User = await this.findOneByIntraName(blockedId);
     const queryRunner = this.dataSource.createQueryRunner();
     queryRunner.connect();
-    const res = await queryRunner.manager.query(
+    await queryRunner.manager.query(
       `DELETE FROM block_list
       WHERE blocking = ${user.id} AND blocked = ${blocked.id}`,
     );
@@ -148,11 +223,11 @@ export class UsersService {
         ON CONFLICT (blocking, "blocked") DO NOTHING;`,
     );
     await queryRunner.manager.query(
-      `DELETE FROM friends 
+      `DELETE FROM friends
       WHERE user_id = ${user.id} AND friend_id = ${block.id}`,
     );
     await queryRunner.manager.query(
-      `DELETE FROM friends 
+      `DELETE FROM friends
       WHERE user_id = ${block.id} AND friend_id = ${user.id}`,
     );
     queryRunner.release();
@@ -161,25 +236,36 @@ export class UsersService {
 
   // Friends
 
-  async getFriendRequestList(userId: string): Promise<User[]> {
+  async getFriendRequestList(req: Request): Promise<User[]> {
+    const token: string = req.cookies.token;
+    const user: User | null = await this.exchangeTokenforUser(token);
     return (
       await this.usersRepository.findOne({
-        where: { name: userId },
+        where: { name: user.name },
         relations: ['friend_requested'],
       })
     ).friend_requested;
   }
 
-  async getReceivedFriendRequestList(userId: string): Promise<User[]> {
+  async getReceivedFriendRequestList(req: Request): Promise<User[]> {
+    const token: string = req.cookies.token;
+    const user: User | null = await this.exchangeTokenforUser(token);
     return (
       await this.usersRepository.findOne({
-        where: { name: userId },
+        where: { name: user.name },
         relations: ['friend_requests_received'],
       })
     ).friend_requests_received;
   }
 
-  async addFriend(user: User, friend: User): Promise<boolean> {
+  async addFriend(req: Request, friendName: string): Promise<boolean> {
+    const token: string = req.cookies.token;
+    const user: User | null = await this.exchangeTokenforUser(token);
+    const friend: User | null = await this.findOneByName(friendName);
+    if (user === null || friend === null) {
+      return false;
+    }
+
     const sender: User = await this.usersRepository.findOne({
       where: { name: user.name },
       relations: ['friend_requested'],
@@ -194,7 +280,7 @@ export class UsersService {
     }
 
     const friendState: FriendState = await this.getFriendState(
-      sender.name,
+      req,
       receiver.name,
     );
 
@@ -210,19 +296,26 @@ export class UsersService {
     return true;
   }
 
-  async acceptFriendRequest(user: User, friend: User): Promise<boolean> {
+  async acceptFriendRequest(req: Request, friend: string): Promise<boolean> {
+    const token: string = req.cookies.token;
+    const user: User | null = await this.exchangeTokenforUser(token);
+
     const receiver: User = await this.usersRepository.findOne({
       where: { name: user.name },
       relations: ['friend_requests_received', 'friends', 'friend_requested'],
     });
 
     const sender: User = await this.usersRepository.findOne({
-      where: { name: friend.name },
+      where: { name: friend },
       relations: ['friend_requested', 'friends', 'friend_requests_received'],
     });
 
+    if (receiver === null || sender === null) {
+      return false;
+    }
+
     const friendState: FriendState = await this.getFriendState(
-      receiver.name,
+      req,
       sender.name,
     );
 
@@ -245,23 +338,69 @@ export class UsersService {
 
     await this.usersRepository.save(sender);
     await this.usersRepository.save(receiver);
-    await this.usersRepository.save([user, friend]);
     return true;
   }
 
-  async removeFriend(user: User, friend: User): Promise<boolean> {
+  async denyFriendRequest(req: Request, friend: string): Promise<boolean> {
+    const token: string = req.cookies.token;
+    const user: User | null = await this.exchangeTokenforUser(token);
+
+    const receiver: User = await this.usersRepository.findOne({
+      where: { name: user.name },
+      relations: ['friend_requests_received', 'friend_requested'],
+    });
+
+    const sender: User = await this.usersRepository.findOne({
+      where: { name: friend },
+      relations: ['friend_requested', 'friend_requests_received'],
+    });
+
+    const friendState: FriendState = await this.getFriendState(
+      req,
+      sender.name,
+    );
+
+    if (
+      friendState !== FriendState.pendingFriend ||
+      receiver.name === sender.name
+    ) {
+      return false;
+    }
+
+    receiver.friend_requests_received =
+      receiver.friend_requests_received.filter(
+        (req) => req.name !== sender.name,
+      );
+    sender.friend_requested = sender.friend_requested.filter(
+      (req) => req.name !== receiver.name,
+    );
+
+    await this.usersRepository.save(receiver);
+    await this.usersRepository.save(sender);
+
+    return true;
+  }
+
+  async removeFriend(req: Request, friend: string): Promise<boolean> {
+    const token: string = req.cookies.token;
+    const user: User | null = await this.exchangeTokenforUser(token);
+
     const remover: User = await this.usersRepository.findOne({
       where: { name: user.name },
       relations: ['friends'],
     });
 
     const removeFriend: User = await this.usersRepository.findOne({
-      where: { name: friend.name },
+      where: { name: friend },
       relations: ['friends'],
     });
 
+    if (remover === null || removeFriend === null) {
+      return false;
+    }
+
     const friendState: FriendState = await this.getFriendState(
-      remover.name,
+      req,
       removeFriend.name,
     );
 
@@ -285,48 +424,49 @@ export class UsersService {
     return true;
   }
 
-  async getFriendList(userId: string): Promise<User[]> {
+  async getFriendList(req: Request): Promise<User[]> {
+    const token: string = req.cookies.token;
+    const user: User | null = await this.exchangeTokenforUser(token);
     return (
       await this.usersRepository.findOne({
-        where: { name: userId },
+        where: { name: user.name },
         relations: ['friends'],
       })
     ).friends;
   }
 
-  async userIsFriend(user: string, friend: string): Promise<boolean> {
-    const friends: User[] = await this.getFriendList(user);
+  async userIsFriend(req: Request, friend: string): Promise<boolean> {
+    const friends: User[] = await this.getFriendList(req);
     const isFriend: boolean = friends.some(
       (friendUser) => friendUser.name === friend,
     );
     return isFriend;
   }
 
-  async userIsPendingFriend(user: string, friend: string): Promise<boolean> {
-    const pendingFriends: User[] =
-      await this.getReceivedFriendRequestList(user);
+  async userIsPendingFriend(req: Request, friend: string): Promise<boolean> {
+    const pendingFriends: User[] = await this.getReceivedFriendRequestList(req);
     const ispendingFriend: boolean = pendingFriends.some(
       (friendUser) => friendUser.name === friend,
     );
     return ispendingFriend;
   }
 
-  async userIsRequestedFriend(user: string, friend: string): Promise<boolean> {
-    const RequestedFriends: User[] = await this.getFriendRequestList(user);
+  async userIsRequestedFriend(req: Request, friend: string): Promise<boolean> {
+    const RequestedFriends: User[] = await this.getFriendRequestList(req);
     const isRequestedFriend: boolean = RequestedFriends.some(
       (friendUser) => friendUser.name === friend,
     );
     return isRequestedFriend;
   }
 
-  async getFriendState(user: string, friend: string): Promise<FriendState> {
-    const isFriend: boolean = await this.userIsFriend(user, friend);
+  async getFriendState(req: Request, friend: string): Promise<FriendState> {
+    const isFriend: boolean = await this.userIsFriend(req, friend);
     const isPendingFriend: boolean = await this.userIsPendingFriend(
-      user,
+      req,
       friend,
     );
     const isRequestedFriend: boolean = await this.userIsRequestedFriend(
-      user,
+      req,
       friend,
     );
 
@@ -343,10 +483,12 @@ export class UsersService {
 
   //Change Avatar
 
-  async changeAvatar(user: string, avatar: string): Promise<boolean> {
+  async changeAvatar(req: Request, avatar: string): Promise<boolean> {
+    const token: string = req.cookies.token;
+    const user: User | null = await this.exchangeTokenforUser(token);
     const result = await this.usersRepository.update(
       {
-        name: user,
+        name: user.name,
       },
       {
         customAvatar: avatar,
@@ -374,10 +516,13 @@ export class UsersService {
     return res.hasCustomAvatar;
   }
 
-  async backToFallbackProfilePicture(user: string): Promise<boolean> {
-    const result = await this.usersRepository.update(
+  async backToFallbackProfilePicture(req: Request): Promise<boolean> {
+    const token: string = req.cookies.token;
+    const user: User | null = await this.exchangeTokenforUser(token);
+
+    const result: UpdateResult = await this.usersRepository.update(
       {
-        name: user,
+        name: user.name,
       },
       {
         hasCustomAvatar: false,

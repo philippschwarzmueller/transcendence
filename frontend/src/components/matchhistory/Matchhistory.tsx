@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
-import { useNavigate } from "react-router-dom";
+import { ProfileContext } from "../../context/profile";
 import { BACKEND } from "../../routes/SetUser";
 import { EGamemode } from "../gamewindow/properties";
 import { gameModeNames } from "../queuebutton/Queuebutton";
@@ -36,7 +36,6 @@ export const Win98Box = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
-  cursor: pointer;
   height: 100%;
 `;
 
@@ -134,7 +133,7 @@ const GameModeName = styled.div`
 
 const MatchHistory: React.FC<MatchHistoryProps> = ({ intraname, display }) => {
   const [matches, setMatches] = useState<IMatch[]>([]);
-  const navigate = useNavigate();
+  const profile = useContext(ProfileContext);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -150,11 +149,9 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({ intraname, display }) => {
     };
 
     if (intraname) fetchData();
-  }, [intraname]);
+  }, [intraname, profile]);
 
-  const handleMatchClick = (enemyIntra: string) => {
-    navigate(`/profile/${enemyIntra}`);
-  };
+  const handleMatchClick = () => {};
 
   const getGameModeName = (gamemode: EGamemode) => {
     return gameModeNames.get(gamemode) || "";
@@ -171,7 +168,7 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({ intraname, display }) => {
                   <MatchItem
                     key={index}
                     won={match.wonGame.toString()}
-                    onClick={() => handleMatchClick(match.enemyIntra)}
+                    onClick={() => handleMatchClick()}
                   >
                     <MatchDetails>
                       <MatchStatus won={match.wonGame.toString()}>

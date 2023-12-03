@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import { IUser } from "../../context/auth";
+import { BACKEND } from "../../routes/SetUser";
 import Avatar from "../avatar";
 import ContextMenu from "../contextmenu/ContextMenu";
+import { SocketContext } from "../../context/socket";
 
 const StyledDiv = styled.div`
   text-align: center;
@@ -31,7 +33,38 @@ interface PlayerCardProps {
 }
 
 const PlayerCard: React.FC<PlayerCardProps> = ({ user, triggerReload }) => {
-  let [showContext, setShowContext] = useState<boolean>(false);
+  const [showContext, setShowContext] = useState<boolean>(false);
+  const [winrate, setWinrate] = useState<number>(0);
+  const [refresh, setRefresh] = useState<boolean>(false);
+  const [status, setStatus] = useState<boolean>(false);
+  const socket = useContext(SocketContext);
+
+  socket.on("update", () => setRefresh(!refresh));
+
+  useEffect(() => {
+    fetch(`${BACKEND}/games/getwinrate/${user.intraname}`, {
+      method: "GET",
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((res: number) => setWinrate(res))
+      .catch((err) => console.error(err));
+    fetch(`${BACKEND}/chat/online?user=${user.intraname}`, {
+      method: "GET",
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((res: boolean) => setStatus(res))
+      .catch((err) => console.error(err));
+  }, [refresh]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function openContextMenu() {
     setShowContext(!showContext);
@@ -42,6 +75,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ user, triggerReload }) => {
       <ContextMenu
         display={showContext}
         user={user}
+        displayswitch={openContextMenu}
         triggerReload={triggerReload}
       />
         <StyledDiv onClick={() => openContextMenu()}>
@@ -52,8 +86,8 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ user, triggerReload }) => {
             }
           />
           <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
-            <p style={{ margin: "3px", fontWeight: "800" }}>{user.name}</p>
-            <p style={{ margin: "3px" }}>W/L%: 40</p>
+            <p style={{ margin: "3px", fontWeight: "800" }}>{status ? "🟢" : "🔴"}  {user.name}</p>
+            <p style={{ margin: "3px" }}>W/L: {winrate.toFixed(2)}%</p>
           </div>
         </StyledDiv>
     </>
