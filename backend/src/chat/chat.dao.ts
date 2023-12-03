@@ -15,7 +15,7 @@ interface DMessage {
 export class ChatDAO {
   constructor(
     @InjectRepository(Channels)
-    private channelRepo: Repository<Channels>,
+    public channelRepo: Repository<Channels>,
     @InjectRepository(Messages)
     private messsageRepo: Repository<Messages>,
     @InjectRepository(User)
@@ -46,8 +46,8 @@ export class ChatDAO {
       await this.channelRepo.save(
         this.channelRepo.create({
           title: channel.title,
-          owner: await this.userService.findOneByName(user),
-          users: [await this.userService.findOneByName(user)],
+          owner: await this.userService.findOneByIntraName(user),
+          users: [await this.userService.findOneByIntraName(user)],
           type: channel.type,
         }),
       );
@@ -93,7 +93,7 @@ export class ChatDAO {
     userId: string,
   ): Promise<void> {
     const channel: Channels = await this.getChannel(id);
-    const user: User = await this.userService.findOneByName(userId);
+    const user: User = await this.userService.findOneByIntraName(userId);
     channel.users = channel.users.filter((u) => u.id !== user.id);
     this.channelRepo.save(channel);
   }
@@ -185,7 +185,7 @@ export class ChatDAO {
     channelId: number,
     user: string,
   ): Promise<DMessage[]> {
-    const userId: number = (await this.userService.findOneByName(user)).id;
+    const userId: number = (await this.userService.findOneByIntraName(user)).id;
     const queryRunner = this.dataSource.createQueryRunner();
     queryRunner.connect();
     const res: DMessage[] = await queryRunner.manager.query(
@@ -222,7 +222,7 @@ export class ChatDAO {
     queryRunner.connect();
     await queryRunner.manager.query(
       `DELETE FROM channel_administration
-      WHERE channel = ${channel} AND user = ${userId}`,
+      WHERE "channel" = ${channel} AND "user" = ${userId}`,
     );
     queryRunner.release();
   }
