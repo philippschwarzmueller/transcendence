@@ -140,12 +140,13 @@ export class GamesService {
     if (!this.isGameRunning(gameId)) return newGameCopy();
     if (
       side === 'left' &&
-      user.hashedToken === this.runningGames.get(gameId).leftPlayer.user.token
+      user.intraname === this.runningGames.get(gameId).leftPlayer.user.intraname
     )
       this.runningGames.get(gameId).gameState.keyStateLeft = keystate;
     else if (
       side === 'right' &&
-      user.hashedToken === this.runningGames.get(gameId).rightPlayer.user.token
+      user.intraname ===
+        this.runningGames.get(gameId).rightPlayer.user.intraname
     )
       this.runningGames.get(gameId).gameState.keyStateRight = keystate;
     return this.runningGames.get(gameId).gameState;
