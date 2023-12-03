@@ -36,7 +36,6 @@ const Windowbar = styled.div`
 const Wrapper = styled.div`
   width: 400px;
   height: 150px;
-  border: 1px solid black;
 `;
 
 const ButtonDiv = styled.div`

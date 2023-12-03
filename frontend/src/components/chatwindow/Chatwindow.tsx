@@ -90,9 +90,10 @@ const StyledUl = styled.ul`
   list-style: none;
 `;
 
-const Chatwindow: React.FC<{ $display: boolean, z?: number }> = ({
+const Chatwindow: React.FC<{ setDisplay?: (display: boolean) => void, $display: boolean, z?: number }> = ({
   $display,
   z,
+  setDisplay,
 }) => {
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [input, setInput] = useState<string>("");
@@ -200,6 +201,7 @@ const Chatwindow: React.FC<{ $display: boolean, z?: number }> = ({
         positionY={200}
         positionZ={z}
         display={$display}
+        setDisplay={setDisplay}
       >
         <Tabbar>
           {tabs.map((tab) => {

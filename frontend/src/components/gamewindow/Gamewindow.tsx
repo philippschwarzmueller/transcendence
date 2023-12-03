@@ -4,6 +4,7 @@ import properties, {
   gameSpawn,
   IGameSocketPayload,
   IKeyState,
+  IAnonymUser,
 } from "./properties";
 import Centerdiv from "../centerdiv";
 import Gamecanvas from "../gamecanvas/Gamecanvas";
@@ -17,7 +18,7 @@ import { NavigateFunction, useNavigate, useParams } from "react-router-dom";
 import { EGamemode } from "../queuebutton/Queuebutton";
 import { SocketContext } from "../../context/socket";
 import { Socket } from "socket.io-client";
-import { AuthContext, IAuthContext } from "../../context/auth";
+import { AuthContext, IAuthContext, IUser } from "../../context/auth";
 import { setKeyEventListener } from "./keyboardinput";
 import {
   calculateWindowproperties,
@@ -102,12 +103,21 @@ const GameWindow: React.FC = () => {
     }
   };
 
+  const anonimyseUser = (user: IUser): IAnonymUser => {
+    const newUser: IAnonymUser = {
+      intraname: user.intraname ? user.intraname : null,
+      nickname: user.name ? user.name : null,
+      hashedToken: user.token ? user.token : null,
+    };
+    return newUser;
+  };
+
   const GameLoop = (): void => {
     const gameSocketPayload: IGameSocketPayload = {
       side: params.side !== undefined ? params.side : "viewer",
       keystate: keystateRef.current,
       gameId: gameId,
-      user: auth.user,
+      user: anonimyseUser(auth.user),
     };
 
     if (socket.connected) {
@@ -137,6 +147,7 @@ const GameWindow: React.FC = () => {
             drawErrorScreen(gameCanvas.endScreen.current?.getContext("2d"));
           }
         });
+        finishGame(gameInterval.current);
       }
     });
 
@@ -146,12 +157,12 @@ const GameWindow: React.FC = () => {
 
     socket.on("endgame", (res: string) => {
       if (res === gameId) {
-        finishGame(gameInterval.current);
         socket.emit("getGameData", gameId, (res: IGame) => {
           gameStateRef.current = res;
           navigateToEndScreen.current = true;
         });
         fetchAndDrawFinishedGame(socket, gameId, gameCanvas.endScreen);
+        finishGame(gameInterval.current);
       }
     });
 

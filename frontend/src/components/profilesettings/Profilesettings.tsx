@@ -4,10 +4,11 @@ import AvatarChangeSection from "../changeavatar/ChangeAvatar";
 import TwoFactorAuthSection from "../twoFaSection/TwoFaSection";
 import WindowWrapper from "../outlinecontainer/outlinecontainer";
 
-const Profilesettings: React.FC<{ $display: boolean; z?: number }> = ({
-  $display,
-  z,
-}) => {
+const Profilesettings: React.FC<{
+  setDisplay?: (display: boolean) => void;
+  $display: boolean;
+  z?: number;
+}> = ({ $display, z, setDisplay }) => {
   return (
     <>
       <Moveablewindow
@@ -16,6 +17,7 @@ const Profilesettings: React.FC<{ $display: boolean; z?: number }> = ({
         positionX={286}
         positionY={300}
         positionZ={z}
+        setDisplay={setDisplay}
       >
         <WindowWrapper title="change name">
           <NameChangeSection />

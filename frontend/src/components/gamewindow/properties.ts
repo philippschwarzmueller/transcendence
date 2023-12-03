@@ -67,7 +67,7 @@ export interface IGameSocketPayload {
   side: string;
   gameId: string;
   keystate: IKeyState;
-  user: IUser;
+  user: IAnonymUser;
 }
 
 export interface IGameStart {
@@ -157,6 +157,12 @@ export const gameSpawn: IGame = {
   keyStateRight: { up: false, down: false, left: false, right: false },
   isFinished: false,
 };
+
+export interface IAnonymUser {
+  intraname: string | null;
+  nickname: string | null;
+  hashedToken: string | null;
+}
 
 export const goalSizePercent: number = 50;
 

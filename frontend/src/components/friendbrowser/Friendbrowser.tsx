@@ -52,10 +52,11 @@ const StyledLi = styled.li`
   color: white;
 `;
 
-const Friendbrowser: React.FC<{ $display: boolean; z?: number }> = ({
-  $display,
-  z,
-}) => {
+const Friendbrowser: React.FC<{
+  setDisplay?: (display: boolean) => void;
+  $display: boolean;
+  z?: number;
+}> = ({ $display, z, setDisplay }) => {
   let [incomingFriends, setIncomingFriends] = useState<IUser[]>([]);
   let [friends, setFriends] = useState<IUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -124,6 +125,7 @@ const Friendbrowser: React.FC<{ $display: boolean; z?: number }> = ({
       positionY={400}
       positionZ={z}
       display={$display}
+      setDisplay={setDisplay}
     >
       <Browser>
         <StyledUl>
