@@ -8,6 +8,7 @@ import { queueTimeout } from "../gamewindow/properties";
 
 interface IInvitepopwindowProps {
   challenger: IUser | null;
+  setChallenger: (c: IUser | null) => void;
 }
 
 const StyledWindow = styled.div`
@@ -61,7 +62,7 @@ const LoadingDiv = styled.div`
 `;
 
 const Invitepopwindow: React.FC<IInvitepopwindowProps> = (
-  {challenger}: IInvitepopwindowProps
+  {challenger, setChallenger}: IInvitepopwindowProps
 ) => {
   const socket = useContext(SocketContext);
   const auth = useContext(AuthContext);
@@ -71,7 +72,7 @@ const Invitepopwindow: React.FC<IInvitepopwindowProps> = (
   };
 
   const handleDecline = (): void => {
-    if (auth.user.intraname) socket.emit("declinegame", auth.user);
+    if (auth.user.intraname) socket.emit("declinegame", auth.user, () => setChallenger(null));
   };
 
   return (
